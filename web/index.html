@@ -147,7 +147,7 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
   <h1>从这里开始用 AI</h1>
   <p class="sub">完全不会也没关系。跟着走，<strong>4 个阶段</strong>，从零到能独立用 AI 解决实际问题。</p>
   <p class="tools">全程只用 <span>豆包</span> <span>DeepSeek</span> 两个工具，不用来回换</p>
-  <a class="start-btn" href="#stage-1">开始第一步 →</a>
+  <a class="start-btn" href="#stage-1" onclick="document.getElementById('stage-1').classList.add('open');document.getElementById('step-1').classList.add('open');setTimeout(function(){document.getElementById('step-1').scrollIntoView({behavior:'smooth',block:'center'})},100)">开始第一步 →</a>
 </div>
 
 <!-- ============ OVERVIEW ============ -->
@@ -220,6 +220,7 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
         <p><strong>豆包</strong>是字节跳动做的 AI 助手。就像微信聊天一样，你说一句，它回一句。</p>
         <p>✅ 国内直接打开 ✅ 全中文界面 ✅ 免费 ✅ 不用注册也能聊</p>
         <a class="tool-btn" href="https://www.doubao.com" target="_blank" rel="noopener">打开豆包 →</a>
+        <p style="font-size:14px;color:var(--fg-muted);margin-top:4px">打开后别管其他，找到聊天框就行。等会儿回到这里继续下一步。</p>
         <p>打开后你会看到一个聊天框。把下面这段话复制进去，发送：</p>
         <div class="prompt-box">帮我写一段朋友圈文案，介绍我今天做的一件事，
 语气轻松一点，100字左右。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
@@ -367,6 +368,7 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
         </ul>
         <p>✅ 国内直接打开 ✅ 全中文 ✅ 免费</p>
         <a class="tool-btn" href="https://chat.deepseek.com" target="_blank" rel="noopener">打开 DeepSeek →</a>
+        <p style="font-size:14px;color:var(--fg-muted);margin-top:4px">打开后别管其他，找到输入框就行。等会儿回到这里继续下一步。</p>
         <button class="checkpoint-btn" onclick="markDone(9)" style="margin-top:8px">看懂了 ✓</button>
       </div>
     </div>
@@ -378,6 +380,7 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
       </div>
       <div class="step-body">
         <p>打开 DeepSeek，找到页面下方的<strong>"深度思考"</strong>开关，打开它。然后把问题打进去：</p>
+        <div class="tip">💡 开关在输入框下方。打开后会变成蓝色。如果找不到，直接在输入框里打字也行，不开也没关系。</div>
         <div class="prompt-box">我想了解一下，做副业卖东西一般从哪里开始？
 我没什么经验，请用大白话解释。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
         <p>DeepSeek 会先思考一下，然后给你一个详细的回答。你会看到它的"思考过程"，这是正常的。</p>
@@ -499,8 +502,9 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
   <p style="margin-top:16px">这就是 60 分。<br>你现在能独立用 AI 解决实际问题了。</p>
   <div style="margin-top:20px;padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);text-align:left">
     <p style="font-weight:600;margin-bottom:8px">接下来可以做什么？</p>
-    <p style="font-size:15px;color:var(--fg-muted)">遇到任何问题，第一反应不是去百度搜，而是先问豆包或 DeepSeek。用得越多，你就越熟练。</p>
-    <p style="font-size:15px;color:var(--fg-muted);margin-top:8px">想做更复杂的东西？把你的想法直接告诉豆包，看它能帮你做到什么程度。你会惊讶的。</p>
+    <p style="font-size:15px;color:var(--fg-muted)">👉 遇到任何问题，第一反应不是去百度搜，而是先问豆包或 DeepSeek。用得越多，你就越熟练。</p>
+    <p style="font-size:15px;color:var(--fg-muted);margin-top:8px">👉 想做更复杂的东西？把你的想法直接告诉豆包：“帮我做一个 XX”，看它能帮你做到什么程度。</p>
+    <p style="font-size:15px;color:var(--fg-muted);margin-top:8px">👉 每天花 5 分钟跟 AI 聊一件真事。一个月后你会发现，你已经离不开它了。</p>
   </div>
   <p style="margin-top:20px"><a href="#" onclick="resetAll();return false" style="color:var(--fg-muted);font-size:14px">重新走一遍</a></p>
 </div>
