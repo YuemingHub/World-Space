@@ -125,6 +125,7 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
   .copy-btn { font-size: 12px; padding: 3px 10px; }
   body { font-size: 16px; }
   .topbar .progress-bar { width: 80px; }
+  .topbar .progress-text { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
@@ -144,7 +145,7 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
 <!-- ============ HERO ============ -->
 <div class="hero">
   <h1>从这里开始用 AI</h1>
-  <p class="sub">完全不会也没关系。跟着走，<strong>4 个阶段、14 个小步骤</strong>，从零到能独立用 AI 解决实际问题。</p>
+  <p class="sub">完全不会也没关系。跟着走，<strong>4 个阶段</strong>，从零到能独立用 AI 解决实际问题。</p>
   <p class="tools">全程只用 <span>豆包</span> <span>DeepSeek</span> 两个工具，不用来回换</p>
   <a class="start-btn" href="#stage-1">开始第一步 →</a>
 </div>
@@ -566,11 +567,14 @@ function showCopied(btn) {
 }
 function resetAll() {
   completedSteps = {};
-  document.querySelectorAll('.step').forEach(function(el) { el.classList.remove('done','open'); });
-  document.querySelectorAll('.step-num').forEach(function(el) { el.textContent = el.parentElement.parentElement.id.split('-')[1]; });
+  document.querySelectorAll('.step').forEach(function(el) { el.classList.remove('done','open');
+    var num = el.id.split('-')[1];
+    el.querySelector('.step-num').textContent = num;
+  });
   document.querySelectorAll('.stage-status').forEach(function(el) { el.className = 'stage-status todo'; el.textContent = '未开始'; });
   document.querySelectorAll('.stage').forEach(function(el) { el.classList.remove('open'); });
   document.getElementById('graduation').style.display = 'none';
+  document.getElementById('stage-1').classList.add('open');
   updateProgress();
   window.scrollTo({top:0, behavior:'smooth'});
 }
