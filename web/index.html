@@ -117,7 +117,7 @@ body {
 
 /* Checkpoint */
 .checkpoint { margin-top: 16px; padding: 16px; background: var(--leaf-light); border-radius: var(--radius-sm); }
-.checkpoint .label { font-size: 14px; font-weight: 600; color: var(--leaf); margin-bottom: 8px; }
+.checkpoint .label { font-size: 14px; font-weight: 600; color: #15803D; margin-bottom: 8px; }
 .checkpoint-btn { display: inline-block; padding: 8px 20px; background: var(--leaf); color: white; border: none; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; }
 .checkpoint-btn:hover { opacity: .9; }
 
@@ -189,7 +189,7 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
 
 <!-- ===== STAGE 1 ===== -->
 <div class="stage" id="stage-1">
-  <div class="stage-header" onclick="toggleStage(1)">
+  <div class="stage-header" role="button" tabindex="0" aria-expanded="true" onclick="toggleStage(1)" onkeydown="stageKey(event,1)">
     <div class="stage-badge s1">1</div>
     <div class="info">
       <h2 class="title">让 AI 帮你做一件小事</h2>
@@ -202,7 +202,7 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
     <p class="stage-intro">一句话就够：AI 是一个读过很多很多书的助手，你让它写、它就帮你写。它会出错，不是万能的。别的以后再说，现在直接开工。</p>
 
     <div class="step" id="step-1">
-      <div class="step-header" onclick="toggleStep(1)">
+      <div class="step-header" role="button" tabindex="0" aria-expanded="false" onclick="toggleStep(1)" onkeydown="stepKey(event,1)">
         <div class="step-num">1</div>
         <div class="step-content"><h3 class="step-title">打开豆包，跟它说第一句话</h3></div>
       </div>
@@ -223,7 +223,7 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
     </div>
 
     <div class="step" id="step-2">
-      <div class="step-header" onclick="toggleStep(2)">
+      <div class="step-header" role="button" tabindex="0" aria-expanded="false" onclick="toggleStep(2)" onkeydown="stepKey(event,2)">
         <div class="step-num">2</div>
         <div class="step-content"><h3 class="step-title">再多试几句，随便聊</h3></div>
       </div>
@@ -251,7 +251,7 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
 
 <!-- ===== STAGE 2 ===== -->
 <div class="stage" id="stage-2">
-  <div class="stage-header" onclick="toggleStage(2)">
+  <div class="stage-header" role="button" tabindex="0" aria-expanded="false" onclick="toggleStage(2)" onkeydown="stageKey(event,2)">
     <div class="stage-badge s2">2</div>
     <div class="info">
       <h2 class="title">让 AI 帮你做出一个真东西</h2>
@@ -263,7 +263,7 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
   <div class="stage-body">
 
     <div class="step" id="step-3">
-      <div class="step-header" onclick="toggleStep(3)">
+      <div class="step-header" role="button" tabindex="0" aria-expanded="false" onclick="toggleStep(3)" onkeydown="stepKey(event,3)">
         <div class="step-num">3</div>
         <div class="step-content"><h3 class="step-title">让豆包帮你做一个网页</h3></div>
       </div>
@@ -287,7 +287,7 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
     </div>
 
     <div class="step" id="step-4">
-      <div class="step-header" onclick="toggleStep(4)">
+      <div class="step-header" role="button" tabindex="0" aria-expanded="false" onclick="toggleStep(4)" onkeydown="stepKey(event,4)">
         <div class="step-num">4</div>
         <div class="step-content"><h3 class="step-title">让豆包帮你写一篇文章</h3></div>
       </div>
@@ -303,7 +303,7 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
     </div>
 
     <div class="step" id="step-5">
-      <div class="step-header" onclick="toggleStep(5)">
+      <div class="step-header" role="button" tabindex="0" aria-expanded="false" onclick="toggleStep(5)" onkeydown="stepKey(event,5)">
         <div class="step-num">5</div>
         <div class="step-content"><h3 class="step-title">让豆包帮你做一份 PPT 大纲</h3></div>
       </div>
@@ -331,7 +331,7 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
 
 <!-- ===== STAGE 3 ===== -->
 <div class="stage" id="stage-3">
-  <div class="stage-header" onclick="toggleStage(3)">
+  <div class="stage-header" role="button" tabindex="0" aria-expanded="false" onclick="toggleStage(3)" onkeydown="stageKey(event,3)">
     <div class="stage-badge s3">3</div>
     <div class="info">
       <h2 class="title">遇到问题，自己找到答案</h2>
@@ -343,7 +343,7 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
   <div class="stage-body">
 
     <div class="step" id="step-6">
-      <div class="step-header" onclick="toggleStep(6)">
+      <div class="step-header" role="button" tabindex="0" aria-expanded="false" onclick="toggleStep(6)" onkeydown="stepKey(event,6)">
         <div class="step-num">6</div>
         <div class="step-content"><h3 class="step-title">用 DeepSeek 认真问一个问题</h3></div>
       </div>
@@ -363,7 +363,7 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
     </div>
 
     <div class="step" id="step-7">
-      <div class="step-header" onclick="toggleStep(7)">
+      <div class="step-header" role="button" tabindex="0" aria-expanded="false" onclick="toggleStep(7)" onkeydown="stepKey(event,7)">
         <div class="step-num">7</div>
         <div class="step-content"><h3 class="step-title">让 AI 联网搜索最新信息</h3></div>
       </div>
@@ -379,7 +379,7 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
     </div>
 
     <div class="step" id="step-8">
-      <div class="step-header" onclick="toggleStep(8)">
+      <div class="step-header" role="button" tabindex="0" aria-expanded="false" onclick="toggleStep(8)" onkeydown="stepKey(event,8)">
         <div class="step-num">8</div>
         <div class="step-content"><h3 class="step-title">⚠️ AI 会一本正经地说错话，重要的事要核实</h3></div>
       </div>
@@ -408,7 +408,7 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
 
 <!-- ===== STAGE 4 ===== -->
 <div class="stage" id="stage-4">
-  <div class="stage-header" onclick="toggleStage(4)">
+  <div class="stage-header" role="button" tabindex="0" aria-expanded="false" onclick="toggleStage(4)" onkeydown="stageKey(event,4)">
     <div class="stage-badge s4">4</div>
     <div class="info">
       <h2 class="title">让现成工具替你干重复活</h2>
@@ -420,7 +420,7 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
   <div class="stage-body">
 
     <div class="step" id="step-9">
-      <div class="step-header" onclick="toggleStep(9)">
+      <div class="step-header" role="button" tabindex="0" aria-expanded="false" onclick="toggleStep(9)" onkeydown="stepKey(event,9)">
         <div class="step-num">9</div>
         <div class="step-content"><h3 class="step-title">让 AI 帮你整理资料</h3></div>
       </div>
@@ -439,7 +439,7 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
     </div>
 
     <div class="step" id="step-10">
-      <div class="step-header" onclick="toggleStep(10)">
+      <div class="step-header" role="button" tabindex="0" aria-expanded="false" onclick="toggleStep(10)" onkeydown="stepKey(event,10)">
         <div class="step-num">10</div>
         <div class="step-content"><h3 class="step-title">处理 PDF：装一个免费软件（需要电脑）</h3></div>
       </div>
@@ -521,10 +521,25 @@ function saveProgress() {
 function toggleStage(n) {
   var el = document.getElementById('stage-' + n);
   el.classList.toggle('open');
+  syncAria(el);
+}
+function stageKey(e, n) {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleStage(n); }
 }
 function toggleStep(n) {
   var el = document.getElementById('step-' + n);
   el.classList.toggle('open');
+  syncAria(el);
+}
+function stepKey(e, n) {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleStep(n); }
+}
+function syncAria(scope) {
+  var items = (scope || document).querySelectorAll('[aria-expanded]');
+  for (var i = 0; i < items.length; i++) {
+    var box = items[i].closest('.stage, .step');
+    if (box) { items[i].setAttribute('aria-expanded', box.classList.contains('open') ? 'true' : 'false'); }
+  }
 }
 function markDone(n) {
   if (!completedSteps[n]) {
@@ -547,6 +562,7 @@ function markDone(n) {
       var cp = stageEl && stageEl.querySelector('.checkpoint');
       if (cp) { setTimeout(function() { cp.scrollIntoView({behavior:'smooth', block:'center'}); }, 200); }
     }
+    syncAria(document);
   }
 }
 function completeStage(n) {
@@ -571,6 +587,7 @@ function completeStage(n) {
     document.getElementById('graduation').style.display = 'block';
     document.getElementById('graduation').scrollIntoView({behavior:'smooth', block:'center'});
   }
+  syncAria(document);
   saveProgress();
 }
 function updateProgress() {
@@ -619,6 +636,7 @@ function resetAll() {
   updateProgress();
   saveProgress();
   window.scrollTo({top:0, behavior:'smooth'});
+  syncAria(document);
 }
 
 // Restore progress on load
@@ -658,6 +676,9 @@ function restoreProgress() {
   }
   updateProgress();
 }
+
+// Keep aria-expanded truthful after any programmatic open/close
+syncAria(document);
 
 // Hero button: go to wherever this user actually is
 function startJourney() {
