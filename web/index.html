@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦐</text></svg>">
-<meta name="description" content="从零开始用 AI，4 个阶段从小白到能独立做事。全程只用豆包和 DeepSeek。">
+<meta name="description" content="从零开始把 AI 用起来。4 步，每一步都让 AI 帮你真的做成一件事。免费、中文、手机可用。">
 <meta property="og:title" content="World Space — 从零开始用 AI">
-<meta property="og:description" content="完全不会也没关系。跟着走，4 个阶段，从零到能独立用 AI 解决实际问题。">
+<meta property="og:description" content="完全不会也没关系。跟着走，4 步，每一步都让 AI 帮你真的做成一件事。">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://ymai.fun">
 <title>World Space — 从零开始用 AI</title>
@@ -87,6 +87,7 @@ body {
 /* === Steps === */
 .stage-body { display: none; padding: 0 24px 24px; }
 .stage.open .stage-body { display: block; }
+.stage-intro { font-size: 15px; color: var(--fg-muted); padding: 4px 0 12px; }
 .step { padding: 16px 0; border-top: 1px solid var(--border); }
 .step:first-child { border-top: none; }
 .step-header { display: flex; align-items: flex-start; gap: 12px; cursor: pointer; }
@@ -116,7 +117,7 @@ body {
 
 /* Checkpoint */
 .checkpoint { margin-top: 16px; padding: 16px; background: var(--leaf-light); border-radius: var(--radius-sm); }
-.checkpoint .label { font-size: 14px; font-weight: 600; color: var(--leaf); margin-bottom: 8px; }
+.checkpoint .label { font-size: 14px; font-weight: 600; color: #15803D; margin-bottom: 8px; }
 .checkpoint-btn { display: inline-block; padding: 8px 20px; background: var(--leaf); color: white; border: none; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; }
 .checkpoint-btn:hover { opacity: .9; }
 
@@ -154,9 +155,9 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
 
 <div class="topbar">
   <div class="inner">
-    <span class="brand">World Space · AI 入门</span>
+    <span class="brand">World Space</span>
     <div style="display:flex;align-items:center;gap:10px">
-      <span class="progress-text" id="progressText">0/13</span>
+      <span class="progress-text" id="progressText">0/10</span>
       <div class="progress-bar"><div class="fill" id="progressFill" style="width:0%"></div></div>
     </div>
   </div>
@@ -165,15 +166,15 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
 <!-- ============ HERO ============ -->
 <div class="hero">
   <h1>从这里开始用 AI</h1>
-  <p class="sub">AI 就是人工智能——一个能帮你写东西、做东西、找答案的助手。完全不会也没关系，跟着走，<strong>4 个阶段</strong>，从零到能独立用。</p>
-  <p class="tools">全程只用 <span>豆包</span> <span>DeepSeek</span> 两个工具，不用来回换</p>
-  <a class="start-btn" href="#stage-1" onclick="document.getElementById('stage-1').classList.add('open');document.getElementById('step-1').classList.add('open');setTimeout(function(){document.getElementById('step-1').scrollIntoView({behavior:'smooth',block:'center'})},100);return false">开始第一步 →</a>
+  <p class="sub">不用先学、不用先懂。跟着走，<strong>4 步</strong>，每一步都让 AI 帮你真的做成一件事。</p>
+  <p class="tools">主要就两个工具，网页直接打开，免费：<span>豆包</span> <span>DeepSeek</span></p>
+  <a class="start-btn" id="startBtn" href="#stage-1" onclick="return startJourney()">开始第一步 →</a>
 </div>
 
 <!-- ============ OVERVIEW ============ -->
 <div class="overview">
   <div class="row">
-    <span class="pill p1 active" id="pill-1">🟢 新手村</span>
+    <span class="pill p1 active" id="pill-1">🟢 办件小事</span>
     <span class="arrow">→</span>
     <span class="pill p2" id="pill-2">🔵 做个东西</span>
     <span class="arrow">→</span>
@@ -188,34 +189,22 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
 
 <!-- ===== STAGE 1 ===== -->
 <div class="stage" id="stage-1">
-  <div class="stage-header" onclick="toggleStage(1)">
+  <div class="stage-header" role="button" tabindex="0" aria-expanded="true" onclick="toggleStage(1)" onkeydown="stageKey(event,1)">
     <div class="stage-badge s1">1</div>
     <div class="info">
-      <div class="title">新手村：认识 AI，跟它说上话</div>
-      <div class="desc">约 5 分钟 · 知道 AI 是什么，能帮你干什么</div>
+      <h2 class="title">让 AI 帮你做一件小事</h2>
+      <div class="desc">约 5 分钟 · 现在就开始，不是先学习</div>
     </div>
     <span class="stage-status todo" id="status-1">未开始</span>
     <span class="arrow">▶</span>
   </div>
   <div class="stage-body">
+    <p class="stage-intro">一句话就够：AI 是一个读过很多很多书的助手，你让它写、它就帮你写。它会出错，不是万能的。别的以后再说，现在直接开工。</p>
 
     <div class="step" id="step-1">
-      <div class="step-header" onclick="toggleStep(1)">
+      <div class="step-header" role="button" tabindex="0" aria-expanded="false" onclick="toggleStep(1)" onkeydown="stepKey(event,1)">
         <div class="step-num">1</div>
-        <div class="step-content"><div class="step-title">AI 到底是什么？</div></div>
-      </div>
-      <div class="step-body">
-        <p>用大白话说：AI 就是一个<strong>读过很多很多书的助手</strong>。你问它问题，它帮你回答；你让它写东西，它帮你写。</p>
-        <p>它能帮你：写东西（文案、文章）、做东西（网站、PPT）、找答案（查资料）、处理文件（PDF）。</p>
-        <div class="tip">💡 它会出错，不是万能的。但大部分时候挺好用。</div>
-        <button class="checkpoint-btn" onclick="markDone(1)" style="margin-top:8px">看懂了 ✓</button>
-      </div>
-    </div>
-
-    <div class="step" id="step-2">
-      <div class="step-header" onclick="toggleStep(2)">
-        <div class="step-num">2</div>
-        <div class="step-content"><div class="step-title">打开豆包，说第一句话</div></div>
+        <div class="step-content"><h3 class="step-title">打开豆包，跟它说第一句话</h3></div>
       </div>
       <div class="step-body">
         <p><strong>豆包</strong>是字节跳动做的 AI 助手。就像微信聊天一样，你说一句，它回一句。</p>
@@ -227,34 +216,34 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
         <p>复制好了，点这里打开豆包，把刚复制的话粘贴到聊天框里（手机上长按聊天框选"粘贴"，电脑上按 Ctrl+V），发送：</p>
         <a class="tool-btn" href="https://www.doubao.com" target="_blank" rel="noopener">打开豆包 →</a>
         <p style="font-size:14px;color:var(--fg-muted);margin-top:4px">发完后回到这个页面继续下一步。</p>
-        <p>等几秒，AI 就会给你写好一段文案。你可以读一下，看看是不是你想要的。</p>
-        <div class="tip">💡 如果写得不好，直接跟它说哪里不好。比如"太长了，短一点"或"语气太正式了，轻松一点"。</div>
-        <button class="checkpoint-btn" onclick="markDone(2)" style="margin-top:8px">这步做完了 ✓</button>
+        <p>等几秒，AI 就会给你写好一段文案。读一下，看看是不是你想要的。</p>
+        <div class="tip">💡 写得不好？直接跟它说哪里不好。比如"太长了，短一点"或"语气太正式了，轻松一点"。</div>
+        <button class="checkpoint-btn" onclick="markDone(1)" style="margin-top:8px">这步做完了 ✓</button>
       </div>
     </div>
 
-    <div class="step" id="step-3">
-      <div class="step-header" onclick="toggleStep(3)">
-        <div class="step-num">3</div>
-        <div class="step-content"><div class="step-title">再多试几句，感受一下</div></div>
+    <div class="step" id="step-2">
+      <div class="step-header" role="button" tabindex="0" aria-expanded="false" onclick="toggleStep(2)" onkeydown="stepKey(event,2)">
+        <div class="step-num">2</div>
+        <div class="step-content"><h3 class="step-title">再多试几句，随便聊</h3></div>
       </div>
       <div class="step-body">
         <p>不用怕说错，随便聊。试几句：</p>
         <ul>
           <li>"你能帮我做什么？"</li>
-          <li>"用大白话解释一下什么是人工智能"</li>
+          <li>"帮我给客户写一条改约时间的短信"</li>
           <li>"帮我把'今天天气真好'翻译成英文"</li>
           <li>"给我讲个笑话"</li>
         </ul>
         <p>你会发现，它就像一个什么都知道一点的朋友，你问什么它都能回。</p>
-        <button class="checkpoint-btn" onclick="markDone(3)" style="margin-top:8px">这步做完了 ✓</button>
+        <button class="checkpoint-btn" onclick="markDone(2)" style="margin-top:8px">这步做完了 ✓</button>
       </div>
     </div>
 
     <div class="checkpoint" id="cp-1">
-      <div class="label">🏁 检查点：你完成新手村了吗？</div>
-      <p style="margin-bottom:12px">如果你已经跟 AI 聊上了，而且它给了你回答——恭喜，你入门了。</p>
-      <button class="checkpoint-btn" onclick="completeStage(1)">完成了，去第一关 →</button>
+      <div class="label">✅ 做到这里：你已经会跟 AI 打交道了</div>
+      <p style="margin-bottom:12px">它回答了你，你也知道怎么让它改——这就够了。</p>
+      <button class="checkpoint-btn" onclick="completeStage(1)">做完了，继续下一步 →</button>
     </div>
 
   </div>
@@ -262,36 +251,24 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
 
 <!-- ===== STAGE 2 ===== -->
 <div class="stage" id="stage-2">
-  <div class="stage-header" onclick="toggleStage(2)">
+  <div class="stage-header" role="button" tabindex="0" aria-expanded="false" onclick="toggleStage(2)" onkeydown="stageKey(event,2)">
     <div class="stage-badge s2">2</div>
     <div class="info">
-      <div class="title">第一关：用 AI 做出一个真东西</div>
-      <div class="desc">约 15 分钟 · 用豆包做出网站、PPT 或文章</div>
+      <h2 class="title">让 AI 帮你做出一个真东西</h2>
+      <div class="desc">约 15 分钟 · 网页、文章、PPT 大纲，做出来能给人看</div>
     </div>
     <span class="stage-status todo" id="status-2">未开始</span>
     <span class="arrow">▶</span>
   </div>
   <div class="stage-body">
 
-    <div class="step" id="step-4">
-      <div class="step-header" onclick="toggleStep(4)">
-        <div class="step-num">4</div>
-        <div class="step-content"><div class="step-title">豆包不只会聊天，还能"做东西"</div></div>
+    <div class="step" id="step-3">
+      <div class="step-header" role="button" tabindex="0" aria-expanded="false" onclick="toggleStep(3)" onkeydown="stepKey(event,3)">
+        <div class="step-num">3</div>
+        <div class="step-content"><h3 class="step-title">让豆包帮你做一个网页</h3></div>
       </div>
       <div class="step-body">
-        <p>新手村里你用豆包聊天。但豆包还能做更多——你跟它说"帮我做一个网站"，它真的能帮你生成一个网页。</p>
-        <p>不用换工具，不用注册新账号。就用你刚才聊天的豆包，继续。</p>
-        <div class="tip">💡 如果刚才关掉了豆包，重新打开 doubao.com 就行。你的聊天记录还在。</div>
-        <button class="checkpoint-btn" onclick="markDone(4)" style="margin-top:8px">看懂了 ✓</button>
-      </div>
-    </div>
-
-    <div class="step" id="step-5">
-      <div class="step-header" onclick="toggleStep(5)">
-        <div class="step-num">5</div>
-        <div class="step-content"><div class="step-title">让豆包帮你做一个网页</div></div>
-      </div>
-      <div class="step-body">
+        <p>豆包不只会聊天——你跟它说"帮我做一个网站"，它真的能做出来。就用刚才那个豆包，不用换工具、不用注册新东西。</p>
         <p>先把下面这段话复制了：</p>
         <div class="prompt-box">帮我做一个个人介绍网页。
 顶部写我的名字。
@@ -303,16 +280,16 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
         <p>然后打开豆包，粘贴发送（手机长按选"粘贴"，电脑 Ctrl+V）：</p>
         <a class="tool-btn" href="https://www.doubao.com" target="_blank" rel="noopener">打开豆包 →</a>
         <p style="font-size:14px;color:var(--fg-muted);margin-top:4px">如果刚才的豆包标签页还开着，直接切过去就行。</p>
-        <p>豆包会帮你写出网页。它通常会直接在对话里显示网页效果。如果只看到代码没看到效果，跟它说"显示预览"。</p>
+        <p>豆包会直接在对话里显示网页效果。如果只看到代码没看到效果，跟它说"显示预览"。</p>
         <div class="tip">💡 不满意？不用重新做。直接说哪里要改："颜色换成蓝色""加一个关于我的页面""标题大一号"。</div>
-        <button class="checkpoint-btn" onclick="markDone(5)" style="margin-top:8px">这步做完了 ✓</button>
+        <button class="checkpoint-btn" onclick="markDone(3)" style="margin-top:8px">这步做完了 ✓</button>
       </div>
     </div>
 
-    <div class="step" id="step-6">
-      <div class="step-header" onclick="toggleStep(6)">
-        <div class="step-num">6</div>
-        <div class="step-content"><div class="step-title">让豆包帮你写一篇文章</div></div>
+    <div class="step" id="step-4">
+      <div class="step-header" role="button" tabindex="0" aria-expanded="false" onclick="toggleStep(4)" onkeydown="stepKey(event,4)">
+        <div class="step-num">4</div>
+        <div class="step-content"><h3 class="step-title">让豆包帮你写一篇文章</h3></div>
       </div>
       <div class="step-body">
         <p>先把下面这段话复制了：</p>
@@ -321,14 +298,14 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
         <p>然后打开豆包，粘贴发送（手机长按选"粘贴"，电脑 Ctrl+V）：</p>
         <a class="tool-btn" href="https://www.doubao.com" target="_blank" rel="noopener">打开豆包 →</a>
         <p>写完后你可以直接说"把第二段改短一点"或"结尾加一句话"，让它改成你想要的样子。</p>
-        <button class="checkpoint-btn" onclick="markDone(6)" style="margin-top:8px">这步做完了 ✓</button>
+        <button class="checkpoint-btn" onclick="markDone(4)" style="margin-top:8px">这步做完了 ✓</button>
       </div>
     </div>
 
-    <div class="step" id="step-7">
-      <div class="step-header" onclick="toggleStep(7)">
-        <div class="step-num">7</div>
-        <div class="step-content"><div class="step-title">让豆包帮你做一份 PPT 大纲</div></div>
+    <div class="step" id="step-5">
+      <div class="step-header" role="button" tabindex="0" aria-expanded="false" onclick="toggleStep(5)" onkeydown="stepKey(event,5)">
+        <div class="step-num">5</div>
+        <div class="step-content"><h3 class="step-title">让豆包帮你做一份 PPT 大纲</h3></div>
       </div>
       <div class="step-body">
         <p>先把下面这段话复制了：</p>
@@ -339,14 +316,14 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
         <a class="tool-btn" href="https://www.doubao.com" target="_blank" rel="noopener">打开豆包 →</a>
         <p>豆包会帮你生成每一页的标题和内容。你拿着这个大纲，不管是做成 PPT 还是直接讲，都有了。</p>
         <div class="tip">💡 豆包生成的是文字大纲。你可以拿着这个大纲，在 WPS 或 PowerPoint 里做成可以翻页的演示文稿。</div>
-        <button class="checkpoint-btn" onclick="markDone(7)" style="margin-top:8px">这步做完了 ✓</button>
+        <button class="checkpoint-btn" onclick="markDone(5)" style="margin-top:8px">这步做完了 ✓</button>
       </div>
     </div>
 
     <div class="checkpoint" id="cp-2">
-      <div class="label">🏁 检查点：你做出东西了吗？</div>
-      <p style="margin-bottom:12px">如果你用豆包做出了一个能看的东西——网页、文章或 PPT 大纲——而且能给别人看，这关就过了。</p>
-      <button class="checkpoint-btn" onclick="completeStage(2)">通关了，去第二关 →</button>
+      <div class="label">✅ 做到这里：你有一个能拿给人看的东西了</div>
+      <p style="margin-bottom:12px">网页、文章或 PPT 大纲，做出其中一个，这一步就算过了。</p>
+      <button class="checkpoint-btn" onclick="completeStage(2)">做完了，继续下一步 →</button>
     </div>
 
   </div>
@@ -354,57 +331,41 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
 
 <!-- ===== STAGE 3 ===== -->
 <div class="stage" id="stage-3">
-  <div class="stage-header" onclick="toggleStage(3)">
+  <div class="stage-header" role="button" tabindex="0" aria-expanded="false" onclick="toggleStage(3)" onkeydown="stageKey(event,3)">
     <div class="stage-badge s3">3</div>
     <div class="info">
-      <div class="title">第二关：让 AI 帮你找答案</div>
-      <div class="desc">约 10 分钟 · 查资料、找答案，而且知道答案靠不靠谱</div>
+      <h2 class="title">遇到问题，自己找到答案</h2>
+      <div class="desc">约 10 分钟 · 不光得到答案，还知道它靠不靠谱</div>
     </div>
     <span class="stage-status todo" id="status-3">未开始</span>
     <span class="arrow">▶</span>
   </div>
   <div class="stage-body">
 
-    <div class="step" id="step-8">
-      <div class="step-header" onclick="toggleStep(8)">
-        <div class="step-num">8</div>
-        <div class="step-content"><div class="step-title">认识 DeepSeek：比豆包更会"思考"</div></div>
+    <div class="step" id="step-6">
+      <div class="step-header" role="button" tabindex="0" aria-expanded="false" onclick="toggleStep(6)" onkeydown="stepKey(event,6)">
+        <div class="step-num">6</div>
+        <div class="step-content"><h3 class="step-title">用 DeepSeek 认真问一个问题</h3></div>
       </div>
       <div class="step-body">
-        <p>豆包适合日常聊天和做东西，但如果你要<strong>认真查一个问题</strong>，用 <strong>DeepSeek</strong> 更好。</p>
-        <p>DeepSeek 有两个豆包没有的能力：</p>
-        <ul>
-          <li>🧠 <strong>深度思考</strong> — 它会先想一会儿，再给你更详细的回答</li>
-          <li>🌐 <strong>联网搜索</strong> — 它会去网上找真实信息，告诉你答案从哪来的</li>
-        </ul>
-        <p>✅ 国内直接打开 ✅ 全中文 ✅ 免费</p>
-        <p>和豆包一样，打开后如果提示登录，用手机号或微信登录就行。</p>
-        <button class="checkpoint-btn" onclick="markDone(8)" style="margin-top:8px">看懂了 ✓</button>
-      </div>
-    </div>
-
-    <div class="step" id="step-9">
-      <div class="step-header" onclick="toggleStep(9)">
-        <div class="step-num">9</div>
-        <div class="step-content"><div class="step-title">问一个真问题</div></div>
-      </div>
-      <div class="step-body">
+        <p>日常聊天、做东西，豆包就够。要<strong>认真查一个问题</strong>，用 <strong>DeepSeek</strong>：它会先想一会儿再回答（深度思考），还能联网搜索真实信息。</p>
+        <p>✅ 国内直接打开 ✅ 全中文 ✅ 免费。打开后如果提示登录，用手机号或微信登录就行。</p>
         <p>先把下面这段话复制了：</p>
         <div class="prompt-box">我想了解一下，做副业卖东西一般从哪里开始？
 我没什么经验，请用大白话解释。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
         <p>打开 DeepSeek 后，找到输入框下方的<strong>"深度思考"</strong>开关，打开它（会变蓝色）。找不到也没关系，直接用也行。</p>
-        <p>然后把刚才复制的话粘贴到输入框里（手机长按选"粘贴"，电脑 Ctrl+V），发送：</p>
+        <p>然后把刚才复制的话粘贴发送（手机长按选"粘贴"，电脑 Ctrl+V）：</p>
         <a class="tool-btn" href="https://chat.deepseek.com" target="_blank" rel="noopener">打开 DeepSeek →</a>
         <p style="font-size:14px;color:var(--fg-muted);margin-top:4px">发完后回到这个页面继续下一步。</p>
-        <p>DeepSeek 会先思考一下，然后给你一个详细的回答。你会看到它的"思考过程"，这是正常的。</p>
-        <button class="checkpoint-btn" onclick="markDone(9)" style="margin-top:8px">这步做完了 ✓</button>
+        <p>DeepSeek 会先显示它的"思考过程"，这是正常的。等它给出完整回答，读一遍。</p>
+        <button class="checkpoint-btn" onclick="markDone(6)" style="margin-top:8px">这步做完了 ✓</button>
       </div>
     </div>
 
-    <div class="step" id="step-10">
-      <div class="step-header" onclick="toggleStep(10)">
-        <div class="step-num">10</div>
-        <div class="step-content"><div class="step-title">让 AI 联网搜索最新信息</div></div>
+    <div class="step" id="step-7">
+      <div class="step-header" role="button" tabindex="0" aria-expanded="false" onclick="toggleStep(7)" onkeydown="stepKey(event,7)">
+        <div class="step-num">7</div>
+        <div class="step-content"><h3 class="step-title">让 AI 联网搜索最新信息</h3></div>
       </div>
       <div class="step-body">
         <p>这次换一个问题，同时打开<strong>"联网搜索"</strong>开关（"深度思考"可以开着也可以关，都行）。先把下面这段话复制了：</p>
@@ -413,14 +374,14 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
         <p>打开 DeepSeek，找到"联网搜索"开关打开它，粘贴发送：</p>
         <a class="tool-btn" href="https://chat.deepseek.com" target="_blank" rel="noopener">打开 DeepSeek →</a>
         <p>DeepSeek 会先去网上搜索真实信息，然后帮你总结。每个答案都会标注信息来源——你可以点进去核实。</p>
-        <button class="checkpoint-btn" onclick="markDone(10)" style="margin-top:8px">这步做完了 ✓</button>
+        <button class="checkpoint-btn" onclick="markDone(7)" style="margin-top:8px">这步做完了 ✓</button>
       </div>
     </div>
 
-    <div class="step" id="step-11">
-      <div class="step-header" onclick="toggleStep(11)">
-        <div class="step-num">11</div>
-        <div class="step-content"><div class="step-title">⚠️ 重要：AI 会出错，怎么判断答案靠不靠谱</div></div>
+    <div class="step" id="step-8">
+      <div class="step-header" role="button" tabindex="0" aria-expanded="false" onclick="toggleStep(8)" onkeydown="stepKey(event,8)">
+        <div class="step-num">8</div>
+        <div class="step-content"><h3 class="step-title">⚠️ AI 会一本正经地说错话，重要的事要核实</h3></div>
       </div>
       <div class="step-body">
         <div class="warn">⚠️ AI 会一本正经地说错话。它不是故意的，但它确实会出错。重要信息一定要自己核实。</div>
@@ -432,14 +393,14 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
           <li>太具体的数据（比如"某平台用户数"）→ 可能是编的，自己查</li>
         </ul>
         <p>遇到不确定的事，你可以用豆包问一遍，再用 DeepSeek 问一遍，对比两个答案。两个都说一样的，大概率是对的。</p>
-        <button class="checkpoint-btn" onclick="markDone(11)" style="margin-top:8px">看懂了 ✓</button>
+        <button class="checkpoint-btn" onclick="markDone(8)" style="margin-top:8px">记住了 ✓</button>
       </div>
     </div>
 
     <div class="checkpoint" id="cp-3">
-      <div class="label">🏁 检查点：你能自己找答案了吗？</div>
-      <p style="margin-bottom:12px">如果你用 DeepSeek 查到了一个问题的答案，而且知道这个答案是从哪来的——这关过了。</p>
-      <button class="checkpoint-btn" onclick="completeStage(3)">通关了，去打 BOSS →</button>
+      <div class="label">✅ 做到这里：你自己查到了答案，还知道它从哪来</div>
+      <p style="margin-bottom:12px">查到一个真问题的答案、点开过它的来源，这一步就算过了。</p>
+      <button class="checkpoint-btn" onclick="completeStage(3)">做完了，继续下一步 →</button>
     </div>
 
   </div>
@@ -447,24 +408,24 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
 
 <!-- ===== STAGE 4 ===== -->
 <div class="stage" id="stage-4">
-  <div class="stage-header" onclick="toggleStage(4)">
+  <div class="stage-header" role="button" tabindex="0" aria-expanded="false" onclick="toggleStage(4)" onkeydown="stageKey(event,4)">
     <div class="stage-badge s4">4</div>
     <div class="info">
-      <div class="title">最终 BOSS：让工具替你干活</div>
-      <div class="desc">约 10 分钟 · 让 AI 帮你整理资料，下载免费软件处理 PDF</div>
+      <h2 class="title">让现成工具替你干重复活</h2>
+      <div class="desc">约 10 分钟 · 整理资料、处理 PDF，不用事事自己来</div>
     </div>
     <span class="stage-status todo" id="status-4">未开始</span>
     <span class="arrow">▶</span>
   </div>
   <div class="stage-body">
 
-    <div class="step" id="step-12">
-      <div class="step-header" onclick="toggleStep(12)">
-        <div class="step-num">12</div>
-        <div class="step-content"><div class="step-title">让 AI 帮你整理资料</div></div>
+    <div class="step" id="step-9">
+      <div class="step-header" role="button" tabindex="0" aria-expanded="false" onclick="toggleStep(9)" onkeydown="stepKey(event,9)">
+        <div class="step-num">9</div>
+        <div class="step-content"><h3 class="step-title">让 AI 帮你整理资料</h3></div>
       </div>
       <div class="step-body">
-        <p>前几关你学会了聊天、做东西、找答案。现在让 AI 帮你干一件更省事的事：整理乱七八糟的资料。</p>
+        <p>乱七八糟一堆资料，自己整理要半小时，AI 几秒就搞定。</p>
         <p>先把下面这段话复制了：</p>
         <div class="prompt-box">我有一份资料内容很乱，帮我整理成三部分：
 现状、主要选择、给我的建议。
@@ -472,33 +433,33 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
 （在这里粘贴你的资料）<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
         <p>打开豆包，把刚才复制的话粘贴进去。<strong>注意</strong>：把"（在这里粘贴你的资料）"换成你自己的内容——随便什么都行，一段会议记录、一篇长文章、一堆零散笔记。然后发送：</p>
         <a class="tool-btn" href="https://www.doubao.com" target="_blank" rel="noopener">打开豆包 →</a>
-        <p>几秒钟，AI 就帮你整理好了。这就是"让 AI 替你干活"——不用自己花半小时。</p>
-        <button class="checkpoint-btn" onclick="markDone(12)" style="margin-top:8px">这步做完了 ✓</button>
+        <p>几秒钟，AI 就帮你整理好了。这就是"让工具替你干活"。</p>
+        <button class="checkpoint-btn" onclick="markDone(9)" style="margin-top:8px">这步做完了 ✓</button>
       </div>
     </div>
 
-    <div class="step" id="step-13">
-      <div class="step-header" onclick="toggleStep(13)">
-        <div class="step-num">13</div>
-        <div class="step-content"><div class="step-title">处理 PDF：下载一个免费软件（需要电脑）</div></div>
+    <div class="step" id="step-10">
+      <div class="step-header" role="button" tabindex="0" aria-expanded="false" onclick="toggleStep(10)" onkeydown="stepKey(event,10)">
+        <div class="step-num">10</div>
+        <div class="step-content"><h3 class="step-title">处理 PDF：装一个免费软件（需要电脑）</h3></div>
       </div>
       <div class="step-body">
         <p>合并 PDF、拆分 PDF、压缩 PDF、转换格式——这些事不用花钱，不用在线上传文件。</p>
         <p><strong>Stirling PDF</strong> — 免费的桌面软件。合并、拆分、压缩、转换 PDF，全部免费，不用联网，文件不上传到网上。</p>
         <p>✅ 完全免费 ✅ 支持中文 ✅ 下载到电脑用，保护隐私</p>
-        <div class="warn">⚠️ 这一步需要电脑。如果你现在只有手机，可以跳过，等有电脑时再回来。手机上也能用豆包或 DeepSeek 帮你处理文字内容。</div>
+        <div class="warn">⚠️ 这一步需要电脑。如果你现在只有手机，可以先跳过，等有电脑时再回来。手机上也能用豆包或 DeepSeek 帮你处理文字内容。</div>
         <a class="tool-btn" href="https://stirling.com" target="_blank" rel="noopener">打开 Stirling PDF 官网 →</a>
         <p style="font-size:14px;color:var(--fg-muted);margin-top:4px">打开后找到下载按钮。网站是英文的，但下载安装后软件是中文的。</p>
         <p>下载后打开，选你要做的事（合并/拆分/压缩/转换），把文件拖进去，点执行。就完成了。</p>
         <div class="tip">💡 Windows 电脑选 .exe 或 .msi，Mac 电脑选 .dmg。</div>
-        <button class="checkpoint-btn" onclick="markDone(13)" style="margin-top:8px">这步做完了 ✓</button>
+        <button class="checkpoint-btn" onclick="markDone(10)" style="margin-top:8px">这步做完了 ✓</button>
       </div>
     </div>
 
     <div class="checkpoint" id="cp-4">
-      <div class="label">🏁 检查点：你让工具替你干活了吗？</div>
-      <p style="margin-bottom:12px">如果你用 AI 整理了一次资料，或者成功处理了一个 PDF——恭喜，全部通关！</p>
-      <button class="checkpoint-btn" onclick="completeStage(4)">全部通关 🎉</button>
+      <div class="label">✅ 做到这里：4 步你都走完了</div>
+      <p style="margin-bottom:12px">整理过一次资料，或者处理过一个 PDF——这些事你都是自己动手做成的。</p>
+      <button class="checkpoint-btn" onclick="completeStage(4)">走完了 🎉</button>
     </div>
 
   </div>
@@ -509,20 +470,19 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
 <!-- ============ GRADUATION ============ -->
 <div class="graduation" id="graduation" style="display:none">
   <div class="emoji">🎉</div>
-  <h2>恭喜，你到 60 分了！</h2>
-  <p>你已经从零学会了：</p>
+  <h2>恭喜，这些事你都真的做成了</h2>
+  <p>不是听完了课——是亲手做成了：</p>
   <ul class="skills">
-    <li>跟 AI 聊天，让它帮你写东西</li>
-    <li>用 AI 做出网页、文章、PPT 大纲</li>
-    <li>用 AI 查资料，还知道答案靠不靠谱</li>
-    <li>用 AI 整理资料，用免费工具处理 PDF</li>
+    <li>让 AI 帮你写出了自己的话</li>
+    <li>让 AI 做出了网页、文章、PPT 大纲</li>
+    <li>自己查到了答案，还会核实它靠不靠谱</li>
+    <li>让 AI 整理资料，用免费工具处理 PDF</li>
   </ul>
-  <p style="margin-top:16px">这就是 60 分。意思是：你能独立用 AI 解决实际问题了。<br>剩下的 40 分，靠真实使用慢慢积累。</p>
-  <div style="margin-top:20px;padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);text-align:left">
-    <p style="font-weight:600;margin-bottom:8px">接下来可以做什么？</p>
-    <p style="font-size:15px;color:var(--fg-muted)">👉 遇到任何问题，第一反应不是去百度搜，而是先问豆包或 DeepSeek。用得越多，你就越熟练。</p>
-    <p style="font-size:15px;color:var(--fg-muted);margin-top:8px">👉 想做更复杂的东西？把你的想法直接告诉豆包："帮我做一个 XX"，看它能帮你做到什么程度。</p>
-    <p style="font-size:15px;color:var(--fg-muted);margin-top:8px">👉 每天花 5 分钟跟 AI 聊一件真事。一个月后你会发现，你已经离不开它了。</p>
+  <div style="margin-top:16px;padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);text-align:left">
+    <p style="font-weight:600;margin-bottom:8px">接下来，遇到事先问自己一句：这件事能不能让 AI 帮上忙？</p>
+    <p style="font-size:15px;color:var(--fg-muted)">👉 写东西、查资料，先问豆包或 DeepSeek，不行再自己闷头干。</p>
+    <p style="font-size:15px;color:var(--fg-muted);margin-top:8px">👉 想做更复杂的东西？直接把想法告诉豆包："帮我做一个 XX"，看它能帮你做到哪一步。</p>
+    <p style="font-size:15px;color:var(--fg-muted);margin-top:8px">👉 每天拿一件真事试一试：写个通知、查个政策、改段文字。用得越真，越顺手。</p>
   </div>
   <p style="margin-top:20px"><a href="#" onclick="resetAll();return false" style="color:var(--fg-muted);font-size:14px">重新走一遍</a></p>
   <div style="margin-top:16px;padding:16px;background:var(--leaf-light);border-radius:var(--radius-sm)">
@@ -532,17 +492,19 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
 </div>
 
 <footer>
-  <p>World Space · 从零开始用 AI · 全程只用豆包和 DeepSeek</p>
+  <p>World Space · 从零开始，把 AI 用起来</p>
 </footer>
 
 <script>
 var completedSteps = {};
 var completedStages = {};
-var totalSteps = 13;
+var totalSteps = 10;
+// v2: steps renumbered (10 action steps); old ws_progress keys no longer match
+var STORAGE_KEY = 'ws_progress_v2';
 
 // Load progress from localStorage
 try {
-  var saved = localStorage.getItem('ws_progress');
+  var saved = localStorage.getItem(STORAGE_KEY);
   if (saved) {
     var data = JSON.parse(saved);
     completedSteps = data.steps || {};
@@ -552,17 +514,32 @@ try {
 
 function saveProgress() {
   try {
-    localStorage.setItem('ws_progress', JSON.stringify({steps: completedSteps, stages: completedStages}));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({steps: completedSteps, stages: completedStages}));
   } catch(e) {}
 }
 
 function toggleStage(n) {
   var el = document.getElementById('stage-' + n);
   el.classList.toggle('open');
+  syncAria(el);
+}
+function stageKey(e, n) {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleStage(n); }
 }
 function toggleStep(n) {
   var el = document.getElementById('step-' + n);
   el.classList.toggle('open');
+  syncAria(el);
+}
+function stepKey(e, n) {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleStep(n); }
+}
+function syncAria(scope) {
+  var items = (scope || document).querySelectorAll('[aria-expanded]');
+  for (var i = 0; i < items.length; i++) {
+    var box = items[i].closest('.stage, .step');
+    if (box) { items[i].setAttribute('aria-expanded', box.classList.contains('open') ? 'true' : 'false'); }
+  }
 }
 function markDone(n) {
   if (!completedSteps[n]) {
@@ -573,13 +550,19 @@ function markDone(n) {
     el.classList.remove('open');
     updateProgress();
     saveProgress();
-    // Auto-open next step
-    var nextNum = n + 1;
-    var nextEl = document.getElementById('step-' + nextNum);
+    // Auto-open next step (open its stage first if needed); otherwise scroll to this stage's checkpoint
+    var nextEl = document.getElementById('step-' + (n + 1));
     if (nextEl) {
+      var nextStage = nextEl.closest('.stage');
+      if (nextStage && !nextStage.classList.contains('open')) { nextStage.classList.add('open'); }
       nextEl.classList.add('open');
       setTimeout(function() { nextEl.scrollIntoView({behavior:'smooth', block:'center'}); }, 200);
+    } else {
+      var stageEl = el.closest('.stage');
+      var cp = stageEl && stageEl.querySelector('.checkpoint');
+      if (cp) { setTimeout(function() { cp.scrollIntoView({behavior:'smooth', block:'center'}); }, 200); }
     }
+    syncAria(document);
   }
 }
 function completeStage(n) {
@@ -591,14 +574,20 @@ function completeStage(n) {
   if (pill) { pill.classList.add('active'); }
   var current = document.getElementById('stage-' + n);
   if (current) { current.classList.remove('open'); }
-  var nextStage = n + 1;
-  if (nextStage <= 4) {
-    var next = document.getElementById('stage-' + nextStage);
-    if (next) { next.classList.add('open'); next.scrollIntoView({behavior:'smooth', block:'start'}); }
+  var nextStageNum = n + 1;
+  if (nextStageNum <= 4) {
+    var next = document.getElementById('stage-' + nextStageNum);
+    if (next) {
+      next.classList.add('open');
+      var firstStep = next.querySelector('.step');
+      if (firstStep) { firstStep.classList.add('open'); }
+      next.scrollIntoView({behavior:'smooth', block:'start'});
+    }
   } else {
     document.getElementById('graduation').style.display = 'block';
     document.getElementById('graduation').scrollIntoView({behavior:'smooth', block:'center'});
   }
+  syncAria(document);
   saveProgress();
 }
 function updateProgress() {
@@ -642,9 +631,12 @@ function resetAll() {
   document.getElementById('pill-1').classList.add('active');
   document.getElementById('graduation').style.display = 'none';
   document.getElementById('stage-1').classList.add('open');
+  document.getElementById('step-1').classList.add('open');
+  document.getElementById('startBtn').textContent = '开始第一步 →';
   updateProgress();
   saveProgress();
   window.scrollTo({top:0, behavior:'smooth'});
+  syncAria(document);
 }
 
 // Restore progress on load
@@ -662,16 +654,59 @@ function restoreProgress() {
     var pill = document.getElementById('pill-' + s);
     if (pill) { pill.classList.add('active'); }
   }
+  // Returning users see "continue" instead of "start"
+  if (Object.keys(completedSteps).length > 0 && Object.keys(completedStages).length < 4) {
+    document.getElementById('startBtn').textContent = '继续上次的进度 →';
+  }
+  if (Object.keys(completedStages).length >= 4) {
+    document.getElementById('startBtn').textContent = '查看你做成的事 →';
+    document.getElementById('graduation').style.display = 'block';
+  }
   // Open first incomplete stage
   var firstIncomplete = 1;
   for (var i = 1; i <= 4; i++) {
     if (!completedStages[i]) { firstIncomplete = i; break; }
   }
-  document.getElementById('stage-' + firstIncomplete).classList.add('open');
-  if (Object.keys(completedStages).length >= 4) {
-    document.getElementById('graduation').style.display = 'block';
+  var stageEl = document.getElementById('stage-' + firstIncomplete);
+  stageEl.classList.add('open');
+  // Open its first not-done step so the user sees exactly what to do next
+  var steps = stageEl.querySelectorAll('.step');
+  for (var j = 0; j < steps.length; j++) {
+    if (!steps[j].classList.contains('done')) { steps[j].classList.add('open'); break; }
   }
   updateProgress();
+}
+
+// Keep aria-expanded truthful after any programmatic open/close
+syncAria(document);
+
+// Hero button: go to wherever this user actually is
+function startJourney() {
+  if (Object.keys(completedStages).length >= 4) {
+    var grad = document.getElementById('graduation');
+    grad.style.display = 'block';
+    grad.scrollIntoView({behavior:'smooth', block:'center'});
+    return false;
+  }
+  var n = 1;
+  for (var i = 1; i <= 4; i++) {
+    if (!completedStages[i]) { n = i; break; }
+  }
+  var stageEl = document.getElementById('stage-' + n);
+  stageEl.classList.add('open');
+  var steps = stageEl.querySelectorAll('.step');
+  var target = null;
+  for (var j = 0; j < steps.length; j++) {
+    if (!steps[j].classList.contains('done')) { target = steps[j]; break; }
+  }
+  if (target) {
+    target.classList.add('open');
+    setTimeout(function() { target.scrollIntoView({behavior:'smooth', block:'center'}); }, 100);
+  } else {
+    var cp = stageEl.querySelector('.checkpoint');
+    setTimeout(function() { cp.scrollIntoView({behavior:'smooth', block:'center'}); }, 100);
+  }
+  return false;
 }
 
 // Auto-open first stage
