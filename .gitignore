@@ -1,0 +1,6 @@
+# Windows reserved name
+nul
+
+# OS files
+Thumbs.db
+.DS_Store

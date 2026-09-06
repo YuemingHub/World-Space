@@ -1,0 +1,13 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>frame frame-mfull.html</title>
+<style>html,body{margin:0;padding:0;background:#FAF9F6}#r{font:700 18px/1.5 monospace;color:#B45309;padding:4px 8px}iframe{display:block;border:0}</style></head>
+<body><div id="r">measuring…</div>
+<iframe id="f" src="../prototype.html" style="width:375px;height:4800px"></iframe>
+<script>
+var f=document.getElementById('f');
+f.addEventListener('load',function(){setTimeout(function(){
+  try{var d=f.contentDocument,de=d.documentElement;
+    var sw=de.scrollWidth,cw=de.clientWidth;
+    document.getElementById('r').textContent='FRAME frame-mfull.html INNER sw='+sw+' cw='+cw+(sw<=cw?' => NO-OVERFLOW':' => OVERFLOW!');
+  }catch(e){document.getElementById('r').textContent='FRAME-ERR '+e.message;}
+},1500);});
+</script></body></html>

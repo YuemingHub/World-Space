@@ -1,0 +1,13 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>frame</title>
+<style>html,body{margin:0;padding:0;background:#FAF9F6}#r{font:700 20px/1.4 monospace;color:#B45309;padding:6px 10px}iframe{display:block;border:0;width:375px}</style></head>
+<body><div id="r">measuring…</div>
+<iframe id="f" src="../prototype.html" style="height:8440px"></iframe>
+<script>
+var f=document.getElementById('f');
+f.addEventListener('load',function(){setTimeout(function(){
+  try{var d=f.contentDocument,de=d.documentElement;
+    var sw=de.scrollWidth,cw=de.clientWidth;
+    document.getElementById('r').textContent='INNER scrollWidth='+sw+'px / clientWidth='+cw+'px '+(sw<=cw?'=> NO H-OVERFLOW':'=> OVERFLOW!');
+  }catch(e){document.getElementById('r').textContent='ERR '+e.message;}
+},1200);});
+</script></body></html>

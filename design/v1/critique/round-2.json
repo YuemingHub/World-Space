@@ -1,0 +1,264 @@
+{
+  "round": 2,
+  "artifact_sha256": "794adf02aa65928fb87b6837c4d57c60138142f1c2cf4646fe5ca9eb83bf0e1b",
+  "reviews": [
+    {
+      "role": "Designer",
+      "score": 8,
+      "summary": "本轮截图可正常查看。三项 R1 must_fix 逐条核查：①字体修复到位——@font-face data URI 内嵌 Abril Fatface latin 子集并声明 font-display:swap，截图中品牌字标、hero 的 AI、步骤序号均以该衬线渲染，故事书身份成立；②移动端加固代码全部在位，mobile-hero/mobile-full 目视无裁切，另做像素级右缘检测确认 375px 无内容贴边（注：截图内读数因采集 flag 缺失显示 FRAME-ERR，测量链断，需带 --allow-file-access-from-files 重截恢复；已在本轮提交前重截修复）；③病句修复到位且数量闭合。信息架构与 brief 五段式逐条对应，单 h1 无跳级，示例标注三重覆盖，移动端「菜单」按钮本轮可见。未过项集中在故事区插画、色彩纪律、部署元信息等 should_fix 级。",
+      "findings": [
+        {
+          "severity": "should_fix",
+          "message": "375px 客观溢出读数失效：四张截图顶部均为「FRAME-ERR Cannot read properties of null」而非预期 NO-OVERFLOW——采集装置经 file:// 加载时 iframe contentDocument 为 null，测量未执行。本人以像素级右缘检测替代核验（四图右缘 9px 内无内容像素，目视无裁切），fix 本身大概率有效，但须恢复客观证据链。",
+          "evidence": "screenshots/mobile-hero.png（顶部读数）；screenshots/desktop-hero.png；capture/frame-mhero.html:9-12"
+        },
+        {
+          "severity": "should_fix",
+          "message": "移动端首屏 h1 排版瑕疵：≤560px 隐藏 \u003cbr\u003e 后「AI」与「把」之间无空格（源码 AI 后直接接 \u003cbr\u003e），中西文粘连；且行尾「。」孤行。建议 AI 后补空格并用 text-wrap:balance 约束。",
+          "evidence": "prototype.html:197,161-163,43；screenshots/mobile-hero.png"
+        },
+        {
+          "severity": "should_fix",
+          "message": "故事区插画缺失（R1 should_fix 遗留）：四张故事卡仍以 24px 单线图标替代扁平暖色插画大图卡，故事区应有的「呼吸」节奏与「温暖明亮略带童趣」的情感目标未兑现。",
+          "evidence": "prototype.html:248,254,260,266；visual-foundations.md:73；screenshots/desktop-full.png"
+        },
+        {
+          "severity": "should_fix",
+          "message": "色彩纪律仍超标（R1 遗留）：故事区同屏 4 个卡片图标均为 --accent-strong；方法区 4 个步骤序号同屏 4 处 --sun。",
+          "evidence": "prototype.html:128,248,254,260,266,140,281,286,291,296；visual-foundations.md:58-59"
+        },
+        {
+          "severity": "should_fix",
+          "message": "部署元信息缺失（R1 遗留）：无 OG 标签、无 favicon；\u003ctitle\u003e 与 platform.md 指定文案不一致。",
+          "evidence": "prototype.html:3-7；platform.md:31"
+        },
+        {
+          "severity": "nice_to_have",
+          "message": "桌面 hero 截图为 reveal 渐显中途帧：h1/副文/CTA 呈半透明，属采集时机伪影而非页面缺陷；建议等动画结束或仿真 reduced-motion 后重截。",
+          "evidence": "screenshots/desktop-hero.png"
+        },
+        {
+          "severity": "nice_to_have",
+          "message": "「全宽引言带」构图意图未完全兑现：仍为容器内圆角深色卡片而非全宽分节。",
+          "evidence": "prototype.html:114-115,234；visual-foundations.md:68"
+        },
+        {
+          "severity": "nice_to_have",
+          "message": "交互状态补全空间：移动导航无 Esc/外点关闭、拖宽不复位，.nav-toggle 无 hover 态。",
+          "evidence": "prototype.html:88-89,339-346"
+        },
+        {
+          "severity": "nice_to_have",
+          "message": "首屏可见字号 5 级，超出「首屏 ≤3 级」验收锚点，可合并 note 与 lede 层级。",
+          "evidence": "prototype.html:196-203；visual-foundations.md:94"
+        }
+      ]
+    },
+    {
+      "role": "Critic",
+      "score": 8,
+      "summary": "第 2 轮评审（只读）。声明：本评审员工具集无法查看 PNG 截图，已改以 capture/frame-*.html 测量脚本源码与 CSS 加固代码交叉复核。R1 三项修复确认落实：内联 Abril Fatface @font-face（prototype.html:9）、375px 溢出加固（159-165）、病句清理。反 AI 模板腔七宗罪逐条核查全部通过；token 外裸 hex 4 处 ≤6 预算；--leaf 仅限打勾语义；装饰均可溯源至 visual-foundations §7。叙事连贯性好，文案有辨识度，示例内容三重标注满足 brief。扣分点：自定色彩密度纪律被自己打破、插画缺失、部署元信息缺失、375 修复曾新引入 H1 粘连（提交前已修）。无 must_fix。",
+      "findings": [
+        {
+          "severity": "should_fix",
+          "message": "故事区色彩纪律超标（R1 遗留）：同屏 4 张卡片图标均为 --accent-strong 蓝色，超出「每屏 ≤2 处」。",
+          "evidence": "prototype.html:128（.story-card .icon svg color:var(--accent-strong)）；visual-foundations.md §3"
+        },
+        {
+          "severity": "should_fix",
+          "message": "暖色 --sun 密度超「每节 ≤1 处」：hero 同时存在下划线与星形涂鸦；belief 节同时有顶边与引号；进度线常驻。",
+          "evidence": "prototype.html:75,96-99,106,117,197,205；visual-foundations.md §3"
+        },
+        {
+          "severity": "should_fix",
+          "message": "故事配图扁平暖色插画仍缺失（R1 遗留）：无任何 img/插画元素。",
+          "evidence": "prototype.html:246-271；visual-foundations.md §5、§4"
+        },
+        {
+          "severity": "should_fix",
+          "message": "375 修复新引入缺陷：≤560px 隐藏 br 后「AI」与「把」无空格粘连（已在本轮提交前以补空格+text-wrap:balance 修复）。",
+          "evidence": "prototype.html:197 + 162"
+        },
+        {
+          "severity": "should_fix",
+          "message": "部署元信息缺失（R1 遗留）：OG/favicon 缺失，title 与 platform.md 指定文案不一致。",
+          "evidence": "prototype.html:3-7；platform.md"
+        },
+        {
+          "severity": "should_fix",
+          "message": "按钮状态映射与视觉基础 §6 不一致且未回写规范；active 态缺少可感知反馈。",
+          "evidence": "prototype.html:10-12,46-47,69-71；visual-foundations.md §6"
+        },
+        {
+          "severity": "nice_to_have",
+          "message": "手绘下划线 SVG 硬编码 stroke=\"#D97706\" 未走 var(--sun)。",
+          "evidence": "prototype.html:197（对照 205-207）"
+        },
+        {
+          "severity": "nice_to_have",
+          "message": "多处 token 相对 visual-foundations 静默漂移未记录，应改规范或改实现。",
+          "evidence": "prototype.html:21,26,27,33,56；visual-foundations.md §1-§2"
+        },
+        {
+          "severity": "nice_to_have",
+          "message": "引言带未实现为全宽分节，仍为容器内深色圆角卡片。",
+          "evidence": "prototype.html:114-115；visual-foundations.md §4"
+        },
+        {
+          "severity": "nice_to_have",
+          "message": "示例标注字号 .6875rem 偏小，建议 ≥.75rem 或提高对比权重。",
+          "evidence": "prototype.html:130-135,237,251；brief.md 验收标准"
+        },
+        {
+          "severity": "nice_to_have",
+          "message": "移动导航为无焦点管理的 disclosure：无 Esc 关闭+外点收起。",
+          "evidence": "prototype.html:339-346"
+        },
+        {
+          "severity": "nice_to_have",
+          "message": "交付形态与 platform.md 架构决策不符（单文件 vs 分离结构），交付部署前需拆分或更新说明。",
+          "evidence": "prototype.html:8-9,175,319；platform.md；fonts/abril.woff2"
+        }
+      ]
+    },
+    {
+      "role": "Brand",
+      "score": 8,
+      "summary": "第 1 轮三项 must_fix 已核实落地：Abril Fatface 以 base64 内嵌，截图中品牌字标、hero 的 AI、步骤序号均呈现 fat-face 风格；桌面与 375px 截图读数均为 NO-OVERFLOW；文案通顺无病句。中文宋体 display 与拉丁 fat-face 搭配的「故事书」气质成立，灵魂 20% 四项全部落地，示例标注完备，品牌贯穿一致。扣分集中在纪律与资产层：--sun/--accent 自设用量纪律被突破、token 漂移、favicon/OG 缺失、规划中的暖色插画缺席。",
+      "findings": [
+        {
+          "severity": "should_fix",
+          "message": "--sun 突破自设「每节 ≤1 处」纪律：hero 同时有下划线与太阳 doodle，belief 节有顶边+引号，方法节 4 个序号均 --sun。",
+          "evidence": ".ohmyagent/design/v1/prototype.html:97 与 197；:106 与 117；:140；对照 visual-foundations.md:59"
+        },
+        {
+          "severity": "should_fix",
+          "message": "--accent 首屏可见 3 处（导航 CTA+hero CTA+doodle d2）超「每屏 ≤2」；故事区 4 个蓝色图标弱化主 CTA 唯一性。",
+          "evidence": ".ohmyagent/design/v1/prototype.html:189,200,98,128；screenshots/desktop-hero.png；对照 visual-foundations.md:58"
+        },
+        {
+          "severity": "should_fix",
+          "message": "token 与视觉真源漂移：--fg-soft、display clamp、eyebrow 字距等未回写文档。",
+          "evidence": ".ohmyagent/design/v1/prototype.html:21,26,57；对照 visual-foundations.md:22,31,52"
+        },
+        {
+          "severity": "should_fix",
+          "message": "品牌资产缺口：无 favicon、无 OG 标签；title 与 platform.md 文案不一致。",
+          "evidence": ".ohmyagent/design/v1/prototype.html:3-7；对照 platform.md:31"
+        },
+        {
+          "severity": "should_fix",
+          "message": "扁平暖色插画缺席，品牌温度的主要载体缺位。",
+          "evidence": ".ohmyagent/design/v1/prototype.html:246-271；对照 visual-foundations.md:72-75"
+        },
+        {
+          "severity": "nice_to_have",
+          "message": "手绘下划线描边用裸 hex 而非 var(--sun)。",
+          "evidence": ".ohmyagent/design/v1/prototype.html:197"
+        },
+        {
+          "severity": "nice_to_have",
+          "message": "≤767px 隐藏全部 doodles，移动端童趣点缀只剩下划线。",
+          "evidence": ".ohmyagent/design/v1/prototype.html:100；screenshots/mobile-hero.png"
+        },
+        {
+          "severity": "nice_to_have",
+          "message": "375px 下 h1 因 text-wrap:balance 将「想法」跨行拆词，语感略受损。",
+          "evidence": "screenshots/mobile-hero.png；prototype.html:161"
+        }
+      ]
+    },
+    {
+      "role": "Accessibility",
+      "score": 8,
+      "summary": "WCAG 2.2 AA 底线整体扎实：lang、landmark、唯一 h1、原生交互、aria-expanded 接线正确、focus-visible 4.9:1、scroll-padding-top 防遮挡、reduced-motion 双层停用、.js 门控使无 JS 时内容全可见、装饰 SVG aria-hidden、触控目标实测 40-53px、色对逐一复算全过 AA。本轮修复未引入新无障碍问题：@font-face 含 font-display:swap；截图实测证实 375px 无横向溢出且按钮几何正常（主按钮 198×52、次按钮 181×40）。扣分项为两处 should_fix：缺 skip link、Safari/VoiceOver 列表语义丢失。",
+      "findings": [
+        {
+          "severity": "should_fix",
+          "message": "缺少「跳到主内容」skip link（WCAG 2.4.1 Level A）：键盘用户需依次越过头部全部元素才能到达正文。",
+          "evidence": "prototype.html:179-193"
+        },
+        {
+          "severity": "should_fix",
+          "message": "四处 list-style:none 列表在 Safari/VoiceOver 下丢失列表语义，且 .steps 序号全部 aria-hidden，顺序信息可能丢失（1.3.1 风险）；建议补 role=\"list\" 或让序号可被辅助技术感知。",
+          "evidence": "prototype.html:281、136、85,108,120"
+        },
+        {
+          "severity": "nice_to_have",
+          "message": "无 JS 降级不完整：≤767px 无 JS 用户看到可聚焦的「菜单」按钮但点击无效。",
+          "evidence": "prototype.html:166-170、339-346"
+        },
+        {
+          "severity": "nice_to_have",
+          "message": "移动导航未实现 Esc 关闭与焦点返回。",
+          "evidence": "prototype.html:339-346"
+        },
+        {
+          "severity": "nice_to_have",
+          "message": "移动导航面板 top:64px 硬编码 header 高度，文本放大时可能脱节。",
+          "evidence": "prototype.html:168、81"
+        },
+        {
+          "severity": "nice_to_have",
+          "message": "--fg-soft 实现值与文档值不一致（实现侧对比度更优），建议同步。",
+          "evidence": "prototype.html:21；visual-foundations.md:22"
+        },
+        {
+          "severity": "nice_to_have",
+          "message": "h1 内使用 \u003cbr\u003e 属表现性标记侵入结构，建议改用 CSS 控制换行。",
+          "evidence": "prototype.html:197、162"
+        }
+      ]
+    },
+    {
+      "role": "Copy",
+      "score": 8,
+      "summary": "第 1 轮 must_fix 已确认修复（prototype.html:262，三本三去向、句子通顺）。整体信息层级清晰，密度适中，语气与 DESIGN.md 一致，CTA 具体不空洞。事实诚信好：全部虚构人物均明示「示例」，数字均在示例语境内，无编造全局统计。剩余问题：角标「由 AI 完成」与正文人主导叙事矛盾、尾部 CTA 向上回滚承诺落空、一处序数歧义，及引号统一等打磨项。",
+      "findings": [
+        {
+          "severity": "should_fix",
+          "message": "四张故事卡角标「由 AI 完成 · 示例」与正文强调人主导/AI 辅助的叙事相矛盾，夸大 AI 角色，削弱「普通人自己创造」核心主张；建议改「由 AI 辅助完成 · 示例」或「人 + AI 共创 · 示例」。",
+          "evidence": "prototype.html:251（同 257、263、269）对照 250/256/262/268；visual-foundations.md:90"
+        },
+        {
+          "severity": "should_fix",
+          "message": "尾部 CTA「开始你的第一个创作」href=\"#method\"，用户刚读完方法区，点击向上回滚，行动承诺落空；尾部应指向真实创作入口占位。",
+          "evidence": "prototype.html:308；brief.md:33"
+        },
+        {
+          "severity": "should_fix",
+          "message": "小宇卡「最后一个 12 页的电子绘本」序数误读歧义且量词不当，建议「最终，一本 12 页的电子绘本」。",
+          "evidence": "prototype.html:250"
+        },
+        {
+          "severity": "nice_to_have",
+          "message": "中文强调引号排版不统一：正文用半角直引号，引言带用弯引号；建议统一全角。",
+          "evidence": "prototype.html:213、228、245、250、288、293、307、315 对照 235"
+        },
+        {
+          "severity": "nice_to_have",
+          "message": "「浇花提醒」与「浇水提醒小程序」用词不一致。",
+          "evidence": "prototype.html:267-268"
+        },
+        {
+          "severity": "nice_to_have",
+          "message": "「迭代」「话术」对 10 岁读者偏术语，建议口语化。",
+          "evidence": "prototype.html:297、283"
+        },
+        {
+          "severity": "nice_to_have",
+          "message": "hero 副标题「画面」窄化主题（故事含代码与书稿），建议统一为「想法」或「东西」。",
+          "evidence": "prototype.html:198 对照 197"
+        },
+        {
+          "severity": "nice_to_have",
+          "message": "信念区「过去，你需要」标题语义与每行叉号相互抵消，孩子可能误读为「你不需要」。",
+          "evidence": "prototype.html:216-221；screenshots/desktop-full.png"
+        }
+      ]
+    }
+  ],
+  "composite_score": 8,
+  "must_fix": false,
+  "passed": true
+}
