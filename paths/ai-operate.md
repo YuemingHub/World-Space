@@ -1,58 +1,31 @@
-# 我想让 AI 帮我操作电脑或网络
+# 进阶能力
 
-> 这是进阶能力，需要一定技术基础。如果你完全不想碰技术，建议先走前 4 条路径。
+> 这些工具需要技术基础。如果你完全不想碰技术，前四关已经够用了。
 
 ---
 
-## 你现在可以做到什么？
+## AI 帮你操作浏览器
 
-让 AI 像人一样操作浏览器：打开网页、点击、填表、截图、收集信息。或者在本地电脑上执行代码处理文件。
+**Browser Use**（browser-use.com）— 让 AI 像人一样打开网页、点击、填表、收集信息。
 
-## 先从这里开始
+⚠️ 需要 Python 和 AI API Key。Cloud 版有免费额度可以试用。
 
-**Browser Use**（https://browser-use.com）
+## AI 帮你操作电脑
 
-有 Cloud 版本可以降低门槛。也可以自己部署，但需要 Python 和 AI API Key。
+**Open Interpreter**（openinterpreter.com）— 让 AI 在你的电脑上执行代码和命令。
 
-如果你想让 AI 在本地电脑上执行更广泛的任务，了解 **Open Interpreter**（https://openinterpreter.com）。
+⚠️ 需要命令行和 AI API Key。
 
-## 难不难？
+## AI 辅助写代码
 
-- Browser Use Cloud：中等，有界面操作
-- Browser Use 自部署：中偏高，需要 Python 和 API Key
-- Open Interpreter：中偏高，需要命令行和 API Key
+**Cursor**（cursor.com）— AI 代码编辑器。如果你开始学编程了，这是最好的工具。
 
-⚠️ 这条路径门槛最高。先走"少做一些重复工作"路径，用 n8n 可能更简单。
+## 国外工具（备选）
 
-## 要钱吗？
+如果国内工具满足不了你的需求，这些是国外最好的选择。但界面是英文的，可能需要特殊网络。
 
-- Browser Use：开源免费自部署；Cloud 有免费额度。需要 AI API Key
-- Open Interpreter：开源免费。需要 AI API Key 或本地模型
-
-具体价格以官网为准。
-
-## 第一步
-
-### Browser Use Cloud
-1. 打开 https://browser-use.com
-2. 注册
-3. 创建一个任务，用自然语言描述
-
-第一句怎么说：
-```
-打开淘宝，搜索"羊毛混纺毛线"，把前 10 个结果的
-名称、价格、店铺名整理成一个表格。
-```
-
-## 做到什么算第一步成功？
-
-AI 成功打开了一个网页，执行了你描述的操作，并返回了结果（截图/数据/完成通知）。
-
-## 卡住了怎么办？
-
-| 问题 | 解决 |
-|---|---|
-| Cloud 版免费额度用完了 | 可以自部署，或者减少使用频率 |
-| 自部署安装失败 | 确认 Python 版本 ≥ 3.11，用虚拟环境隔离 |
-| AI 操作网页不稳定 | 网页结构会变。给 AI 更明确的指令，比如"点击右上角蓝色的登录按钮" |
-| 觉得太复杂 | 这条路径是进阶选项。先走"少做一些重复工作"路径，用 n8n 可能更简单 |
+- **v0**（v0.dev）— Vercel 的 AI 网页生成
+- **Bolt.new**（bolt.new）— AI 搭建完整应用
+- **Notion**（notion.so）— 写作 + 知识管理
+- **Excalidraw**（excalidraw.com）— 手绘风格画图
+- **Gamma**（gamma.app）— AI 生成演示文稿
