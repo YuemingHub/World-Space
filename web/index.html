@@ -149,6 +149,19 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
   <a class="start-btn" href="#stage-1">开始第一步 →</a>
 </div>
 
+<!-- ============ OVERVIEW ============ -->
+<div style="max-width:var(--maxw);margin:0 auto;padding:0 24px 32px">
+  <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+    <span style="padding:8px 16px;background:var(--leaf-light);border-radius:20px;font-size:14px;color:var(--leaf);font-weight:500">🟢 新手村</span>
+    <span style="color:var(--fg-muted);align-self:center">→</span>
+    <span style="padding:8px 16px;background:rgba(59,130,246,.1);border-radius:20px;font-size:14px;color:var(--accent);font-weight:500">🔵 做个东西</span>
+    <span style="color:var(--fg-muted);align-self:center">→</span>
+    <span style="padding:8px 16px;background:rgba(139,92,246,.1);border-radius:20px;font-size:14px;color:#8B5CF6;font-weight:500">🟣 找答案</span>
+    <span style="color:var(--fg-muted);align-self:center">→</span>
+    <span style="padding:8px 16px;background:rgba(217,119,6,.1);border-radius:20px;font-size:14px;color:var(--sun);font-weight:500">🟠 让工具干活</span>
+  </div>
+</div>
+
 <!-- ============ ROADMAP ============ -->
 <div class="roadmap">
 
@@ -174,6 +187,7 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
         <p>用大白话说：AI 就是一个<strong>读过很多很多书的助手</strong>。你问它问题，它帮你回答；你让它写东西，它帮你写。</p>
         <p>它不像搜索引擎那样只给你链接，而是直接给你<strong>写好的答案</strong>。</p>
         <div class="tip">💡 但要记住：它会出错。它不是万能的。它不知道今天发生了什么（除非你让它联网搜索）。</div>
+        <button class="checkpoint-btn" onclick="markDone(1)" style="margin-top:8px">看懂了 ✓</button>
       </div>
     </div>
 
@@ -192,6 +206,7 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
           <li>🔄 <strong>翻译</strong> — 中英互译，还能解释语法</li>
         </ul>
         <p>接下来 4 个阶段，你会一样一样试过来。</p>
+        <button class="checkpoint-btn" onclick="markDone(2)" style="margin-top:8px">看懂了 ✓</button>
       </div>
     </div>
 
@@ -227,6 +242,7 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
           <li>"给我讲个笑话"</li>
         </ul>
         <p>你会发现，它就像一个什么都知道一点的朋友，你问什么它都能回。</p>
+        <button class="checkpoint-btn" onclick="markDone(4)" style="margin-top:8px">这步做完了 ✓</button>
       </div>
     </div>
 
@@ -261,6 +277,7 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
         <p>新手村里你用豆包聊天。但豆包还能做更多——你跟它说"帮我做一个网站"，它真的能帮你生成一个网页。</p>
         <p>不用换工具，不用注册新账号。就用你刚才聊天的豆包，继续。</p>
         <div class="tip">💡 如果刚才关掉了豆包，重新打开 doubao.com 就行。你的聊天记录还在。</div>
+        <button class="checkpoint-btn" onclick="markDone(5)" style="margin-top:8px">看懂了 ✓</button>
       </div>
     </div>
 
@@ -349,6 +366,7 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
         </ul>
         <p>✅ 国内直接打开 ✅ 全中文 ✅ 免费</p>
         <a class="tool-btn" href="https://chat.deepseek.com" target="_blank" rel="noopener">打开 DeepSeek →</a>
+        <button class="checkpoint-btn" onclick="markDone(9)" style="margin-top:8px">看懂了 ✓</button>
       </div>
     </div>
 
@@ -395,7 +413,7 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
           <li>太具体的数据（比如"某平台用户数"）→ 可能是编的，自己查</li>
         </ul>
         <p>遇到不确定的事，你可以用豆包问一遍，再用 DeepSeek 问一遍，对比两个答案。两个都说一样的，大概率是对的。</p>
-        <button class="checkpoint-btn" onclick="markDone(12)" style="margin-top:8px">这步做完了 ✓</button>
+        <button class="checkpoint-btn" onclick="markDone(12)" style="margin-top:8px">看懂了 ✓</button>
       </div>
     </div>
 
