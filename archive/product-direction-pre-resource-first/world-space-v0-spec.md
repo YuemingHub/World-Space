@@ -1,3 +1,8 @@
+> **SUPERSEDED — historical only（已废止，仅供历史追溯）**
+> 本文描述的是已废止的旧方向：自建 Reality Project 产品闭环。
+> 当前唯一产品方向是 Resource First，见 [PRODUCT.md](../../PRODUCT.md)。
+> 本文内容不再构成任何当前承诺或计划。
+
 # World Space V0 产品规格
 
 > PHASE 4 产出。Implementation-ready product spec。

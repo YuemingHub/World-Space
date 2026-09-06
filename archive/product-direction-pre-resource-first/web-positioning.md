@@ -1,3 +1,8 @@
+> **SUPERSEDED — historical only（已废止，仅供历史追溯）**
+> 本文基于旧方向的首页结构（"我有一个自己的想法"输入框 / Reality Project 创建），
+> 该结构已不再适用。当前唯一产品方向是 Resource First，见 [PRODUCT.md](../../PRODUCT.md)。
+> 本文内容不再构成任何当前承诺或计划。
+
 # Web 定位：ymai.fun 公开体验
 
 > PHASE 3 产出。定义 ymai.fun 公开网站的信息架构和定位调整。

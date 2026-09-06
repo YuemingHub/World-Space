@@ -1,3 +1,8 @@
+> **SUPERSEDED — historical only（已废止，仅供历史追溯）**
+> 本文审查的是已废止的旧方向（Reality Project / 数据库 / AI Provider 接入），
+> 其建议不再适用。当前唯一产品方向是 Resource First，见 [PRODUCT.md](../../PRODUCT.md)。
+> 本文内容不再构成任何当前承诺或计划。
+
 # PHASE 5 — 五维独立审查
 
 > 审查日期：2026-09-06

@@ -6,7 +6,7 @@
 <meta name="description" content="世界已经有这么多能力，你想做点什么？">
 <title>World Space — 你想做点什么？</title>
 <style>
-/* === Design Tokens (from CURRENT_DESIGN.md) === */
+/* === Design Tokens === */
 :root {
   --accent: #3B82F6;
   --accent-strong: #2563EB;
@@ -24,7 +24,6 @@
   --space: 24px;
 }
 
-/* === Reset === */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { -webkit-text-size-adjust: 100%; }
 
@@ -37,7 +36,6 @@ body {
   min-height: 100vh;
 }
 
-/* === Layout === */
 .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
 
 /* === Homepage Hero === */
@@ -57,12 +55,12 @@ body {
 }
 
 /* === Goal Cards === */
-.goals { max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; padding-bottom: 80px; }
+.goals { max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
 .goal-card {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 24px 24px;
+  padding: 24px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -81,6 +79,20 @@ body {
 .goal-card .text .desc { font-size: 14px; color: var(--fg-muted); line-height: 1.5; }
 .goal-card .arrow { flex-shrink: 0; color: var(--fg-muted); font-size: 20px; transition: transform .15s; }
 .goal-card:hover .arrow { transform: translateX(4px); color: var(--accent); }
+
+/* === Advanced link === */
+.advanced-link {
+  text-align: center;
+  padding: 24px 24px 80px;
+}
+.advanced-link a {
+  color: var(--fg-muted);
+  font-size: 14px;
+  text-decoration: none;
+  border-bottom: 1px dashed var(--border);
+  padding-bottom: 2px;
+}
+.advanced-link a:hover { color: var(--accent); border-bottom-color: var(--accent); }
 
 /* === Path Page === */
 .path-page { display: none; padding: 40px 24px 80px; }
@@ -150,16 +162,6 @@ body {
 }
 .path-page table { width: 100%; border-collapse: collapse; margin: 8px 0 16px; font-size: 15px; }
 .path-page th, .path-page td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); }
-.path-page th { font-weight: 500; color: var(--fg-muted); }
-.path-page .success-marker {
-  display: inline-block;
-  padding: 4px 12px;
-  background: rgba(22,163,74,.1);
-  color: var(--leaf);
-  border-radius: var(--radius-sm);
-  font-size: 14px;
-  font-weight: 500;
-}
 .path-page .warning {
   padding: 12px 16px;
   background: rgba(217,119,6,.08);
@@ -204,36 +206,34 @@ footer a { color: var(--fg-muted); text-decoration: none; }
 <div class="goals" id="goals">
   <button class="goal-card" onclick="showPath('make-website')">
     <span class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></span>
-    <span class="text"><span class="title">做一个自己的东西</span><span class="desc">网站、小应用、小工具、原型——不会编程也能做</span></span>
+    <span class="text"><span class="title">做一个自己的东西</span><span class="desc">网站、小应用——不会编程也能做</span></span>
     <span class="arrow">→</span>
   </button>
 
   <button class="goal-card" onclick="showPath('express-idea')">
     <span class="icon"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span>
-    <span class="text"><span class="title">把一个想法表达出来</span><span class="desc">写文章、做演示、画图、整理知识</span></span>
+    <span class="text"><span class="title">把一个想法表达出来</span><span class="desc">写文章、画图、整理知识</span></span>
     <span class="arrow">→</span>
   </button>
 
   <button class="goal-card" onclick="showPath('understand-topic')">
     <span class="icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></span>
-    <span class="text"><span class="title">搞明白一件事情</span><span class="desc">查资料、深度研究、对比、找证据</span></span>
+    <span class="text"><span class="title">搞明白一件事情</span><span class="desc">查资料、找答案、搞清楚</span></span>
     <span class="arrow">→</span>
   </button>
 
   <button class="goal-card" onclick="showPath('automate-work')">
     <span class="icon"><svg viewBox="0 0 24 24"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg></span>
-    <span class="text"><span class="title">少做一些重复工作</span><span class="desc">自动整理、自动收集、批量处理</span></span>
-    <span class="arrow">→</span>
-  </button>
-
-  <button class="goal-card" onclick="showPath('ai-operate')">
-    <span class="icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
-    <span class="text"><span class="title">让 AI 帮我操作电脑或网络</span><span class="desc">浏览网页、使用外部应用、执行任务</span></span>
+    <span class="text"><span class="title">少做一些重复工作</span><span class="desc">自动整理、批量处理</span></span>
     <span class="arrow">→</span>
   </button>
 </div>
 
-<!-- ============ PATH: 做一个网站 ============ -->
+<div class="advanced-link">
+  <a href="#" onclick="showPath('ai-operate'); return false;">想让 AI 真正替你操作？看进阶能力 →</a>
+</div>
+
+<!-- ============ PATH: 做一个东西 ============ -->
 <div id="path-make-website" class="path-page">
   <div class="wrap">
     <button class="back" onclick="showHome()">← 回到首页</button>
@@ -246,43 +246,26 @@ footer a { color: var(--fg-muted); text-decoration: none; }
     </section>
 
     <section>
-      <h3>最推荐从哪里开始？</h3>
-      <p><strong>v0</strong> — 打开网页，打字，出结果。</p>
-      <a class="resource" href="https://v0.dev" target="_blank" rel="noopener">v0.dev →</a>
-      <p style="margin-top:12px">如果你想要一个带后端的完整应用（比如能存数据），用 Bolt.new。</p>
+      <h3>先从这里开始</h3>
+      <p><strong>v0</strong> — 打开网页，打字，出结果。不用装软件，不用懂代码。</p>
+      <a class="resource" href="https://v0.dev" target="_blank" rel="noopener">v0 →</a>
+      <div class="callout">做到这里以后，如果发现需要数据库、登录等功能，再看看 Bolt.new。</div>
       <a class="resource" href="https://bolt.new" target="_blank" rel="noopener">Bolt.new →</a>
-      <p style="margin-top:12px">如果你想在浏览器里自己也能改代码，用 Replit。</p>
-      <a class="resource" href="https://replit.com" target="_blank" rel="noopener">Replit →</a>
-      <p style="margin-top:12px;color:var(--fg-muted)">不要纠结选哪个。先从 v0 开始。</p>
-    </section>
-
-    <section>
-      <h3>为什么推荐 v0？</h3>
-      <p>打开网页，打字，出结果。不用装软件，不用注册也能试用，不用懂代码。Vercel 出品，生成完可以直接发布到网上。</p>
-    </section>
-
-    <section>
-      <h3>难不难？</h3>
-      <p>非常简单。你会打字就行。</p>
+      <p style="margin-top:12px">不要纠结选哪个。先从 v0 开始。</p>
     </section>
 
     <section>
       <h3>要钱吗？</h3>
-      <p>免费额度够你做出第一个网站。想长期用或发更多，Pro $20/月。</p>
+      <p>可以免费开始。具体价格以官网为准。</p>
     </section>
 
     <section>
       <h3>第一步</h3>
       <ul>
-        <li>打开 <a href="https://v0.dev" target="_blank" rel="noopener">v0.dev</a></li>
+        <li>打开 v0.dev</li>
         <li>找到输入框</li>
         <li>用一句中文描述你想要的网站</li>
       </ul>
-    </section>
-
-    <section>
-      <h3>第一句怎么说？</h3>
-      <p>复制下面这段，改成你自己的内容：</p>
       <div class="prompt">我想给手工作品做一个展示网站。
 页面顶部写网站名字"XX的手工作品"。
 下面放一段自我介绍，说我喜欢做什么手工。
@@ -293,16 +276,15 @@ footer a { color: var(--fg-muted); text-decoration: none; }
 
     <section>
       <h3>做到什么算第一步成功？</h3>
-      <p>你看到一个能打开的网页，上面有你写的内容，布局合理。</p>
-      <div class="callout">这就是第一步成功。</div>
+      <p>你看到一个能打开的网页，上面有你写的内容，布局合理。<strong>这就是第一步成功。</strong></p>
     </section>
 
     <section>
       <h3>下一步怎么走？</h3>
       <ul>
-        <li>看看哪里不满意，继续在对话里告诉它怎么改（比如"把颜色改成暖棕色""加一个关于我页面"）</li>
-        <li>满意了，点发布，你会得到一个可以分享的网址</li>
-        <li>想用自己的域名？可以把 v0 生成的代码部署到 Vercel</li>
+        <li>看看哪里不满意，继续在对话里告诉它怎么改</li>
+        <li>需要数据库/登录等功能 → 看 Bolt.new</li>
+        <li>想自己改代码 → 以后再看 Replit 或 Cursor</li>
       </ul>
     </section>
 
@@ -310,10 +292,9 @@ footer a { color: var(--fg-muted); text-decoration: none; }
       <h3>卡住了怎么办？</h3>
       <table>
         <tr><th>问题</th><th>解决</th></tr>
-        <tr><td>生成的东西完全不是我要的</td><td>换一种说法，更具体地描述。比如不要说"好看的网站"，说"白色背景、左对齐文字、图片在右边的网站"</td></tr>
-        <tr><td>中文显示有乱码</td><td>在提示词里加上"页面使用中文"</td></tr>
-        <tr><td>想要的功能它做不了</td><td>v0 做的是前端展示。需要登录、数据库等后端功能，换用 Bolt.new</td></tr>
-        <tr><td>不想看到代码</td><td>v0 默认会显示代码，你可以忽略它，只看预览</td></tr>
+        <tr><td>生成的不像我要的</td><td>给更具体的描述。不要说"做好看点"，说"顶部用暖棕色，字体大一号"</td></tr>
+        <tr><td>想改某个部分</td><td>直接告诉它："把联系方式区域改成表单"</td></tr>
+        <tr><td>想发布到网上</td><td>v0 生成后可以直接部署，按提示操作</td></tr>
       </table>
     </section>
   </div>
@@ -324,41 +305,29 @@ footer a { color: var(--fg-muted); text-decoration: none; }
   <div class="wrap">
     <button class="back" onclick="showHome()">← 回到首页</button>
     <h2>把一个想法表达出来</h2>
-    <p class="lede">写文章、做演示、画图、整理知识——现在都有了最省事的起点。</p>
+    <p class="lede">写文章、做演示、画图——都有了最省事的起点。</p>
 
     <section>
       <h3>你现在可以做到什么？</h3>
-      <p>不管你是想写一篇文章、做一份演示、画一张图，还是把零散的想法整理清楚，都有不用学就能上手的工具。</p>
+      <p>不管你是想写一篇文章、做一份演示，还是画一张图，都有不用学就能上手的工具。</p>
     </section>
 
     <section>
-      <h3>最推荐从哪里开始？</h3>
-      <p>看你想做什么：</p>
-      <ul>
-        <li><strong>写文章 / 整理知识</strong> → Notion</li>
-        <li><strong>做演示 / 汇报</strong> → Gamma</li>
-        <li><strong>画图 / 画流程图</strong> → Excalidraw</li>
-      </ul>
-      <div style="margin-top:12px">
-        <a class="resource" href="https://notion.so" target="_blank" rel="noopener">Notion →</a>
-        <a class="resource" href="https://gamma.app" target="_blank" rel="noopener">Gamma →</a>
-        <a class="resource" href="https://excalidraw.com" target="_blank" rel="noopener">Excalidraw →</a>
-      </div>
-    </section>
-
-    <section>
-      <h3>为什么推荐它们？</h3>
-      <p><strong>Notion</strong>：写作体验好，AI 集成自然。你写一段话，可以让它帮你润色、扩展、改语气。中文支持好。免费够用。</p>
-      <p><strong>Gamma</strong>：输入主题，AI 自动生成演示结构 + 视觉。比 PPT 省时间十倍。不用排版。</p>
-      <p><strong>Excalidraw</strong>：打开网页就能画，不用注册，不用安装。手绘风格，让普通人也有表达自信。</p>
+      <h3>先从这里开始</h3>
+      <p><strong>写文章 / 整理知识</strong> → Notion</p>
+      <a class="resource" href="https://notion.so" target="_blank" rel="noopener">Notion →</a>
+      <p style="margin-top:12px"><strong>画图 / 画流程图</strong> → Excalidraw</p>
+      <a class="resource" href="https://excalidraw.com" target="_blank" rel="noopener">Excalidraw →</a>
+      <p style="margin-top:12px"><strong>做演示</strong> → Gamma（国内可能无法直接访问，打不开先用 Notion 写内容）</p>
+      <a class="resource" href="https://gamma.app" target="_blank" rel="noopener">Gamma →</a>
     </section>
 
     <section>
       <h3>要钱吗？</h3>
       <ul>
-        <li>Notion：免费够用；Plus $10/月</li>
-        <li>Gamma：免费额度可用；Plus $10/月</li>
-        <li>Excalidraw：完全免费，可以自部署</li>
+        <li>Notion：可以免费开始</li>
+        <li>Excalidraw：完全免费</li>
+        <li>Gamma：可以免费开始（具体价格以官网为准）</li>
       </ul>
     </section>
 
@@ -373,16 +342,6 @@ footer a { color: var(--fg-muted); text-decoration: none; }
       <div class="prompt">帮我写一篇关于"我为什么开始做手工"的短文。
 语气像在跟朋友聊天，500字左右。</div>
 
-      <p style="margin-top:16px"><strong>做演示（Gamma）</strong></p>
-      <ul>
-        <li>打开 gamma.app</li>
-        <li>输入你的主题</li>
-        <li>让 AI 生成</li>
-      </ul>
-      <div class="prompt">帮我做一份关于"我的手工作品"的演示。
-大约8页，每页一个作品，带介绍。
-风格温暖简洁。</div>
-
       <p style="margin-top:16px"><strong>画图（Excalidraw）</strong></p>
       <ul>
         <li>打开 excalidraw.com</li>
@@ -395,7 +354,6 @@ footer a { color: var(--fg-muted); text-decoration: none; }
       <h3>做到什么算第一步成功？</h3>
       <ul>
         <li>写文章：你有一篇可以读的完整文章</li>
-        <li>做演示：你有一份可以翻页展示的演示</li>
         <li>画图：你有一张能分享的图</li>
       </ul>
     </section>
@@ -406,8 +364,8 @@ footer a { color: var(--fg-muted); text-decoration: none; }
         <tr><th>问题</th><th>解决</th></tr>
         <tr><td>AI 写的东西不像我说的</td><td>给它具体要求：语气、长度、受众。不要说"写好一点"，说"像给小学生解释一样写"</td></tr>
         <tr><td>Notion 界面太复杂</td><td>只用一个页面就够了。不要管数据库、模板那些功能</td></tr>
-        <tr><td>Gamma 生成的风格不喜欢</td><td>换一个模板主题，或者在提示词里描述风格</td></tr>
         <tr><td>Excalidraw 画不好看</td><td>手绘风格本来就不追求精确。放开画，越随意越好看</td></tr>
+        <tr><td>Gamma 打不开</td><td>国内可能无法直接访问。先用 Notion 写内容</td></tr>
       </table>
     </section>
   </div>
@@ -418,35 +376,26 @@ footer a { color: var(--fg-muted); text-decoration: none; }
   <div class="wrap">
     <button class="back" onclick="showHome()">← 回到首页</button>
     <h2>搞明白一件事情</h2>
-    <p class="lede">查资料、深度研究、对比、找证据——现在有免费的 AI 帮你。</p>
+    <p class="lede">查资料、找答案、搞清楚——现在有免费的 AI 帮你。</p>
 
     <section>
       <h3>你现在可以做到什么？</h3>
-      <p>你不用翻几十个网页自己拼凑信息。用 AI 对话或搜索，直接得到带来源的答案。</p>
+      <p>你不用翻几十个网页自己拼凑信息。用 AI 对话，直接得到答案。</p>
     </section>
 
     <section>
-      <h3>最推荐从哪里开始？</h3>
-      <p><strong>DeepSeek</strong> — 免费、中文好、有深度思考模式、国内可直接访问。</p>
+      <h3>先从这里开始</h3>
+      <p><strong>DeepSeek</strong> — 免费、中文好、有深度思考模式、国内可以直接访问。</p>
       <a class="resource" href="https://chat.deepseek.com" target="_blank" rel="noopener">DeepSeek →</a>
-      <p style="margin-top:12px">如果你需要带来源引用的深度研究，用 Perplexity。</p>
+      <p style="margin-top:12px">需要带来源引用的深度研究可以用 Perplexity，但国内可能无法直接访问。如果打不开，先用 DeepSeek。</p>
       <a class="resource" href="https://perplexity.ai" target="_blank" rel="noopener">Perplexity →</a>
-      <p style="margin-top:12px">如果你要读论文，用 GPT-Academic。</p>
-    </section>
-
-    <section>
-      <h3>为什么推荐它们？</h3>
-      <p><strong>DeepSeek</strong>：免费、中文好、有深度思考模式、国内可直接访问。不需要翻墙，不需要 API Key。对中文用户来说是最省事的 AI 入口。</p>
-      <p><strong>Perplexity</strong>：专注"带来源的搜索+研究"。每个答案都有出处链接，不是凭空生成。适合需要核实信息的研究场景。</p>
-      <p><strong>GPT-Academic</strong>：专为学术场景优化：一键论文总结、翻译、润色。中文社区活跃。适合学生和研究者。</p>
     </section>
 
     <section>
       <h3>要钱吗？</h3>
       <ul>
-        <li>DeepSeek：完全免费；API 价格极低</li>
-        <li>Perplexity：免费额度可用；Pro $20/月</li>
-        <li>GPT-Academic：开源免费；需要自己的 API Key</li>
+        <li>DeepSeek：免费</li>
+        <li>Perplexity：可以免费开始（具体价格以官网为准）</li>
       </ul>
     </section>
 
@@ -460,15 +409,6 @@ footer a { color: var(--fg-muted); text-decoration: none; }
       </ul>
       <div class="prompt">我想了解一下，做手工艺品在网上卖，一般从哪里开始？
 我不懂电商，请用大白话解释。</div>
-
-      <p style="margin-top:16px"><strong>深度研究（Perplexity）</strong></p>
-      <ul>
-        <li>打开 perplexity.ai</li>
-        <li>输入你的研究问题</li>
-        <li>看答案下面的来源链接，点进去核实</li>
-      </ul>
-      <div class="prompt">2025年最适合个人手工艺者开店的电商平台是哪些？
-请对比它们的费用、流量、入驻门槛。</div>
     </section>
 
     <section>
@@ -481,9 +421,8 @@ footer a { color: var(--fg-muted); text-decoration: none; }
       <table>
         <tr><th>问题</th><th>解决</th></tr>
         <tr><td>DeepSeek 回答太笼统</td><td>打开"深度思考"模式，或者在问题里加"请详细分析"</td></tr>
-        <tr><td>Perplexity 国内打不开</td><td>用 DeepSeek 替代，或者用科学上网工具</td></tr>
-        <tr><td>答案跟我知道的不一样</td><td>AI 会出错。重要信息一定要看来源链接，自己核实</td></tr>
-        <tr><td>GPT-Academic 安装太复杂</td><td>先用 DeepSeek。GPT-Academic 适合经常读论文的人再装</td></tr>
+        <tr><td>Perplexity 打不开</td><td>先用 DeepSeek。DeepSeek 也能联网搜索</td></tr>
+        <tr><td>答案跟我知道的不一样</td><td>AI 会出错。重要信息一定要自己核实</td></tr>
       </table>
     </section>
   </div>
@@ -494,62 +433,44 @@ footer a { color: var(--fg-muted); text-decoration: none; }
   <div class="wrap">
     <button class="back" onclick="showHome()">← 回到首页</button>
     <h2>少做一些重复工作</h2>
-    <p class="lede">自动整理、自动收集、批量处理——让工具替你跑重复步骤。</p>
+    <p class="lede">自动整理、批量处理——让工具替你跑重复步骤。</p>
 
     <section>
       <h3>你现在可以做到什么？</h3>
-      <p>把那些你每天/每周重复做的事情，用工具串起来自动跑。比如"收到邮件→自动存到表格→发消息通知"。</p>
+      <p>把那些你每天/每周重复做的事情，用工具自动跑。比如"收到邮件→自动存到表格→发消息通知"。</p>
     </section>
 
     <section>
-      <h3>最推荐从哪里开始？</h3>
-      <p>看你要做什么：</p>
-      <ul>
-        <li><strong>串联多个工具自动跑</strong> → n8n</li>
-        <li><strong>处理 PDF 文件</strong> → Stirling-PDF</li>
-      </ul>
-      <div style="margin-top:12px">
-        <a class="resource" href="https://n8n.io" target="_blank" rel="noopener">n8n →</a>
-        <a class="resource" href="https://stirlingpdf.com" target="_blank" rel="noopener">Stirling-PDF →</a>
-      </div>
-    </section>
-
-    <section>
-      <h3>为什么推荐它们？</h3>
-      <p><strong>n8n</strong>：全球最流行的开源自动化工具之一。可视化拖拽，不用写代码。连接 400+ 应用。Cloud 版免安装。</p>
-      <p><strong>Stirling-PDF</strong>：强大的 PDF 工具箱。合并、拆分、压缩、转换，全部免费。在线版直接用，也可以自己部署保护隐私。</p>
-    </section>
-
-    <section>
-      <h3>难不难？</h3>
-      <p>Stirling-PDF：非常简单，打开网页上传文件就行。</p>
-      <p>n8n：中等。需要理解"触发器→动作"的概念，但不需要写代码。</p>
+      <h3>先从这里开始</h3>
+      <p><strong>处理 PDF 文件</strong> → Stirling PDF</p>
+      <a class="resource" href="https://stirling.com" target="_blank" rel="noopener">Stirling PDF →</a>
+      <p style="margin-top:12px"><strong>串联多个工具自动跑</strong> → n8n</p>
+      <a class="resource" href="https://n8n.io" target="_blank" rel="noopener">n8n →</a>
     </section>
 
     <section>
       <h3>要钱吗？</h3>
       <ul>
-        <li>n8n：自部署免费；Cloud 从 €20/月</li>
-        <li>Stirling-PDF：在线版/自部署免费</li>
+        <li>Stirling PDF：开源免费（桌面版/自部署）</li>
+        <li>n8n：自部署免费但有技术门槛；Cloud 有免费试用（具体价格以官网为准）</li>
       </ul>
     </section>
 
     <section>
       <h3>第一步</h3>
-      <p><strong>处理 PDF（Stirling-PDF）</strong></p>
+      <p><strong>处理 PDF（Stirling PDF）</strong></p>
       <ul>
-        <li>打开 stirlingpdf.com</li>
+        <li>打开 stirling.com，下载桌面版（免费）</li>
         <li>选择你要的操作（合并 / 拆分 / 压缩 / 转换）</li>
         <li>上传文件，点执行</li>
       </ul>
-      <p>不需要注册，不需要安装。</p>
 
       <p style="margin-top:16px"><strong>自动化工作流（n8n）</strong></p>
       <ul>
-        <li>打开 n8n.io，注册 Cloud 试用（或自部署）</li>
+        <li>打开 n8n.io，注册 Cloud 试用</li>
         <li>点"Create Workflow"</li>
-        <li>添加一个触发器（比如"收到邮件"）</li>
-        <li>添加一个动作（比如"存到 Google Sheets"）</li>
+        <li>添加一个触发器（比如"每天早上 8 点"）</li>
+        <li>添加一个动作（比如"调用 AI 总结邮件"）</li>
         <li>连起来，激活</li>
       </ul>
       <div class="prompt">触发器：每天早上 8 点
@@ -560,7 +481,7 @@ footer a { color: var(--fg-muted); text-decoration: none; }
     <section>
       <h3>做到什么算第一步成功？</h3>
       <ul>
-        <li>Stirling-PDF：你成功合并/拆分/压缩了一个 PDF</li>
+        <li>Stirling PDF：你成功合并/拆分/压缩了一个 PDF</li>
         <li>n8n：你的第一个工作流成功跑了一次，自动完成了一件以前要手动做的事</li>
       </ul>
     </section>
@@ -569,52 +490,29 @@ footer a { color: var(--fg-muted); text-decoration: none; }
       <h3>卡住了怎么办？</h3>
       <table>
         <tr><th>问题</th><th>解决</th></tr>
-        <tr><td>n8n 不知道怎么开始</td><td>先看官方模板库（Templates），找一个接近你需求的复制改</td></tr>
+        <tr><td>n8n 不知道怎么开始</td><td>先看官方模板库，找一个接近你需求的复制改</td></tr>
         <tr><td>n8n 连不上某个应用</td><td>检查该应用是否需要 API Key 或授权</td></tr>
-        <tr><td>Stirling-PDF 处理大文件慢</td><td>在线版有大小限制，大的文件建议自部署</td></tr>
         <tr><td>不确定要不要用 n8n</td><td>如果你只是偶尔手动操作一次，不需要自动化。n8n 适合每周重复 3 次以上的任务</td></tr>
       </table>
     </section>
   </div>
 </div>
 
-<!-- ============ PATH: AI 操作电脑 ============ -->
+<!-- ============ PATH: 进阶能力 ============ -->
 <div id="path-ai-operate" class="path-page">
   <div class="wrap">
     <button class="back" onclick="showHome()">← 回到首页</button>
-    <h2>让 AI 帮我操作电脑或网络</h2>
-    <p class="lede">让 AI 自己浏览网页、填表、收集信息，或在你的电脑上执行任务。</p>
+    <h2>进阶能力</h2>
+    <p class="lede">让 AI 像人一样操作浏览器或电脑。这是进阶选项，需要一定技术基础。</p>
+
+    <div class="warning">⚠️ 这条路径门槛最高。如果你完全不想碰技术，建议先走前 4 条路径。</div>
 
     <section>
-      <h3>你现在可以做到什么？</h3>
-      <p>让 AI 像人一样操作浏览器：打开网页、点击、填表、截图、收集信息。或者在本地电脑上执行代码处理文件。</p>
-    </section>
-
-    <section>
-      <h3>最推荐从哪里开始？</h3>
-      <p><strong>Browser Use</strong> — 目前最成熟的开源浏览器自动化 AI。</p>
+      <h3>先从这里开始</h3>
+      <p><strong>Browser Use</strong> — 让 AI 自动完成网页上的操作。有 Cloud 版本可以降低门槛。</p>
       <a class="resource" href="https://browser-use.com" target="_blank" rel="noopener">Browser Use →</a>
-      <p style="margin-top:12px">如果你想让 AI 在本地电脑上执行更广泛的任务，用 Open Interpreter。</p>
+      <p style="margin-top:12px">想让 AI 在本地电脑上执行更广泛的任务，了解 Open Interpreter。</p>
       <a class="resource" href="https://openinterpreter.com" target="_blank" rel="noopener">Open Interpreter →</a>
-    </section>
-
-    <section>
-      <div class="warning">⚠️ 这是 5 条路径里门槛最高的。如果你完全不想碰技术，建议先走前 4 条路径。</div>
-    </section>
-
-    <section>
-      <h3>为什么推荐它们？</h3>
-      <p><strong>Browser Use</strong>：112K stars，目前最成熟的开源浏览器自动化 AI。有 Cloud 版本降低门槛。可以让 AI 自动完成网页上的重复操作。</p>
-      <p><strong>Open Interpreter</strong>：让 AI 在你的电脑上执行代码和命令。不限浏览器，可以处理本地文件、批量操作。</p>
-    </section>
-
-    <section>
-      <h3>难不难？</h3>
-      <ul>
-        <li>Browser Use Cloud：中等，有界面操作</li>
-        <li>Browser Use 自部署：中偏高，需要 Python 和 API Key</li>
-        <li>Open Interpreter：中偏高，需要命令行和 API Key</li>
-      </ul>
     </section>
 
     <section>
@@ -623,6 +521,7 @@ footer a { color: var(--fg-muted); text-decoration: none; }
         <li>Browser Use：开源免费自部署；Cloud 有免费额度。需要 AI API Key</li>
         <li>Open Interpreter：开源免费。需要 AI API Key 或本地模型</li>
       </ul>
+      <p>具体价格以官网为准。</p>
     </section>
 
     <section>
@@ -649,7 +548,7 @@ footer a { color: var(--fg-muted); text-decoration: none; }
         <tr><td>Cloud 版免费额度用完了</td><td>可以自部署，或者减少使用频率</td></tr>
         <tr><td>自部署安装失败</td><td>确认 Python 版本 ≥ 3.11，用虚拟环境隔离</td></tr>
         <tr><td>AI 操作网页不稳定</td><td>网页结构会变。给 AI 更明确的指令，比如"点击右上角蓝色的登录按钮"</td></tr>
-        <tr><td>觉得太复杂</td><td>这条路径是进阶选项。先走"少做一些重复工作"路径，用 n8n 可能更简单</td></tr>
+        <tr><td>觉得太复杂</td><td>先走"少做一些重复工作"路径，用 n8n 可能更简单</td></tr>
       </table>
     </section>
   </div>
@@ -664,14 +563,16 @@ footer a { color: var(--fg-muted); text-decoration: none; }
 function showPath(id) {
   document.getElementById('home').style.display = 'none';
   document.querySelector('.goals').style.display = 'none';
-  document.querySelectorAll('.path-page').forEach(el => el.classList.remove('active'));
+  document.querySelector('.advanced-link').style.display = 'none';
+  document.querySelectorAll('.path-page').forEach(function(el) { el.classList.remove('active'); });
   document.getElementById('path-' + id).classList.add('active');
   window.scrollTo(0, 0);
 }
 function showHome() {
-  document.querySelectorAll('.path-page').forEach(el => el.classList.remove('active'));
   document.getElementById('home').style.display = 'block';
   document.querySelector('.goals').style.display = 'flex';
+  document.querySelector('.advanced-link').style.display = 'block';
+  document.querySelectorAll('.path-page').forEach(function(el) { el.classList.remove('active'); });
   window.scrollTo(0, 0);
 }
 </script>
