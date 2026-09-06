@@ -168,7 +168,7 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
   <h1>从这里开始用 AI</h1>
   <p class="sub">不用先学、不用先懂。跟着走，<strong>4 步</strong>，每一步都让 AI 帮你真的做成一件事。</p>
   <p class="tools">主要就两个工具，网页直接打开，免费：<span>豆包</span> <span>DeepSeek</span></p>
-  <a class="start-btn" href="#stage-1" onclick="document.getElementById('stage-1').classList.add('open');document.getElementById('step-1').classList.add('open');setTimeout(function(){document.getElementById('step-1').scrollIntoView({behavior:'smooth',block:'center'})},100);return false">开始第一步 →</a>
+  <a class="start-btn" id="startBtn" href="#stage-1" onclick="return startJourney()">开始第一步 →</a>
 </div>
 
 <!-- ============ OVERVIEW ============ -->
@@ -615,6 +615,7 @@ function resetAll() {
   document.getElementById('graduation').style.display = 'none';
   document.getElementById('stage-1').classList.add('open');
   document.getElementById('step-1').classList.add('open');
+  document.getElementById('startBtn').textContent = '开始第一步 →';
   updateProgress();
   saveProgress();
   window.scrollTo({top:0, behavior:'smooth'});
@@ -635,6 +636,14 @@ function restoreProgress() {
     var pill = document.getElementById('pill-' + s);
     if (pill) { pill.classList.add('active'); }
   }
+  // Returning users see "continue" instead of "start"
+  if (Object.keys(completedSteps).length > 0 && Object.keys(completedStages).length < 4) {
+    document.getElementById('startBtn').textContent = '继续上次的进度 →';
+  }
+  if (Object.keys(completedStages).length >= 4) {
+    document.getElementById('startBtn').textContent = '查看你做成的事 →';
+    document.getElementById('graduation').style.display = 'block';
+  }
   // Open first incomplete stage
   var firstIncomplete = 1;
   for (var i = 1; i <= 4; i++) {
@@ -647,10 +656,36 @@ function restoreProgress() {
   for (var j = 0; j < steps.length; j++) {
     if (!steps[j].classList.contains('done')) { steps[j].classList.add('open'); break; }
   }
-  if (Object.keys(completedStages).length >= 4) {
-    document.getElementById('graduation').style.display = 'block';
-  }
   updateProgress();
+}
+
+// Hero button: go to wherever this user actually is
+function startJourney() {
+  if (Object.keys(completedStages).length >= 4) {
+    var grad = document.getElementById('graduation');
+    grad.style.display = 'block';
+    grad.scrollIntoView({behavior:'smooth', block:'center'});
+    return false;
+  }
+  var n = 1;
+  for (var i = 1; i <= 4; i++) {
+    if (!completedStages[i]) { n = i; break; }
+  }
+  var stageEl = document.getElementById('stage-' + n);
+  stageEl.classList.add('open');
+  var steps = stageEl.querySelectorAll('.step');
+  var target = null;
+  for (var j = 0; j < steps.length; j++) {
+    if (!steps[j].classList.contains('done')) { target = steps[j]; break; }
+  }
+  if (target) {
+    target.classList.add('open');
+    setTimeout(function() { target.scrollIntoView({behavior:'smooth', block:'center'}); }, 100);
+  } else {
+    var cp = stageEl.querySelector('.checkpoint');
+    setTimeout(function() { cp.scrollIntoView({behavior:'smooth', block:'center'}); }, 100);
+  }
+  return false;
 }
 
 // Auto-open first stage
