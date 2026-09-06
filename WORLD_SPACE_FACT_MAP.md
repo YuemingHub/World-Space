@@ -1,4 +1,4 @@
-# OUR_WORLD_FACT_MAP
+# WORLD_SPACE_FACT_MAP
 
 > 生成时间：2026-09-06
 > 扫描方式：只读 Git 命令 + 文件系统遍历 + 内容读取

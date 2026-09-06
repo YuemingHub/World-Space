@@ -2,20 +2,79 @@
 
 > 本文件是 World Space 的唯一产品定义。
 > 最后更新：2026-09-06
+> 方向修正：从"自建 Reality Project 产品闭环"转向"Resource First——发现、筛选、带着普通人使用世界已有优秀能力"
 
 ---
 
-## 1. WHY
+## 0. 最高原则
+
+> **我们不制造能力，我们寻找世界上已经存在的最好能力，然后帮助普通人知道：我想做这件事，该从哪里进去、怎么开始、怎么把它做出来。**
+
+> **让一个原本不知道该怎么办的人，真正开始做，并且少走很多弯路。**
+
+> **不要造轮子。Founder 本身不是开发出身，也不应该靠一个人重新开发世界上已经成熟的 AI 基础设施。**
+
+World Space 的价值不是"我们有多少 AI 功能"，而是：
+
+**世界已经有这么多能力，普通人怎样真正用起来。**
+
+---
+
+## 1. WHAT IS WORLD SPACE
+
+World Space 是：
+
+**一个帮助普通人找到并使用世界现有优秀能力，把一个想法真正开始做起来的行动入口。**
+
+World Space 做三件事：
+
+### 找
+找到当前世界上真正优秀、仍在维护、值得普通人使用的现成能力。
+
+### 选
+不是做"AI 工具大全"。而是替普通人筛选：这件事，现在最值得从哪里开始。
+
+### 带着开始
+不是只扔一个 GitHub 链接。而是告诉普通人：它能帮你干什么、为什么推荐它、第一步点哪里、第一段话怎么说、做到什么程度算已经开始、卡住以后怎么办。
+
+核心不是"收藏"，核心是：**行动。**
+
+---
+
+## 2. WHAT WORLD SPACE IS NOT
+
+World Space 不是：
+
+- AI 基础设施公司
+- Agent Framework
+- AI Operating System 的重新实现
+- Workflow Builder
+- Coding Agent
+- Research Agent
+- Browser Agent
+- MCP Host 重造
+- SaaS 大平台
+- AI 工具大全
+- GitHub 项目排行榜
+- 教程网站
+- Agent Marketplace
+- 社区 / 社交平台
+- enterprise 产品
+- credits / token 经济系统
+
+---
+
+## 3. WHY
 
 一个普通人脑子里有一个想法，但这个想法永远停留在脑子里。
 
-不是因为想法不好，而是因为从"想法"到"现实"之间有太多看不见的步骤。普通人不知道下一步该做什么，不知道什么工具能帮自己，不知道做出来的东西算不算"完成"。
+不是因为想法不好，而是因为从"想法"到"行动"之间有太多看不见的步骤。世界已经有这么多能力，但普通人不知道该从哪个进去、怎么开始、怎么把它做出来。
 
-World Space 存在的理由：**把"想法→现实"这条路径变成可见的、可走的、可完成的。**
+World Space 存在的理由：**让一个原本不知道该怎么办的人，真正开始做，并且少走很多弯路。**
 
 ---
 
-## 2. WHO
+## 4. WHO
 
 一个普通人。
 
@@ -24,193 +83,135 @@ World Space 存在的理由：**把"想法→现实"这条路径变成可见的�
 - 不是技术爱好者
 - 是一个有真实想法、但不知道怎么把它做出来的人
 
-可能是一个想给孩子做一本绘本的家长，一个想把经验整理成小书的退休者，一个想解决自己工作中某个小问题的人。
+可能是一个想做网站的家长，一个想把经验整理成小书的退休者，一个想解决自己工作中某个小问题的人。
 
 ---
 
-## 3. CORE JOB
+## 5. 复用优先级
 
-**帮助一个普通人把一个真实想法带进现实。**
-
-不是"教他学 AI"。
-不是"给他推荐工具"。
-不是"替他把事情做完"。
-
-是陪他走完从想法到现实的全过程，让他知道：
-- 我想要什么结果
-- 我现在在哪一步
-- 下一步做什么
-- 用什么来做
-- 做出来的东西放哪
-- 这件事到底完成了没有
-
----
-
-## 4. NON-GOALS
-
-World Space **不是**：
-
-- AI 工具导航站
-- 教程网站
-- Agent Marketplace
-- 通用自动化平台
-- 社区 / 社交平台
-- workflow builder
-- enterprise 产品
-- credits / token 经济系统
-- plugin marketplace
-- complex multi-agent orchestration
-
-这些方向无论看起来多有吸引力，在 V0.1 阶段一律不做。
-
----
-
-## 5. CORE LOOP
+以后 World Space 引入任何能力，必须按下面顺序决策：
 
 ```
-真实意图
-  → 定义现实结果
-  → 建立 Project
-  → 找到下一步
-  → 使用合适 AI / Agent / Tool
-  → 产生 Artifact
-  → 在现实中执行
-  → Evidence 确认结果
-  → 继续迭代
+1. 直接引用现有产品 / 项目
+        ↓
+2. 使用官方现成配置 / Template
+        ↓
+3. 使用 API / SDK / MCP
+        ↓
+4. 做非常薄的适配层
+        ↓
+5. 必要时轻度 Fork
+        ↓
+6. 自己开发
 ```
 
-这个闭环是 World Space 的核心。所有功能设计必须服务于这个闭环。
+第 6 项必须永远是最后选项。
+
+任何"自己开发"都必须先回答：
+
+1. GitHub / 市场上是否已经有成熟方案？
+2. 为什么不能直接复用？
+3. 为什么 API / SDK 不够？
+4. 为什么 Fork 不够？
+5. 自己维护它未来会付出什么成本？
+6. 这个能力真的是 World Space 的核心资产吗？
+
+回答不成立：**禁止开发。**
 
 ---
 
-## 6. PROJECT MODEL
+## 6. 废止的旧方向
 
-一个 Reality Project 的最小模型：
+以下方向已废止，不再推进：
 
-| 字段 | 说明 |
-|---|---|
-| `intent` | 用户的真实意图（一句话：你想让什么事情发生？） |
-| `desired_outcome` | 期望的现实结果（做完了现实里会多出什么东西？） |
-| `definition_of_done` | 什么算完成（可验证的完成标准） |
-| `current_state` | 当前状态（草稿 / 进行中 / 已完成 / 已放弃） |
-| `next_action` | 下一步做什么（一个具体的、可执行的动作） |
-| `artifacts` | 产出的 Artifact 列表 |
-| `actions` | 已执行的现实行动列表 |
-| `tools_used` | 使用过的 AI / Agent / Tool 记录 |
-| `evidence` | 现实证据（证明结果确实出现了） |
-| `reflection` | 回顾与反思 |
+- 自研 Agent Runtime
+- 自研 Workflow Engine
+- 自研 Browser Agent
+- 自研 Coding Agent
+- 自研 Research Agent
+- 自研 Sandbox
+- 自研 MCP 平台
+- 自研 Tool Marketplace
+- 自研复杂 Reality Project 系统
+- 自研统一执行平台
+- 自维护大量第三方 Integration
 
----
-
-## 7. ARTIFACT MODEL
-
-Artifact 是 AI 协助产出的东西。它不是最终结果，是过程中的产物。
-
-**关键区分：AI output != reality completion**
-
-| 阶段 | 含义 | 例子 |
-|---|---|---|
-| AI 生成 | AI 产出了内容 | AI 写了一篇文案草稿 |
-| Artifact 已形成 | 内容被整理为可用的 Artifact | 文案被保存为文档，有文件、有格式 |
-| Action 已执行 | 人在现实中做了事 | 把文案发到了公众号上 |
-| Reality Evidence 已出现 | 现实中出现了可验证的结果 | 公众号文章可以打开阅读 |
-
-World Space 必须追踪这四个阶段的区分。一个 Project 的"完成"不是 AI 生成了内容，而是 Reality Evidence 已出现。
+不是说这些概念永远错误，而是：**现阶段 World Space 没有理由自己开发它们。**
 
 ---
 
-## 8. REALITY EVIDENCE
+## 7. 产品边界
 
-Reality Evidence 是证明"这件事在现实中真的发生了"的东西。
+### 可以直接跳出去
 
-- 不是"AI 说完成了"
-- 不是"我觉得做完了"
-- 是可以在现实中被验证的证据
+World Space 不需要为了"用户留存"强迫用户留在自己网站。如果最好的工具就在外面，直接带用户过去。
 
-例子：
-- 做一个网站 → 网站有一个可以访问的 URL
-- 做一本小书 → 小书有一个可以阅读的文件（PDF / EPUB）
-- 做一个小工具 → 工具有一个可以运行的入口
+第一阶段成功指标：**用户进入 World Space，5 分钟后知道自己该去哪并已经开始动手。**
 
-没有 Reality Evidence 的 Project 不能标记为"已完成"。
+### 可以引用，不必集成
 
----
+如果链接足够：就链接。如果官方 Template 足够：就使用 Template。如果官方 hosted service 已经很好：就带用户过去。不要为了"看起来像自己的产品"就做 API 集成。
 
-## 9. HUMAN AUTHORITY
+### Thin Layer Only
 
-人是决策者。
-
-- 人定义意图和完成标准
-- 人决定下一步做什么
-- 人选择是否使用 AI 的建议
-- 人执行现实中的行动
-- 人确认结果是否达成
-
-AI 可以建议、可以生成、可以辅助，但**不替人做决定**。
+只有真实使用证明大量用户反复在某一步卡住，才考虑做轻集成（deeplink / prefilled prompt / template link / official SDK / MCP / API）。禁止因此开始重写对方产品。
 
 ---
 
-## 10. MODEL / AGENT AUTHORITY
+## 8. 内容诚信约束
 
-AI 的角色是辅助，不是替代。
+不得虚构：
+- 用户、成果、收入、数据、学员、转化率
+- 资源的能力、门槛、价格、维护状态
 
-- AI 可以帮助把模糊意图转化为清晰定义
-- AI 可以建议下一步行动
-- AI 可以生成 Artifact 草稿
-- AI 可以帮助检查完成标准
-
-AI 不可以：
-- 自行标记 Project 完成
-- 自行执行现实行动
-- 虚构 Reality Evidence
-- 替人决定意图
+所有推荐必须基于真实核查。项目以前很火，不代表现在值得推荐。
 
 ---
 
-## 11. RELATION WITH OTHER PRODUCTS
+## 9. RELATION WITH OTHER PRODUCTS
 
 ### Family Space（YuemingHub/Family-Space）
 
-Family Space 关注"人与最重要关系中的真实共同生活"。
-World Space 关注"把想法带进现实"。
-
-关系：Family Space 中的共同生活可能产生想法，这些想法可以进入 World Space 被实现。但 World Space 不内嵌家庭关系管理。
+Family Space 关注"人与最重要关系中的真实共同生活"。World Space 关注"把想法变成行动"。两者独立。
 
 ### Self Space（YuemingHub/Return-to-oneself）
 
-Self Space 关注"理解自己、形成真实意图"。
-World Space 关注"把真实意图带进现实"。
-
-关系：Self Space 产出的真实意图是 World Space 的输入。World Space 不做自我认知，假设进入的意图已经是真实的。
+Self Space 关注"理解自己、形成真实意图"。World Space 关注"带着行动开始"。两者独立。World Space 不假设进入的用户已经完成自我探索，但也不做自我探索。
 
 ---
 
-## 12. V0.1 SCOPE
+## 10. V0.1 SCOPE
 
-V0.1 只验证三件事：
+V0.1 只做：
 
-### A. 做一个网站
+1. **产品定义纠偏** — 从自建方向纠正为 Resource First
+2. **Resource Discovery** — 调研并筛选第一批值得推荐的优秀能力（10–20 个）
+3. **资源目录** — `catalog/resources.json`，机器可读
+4. **行动路径** — `paths/`，普通人能跟着开始的路径（4–6 条）
+5. **极简 Web** — 一个非常好的公开行动入口，不是复杂应用
+6. **验收** — 从普通人角度测试
 
-用户想做一个网站。World Space 帮助用户：
-- 定义网站要达成什么
-- 一步步做出网站的页面
-- 最终得到一个可以访问的 URL
-- 确认网站在现实中可以打开
+不扩展范围。不做社区、不做 marketplace、不做复杂编排、不做账号系统。
 
-### B. 做一本小书
+---
 
-用户想做一本小书。World Space 帮助用户：
-- 定义小书的主题和完成标准
-- 一步步写出内容
-- 最终得到一个可以阅读的文件
-- 确认小书在现实中可以阅读
+## 11. 仓库结构
 
-### C. 做一个小工具
+```
+README.md
+PRODUCT.md
+CURRENT_STATE.md
+AGENTS.md
+WORLD_SPACE_FACT_MAP.md
 
-用户想做一个小工具。World Space 帮助用户：
-- 定义工具要解决什么问题
-- 一步步做出工具
-- 最终得到一个可以运行的入口
-- 确认工具在现实中可以运行
-
-**不扩展范围。** 不做社区、不做 marketplace、不做复杂编排。V0.1 的目标是验证核心闭环在三种场景下成立。
+catalog/
+  resources.json        资源目录（机器可读）
+paths/                  普通人行动路径（Markdown）
+docs/                   设计与规格文档
+  design/
+    CURRENT_DESIGN.md   唯一当前设计真源
+archive/                历史设计资产，仅供追溯
+  design/
+    v1/
+    v2/
+```
