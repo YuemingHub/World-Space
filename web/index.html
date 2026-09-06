@@ -167,7 +167,7 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
   <h1>从这里开始用 AI</h1>
   <p class="sub">AI 就是人工智能——一个能帮你写东西、做东西、找答案的助手。完全不会也没关系，跟着走，<strong>4 个阶段</strong>，从零到能独立用。</p>
   <p class="tools">全程只用 <span>豆包</span> <span>DeepSeek</span> 两个工具，不用来回换</p>
-  <a class="start-btn" href="#stage-1" onclick="document.getElementById('stage-1').classList.add('open');document.getElementById('step-1').classList.add('open');setTimeout(function(){document.getElementById('step-1').scrollIntoView({behavior:'smooth',block:'center'})},100)">开始第一步 →</a>
+  <a class="start-btn" href="#stage-1" onclick="document.getElementById('stage-1').classList.add('open');document.getElementById('step-1').classList.add('open');setTimeout(function(){document.getElementById('step-1').scrollIntoView({behavior:'smooth',block:'center'})},100);return false">开始第一步 →</a>
 </div>
 
 <!-- ============ OVERVIEW ============ -->
@@ -273,22 +273,22 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
   </div>
   <div class="stage-body">
 
-    <div class="step" id="step-5">
-      <div class="step-header" onclick="toggleStep(5)">
-        <div class="step-num">5</div>
+    <div class="step" id="step-4">
+      <div class="step-header" onclick="toggleStep(4)">
+        <div class="step-num">4</div>
         <div class="step-content"><div class="step-title">豆包不只会聊天，还能"做东西"</div></div>
       </div>
       <div class="step-body">
         <p>新手村里你用豆包聊天。但豆包还能做更多——你跟它说"帮我做一个网站"，它真的能帮你生成一个网页。</p>
         <p>不用换工具，不用注册新账号。就用你刚才聊天的豆包，继续。</p>
         <div class="tip">💡 如果刚才关掉了豆包，重新打开 doubao.com 就行。你的聊天记录还在。</div>
-        <button class="checkpoint-btn" onclick="markDone(5)" style="margin-top:8px">看懂了 ✓</button>
+        <button class="checkpoint-btn" onclick="markDone(4)" style="margin-top:8px">看懂了 ✓</button>
       </div>
     </div>
 
-    <div class="step" id="step-6">
-      <div class="step-header" onclick="toggleStep(6)">
-        <div class="step-num">6</div>
+    <div class="step" id="step-5">
+      <div class="step-header" onclick="toggleStep(5)">
+        <div class="step-num">5</div>
         <div class="step-content"><div class="step-title">让豆包帮你做一个网页</div></div>
       </div>
       <div class="step-body">
@@ -305,13 +305,13 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
         <p style="font-size:14px;color:var(--fg-muted);margin-top:4px">如果刚才的豆包标签页还开着，直接切过去就行。</p>
         <p>豆包会帮你写出网页。它通常会直接在对话里显示网页效果。如果只看到代码没看到效果，跟它说"显示预览"。</p>
         <div class="tip">💡 不满意？不用重新做。直接说哪里要改："颜色换成蓝色""加一个关于我的页面""标题大一号"。</div>
-        <button class="checkpoint-btn" onclick="markDone(6)" style="margin-top:8px">这步做完了 ✓</button>
+        <button class="checkpoint-btn" onclick="markDone(5)" style="margin-top:8px">这步做完了 ✓</button>
       </div>
     </div>
 
-    <div class="step" id="step-7">
-      <div class="step-header" onclick="toggleStep(7)">
-        <div class="step-num">7</div>
+    <div class="step" id="step-6">
+      <div class="step-header" onclick="toggleStep(6)">
+        <div class="step-num">6</div>
         <div class="step-content"><div class="step-title">让豆包帮你写一篇文章</div></div>
       </div>
       <div class="step-body">
@@ -321,13 +321,13 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
         <p>然后打开豆包，粘贴发送（手机长按选"粘贴"，电脑 Ctrl+V）：</p>
         <a class="tool-btn" href="https://www.doubao.com" target="_blank" rel="noopener">打开豆包 →</a>
         <p>写完后你可以直接说"把第二段改短一点"或"结尾加一句话"，让它改成你想要的样子。</p>
-        <button class="checkpoint-btn" onclick="markDone(7)" style="margin-top:8px">这步做完了 ✓</button>
+        <button class="checkpoint-btn" onclick="markDone(6)" style="margin-top:8px">这步做完了 ✓</button>
       </div>
     </div>
 
-    <div class="step" id="step-8">
-      <div class="step-header" onclick="toggleStep(8)">
-        <div class="step-num">8</div>
+    <div class="step" id="step-7">
+      <div class="step-header" onclick="toggleStep(7)">
+        <div class="step-num">7</div>
         <div class="step-content"><div class="step-title">让豆包帮你做一份 PPT 大纲</div></div>
       </div>
       <div class="step-body">
@@ -339,7 +339,7 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
         <a class="tool-btn" href="https://www.doubao.com" target="_blank" rel="noopener">打开豆包 →</a>
         <p>豆包会帮你生成每一页的标题和内容。你拿着这个大纲，不管是做成 PPT 还是直接讲，都有了。</p>
         <div class="tip">💡 豆包生成的是文字大纲。你可以拿着这个大纲，在 WPS 或 PowerPoint 里做成可以翻页的演示文稿。</div>
-        <button class="checkpoint-btn" onclick="markDone(8)" style="margin-top:8px">这步做完了 ✓</button>
+        <button class="checkpoint-btn" onclick="markDone(7)" style="margin-top:8px">这步做完了 ✓</button>
       </div>
     </div>
 
@@ -365,9 +365,9 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
   </div>
   <div class="stage-body">
 
-    <div class="step" id="step-9">
-      <div class="step-header" onclick="toggleStep(9)">
-        <div class="step-num">9</div>
+    <div class="step" id="step-8">
+      <div class="step-header" onclick="toggleStep(8)">
+        <div class="step-num">8</div>
         <div class="step-content"><div class="step-title">认识 DeepSeek：比豆包更会"思考"</div></div>
       </div>
       <div class="step-body">
@@ -378,31 +378,32 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
           <li>🌐 <strong>联网搜索</strong> — 它会去网上找真实信息，告诉你答案从哪来的</li>
         </ul>
         <p>✅ 国内直接打开 ✅ 全中文 ✅ 免费</p>
-        <button class="checkpoint-btn" onclick="markDone(9)" style="margin-top:8px">看懂了 ✓</button>
+        <p>和豆包一样，打开后如果提示登录，用手机号或微信登录就行。</p>
+        <button class="checkpoint-btn" onclick="markDone(8)" style="margin-top:8px">看懂了 ✓</button>
       </div>
     </div>
 
-    <div class="step" id="step-10">
-      <div class="step-header" onclick="toggleStep(10)">
-        <div class="step-num">10</div>
+    <div class="step" id="step-9">
+      <div class="step-header" onclick="toggleStep(9)">
+        <div class="step-num">9</div>
         <div class="step-content"><div class="step-title">问一个真问题</div></div>
       </div>
       <div class="step-body">
         <p>先把下面这段话复制了：</p>
         <div class="prompt-box">我想了解一下，做副业卖东西一般从哪里开始？
 我没什么经验，请用大白话解释。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
-        <p>复制好了，点这里打开 DeepSeek：</p>
+        <p>打开 DeepSeek 后，找到输入框下方的<strong>"深度思考"</strong>开关，打开它（会变蓝色）。找不到也没关系，直接用也行。</p>
+        <p>然后把刚才复制的话粘贴到输入框里（手机长按选"粘贴"，电脑 Ctrl+V），发送：</p>
         <a class="tool-btn" href="https://chat.deepseek.com" target="_blank" rel="noopener">打开 DeepSeek →</a>
         <p style="font-size:14px;color:var(--fg-muted);margin-top:4px">发完后回到这个页面继续下一步。</p>
-        <div class="tip">💡 打开后，找到输入框下方的"深度思考"开关，打开它（会变蓝色）。找不到也没关系，直接粘贴发送也行。</div>
-        <p>把刚才复制的话粘贴到输入框里，发送。DeepSeek 会先思考一下，然后给你一个详细的回答。你会看到它的"思考过程"，这是正常的。</p>
-        <button class="checkpoint-btn" onclick="markDone(10)" style="margin-top:8px">这步做完了 ✓</button>
+        <p>DeepSeek 会先思考一下，然后给你一个详细的回答。你会看到它的"思考过程"，这是正常的。</p>
+        <button class="checkpoint-btn" onclick="markDone(9)" style="margin-top:8px">这步做完了 ✓</button>
       </div>
     </div>
 
-    <div class="step" id="step-11">
-      <div class="step-header" onclick="toggleStep(11)">
-        <div class="step-num">11</div>
+    <div class="step" id="step-10">
+      <div class="step-header" onclick="toggleStep(10)">
+        <div class="step-num">10</div>
         <div class="step-content"><div class="step-title">让 AI 联网搜索最新信息</div></div>
       </div>
       <div class="step-body">
@@ -412,13 +413,13 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
         <p>打开 DeepSeek，找到"联网搜索"开关打开它，粘贴发送：</p>
         <a class="tool-btn" href="https://chat.deepseek.com" target="_blank" rel="noopener">打开 DeepSeek →</a>
         <p>DeepSeek 会先去网上搜索真实信息，然后帮你总结。每个答案都会标注信息来源——你可以点进去核实。</p>
-        <button class="checkpoint-btn" onclick="markDone(11)" style="margin-top:8px">这步做完了 ✓</button>
+        <button class="checkpoint-btn" onclick="markDone(10)" style="margin-top:8px">这步做完了 ✓</button>
       </div>
     </div>
 
-    <div class="step" id="step-12">
-      <div class="step-header" onclick="toggleStep(12)">
-        <div class="step-num">12</div>
+    <div class="step" id="step-11">
+      <div class="step-header" onclick="toggleStep(11)">
+        <div class="step-num">11</div>
         <div class="step-content"><div class="step-title">⚠️ 重要：AI 会出错，怎么判断答案靠不靠谱</div></div>
       </div>
       <div class="step-body">
@@ -431,7 +432,7 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
           <li>太具体的数据（比如"某平台用户数"）→ 可能是编的，自己查</li>
         </ul>
         <p>遇到不确定的事，你可以用豆包问一遍，再用 DeepSeek 问一遍，对比两个答案。两个都说一样的，大概率是对的。</p>
-        <button class="checkpoint-btn" onclick="markDone(12)" style="margin-top:8px">看懂了 ✓</button>
+        <button class="checkpoint-btn" onclick="markDone(11)" style="margin-top:8px">看懂了 ✓</button>
       </div>
     </div>
 
@@ -450,56 +451,53 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
     <div class="stage-badge s4">4</div>
     <div class="info">
       <div class="title">最终 BOSS：让工具替你干活</div>
-      <div class="desc">约 10 分钟 · 下载一个免费软件，以后不用再手动处理 PDF</div>
+      <div class="desc">约 10 分钟 · 让 AI 帮你整理资料，下载免费软件处理 PDF</div>
     </div>
     <span class="stage-status todo" id="status-4">未开始</span>
     <span class="arrow">▶</span>
   </div>
   <div class="stage-body">
 
+    <div class="step" id="step-12">
+      <div class="step-header" onclick="toggleStep(12)">
+        <div class="step-num">12</div>
+        <div class="step-content"><div class="step-title">让 AI 帮你整理资料</div></div>
+      </div>
+      <div class="step-body">
+        <p>前几关你学会了聊天、做东西、找答案。现在让 AI 帮你干一件更省事的事：整理乱七八糟的资料。</p>
+        <p>先把下面这段话复制了：</p>
+        <div class="prompt-box">我有一份资料内容很乱，帮我整理成三部分：
+现状、主要选择、给我的建议。
+以下是需要整理的内容：
+（在这里粘贴你的资料）<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
+        <p>打开豆包，把刚才复制的话粘贴进去。<strong>注意</strong>：把"（在这里粘贴你的资料）"换成你自己的内容——随便什么都行，一段会议记录、一篇长文章、一堆零散笔记。然后发送：</p>
+        <a class="tool-btn" href="https://www.doubao.com" target="_blank" rel="noopener">打开豆包 →</a>
+        <p>几秒钟，AI 就帮你整理好了。这就是"让 AI 替你干活"——不用自己花半小时。</p>
+        <button class="checkpoint-btn" onclick="markDone(12)" style="margin-top:8px">这步做完了 ✓</button>
+      </div>
+    </div>
+
     <div class="step" id="step-13">
       <div class="step-header" onclick="toggleStep(13)">
         <div class="step-num">13</div>
-        <div class="step-content"><div class="step-title">处理 PDF：下载一个免费软件就够</div></div>
+        <div class="step-content"><div class="step-title">处理 PDF：下载一个免费软件（需要电脑）</div></div>
       </div>
       <div class="step-body">
         <p>合并 PDF、拆分 PDF、压缩 PDF、转换格式——这些事不用花钱，不用在线上传文件。</p>
         <p><strong>Stirling PDF</strong> — 免费的桌面软件。合并、拆分、压缩、转换 PDF，全部免费，不用联网，文件不上传到网上。</p>
         <p>✅ 完全免费 ✅ 支持中文 ✅ 下载到电脑用，保护隐私</p>
+        <div class="warn">⚠️ 这一步需要电脑。如果你现在只有手机，可以跳过，等有电脑时再回来。手机上也能用豆包或 DeepSeek 帮你处理文字内容。</div>
         <a class="tool-btn" href="https://stirling.com" target="_blank" rel="noopener">打开 Stirling PDF 官网 →</a>
         <p style="font-size:14px;color:var(--fg-muted);margin-top:4px">打开后找到下载按钮。网站是英文的，但下载安装后软件是中文的。</p>
         <p>下载后打开，选你要做的事（合并/拆分/压缩/转换），把文件拖进去，点执行。就完成了。</p>
-        <div class="tip">💡 Windows 电脑选 .exe 或 .msi，Mac 电脑选 .dmg。不知道选哪个？Windows 选 .exe，Mac 选 .dmg。</div>
+        <div class="tip">💡 Windows 电脑选 .exe 或 .msi，Mac 电脑选 .dmg。</div>
         <button class="checkpoint-btn" onclick="markDone(13)" style="margin-top:8px">这步做完了 ✓</button>
-      </div>
-    </div>
-
-    <div class="step" id="step-14">
-      <div class="step-header" onclick="toggleStep(14)">
-        <div class="step-num">14</div>
-        <div class="step-content"><div class="step-title">把 AI 用起来：整理资料、总结文件</div></div>
-      </div>
-      <div class="step-body">
-        <p>现在回到豆包或 DeepSeek。把你手头的资料发给它，让它帮你整理。</p>
-        <p style="font-size:14px;color:var(--fg-muted)">💡 怎么把资料发给 AI？最简单的办法：复制资料里的文字，粘贴到聊天框里。如果资料是文件，有些 AI 支持直接拖文件进去。</p>
-        <p>先把下面这段话复制了：</p>
-        <div class="prompt-box">我有一份资料内容很乱，帮我整理成三部分：
-现状、主要选择、给我的建议。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
-        <p>或者用这个：</p>
-        <div class="prompt-box">帮我把下面这段会议记录整理成一份摘要，
-列出三个要点和两个待办事项。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
-        <p>打开豆包或 DeepSeek，粘贴发送：</p>
-        <a class="tool-btn" href="https://www.doubao.com" target="_blank" rel="noopener">打开豆包 →</a>
-        <a class="tool-btn" href="https://chat.deepseek.com" target="_blank" rel="noopener" style="margin-left:8px">打开 DeepSeek →</a>
-        <p>这就是"让 AI 替你干活"——不用自己花半小时整理，几秒就出结果。</p>
-        <div class="tip">💡 什么时候才需要自动化？偶尔做一次的事不用自动化。每周都要重复做 3 次以上的事，才值得花时间让 AI 帮你做。</div>
-        <button class="checkpoint-btn" onclick="markDone(14)" style="margin-top:8px">这步做完了 ✓</button>
       </div>
     </div>
 
     <div class="checkpoint" id="cp-4">
       <div class="label">🏁 检查点：你让工具替你干活了吗？</div>
-      <p style="margin-bottom:12px">如果你成功处理了一个 PDF，或者用 AI 整理了一次资料——恭喜，全部通关！</p>
+      <p style="margin-bottom:12px">如果你用 AI 整理了一次资料，或者成功处理了一个 PDF——恭喜，全部通关！</p>
       <button class="checkpoint-btn" onclick="completeStage(4)">全部通关 🎉</button>
     </div>
 
@@ -517,9 +515,9 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
     <li>跟 AI 聊天，让它帮你写东西</li>
     <li>用 AI 做出网页、文章、PPT 大纲</li>
     <li>用 AI 查资料，还知道答案靠不靠谱</li>
-    <li>用免费工具处理 PDF，让 AI 整理资料</li>
+    <li>用 AI 整理资料，用免费工具处理 PDF</li>
   </ul>
-  <p style="margin-top:16px">这就是 60 分。<br>你现在能独立用 AI 解决实际问题了。</p>
+  <p style="margin-top:16px">这就是 60 分。意思是：你能独立用 AI 解决实际问题了。<br>剩下的 40 分，靠真实使用慢慢积累。</p>
   <div style="margin-top:20px;padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);text-align:left">
     <p style="font-weight:600;margin-bottom:8px">接下来可以做什么？</p>
     <p style="font-size:15px;color:var(--fg-muted)">👉 遇到任何问题，第一反应不是去百度搜，而是先问豆包或 DeepSeek。用得越多，你就越熟练。</p>
@@ -530,7 +528,6 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
   <div style="margin-top:16px;padding:16px;background:var(--leaf-light);border-radius:var(--radius-sm)">
     <p style="font-weight:600;margin-bottom:4px">觉得有用？</p>
     <p style="font-size:15px;color:var(--fg-muted)">把这个网址发给朋友：<strong>ymai.fun</strong></p>
-    <p style="font-size:14px;color:var(--fg-muted);margin-top:4px">好记：ymai = "鱼买" 的拼音首字母</p>
   </div>
 </div>
 
