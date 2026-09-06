@@ -42,6 +42,12 @@ World Space 不是：AI 基础设施公司、Agent Framework、Workflow Builder�
 6. **提交规范**
    commit message 描述产品变更和理由，不提及工具/流程名称。
 
+7. **每轮推送 GitHub（硬性要求）**
+   每一轮工作结束前，必须将本轮所有变更 commit 并 push 到 `origin`（GitHub: YuemingHub/World-Space）。
+   不允许出现"只在本地汇报、未推送"的轮次；即使本轮无变更，也要说明"本轮无变更、无需推送"。
+   推送后确认本地分支与对应远程分支同步（`git status` 显示 up to date / working tree clean）。
+   这是为了让主 agent 能直接从 GitHub 读取每一轮的进展，而不依赖会话内汇报。
+
 ## 仓库结构规则
 
 - 只有有真实内容时才创建目录，不创建空目录
