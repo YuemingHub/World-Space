@@ -581,6 +581,8 @@ function completeStage(n) {
   el.textContent = '已完成';
   var pill = document.getElementById('pill-' + n);
   if (pill) { pill.classList.add('active'); }
+  var current = document.getElementById('stage-' + n);
+  if (current) { current.classList.remove('open'); }
   var nextStage = n + 1;
   if (nextStage <= 4) {
     var next = document.getElementById('stage-' + nextStage);
