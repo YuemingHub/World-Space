@@ -154,7 +154,7 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
   <div class="inner">
     <span class="brand">World Space · AI 入门</span>
     <div style="display:flex;align-items:center;gap:10px">
-      <span class="progress-text" id="progressText">0/14</span>
+      <span class="progress-text" id="progressText">0/13</span>
       <div class="progress-bar"><div class="fill" id="progressFill" style="width:0%"></div></div>
     </div>
   </div>
@@ -204,8 +204,8 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
       </div>
       <div class="step-body">
         <p>用大白话说：AI 就是一个<strong>读过很多很多书的助手</strong>。你问它问题，它帮你回答；你让它写东西，它帮你写。</p>
-        <p>它不像搜索引擎那样只给你链接，而是直接给你<strong>写好的答案</strong>。</p>
-        <div class="tip">💡 但要记住：它会出错。它不是万能的。它不知道今天发生了什么（除非你让它联网搜索）。</div>
+        <p>它能帮你：写东西（文案、文章）、做东西（网站、PPT）、找答案（查资料）、处理文件（PDF）。</p>
+        <div class="tip">💡 它会出错，不是万能的。但大部分时候挺好用。</div>
         <button class="checkpoint-btn" onclick="markDone(1)" style="margin-top:8px">看懂了 ✓</button>
       </div>
     </div>
@@ -213,25 +213,6 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
     <div class="step" id="step-2">
       <div class="step-header" onclick="toggleStep(2)">
         <div class="step-num">2</div>
-        <div class="step-content"><div class="step-title">AI 能帮你做什么？</div></div>
-      </div>
-      <div class="step-body">
-        <p>下面这些，现在的 AI 都能做到：</p>
-        <ul>
-          <li>✍️ <strong>写东西</strong> — 朋友圈文案、文章、邮件、自我介绍</li>
-          <li>🖥️ <strong>做东西</strong> — 网站、PPT、海报</li>
-          <li>🔍 <strong>找答案</strong> — 查资料、对比、解释概念</li>
-          <li>📄 <strong>处理文件</strong> — 合并 PDF、压缩、转换格式</li>
-          <li>🔄 <strong>翻译</strong> — 中英互译，还能解释语法</li>
-        </ul>
-        <p>接下来 4 个阶段，你会一样一样试过来。</p>
-        <button class="checkpoint-btn" onclick="markDone(2)" style="margin-top:8px">看懂了 ✓</button>
-      </div>
-    </div>
-
-    <div class="step" id="step-3">
-      <div class="step-header" onclick="toggleStep(3)">
-        <div class="step-num">3</div>
         <div class="step-content"><div class="step-title">打开豆包，说第一句话</div></div>
       </div>
       <div class="step-body">
@@ -246,13 +227,13 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
         <p style="font-size:14px;color:var(--fg-muted);margin-top:4px">发完后回到这个页面继续下一步。</p>
         <p>等几秒，AI 就会给你写好一段文案。你可以读一下，看看是不是你想要的。</p>
         <div class="tip">💡 如果写得不好，直接跟它说哪里不好。比如"太长了，短一点"或"语气太正式了，轻松一点"。</div>
-        <button class="checkpoint-btn" onclick="markDone(3)" style="margin-top:8px">这步做完了 ✓</button>
+        <button class="checkpoint-btn" onclick="markDone(2)" style="margin-top:8px">这步做完了 ✓</button>
       </div>
     </div>
 
-    <div class="step" id="step-4">
-      <div class="step-header" onclick="toggleStep(4)">
-        <div class="step-num">4</div>
+    <div class="step" id="step-3">
+      <div class="step-header" onclick="toggleStep(3)">
+        <div class="step-num">3</div>
         <div class="step-content"><div class="step-title">再多试几句，感受一下</div></div>
       </div>
       <div class="step-body">
@@ -264,7 +245,7 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
           <li>"给我讲个笑话"</li>
         </ul>
         <p>你会发现，它就像一个什么都知道一点的朋友，你问什么它都能回。</p>
-        <button class="checkpoint-btn" onclick="markDone(4)" style="margin-top:8px">这步做完了 ✓</button>
+        <button class="checkpoint-btn" onclick="markDone(3)" style="margin-top:8px">这步做完了 ✓</button>
       </div>
     </div>
 
@@ -558,7 +539,7 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
 <script>
 var completedSteps = {};
 var completedStages = {};
-var totalSteps = 14;
+var totalSteps = 13;
 
 // Load progress from localStorage
 try {
