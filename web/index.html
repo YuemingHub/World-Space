@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="从零开始用 AI，4 个阶段从小白到能独立做事。">
+<meta name="description" content="从零开始用 AI，4 个阶段从小白到能独立做事。全程只用豆包和 DeepSeek。">
 <title>World Space — 从零开始用 AI</title>
 <style>
 :root {
@@ -40,8 +40,10 @@ body {
 /* === Hero === */
 .hero { text-align: center; padding: 56px 24px 24px; }
 .hero h1 { font-size: clamp(24px, 5vw, 34px); font-weight: 700; line-height: 1.25; margin-bottom: 12px; }
-.hero .sub { color: var(--fg-muted); font-size: 16px; max-width: 400px; margin: 0 auto 20px; }
+.hero .sub { color: var(--fg-muted); font-size: 16px; max-width: 420px; margin: 0 auto 8px; }
 .hero .sub strong { color: var(--leaf); }
+.hero .tools { font-size: 14px; color: var(--fg-muted); margin-bottom: 20px; }
+.hero .tools span { display: inline-block; padding: 4px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; margin: 0 4px; }
 .hero .start-btn { display: inline-block; padding: 14px 36px; background: var(--accent); color: white; border-radius: var(--radius); font-size: 17px; font-weight: 600; text-decoration: none; transition: background .15s; }
 .hero .start-btn:hover { background: var(--accent-strong); }
 
@@ -143,6 +145,7 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
 <div class="hero">
   <h1>从这里开始用 AI</h1>
   <p class="sub">完全不会也没关系。跟着走，<strong>4 个阶段、14 个小步骤</strong>，从零到能独立用 AI 解决实际问题。</p>
+  <p class="tools">全程只用 <span>豆包</span> <span>DeepSeek</span> 两个工具，不用下载，不用换</p>
   <a class="start-btn" href="#stage-1">开始第一步 →</a>
 </div>
 
@@ -241,7 +244,7 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
     <div class="stage-badge s2">2</div>
     <div class="info">
       <div class="title">第一关：用 AI 做出一个真东西</div>
-      <div class="desc">约 15 分钟 · 做出网站、PPT 或文章，能给别人看</div>
+      <div class="desc">约 15 分钟 · 用豆包做出网站、PPT 或文章</div>
     </div>
     <span class="stage-status todo" id="status-2">未开始</span>
     <span class="arrow">▶</span>
@@ -251,30 +254,29 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
     <div class="step" id="step-5">
       <div class="step-header" onclick="toggleStep(5)">
         <div class="step-num">5</div>
-        <div class="step-content"><div class="step-title">认识扣子：能帮你"做东西"的 AI</div></div>
+        <div class="step-content"><div class="step-title">豆包不只会聊天，还能"做东西"</div></div>
       </div>
       <div class="step-body">
-        <p>新手村里你用豆包聊天，但豆包只能<strong>说</strong>，不能<strong>做</strong>。</p>
-        <p><strong>扣子</strong>（coze.cn）也是字节跳动做的，和豆包是同一家。但扣子能帮你做出真的东西：网站、PPT、文章、图片。</p>
-        <p>✅ 国内直接打开 ✅ 全中文界面 ✅ 一个工具搞定网站+PPT+文章 ✅ 手机也能用</p>
-        <a class="tool-btn" href="https://www.coze.cn" target="_blank" rel="noopener">打开扣子 →</a>
+        <p>新手村里你用豆包聊天。但豆包还能做更多——你跟它说"帮我做一个网站"，它真的能帮你生成一个网页。</p>
+        <p>不用换工具，不用注册新账号。就用你刚才聊天的豆包，继续。</p>
+        <div class="tip">💡 如果刚才关掉了豆包，重新打开 doubao.com 就行。你的聊天记录还在。</div>
       </div>
     </div>
 
     <div class="step" id="step-6">
       <div class="step-header" onclick="toggleStep(6)">
         <div class="step-num">6</div>
-        <div class="step-content"><div class="step-title">做一个网站（最推荐先试这个）</div></div>
+        <div class="step-content"><div class="step-title">让豆包帮你做一个网页</div></div>
       </div>
       <div class="step-body">
-        <p>打开扣子后，找到输入框，把这段话发进去：</p>
-        <div class="prompt-box">帮我做一个手工作品展示网站。
+        <p>还是在豆包的聊天框里，把下面这段话发进去：</p>
+        <div class="prompt-box">帮我做一个手工作品展示网页。
 顶部写网站名字"我的手工作品"。
 下面放一段自我介绍。
 然后放一个作品展示区，每个作品有图片和名字。
 最下面留联系方式。
-整体风格温暖简洁。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
-        <p>等一会儿，扣子会帮你生成一个网页。你能看到它，也能改它。</p>
+整体风格温暖简洁，用 HTML 写。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
+        <p>豆包会帮你写好网页代码，还会显示一个预览——你能直接看到这个网页长什么样。</p>
         <div class="tip">💡 不满意？不用重新做。直接说哪里要改："把颜色换成暖棕色""加一个关于我的页面""标题大一号"。</div>
       </div>
     </div>
@@ -282,33 +284,34 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
     <div class="step" id="step-7">
       <div class="step-header" onclick="toggleStep(7)">
         <div class="step-num">7</div>
-        <div class="step-content"><div class="step-title">做一份 PPT</div></div>
+        <div class="step-content"><div class="step-title">让豆包帮你写一篇文章</div></div>
       </div>
       <div class="step-body">
-        <p>同样在扣子里，换个要求就行：</p>
-        <div class="prompt-box">帮我做一份关于"我的手工作品"的演示文稿，
-大约8页，每页一个作品，带介绍。
-风格温暖简洁。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
-        <p>扣子会帮你生成一份可以翻页的演示。比 PPT 省时间得多。</p>
+        <p>同样在豆包里，换个要求：</p>
+        <div class="prompt-box">帮我写一篇关于"我为什么开始做手工"的短文，
+语气像在跟朋友聊天，500字左右。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
+        <p>写完后你可以直接说"把第二段改短一点"或"结尾加一句号召大家也动手试试"，让它改成你想要的样子。</p>
       </div>
     </div>
 
     <div class="step" id="step-8">
       <div class="step-header" onclick="toggleStep(8)">
         <div class="step-num">8</div>
-        <div class="step-content"><div class="step-title">写一篇文章</div></div>
+        <div class="step-content"><div class="step-title">让豆包帮你做一份 PPT 大纲</div></div>
       </div>
       <div class="step-body">
-        <p>如果你只是想写东西，也可以让扣子帮你：</p>
-        <div class="prompt-box">帮我写一篇关于"我为什么开始做手工"的短文，
-语气像在跟朋友聊天，500字左右。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
-        <p>写完后你可以直接改，让它变成你自己的话。</p>
+        <p>豆包也能帮你做演示文稿的内容：</p>
+        <div class="prompt-box">帮我做一份关于"我的手工作品"的演示文稿大纲，
+大约8页，每页有标题和内容要点。
+风格温暖简洁。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
+        <p>豆包会帮你生成每一页的标题和内容。你拿着这个大纲，不管是做成 PPT 还是直接讲，都有了。</p>
+        <div class="tip">💡 豆包生成的是文字内容。如果你想直接生成可以翻页的 PPT 文件，可以跟它说"帮我导出成 PPT 格式"。</div>
       </div>
     </div>
 
     <div class="checkpoint" id="cp-2">
       <div class="label">🏁 检查点：你做出东西了吗？</div>
-      <p style="margin-bottom:12px">如果你做出了一个能看的东西——网站、PPT 或文章——而且能给别人看，这关就过了。</p>
+      <p style="margin-bottom:12px">如果你用豆包做出了一个能看的东西——网页、文章或 PPT 大纲——而且能给别人看，这关就过了。</p>
       <button class="checkpoint-btn" onclick="completeStage(2)">通关了，去第二关 →</button>
     </div>
 
@@ -331,10 +334,10 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
     <div class="step" id="step-9">
       <div class="step-header" onclick="toggleStep(9)">
         <div class="step-num">9</div>
-        <div class="step-content"><div class="step-title">认识 DeepSeek：比豆包更强的"思考者"</div></div>
+        <div class="step-content"><div class="step-title">认识 DeepSeek：比豆包更会"思考"</div></div>
       </div>
       <div class="step-body">
-        <p>豆包适合日常聊天，但如果你要<strong>认真查一个问题</strong>，用 <strong>DeepSeek</strong> 更好。</p>
+        <p>豆包适合日常聊天和做东西，但如果你要<strong>认真查一个问题</strong>，用 <strong>DeepSeek</strong> 更好。</p>
         <p>DeepSeek 有两个豆包没有的能力：</p>
         <ul>
           <li>🧠 <strong>深度思考</strong> — 它会先想一会儿，再给你更详细的回答</li>
@@ -385,7 +388,7 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
           <li>感觉不太对的 → 换个工具再问一遍，对比两个答案</li>
           <li>太具体的数据（比如"某平台用户数"）→ 可能是编的，自己查</li>
         </ul>
-        <p>还有个工具叫 <strong>Kimi</strong>（kimi.moonshot.cn），特别擅长读很长的文章或文件。如果你有一份长 PDF 想理解，用 Kimi。</p>
+        <p>遇到不确定的事，你可以用豆包问一遍，再用 DeepSeek 问一遍，对比两个答案。两个都说一样的，大概率是对的。</p>
       </div>
     </div>
 
@@ -404,7 +407,7 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
     <div class="stage-badge s4">4</div>
     <div class="info">
       <div class="title">最终 BOSS：让工具替你干活</div>
-      <div class="desc">约 10 分钟 · 不用再手动做重复的事</div>
+      <div class="desc">约 10 分钟 · 下载一个免费软件，以后不用再手动处理 PDF</div>
     </div>
     <span class="stage-status todo" id="status-4">未开始</span>
     <span class="arrow">▶</span>
@@ -414,7 +417,7 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
     <div class="step" id="step-13">
       <div class="step-header" onclick="toggleStep(13)">
         <div class="step-num">13</div>
-        <div class="step-content"><div class="step-title">处理 PDF：下载一个免费工具就够</div></div>
+        <div class="step-content"><div class="step-title">处理 PDF：下载一个免费软件就够</div></div>
       </div>
       <div class="step-body">
         <p>合并 PDF、拆分 PDF、压缩 PDF、转换格式——这些事不用花钱，不用在线上传文件。</p>
@@ -429,21 +432,23 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
     <div class="step" id="step-14">
       <div class="step-header" onclick="toggleStep(14)">
         <div class="step-num">14</div>
-        <div class="step-content"><div class="step-title">自动整理：跟 AI 说句话就帮你做完</div></div>
+        <div class="step-content"><div class="step-title">把 AI 用起来：整理资料、总结文件</div></div>
       </div>
       <div class="step-body">
-        <p>如果你有一堆资料要整理成报告，或者每周都要做类似的事，可以让 AI 帮你自动完成。</p>
-        <p><strong>WorkBuddy</strong>（workbuddy.cn）— 腾讯出的 AI 办公助手。你跟它说你要做什么，它帮你自动完成。</p>
-        <p>✅ 国内直接打开 ✅ 中文界面 ✅ 腾讯出品</p>
-        <a class="tool-btn" href="https://www.workbuddy.cn" target="_blank" rel="noopener">打开 WorkBuddy →</a>
-        <p>打开后直接用大白话说你要做什么，比如"帮我把这份资料整理成一份摘要报告"。它会自动完成。</p>
-        <div class="tip">💡 什么时候才需要自动化？偶尔做一次的事不用自动化。每周都要重复做 3 次以上的事，才值得花时间设置。</div>
+        <p>现在回到豆包或 DeepSeek。把你手头的资料、文件内容发给它，让它帮你整理：</p>
+        <div class="prompt-box">我有一份关于手工艺市场的资料，内容很乱。
+帮我整理成三部分：市场现状、主要平台、给我的建议。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
+        <p>或者：</p>
+        <div class="prompt-box">帮我把下面这段会议记录整理成一份摘要，
+列出三个要点和两个待办事项。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
+        <p>这就是"让 AI 替你干活"——不用自己花半小时整理，几秒就出结果。</p>
+        <div class="tip">💡 什么时候才需要自动化？偶尔做一次的事不用自动化。每周都要重复做 3 次以上的事，才值得花时间让 AI 帮你做。</div>
       </div>
     </div>
 
     <div class="checkpoint" id="cp-4">
       <div class="label">🏁 检查点：你让工具替你干活了吗？</div>
-      <p style="margin-bottom:12px">如果你成功处理了一个 PDF，或者用 WorkBuddy 完成了一次自动整理——恭喜，全部通关！</p>
+      <p style="margin-bottom:12px">如果你成功处理了一个 PDF，或者用 AI 整理了一次资料——恭喜，全部通关！</p>
       <button class="checkpoint-btn" onclick="completeStage(4)">全部通关 🎉</button>
     </div>
 
@@ -459,16 +464,16 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
   <p>你已经从零学会了：</p>
   <ul class="skills">
     <li>跟 AI 聊天，让它帮你写东西</li>
-    <li>用 AI 做出网站、PPT、文章</li>
+    <li>用 AI 做出网页、文章、PPT 大纲</li>
     <li>用 AI 查资料，还知道答案靠不靠谱</li>
-    <li>让工具替你处理 PDF、自动整理信息</li>
+    <li>用免费工具处理 PDF，让 AI 整理资料</li>
   </ul>
   <p style="margin-top:16px">这就是 60 分。<br>你现在能独立用 AI 解决实际问题了。</p>
   <p style="margin-top:20px"><a href="#" onclick="resetAll();return false" style="color:var(--fg-muted);font-size:14px">重新走一遍</a></p>
 </div>
 
 <footer>
-  <p>World Space · 从零开始用 AI</p>
+  <p>World Space · 从零开始用 AI · 全程只用豆包和 DeepSeek</p>
 </footer>
 
 <script>
