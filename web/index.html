@@ -3,15 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="世界已经有这么多能力，你想做点什么？先从新手村开始。">
-<title>World Space — 你想做点什么？</title>
+<meta name="description" content="从零开始用 AI，一步步从小白到能独立做事。先从新手村开始。">
+<title>World Space — 从这里开始用 AI</title>
 <style>
 :root {
   --accent: #3B82F6;
   --accent-strong: #2563EB;
-  --accent-press: #1D4ED8;
   --sun: #D97706;
   --leaf: #16A34A;
+  --purple: #8B5CF6;
   --bg: #FAF9F6;
   --surface: #FFFFFF;
   --fg: #111827;
@@ -33,140 +33,92 @@ body {
 }
 .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
 
-/* === Hero === */
-.hero { text-align: center; padding: 64px 24px 32px; }
-.hero h1 {
-  font-size: clamp(26px, 5vw, 36px);
-  font-weight: 700;
-  line-height: 1.2;
-  margin-bottom: 12px;
-}
-.hero .sub { color: var(--fg-muted); font-size: 16px; max-width: 420px; margin: 0 auto 8px; }
-.hero .hint { color: var(--leaf); font-size: 15px; font-weight: 500; }
+/* Hero */
+.hero { text-align: center; padding: 56px 24px 28px; }
+.hero h1 { font-size: clamp(24px, 5vw, 34px); font-weight: 700; line-height: 1.2; margin-bottom: 10px; }
+.hero .sub { color: var(--fg-muted); font-size: 16px; max-width: 420px; margin: 0 auto 6px; }
+.hero .hint { color: var(--leaf); font-size: 14px; font-weight: 500; }
+.hero .progress-bar { max-width: 320px; margin: 16px auto 0; display: flex; gap: 6px; }
+.hero .progress-bar span { flex: 1; height: 4px; border-radius: 2px; background: var(--border); }
+.hero .progress-bar span.on { background: var(--leaf); }
 
-/* === Level Cards === */
-.levels { max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; padding-bottom: 48px; }
+/* Level Cards */
+.levels { max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; padding-bottom: 40px; }
 .level-card {
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-  padding: 24px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  cursor: pointer;
-  transition: border-color .15s, box-shadow .15s;
-  text-decoration: none;
-  color: var(--fg);
-  text-align: left;
-  font-family: inherit;
-  width: 100%;
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 22px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  cursor: pointer; transition: border-color .15s, box-shadow .15s;
+  text-decoration: none; color: var(--fg); text-align: left;
+  font-family: inherit; width: 100%;
 }
 .level-card:hover { border-color: var(--accent); box-shadow: 0 2px 12px rgba(59,130,246,.1); }
-.level-card:active { border-color: var(--accent-press); }
 .level-badge {
-  flex-shrink: 0;
-  width: 44px; height: 44px;
+  flex-shrink: 0; width: 42px; height: 42px;
   display: flex; align-items: center; justify-content: center;
-  border-radius: 50%;
-  font-size: 20px; font-weight: 700;
-  color: white;
+  border-radius: 50%; font-size: 18px; font-weight: 700; color: white;
 }
 .badge-village { background: var(--leaf); }
 .badge-quest { background: var(--accent); }
-.badge-research { background: #8B5CF6; }
+.badge-research { background: var(--purple); }
 .badge-boss { background: var(--sun); }
 .level-card .text { flex: 1; }
-.level-card .text .lvl { font-size: 12px; color: var(--fg-muted); font-weight: 600; letter-spacing: 1px; margin-bottom: 2px; }
-.level-card .text .title { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+.level-card .text .lvl { font-size: 12px; color: var(--fg-muted); font-weight: 600; letter-spacing: .5px; margin-bottom: 2px; }
+.level-card .text .title { font-size: 17px; font-weight: 600; margin-bottom: 3px; }
 .level-card .text .desc { font-size: 14px; color: var(--fg-muted); line-height: 1.5; }
-.level-card .arrow { flex-shrink: 0; color: var(--fg-muted); font-size: 20px; align-self: center; }
+.level-card .arrow { flex-shrink: 0; color: var(--fg-muted); font-size: 18px; align-self: center; }
 .level-card:hover .arrow { transform: translateX(4px); color: var(--accent); transition: transform .15s; }
 
-/* === Path Page === */
-.path-page { display: none; padding: 32px 24px 64px; }
+/* Path Page */
+.path-page { display: none; padding: 28px 24px 56px; }
 .path-page.active { display: block; }
 .path-page .back {
   display: inline-flex; align-items: center; gap: 6px;
   font-size: 14px; color: var(--fg-muted); text-decoration: none;
-  margin-bottom: 24px; cursor: pointer; background: none; border: none;
-  font-family: inherit;
+  margin-bottom: 20px; cursor: pointer; background: none; border: none; font-family: inherit;
 }
 .path-page .back:hover { color: var(--accent); }
-.path-page h2 { font-size: clamp(22px, 4vw, 28px); font-weight: 700; margin-bottom: 6px; }
-.path-page .lede { color: var(--fg-muted); font-size: 16px; margin-bottom: 24px; }
-.path-page section { margin-bottom: 28px; }
-.path-page h3 { font-size: 16px; font-weight: 600; margin-bottom: 10px; padding-left: 12px; border-left: 3px solid var(--accent); }
-.path-page p { margin-bottom: 10px; }
-.path-page ul { padding-left: 20px; margin-bottom: 12px; }
-.path-page li { margin-bottom: 6px; }
+.path-page h2 { font-size: clamp(20px, 4vw, 26px); font-weight: 700; margin-bottom: 6px; }
+.path-page .lede { color: var(--fg-muted); font-size: 15px; margin-bottom: 20px; }
+.path-page section { margin-bottom: 24px; }
+.path-page h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; padding-left: 10px; border-left: 3px solid var(--accent); }
+.path-page p { margin-bottom: 8px; }
+.path-page ul { padding-left: 20px; margin-bottom: 10px; }
+.path-page li { margin-bottom: 5px; }
 .path-page a { color: var(--accent-strong); text-decoration: none; }
 
 .btn-go {
-  display: inline-block;
-  padding: 12px 28px;
-  background: var(--accent);
-  color: white;
-  border-radius: var(--radius);
-  font-weight: 600;
-  font-size: 16px;
-  text-decoration: none;
-  margin: 8px 0 16px;
-  transition: background .15s;
+  display: inline-block; padding: 11px 26px;
+  background: var(--accent); color: white; border-radius: var(--radius);
+  font-weight: 600; font-size: 16px; text-decoration: none;
+  margin: 6px 0 14px; transition: background .15s;
 }
 .btn-go:hover { background: var(--accent-strong); }
 
 .prompt-box {
-  background: #F3F4F6;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 14px 16px;
-  font-size: 15px;
-  line-height: 1.7;
-  white-space: pre-wrap;
-  word-break: break-word;
-  margin: 8px 0 16px;
-  color: var(--fg);
+  position: relative;
+  background: #F3F4F6; border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 14px 16px;
+  font-size: 15px; line-height: 1.7;
+  white-space: pre-wrap; word-break: break-word;
+  margin: 8px 0 14px; color: var(--fg);
 }
+.info-box { background: #EFF6FF; border-left: 3px solid var(--accent); padding: 10px 14px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; margin: 10px 0; font-size: 15px; }
+.warn-box { background: #FFFBEB; border-left: 3px solid var(--sun); padding: 10px 14px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; margin: 10px 0; font-size: 15px; color: var(--fg-muted); }
+.success-box { background: #F0FDF4; border-left: 3px solid var(--leaf); padding: 10px 14px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; margin: 10px 0; font-size: 15px; }
 
-.info-box {
-  background: #EFF6FF;
-  border-left: 3px solid var(--accent);
-  padding: 12px 16px;
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-  margin: 12px 0;
-  font-size: 15px;
-}
-
-.warn-box {
-  background: #FFFBEB;
-  border-left: 3px solid var(--sun);
-  padding: 12px 16px;
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-  margin: 12px 0;
-  font-size: 15px;
-  color: var(--fg-muted);
-}
-
-.success-box {
-  background: #F0FDF4;
-  border-left: 3px solid var(--leaf);
-  padding: 12px 16px;
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-  margin: 12px 0;
-  font-size: 15px;
-}
-
-.path-page table { width: 100%; border-collapse: collapse; margin: 8px 0 16px; font-size: 15px; }
+.path-page table { width: 100%; border-collapse: collapse; margin: 8px 0 14px; font-size: 15px; }
 .path-page th, .path-page td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); }
 
-.footer-advanced { text-align: center; padding: 24px; }
-.footer-advanced a { color: var(--fg-muted); font-size: 14px; text-decoration: none; }
+/* Next-step nav at bottom of each stage */
+.next-stage { text-align: center; margin-top: 24px; padding: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+.next-stage p { margin-bottom: 8px; color: var(--fg-muted); font-size: 15px; }
+.next-stage a { display: inline-block; padding: 10px 24px; border-radius: var(--radius); font-weight: 600; font-size: 15px; text-decoration: none; }
+.next-stage a.go { background: var(--accent); color: white; }
+.next-stage a.go:hover { background: var(--accent-strong); }
+.next-stage a.back-home { background: none; color: var(--fg-muted); border: 1px solid var(--border); margin-left: 8px; }
 
-footer { text-align: center; padding: 24px; border-top: 1px solid var(--border); color: var(--fg-muted); font-size: 13px; }
-
-/* Copy button inside prompt-box */
-.prompt-box { position: relative; }
+/* Copy button */
 .copy-btn {
   position: absolute; top: 8px; right: 8px;
   padding: 4px 12px; font-size: 13px;
@@ -178,32 +130,40 @@ footer { text-align: center; padding: 24px; border-top: 1px solid var(--border);
 .copy-btn:hover { background: var(--accent); color: white; border-color: var(--accent); }
 .copy-btn.copied { background: var(--leaf); color: white; border-color: var(--leaf); }
 
+footer { text-align: center; padding: 24px; border-top: 1px solid var(--border); color: var(--fg-muted); font-size: 13px; }
+
 @media (max-width: 480px) {
-  .hero { padding: 40px 20px 24px; }
-  .hero h1 { font-size: 24px; }
-  .hero .sub { font-size: 15px; }
-  .level-card { padding: 18px 14px; gap: 12px; }
-  .level-card .text .title { font-size: 16px; }
-  .level-card .text .desc { font-size: 13px; }
-  .level-badge { width: 36px; height: 36px; font-size: 17px; }
-  .path-page { padding: 24px 18px 48px; }
-  .path-page h2 { font-size: 20px; }
-  .prompt-box { font-size: 14px; padding: 12px; padding-top: 36px; }
+  .hero { padding: 36px 20px 20px; }
+  .hero h1 { font-size: 22px; }
+  .hero .sub { font-size: 14px; }
+  .level-card { padding: 16px 12px; gap: 10px; }
+  .level-card .text .title { font-size: 15px; }
+  .level-card .text .desc { font-size: 12px; }
+  .level-badge { width: 34px; height: 34px; font-size: 15px; }
+  .path-page { padding: 20px 16px 40px; }
+  .path-page h2 { font-size: 19px; }
+  .prompt-box { font-size: 14px; padding: 12px; padding-top: 34px; }
   .copy-btn { font-size: 12px; padding: 3px 10px; }
   body { font-size: 16px; }
+  .btn-go { padding: 10px 22px; font-size: 15px; }
+  .next-stage a { display: block; margin: 6px 0; }
+  .next-stage a.back-home { margin-left: 0; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 </head>
 <body>
 
-<!-- ============ HOMEPAGE ============ -->
+<!-- HOMEPAGE -->
 <div id="home">
   <div class="hero">
     <div class="wrap">
-      <h1>你想做点什么？</h1>
-      <p class="sub">别担心，不用从头学。先从新手村开始，几分钟就能动手。</p>
-      <p class="hint">↓ 选一个开始 ↓</p>
+      <h1>从这里开始用 AI</h1>
+      <p class="sub">完全不会也没关系。跟着走，4 步从零到能独立做事。</p>
+      <div class="progress-bar">
+        <span class="on"></span><span></span><span></span><span></span>
+      </div>
+      <p class="hint">↓ 从第一步开始 ↓</p>
     </div>
   </div>
 
@@ -211,9 +171,9 @@ footer { text-align: center; padding: 24px; border-top: 1px solid var(--border);
     <button class="level-card" onclick="showPath('village')">
       <span class="level-badge badge-village">村</span>
       <span class="text">
-        <span class="lvl">新手村 · 所有人从这里开始</span>
-        <span class="title">先跟 AI 聊两句</span>
-        <span class="desc">打开就能用，打字就行。试试让 AI 帮你写段话、回答个问题</span>
+        <span class="lvl">第一阶段 · 新手村</span>
+        <span class="title">先跟 AI 说句话</span>
+        <span class="desc">打开就能用，打字就行。试试让 AI 帮你写段话</span>
       </span>
       <span class="arrow">→</span>
     </button>
@@ -221,9 +181,9 @@ footer { text-align: center; padding: 24px; border-top: 1px solid var(--border);
     <button class="level-card" onclick="showPath('quest')">
       <span class="level-badge badge-quest">①</span>
       <span class="text">
-        <span class="lvl">第一关 · 做个东西出来</span>
-        <span class="title">做个网站 / PPT / 文章</span>
-        <span class="desc">用一个国内工具，说一句话就能做出真的东西</span>
+        <span class="lvl">第二阶段 · 第一关</span>
+        <span class="title">做出一个真东西</span>
+        <span class="desc">说一句话，AI 帮你生成网站、PPT 或文章</span>
       </span>
       <span class="arrow">→</span>
     </button>
@@ -231,289 +191,278 @@ footer { text-align: center; padding: 24px; border-top: 1px solid var(--border);
     <button class="level-card" onclick="showPath('research')">
       <span class="level-badge badge-research">②</span>
       <span class="text">
-        <span class="lvl">第二关 · 搞明白一件事</span>
-        <span class="title">查资料、找答案</span>
-        <span class="desc">免费、中文、国内直接打开，问什么都能答</span>
+        <span class="lvl">第三阶段 · 第二关</span>
+        <span class="title">自己找答案</span>
+        <span class="desc">不懂的事问 AI，几秒就有答案，还能联网搜索</span>
       </span>
       <span class="arrow">→</span>
     </button>
 
-    <button class="level-card" onclick="showPath('automate')">
+    <button class="level-card" onclick="showPath('boss')">
       <span class="level-badge badge-boss">★</span>
       <span class="text">
-        <span class="lvl">BOSS关 · 少做重复活</span>
-        <span class="title">让工具替你自动干活</span>
-        <span class="desc">处理 PDF、自动化工作流——需要花点时间设置</span>
+        <span class="lvl">第四阶段 · 最终 BOSS</span>
+        <span class="title">让工具替你干活</span>
+        <span class="desc">处理 PDF、自动整理文件——重复的事不用再手动了</span>
       </span>
       <span class="arrow">→</span>
     </button>
-  </div>
-
-  <div class="footer-advanced">
-    <a href="#" onclick="showPath('advanced'); return false;">想要更高级的玩法？看进阶能力 →</a>
   </div>
 </div>
 
-<!-- ============ 新手村 ============ -->
+<!-- 新手村 -->
 <div id="path-village" class="path-page">
   <div class="wrap">
     <button class="back" onclick="showHome()">← 回到首页</button>
-    <h2>🟢 新手村：先跟 AI 聊两句</h2>
-    <p class="lede">所有人从这里开始。不用学任何东西，会打字就行。</p>
+    <h2>🟢 新手村：先跟 AI 说句话</h2>
+    <p class="lede">所有人从这里开始。不用注册，不用下载，会打字就行。</p>
 
     <section>
-      <h3>用哪个？</h3>
-      <p><strong>豆包</strong> — 字节跳动做的 AI 助手，免费，中文界面，国内直接打开。</p>
-      <div class="info-box">✅ 国内直接打开 ✅ 中文界面 ✅ 免费 ✅ 不用注册也能试用</div>
+      <h3>今天用什么？</h3>
+      <p><strong>豆包</strong> — 字节跳动做的 AI 助手。就像微信聊天一样，你说一句，它回一句。</p>
+      <div class="info-box">✅ 国内直接打开 ✅ 全中文界面 ✅ 免费 ✅ 不用注册也能聊</div>
       <a class="btn-go" href="https://www.doubao.com" target="_blank" rel="noopener">打开豆包 →</a>
     </section>
 
     <section>
-      <h3>第一步：试一句话</h3>
-      <p>打开豆包后，你会看到一个聊天框。把下面这段话复制进去，发送：</p>
-      <div class="prompt-box" data-copy="true">我是做手工的，帮我写一段朋友圈文案，
+      <h3>第一句话说什么？</h3>
+      <p>打开豆包后，你会看到一个聊天框。点一下这个框，把下面这段话复制进去，然后点发送：</p>
+      <div class="prompt-box">我是做手工的，帮我写一段朋友圈文案，
 介绍我新做的一个羊毛毡小猫，语气可爱一点，100字左右。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
-      <p>发送后，AI 会几秒内给你写好一段文案。</p>
+      <p>等几秒，AI 就会给你写好一段文案。</p>
     </section>
 
     <section>
       <h3>这就成功了 🎉</h3>
-      <div class="success-box">你刚刚完成了第一次 AI 对话。这就是全部——跟 AI 聊天，就这么简单。</div>
+      <div class="success-box">你刚才完成了人生第一次 AI 对话。就这么简单——跟 AI 聊天，跟跟朋友聊天没区别。</div>
     </section>
 
     <section>
-      <h3>觉得好玩？继续下一关</h3>
-      <p>新手村只是让你试试 AI 能帮你做什么。接下来，我们用 AI 做一个真正的东西出来。</p>
-      <p><a href="#" onclick="showPath('quest'); return false;"><strong>→ 去第一关：做个东西出来</strong></a></p>
+      <h3>再多试几句</h3>
+      <p>不用怕说错，随便聊。试试这些：</p>
+      <ul>
+        <li>"你能帮我做什么？" — 它会告诉你它能干什么</li>
+        <li>"帮我把这段话改得正式一点" — 粘贴你写的任何东西</li>
+        <li>"用大白话解释一下什么是人工智能" — 不懂的尽管问</li>
+      </ul>
     </section>
 
     <section>
       <h3>卡住了？</h3>
       <table>
-        <tr><th>问题</th><th>解决</th></tr>
-        <tr><td>打不开豆包</td><td>试试 DeepSeek（chat.deepseek.com），也是国内免费的</td></tr>
-        <tr><td>AI 写的不好</td><td>告诉它哪里不好。比如"太长了，短一点"或"语气不对，正式一点"</td></tr>
-        <tr><td>不知道说什么</td><td>随便说。问它"你能帮我做什么"，它会告诉你</td></tr>
+        <tr><th>问题</th><th>怎么办</th></tr>
+        <tr><td>打不开豆包</td><td>换 DeepSeek（chat.deepseek.com），也是国内的，免费</td></tr>
+        <tr><td>AI 回答得不好</td><td>告诉它哪里不好。比如"太长了，短一点"或"语气不对，正式一点"</td></tr>
+        <tr><td>不知道说什么</td><td>随便说。把它当成一个什么都知道的朋友</td></tr>
       </table>
     </section>
+
+    <div class="next-stage">
+      <p>✅ 新手村通关了！你已经会用 AI 聊天了。</p>
+      <a href="#" class="go" onclick="showPath('quest'); return false;">去第一关：做出一个真东西 →</a>
+      <a href="#" class="back-home" onclick="showHome(); return false;">回首页</a>
+    </div>
   </div>
 </div>
 
-<!-- ============ 第一关 ============ -->
+<!-- 第一关 -->
 <div id="path-quest" class="path-page">
   <div class="wrap">
     <button class="back" onclick="showHome()">← 回到首页</button>
-    <h2>🔵 第一关：做个东西出来</h2>
-    <p class="lede">用一个国内工具，说一句话就能做出真的东西——网站、PPT、文章都行。</p>
+    <h2>🔵 第一关：做出一个真东西</h2>
+    <p class="lede">新手村里你只是聊天。这次，你要用 AI 做出一个能给别人看的东西。</p>
 
     <section>
-      <h3>用哪个？</h3>
-      <p><strong>扣子</strong> — 字节跳动做的 AI 办公平台。一个工具就能做网站、PPT、文章、图片。</p>
-      <div class="info-box">✅ 国内直接打开 ✅ 中文界面 ✅ 能做网站、PPT、文章、图片 ✅ 注册就能用</div>
+      <h3>今天用什么？</h3>
+      <p><strong>扣子</strong> — 也是字节跳动做的。豆包只能聊天，扣子能帮你做出真的东西：网站、PPT、文章。</p>
+      <div class="info-box">✅ 国内直接打开 ✅ 全中文界面 ✅ 一个工具做网站+PPT+文章 ✅ 手机也能用</div>
       <a class="btn-go" href="https://www.coze.cn" target="_blank" rel="noopener">打开扣子 →</a>
     </section>
 
     <section>
-      <h3>做一个网站</h3>
-      <p>打开扣子后，找到输入框，把下面这段话发进去：</p>
-      <div class="prompt-box" data-copy="true">帮我做一个手工作品展示网站。
+      <h3>做个网站（最推荐先试这个）</h3>
+      <p>打开扣子，找到输入框，把这段话发进去：</p>
+      <div class="prompt-box">帮我做一个手工作品展示网站。
 顶部写网站名字"我的手工作品"。
 下面放一段自我介绍。
 然后放一个作品展示区，每个作品有图片和名字。
 最下面留联系方式。
 整体风格温暖简洁。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
-      <p>扣子会帮你生成一个网页。你能看到它、改它、发布它。</p>
+      <p>等一会儿，扣子会帮你生成一个网页。你能看到它，也能改它。</p>
     </section>
 
     <section>
       <h3>做一份 PPT</h3>
-      <p>同样是扣子，换个要求：</p>
-      <div class="prompt-box" data-copy="true">帮我做一份关于"我的手工作品"的演示文稿，
+      <p>同样在扣子里，换个要求就行：</p>
+      <div class="prompt-box">帮我做一份关于"我的手工作品"的演示文稿，
 大约8页，每页一个作品，带介绍。
 风格温暖简洁。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
     </section>
 
     <section>
       <h3>写一篇文章</h3>
-      <p>如果你只是想写东西，也可以直接让扣子帮你：</p>
-      <div class="prompt-box" data-copy="true">帮我写一篇关于"我为什么开始做手工"的短文，
+      <p>如果你只是想写东西：</p>
+      <div class="prompt-box">帮我写一篇关于"我为什么开始做手工"的短文，
 语气像在跟朋友聊天，500字左右。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
     </section>
 
     <section>
       <h3>做到什么算通关？</h3>
-      <div class="success-box">你做出了一个能看的东西——网站、PPT、或文章。能给别人看，就算通关。</div>
+      <div class="success-box">你做出了一个能看的东西——网站、PPT 或文章。能给别人看，就算通关。</div>
     </section>
 
     <section>
-      <h3>下一步</h3>
-      <p>不满意？直接跟扣子说哪里要改，比如"颜色换成暖棕色"或"加一个关于我的页面"。</p>
-      <p>想要更深入了解一个问题？<a href="#" onclick="showPath('research'); return false;"><strong>→ 去第二关</strong></a></p>
+      <h3>不满意？继续改</h3>
+      <p>不用重新做。直接跟扣子说哪里要改：</p>
+      <ul>
+        <li>"把颜色换成暖棕色" — 改风格</li>
+        <li>"加一个关于我的页面" — 加内容</li>
+        <li>"标题大一号" — 调细节</li>
+      </ul>
     </section>
 
     <section>
       <h3>卡住了？</h3>
       <table>
-        <tr><th>问题</th><th>解决</th></tr>
-        <tr><td>扣子里找不到输入框</td><td>首页就有聊天框，直接打字就行</td></tr>
-        <tr><td>做出来的不像我要的</td><td>给更具体的要求。不要说"做好看点"，说"顶部用暖棕色，标题大一号"</td></tr>
-        <tr><td>想改某个部分</td><td>直接说："把联系方式改成表单"</td></tr>
+        <tr><th>问题</th><th>怎么办</th></tr>
+        <tr><td>找不到输入框</td><td>首页就有聊天框，直接打字</td></tr>
+        <tr><td>做出来的不像我要的</td><td>说得更具体。别说"做好看点"，说"顶部用暖棕色，标题大一号"</td></tr>
         <tr><td>想发布到网上</td><td>扣子生成的网页可以直接分享链接</td></tr>
       </table>
     </section>
+
+    <div class="next-stage">
+      <p>✅ 第一关通关了！你做出了一个真东西。</p>
+      <a href="#" class="go" onclick="showPath('research'); return false;">去第二关：自己找答案 →</a>
+      <a href="#" class="back-home" onclick="showHome(); return false;">回首页</a>
+    </div>
   </div>
 </div>
 
-<!-- ============ 第二关 ============ -->
+<!-- 第二关 -->
 <div id="path-research" class="path-page">
   <div class="wrap">
     <button class="back" onclick="showHome()">← 回到首页</button>
-    <h2>🟣 第二关：搞明白一件事</h2>
-    <p class="lede">查资料、找答案、理解一个概念——免费、中文、国内直接打开。</p>
+    <h2>🟣 第二关：自己找答案</h2>
+    <p class="lede">不懂的事不用翻几十个网页。问 AI，几秒就有答案，还能帮你联网搜索。</p>
 
     <section>
-      <h3>用哪个？</h3>
-      <p><strong>DeepSeek</strong> — 国产 AI，免费，中文好，能联网搜索，有深度思考模式。</p>
-      <div class="info-box">✅ 国内直接打开 ✅ 中文界面 ✅ 免费 ✅ 能联网搜索 ✅ 有深度思考</div>
+      <h3>今天用什么？</h3>
+      <p><strong>DeepSeek</strong> — 国产 AI，免费，中文好。比豆包更强的地方：能联网搜索，还有"深度思考"模式。</p>
+      <div class="info-box">✅ 国内直接打开 ✅ 全中文界面 ✅ 免费 ✅ 能联网搜索 ✅ 有深度思考模式</div>
       <a class="btn-go" href="https://chat.deepseek.com" target="_blank" rel="noopener">打开 DeepSeek →</a>
     </section>
 
     <section>
       <h3>第一步：问个问题</h3>
-      <p>打开 DeepSeek，打开"深度思考"开关，把问题打进去：</p>
-      <div class="prompt-box" data-copy="true">我想了解一下，做手工艺品在网上卖，一般从哪里开始？
+      <p>打开 DeepSeek，你会看到页面下方有个"深度思考"的开关。打开它，然后把问题打进去：</p>
+      <div class="prompt-box">我想了解一下，做手工艺品在网上卖，一般从哪里开始？
 我不懂电商，请用大白话解释。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
+      <p>DeepSeek 会先思考一下，然后给你一个详细的回答。</p>
     </section>
 
     <section>
-      <h3>想搜索最新信息？</h3>
-      <p>打开"联网搜索"开关，再问：</p>
-      <div class="prompt-box" data-copy="true">2026年适合个人手工艺者开店的平台有哪些？
+      <h3>想搜最新的信息？</h3>
+      <p>找到"联网搜索"开关，打开它，再问：</p>
+      <div class="prompt-box">2026年适合个人手工艺者开店的平台有哪些？
 请对比它们的费用和门槛。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
-      <p>DeepSeek 会搜索网上的真实信息，然后总结给你。</p>
+      <p>这次 DeepSeek 会先去网上搜真实信息，然后帮你总结。每个答案都会标注信息来源。</p>
     </section>
 
     <section>
       <h3>做到什么算通关？</h3>
-      <div class="success-box">你得到了一个有依据的答案，而且知道这个答案是从哪来的。</div>
+      <div class="success-box">你得到了一个有依据的答案，而且知道这个答案是从哪来的。以后遇到不懂的事，你知道去哪问了。</div>
     </section>
 
     <section>
-      <h3>重要提醒</h3>
-      <div class="warn-box">AI 会出错。重要信息一定要自己核实。比如 AI 说"某平台免费"，你去那个平台确认一下。</div>
+      <h3>⚠️ 重要提醒</h3>
+      <div class="warn-box">AI 会出错。重要信息一定要自己核实。比如 AI 说"某平台免费"，你最好去那个平台确认一下。</div>
     </section>
 
     <section>
       <h3>还有别的选择</h3>
-      <p><strong>Kimi</strong>（kimi.moonshot.cn）— 擅长读长文章、长文档。如果你有一份很长的资料想理解，用 Kimi。</p>
-      <p><strong>豆包</strong>（doubao.com）— 日常问答也很好用，和新手村是同一个工具。</p>
+      <p><strong>Kimi</strong>（kimi.moonshot.cn）— 如果你有一份很长的资料（PDF、 Word 文档），想让 AI 帮你读，用 Kimi。它特别擅长读长文章。</p>
+      <p><strong>豆包</strong>（doubao.com）— 日常问简单问题也够用。你在新手村已经用过了。</p>
     </section>
 
     <section>
       <h3>卡住了？</h3>
       <table>
-        <tr><th>问题</th><th>解决</th></tr>
-        <tr><td>回答太笼统</td><td>打开"深度思考"模式，或者在问题里加"请详细分析"</td></tr>
+        <tr><th>问题</th><th>怎么办</th></tr>
+        <tr><td>回答太笼统</td><td>打开"深度思考"模式，或者加一句"请详细分析"</td></tr>
         <tr><td>答案好像不对</td><td>AI 会出错。重要信息自己核实，别全信</td></tr>
-        <tr><td>想读一份很长的 PDF</td><td>用 Kimi（kimi.moonshot.cn），它能读很长的文档</td></tr>
+        <tr><td>想读一份很长的文件</td><td>用 Kimi（kimi.moonshot.cn），它能读很长的文档</td></tr>
       </table>
     </section>
+
+    <div class="next-stage">
+      <p>✅ 第二关通关了！以后不懂的事，你知道怎么查了。</p>
+      <a href="#" class="go" onclick="showPath('boss'); return false;">去最终 BOSS 关 →</a>
+      <a href="#" class="back-home" onclick="showHome(); return false;">回首页</a>
+    </div>
   </div>
 </div>
 
-<!-- ============ BOSS关 ============ -->
-<div id="path-automate" class="path-page">
+<!-- 最终BOSS -->
+<div id="path-boss" class="path-page">
   <div class="wrap">
     <button class="back" onclick="showHome()">← 回到首页</button>
-    <h2>🟠 BOSS关：少做重复活</h2>
-    <p class="lede">这关有点挑战。但一旦设置好，以后就不用再手动重复了。</p>
+    <h2>🟠 最终 BOSS：让工具替你干活</h2>
+    <p class="lede">前三关你学会了用 AI 聊天、做东西、找答案。这关教你让工具自动帮你干活。</p>
 
     <section>
-      <h3>两个方向，选一个</h3>
-      <p><strong>处理 PDF 文件</strong>（合并、拆分、压缩、转换）→ Stirling PDF，下载桌面版就能用</p>
-      <p><strong>串联多个工具自动跑</strong>（比如收到邮件自动存到表格）→ n8n 或 WorkBuddy</p>
+      <h3>两件事，选一个开始</h3>
+      <p><strong>处理 PDF 文件</strong>（合并、拆分、压缩、转换格式）→ 比较简单，先试这个</p>
+      <p><strong>自动整理文件/数据</strong>（比如自动把收到的信息整理成表格）→ 稍有挑战</p>
     </section>
 
     <section>
-      <h3>处理 PDF（简单）</h3>
-      <p><strong>Stirling PDF</strong> — 免费下载的桌面软件。合并、拆分、压缩、转换，全部免费。</p>
-      <div class="info-box">✅ 免费 ✅ 中文界面 ✅ 下载到电脑用，不用联网</div>
+      <h3>处理 PDF（简单，先试这个）</h3>
+      <p><strong>Stirling PDF</strong> — 免费的桌面软件。合并、拆分、压缩、转换 PDF，全部免费，不用联网。</p>
+      <div class="info-box">✅ 完全免费 ✅ 中文界面 ✅ 下载到电脑用，文件不上传到网上</div>
       <a class="btn-go" href="https://stirling.com" target="_blank" rel="noopener">下载 Stirling PDF →</a>
-      <p>打开后选你要的操作（合并/拆分/压缩/转换），上传文件，点执行。就这么简单。</p>
+      <p>下载后打开，选你要做的事（合并/拆分/压缩/转换），把文件拖进去，点执行。就完成了。</p>
+      <p style="font-size:14px; color:var(--fg-muted)">Windows 电脑选 .exe，Mac 电脑选 .dmg。</p>
     </section>
 
     <section>
-      <h3>自动化工作流（有挑战）</h3>
-      <p><strong>WorkBuddy</strong> — 腾讯出的 AI 办公助手，能自动完成报告、表格等任务。</p>
-      <div class="info-box">✅ 国内直接打开 ✅ 中文界面</div>
+      <h3>自动整理信息（稍有挑战）</h3>
+      <p><strong>WorkBuddy</strong> — 腾讯出的 AI 办公助手。你跟它说你要做什么，它帮你自动完成。</p>
+      <div class="info-box">✅ 国内直接打开 ✅ 中文界面 ✅ 腾讯出品</div>
       <a class="btn-go" href="https://www.workbuddy.cn" target="_blank" rel="noopener">打开 WorkBuddy →</a>
-
-      <p style="margin-top:16px"><strong>n8n</strong> — 连接 400+ 应用的自动化工具。适合想搭工作流的人。</p>
-      <a class="btn-go" href="https://n8n.io" target="_blank" rel="noopener">打开 n8n →</a>
-      <div class="warn-box">n8n 界面是英文的。需要理解"触发器→动作"的概念，但不需要写代码。</div>
+      <p>比如你可以说："帮我把这份资料整理成一份摘要报告"，它会自动完成。</p>
     </section>
 
     <section>
       <h3>做到什么算通关？</h3>
-      <div class="success-box">你成功处理了一个 PDF，或者你的第一个自动化工作流跑通了。</div>
+      <div class="success-box">你成功处理了一个 PDF，或者用 WorkBuddy 完成了一次自动整理。以后这种重复的事，不用再手动做了。</div>
+    </section>
+
+    <section>
+      <h3>什么时候才需要自动化？</h3>
+      <div class="info-box">偶尔做一次的事不用自动化。每周都要重复做 3 次以上的事，才值得花时间设置自动化。</div>
     </section>
 
     <section>
       <h3>卡住了？</h3>
       <table>
-        <tr><th>问题</th><th>解决</th></tr>
-        <tr><td>不确定要不要用自动化</td><td>偶尔手动做一次的事不需要自动化。每周重复3次以上才值得</td></tr>
-        <tr><td>n8n 不知道怎么开始</td><td>先看官方模板库，找一个接近你需求的复制改</td></tr>
+        <tr><th>问题</th><th>怎么办</th></tr>
         <tr><td>Stirling 下载哪个版本</td><td>Windows 选 .exe，Mac 选 .dmg</td></tr>
+        <tr><td>WorkBuddy 不知道怎么用</td><td>打开后直接用大白话说你要做什么，它会自己理解</td></tr>
+        <tr><td>不确定要不要用自动化</td><td>偶尔做一次的事不需要。每周重复3次以上才值得</td></tr>
       </table>
     </section>
+
+    <div class="next-stage">
+      <p>🎉 全部通关！你已经从零学会了用 AI 聊天、做东西、找答案、自动干活。</p>
+      <p style="font-size:15px; color:var(--leaf); font-weight:600;">这就是 60 分。你现在能独立用 AI 解决实际问题了。</p>
+      <a href="#" class="back-home" onclick="showHome(); return false;">回到首页</a>
+    </div>
   </div>
 </div>
 
-<!-- ============ 进阶 ============ -->
-<div id="path-advanced" class="path-page">
-  <div class="wrap">
-    <button class="back" onclick="showHome()">← 回到首页</button>
-    <h2>⚡ 进阶能力</h2>
-    <p class="lede">这些工具需要技术基础。如果你完全不想碰技术，前四关已经够用了。</p>
-
-    <section>
-      <h3>AI 帮你操作浏览器</h3>
-      <p><strong>Browser Use</strong>（browser-use.com）— 让 AI 像人一样打开网页、点击、填表、收集信息。</p>
-      <div class="warn-box">需要 Python 和 AI API Key。Cloud 版有免费额度可以试用。</div>
-      <a class="btn-go" href="https://browser-use.com" target="_blank" rel="noopener">打开 Browser Use →</a>
-    </section>
-
-    <section>
-      <h3>AI 帮你操作电脑</h3>
-      <p><strong>Open Interpreter</strong>（openinterpreter.com）— 让 AI 在你的电脑上执行代码和命令。</p>
-      <div class="warn-box">需要命令行和 AI API Key。</div>
-      <a class="btn-go" href="https://openinterpreter.com" target="_blank" rel="noopener">打开 Open Interpreter →</a>
-    </section>
-
-    <section>
-      <h3>AI 辅助写代码</h3>
-      <p><strong>Cursor</strong>（cursor.com）— AI 代码编辑器。如果你开始学编程了，这是最好的工具。</p>
-      <a class="btn-go" href="https://cursor.com" target="_blank" rel="noopener">打开 Cursor →</a>
-    </section>
-
-    <section>
-      <h3>国外工具（备选）</h3>
-      <p>如果国内工具满足不了你的需求，这些是国外最好的选择。但界面是英文的，可能需要特殊网络。</p>
-      <ul>
-        <li><strong>v0</strong>（v0.dev）— Vercel 的 AI 网页生成</li>
-        <li><strong>Bolt.new</strong>（bolt.new）— AI 搭建完整应用</li>
-        <li><strong>Notion</strong>（notion.so）— 写作 + 知识管理</li>
-        <li><strong>Excalidraw</strong>（excalidraw.com）— 手绘风格画图</li>
-        <li><strong>Gamma</strong>（gamma.app）— AI 生成演示文稿</li>
-      </ul>
-    </section>
-  </div>
-</div>
-
-<!-- ============ FOOTER ============ -->
 <footer>
-  <p>World Space · 帮你找到最省事的起点 · ymai.fun</p>
+  <p>World Space · 从零开始用 AI · ymai.fun</p>
 </footer>
 
 <script>
