@@ -3,501 +3,539 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="从零开始用 AI，一步步从小白到能独立做事。先从新手村开始。">
-<title>World Space — 从这里开始用 AI</title>
+<meta name="description" content="从零开始用 AI，4 个阶段从小白到能独立做事。">
+<title>World Space — 从零开始用 AI</title>
 <style>
 :root {
   --accent: #3B82F6;
   --accent-strong: #2563EB;
   --sun: #D97706;
   --leaf: #16A34A;
-  --purple: #8B5CF6;
+  --leaf-light: rgba(22,163,74,.1);
   --bg: #FAF9F6;
   --surface: #FFFFFF;
   --fg: #111827;
-  --fg-muted: #4B5563;
+  --fg-muted: #6B7280;
   --border: #E7E5E0;
-  --radius: 8px;
-  --radius-sm: 4px;
-  --maxw: 640px;
+  --border-active: #D1D5DB;
+  --radius: 12px;
+  --radius-sm: 6px;
+  --maxw: 680px;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { -webkit-text-size-adjust: 100%; }
 body {
   font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
-  background: var(--bg);
-  color: var(--fg);
-  line-height: 1.8;
-  font-size: 17px;
-  min-height: 100vh;
+  background: var(--bg); color: var(--fg); line-height: 1.8; font-size: 17px; min-height: 100vh;
 }
-.wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
 
-/* Hero */
-.hero { text-align: center; padding: 56px 24px 28px; }
-.hero h1 { font-size: clamp(24px, 5vw, 34px); font-weight: 700; line-height: 1.2; margin-bottom: 10px; }
-.hero .sub { color: var(--fg-muted); font-size: 16px; max-width: 420px; margin: 0 auto 6px; }
-.hero .hint { color: var(--leaf); font-size: 14px; font-weight: 500; }
-.hero .progress-bar { max-width: 320px; margin: 16px auto 0; display: flex; gap: 6px; }
-.hero .progress-bar span { flex: 1; height: 4px; border-radius: 2px; background: var(--border); }
-.hero .progress-bar span.on { background: var(--leaf); }
+/* === Top Bar === */
+.topbar { position: sticky; top: 0; z-index: 100; background: rgba(250,249,246,.95); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); padding: 12px 24px; }
+.topbar .inner { max-width: var(--maxw); margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
+.topbar .brand { font-weight: 700; font-size: 16px; }
+.topbar .progress-text { font-size: 14px; color: var(--fg-muted); }
+.topbar .progress-bar { width: 120px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.topbar .progress-bar .fill { height: 100%; background: var(--leaf); border-radius: 3px; transition: width .3s; }
 
-/* Level Cards */
-.levels { max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; padding-bottom: 40px; }
-.level-card {
-  display: flex; align-items: flex-start; gap: 14px;
-  padding: 22px; background: var(--surface);
-  border: 1px solid var(--border); border-radius: var(--radius);
-  cursor: pointer; transition: border-color .15s, box-shadow .15s;
-  text-decoration: none; color: var(--fg); text-align: left;
-  font-family: inherit; width: 100%;
-}
-.level-card:hover { border-color: var(--accent); box-shadow: 0 2px 12px rgba(59,130,246,.1); }
-.level-badge {
-  flex-shrink: 0; width: 42px; height: 42px;
-  display: flex; align-items: center; justify-content: center;
-  border-radius: 50%; font-size: 18px; font-weight: 700; color: white;
-}
-.badge-village { background: var(--leaf); }
-.badge-quest { background: var(--accent); }
-.badge-research { background: var(--purple); }
-.badge-boss { background: var(--sun); }
-.level-card .text { flex: 1; }
-.level-card .text .lvl { font-size: 12px; color: var(--fg-muted); font-weight: 600; letter-spacing: .5px; margin-bottom: 2px; }
-.level-card .text .title { font-size: 17px; font-weight: 600; margin-bottom: 3px; }
-.level-card .text .desc { font-size: 14px; color: var(--fg-muted); line-height: 1.5; }
-.level-card .arrow { flex-shrink: 0; color: var(--fg-muted); font-size: 18px; align-self: center; }
-.level-card:hover .arrow { transform: translateX(4px); color: var(--accent); transition: transform .15s; }
+/* === Hero === */
+.hero { text-align: center; padding: 56px 24px 24px; }
+.hero h1 { font-size: clamp(24px, 5vw, 34px); font-weight: 700; line-height: 1.25; margin-bottom: 12px; }
+.hero .sub { color: var(--fg-muted); font-size: 16px; max-width: 400px; margin: 0 auto 20px; }
+.hero .sub strong { color: var(--leaf); }
+.hero .start-btn { display: inline-block; padding: 14px 36px; background: var(--accent); color: white; border-radius: var(--radius); font-size: 17px; font-weight: 600; text-decoration: none; transition: background .15s; }
+.hero .start-btn:hover { background: var(--accent-strong); }
 
-/* Path Page */
-.path-page { display: none; padding: 28px 24px 56px; }
-.path-page.active { display: block; }
-.path-page .back {
-  display: inline-flex; align-items: center; gap: 6px;
-  font-size: 14px; color: var(--fg-muted); text-decoration: none;
-  margin-bottom: 20px; cursor: pointer; background: none; border: none; font-family: inherit;
-}
-.path-page .back:hover { color: var(--accent); }
-.path-page h2 { font-size: clamp(20px, 4vw, 26px); font-weight: 700; margin-bottom: 6px; }
-.path-page .lede { color: var(--fg-muted); font-size: 15px; margin-bottom: 20px; }
-.path-page section { margin-bottom: 24px; }
-.path-page h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; padding-left: 10px; border-left: 3px solid var(--accent); }
-.path-page p { margin-bottom: 8px; }
-.path-page ul { padding-left: 20px; margin-bottom: 10px; }
-.path-page li { margin-bottom: 5px; }
-.path-page a { color: var(--accent-strong); text-decoration: none; }
+/* === Roadmap === */
+.roadmap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px 48px; }
+.stage { margin-bottom: 32px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.stage-header { padding: 20px 24px; cursor: pointer; display: flex; align-items: center; gap: 16px; transition: background .15s; }
+.stage-header:hover { background: rgba(0,0,0,.02); }
+.stage-badge { flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; color: white; }
+.stage-badge.s1 { background: var(--leaf); }
+.stage-badge.s2 { background: var(--accent); }
+.stage-badge.s3 { background: #8B5CF6; }
+.stage-badge.s4 { background: var(--sun); }
+.stage-header .info { flex: 1; }
+.stage-header .info .title { font-size: 18px; font-weight: 600; margin-bottom: 2px; }
+.stage-header .info .desc { font-size: 14px; color: var(--fg-muted); }
+.stage-header .arrow { flex-shrink: 0; color: var(--fg-muted); font-size: 14px; transition: transform .2s; }
+.stage.open .stage-header .arrow { transform: rotate(90deg); }
+.stage-status { flex-shrink: 0; font-size: 13px; padding: 3px 10px; border-radius: 12px; font-weight: 500; }
+.stage-status.todo { background: var(--border); color: var(--fg-muted); }
+.stage-status.doing { background: rgba(59,130,246,.1); color: var(--accent); }
+.stage-status.done { background: var(--leaf-light); color: var(--leaf); }
 
-.btn-go {
-  display: inline-block; padding: 11px 26px;
-  background: var(--accent); color: white; border-radius: var(--radius);
-  font-weight: 600; font-size: 16px; text-decoration: none;
-  margin: 6px 0 14px; transition: background .15s;
-}
-.btn-go:hover { background: var(--accent-strong); }
+/* === Steps === */
+.stage-body { display: none; padding: 0 24px 24px; }
+.stage.open .stage-body { display: block; }
+.step { padding: 16px 0; border-top: 1px solid var(--border); }
+.step:first-child { border-top: none; }
+.step-header { display: flex; align-items: flex-start; gap: 12px; cursor: pointer; }
+.step-num { flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border-active); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: var(--fg-muted); margin-top: 2px; transition: all .15s; }
+.step.done .step-num { background: var(--leaf); border-color: var(--leaf); color: white; }
+.step-content { flex: 1; }
+.step-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+.step-body { display: none; margin-top: 12px; }
+.step.open .step-body { display: block; }
+.step-body p { margin-bottom: 12px; }
+.step-body ul { padding-left: 20px; margin-bottom: 12px; }
+.step-body li { margin-bottom: 6px; }
+.step-body a { color: var(--accent-strong); }
+.step-body .tip { padding: 12px 16px; background: rgba(59,130,246,.06); border-radius: var(--radius-sm); margin-bottom: 12px; font-size: 15px; }
+.step-body .warn { padding: 12px 16px; background: rgba(217,119,6,.08); border-radius: var(--radius-sm); margin-bottom: 12px; font-size: 15px; }
 
-.prompt-box {
-  position: relative;
-  background: #F3F4F6; border: 1px solid var(--border);
-  border-radius: var(--radius-sm); padding: 14px 16px;
-  font-size: 15px; line-height: 1.7;
-  white-space: pre-wrap; word-break: break-word;
-  margin: 8px 0 14px; color: var(--fg);
-}
-.info-box { background: #EFF6FF; border-left: 3px solid var(--accent); padding: 10px 14px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; margin: 10px 0; font-size: 15px; }
-.warn-box { background: #FFFBEB; border-left: 3px solid var(--sun); padding: 10px 14px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; margin: 10px 0; font-size: 15px; color: var(--fg-muted); }
-.success-box { background: #F0FDF4; border-left: 3px solid var(--leaf); padding: 10px 14px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; margin: 10px 0; font-size: 15px; }
-
-.path-page table { width: 100%; border-collapse: collapse; margin: 8px 0 14px; font-size: 15px; }
-.path-page th, .path-page td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); }
-
-/* Next-step nav at bottom of each stage */
-.next-stage { text-align: center; margin-top: 24px; padding: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
-.next-stage p { margin-bottom: 8px; color: var(--fg-muted); font-size: 15px; }
-.next-stage a { display: inline-block; padding: 10px 24px; border-radius: var(--radius); font-weight: 600; font-size: 15px; text-decoration: none; }
-.next-stage a.go { background: var(--accent); color: white; }
-.next-stage a.go:hover { background: var(--accent-strong); }
-.next-stage a.back-home { background: none; color: var(--fg-muted); border: 1px solid var(--border); margin-left: 8px; }
-
-/* Copy button */
-.copy-btn {
-  position: absolute; top: 8px; right: 8px;
-  padding: 4px 12px; font-size: 13px;
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--radius-sm); cursor: pointer;
-  color: var(--fg-muted); font-family: inherit;
-  transition: background .15s, color .15s;
-}
+/* Prompt box */
+.prompt-box { position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px; padding-top: 40px; font-size: 15px; line-height: 1.7; margin: 8px 0 16px; }
+.copy-btn { position: absolute; top: 8px; right: 8px; padding: 4px 12px; font-size: 13px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; color: var(--fg-muted); font-family: inherit; transition: all .15s; }
 .copy-btn:hover { background: var(--accent); color: white; border-color: var(--accent); }
 .copy-btn.copied { background: var(--leaf); color: white; border-color: var(--leaf); }
 
-footer { text-align: center; padding: 24px; border-top: 1px solid var(--border); color: var(--fg-muted); font-size: 13px; }
+/* Tool button */
+.tool-btn { display: inline-block; padding: 10px 24px; background: var(--accent); color: white; border-radius: var(--radius-sm); font-weight: 600; font-size: 15px; text-decoration: none; margin: 8px 0; transition: background .15s; }
+.tool-btn:hover { background: var(--accent-strong); }
 
+/* Checkpoint */
+.checkpoint { margin-top: 16px; padding: 16px; background: var(--leaf-light); border-radius: var(--radius-sm); }
+.checkpoint .label { font-size: 14px; font-weight: 600; color: var(--leaf); margin-bottom: 8px; }
+.checkpoint-btn { display: inline-block; padding: 8px 20px; background: var(--leaf); color: white; border: none; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; }
+.checkpoint-btn:hover { opacity: .9; }
+
+/* Graduation */
+.graduation { text-align: center; padding: 48px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); max-width: var(--maxw); margin: 0 auto 48px; }
+.graduation .emoji { font-size: 48px; margin-bottom: 16px; }
+.graduation h2 { font-size: 24px; font-weight: 700; margin-bottom: 12px; }
+.graduation .skills { display: inline-block; text-align: left; margin: 16px 0; }
+.graduation .skills li { margin-bottom: 6px; list-style: none; padding-left: 24px; position: relative; }
+.graduation .skills li::before { content: '✓'; position: absolute; left: 0; color: var(--leaf); font-weight: 700; }
+
+/* Footer */
+footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 13px; border-top: 1px solid var(--border); }
+
+/* Mobile */
 @media (max-width: 480px) {
-  .hero { padding: 36px 20px 20px; }
+  .hero { padding: 40px 20px 20px; }
   .hero h1 { font-size: 22px; }
-  .hero .sub { font-size: 14px; }
-  .level-card { padding: 16px 12px; gap: 10px; }
-  .level-card .text .title { font-size: 15px; }
-  .level-card .text .desc { font-size: 12px; }
-  .level-badge { width: 34px; height: 34px; font-size: 15px; }
-  .path-page { padding: 20px 16px 40px; }
-  .path-page h2 { font-size: 19px; }
-  .prompt-box { font-size: 14px; padding: 12px; padding-top: 34px; }
+  .hero .sub { font-size: 15px; }
+  .stage-header { padding: 16px; gap: 12px; }
+  .stage-header .info .title { font-size: 16px; }
+  .stage-body { padding: 0 16px 16px; }
+  .prompt-box { font-size: 14px; padding: 12px; padding-top: 36px; }
   .copy-btn { font-size: 12px; padding: 3px 10px; }
   body { font-size: 16px; }
-  .btn-go { padding: 10px 22px; font-size: 15px; }
-  .next-stage a { display: block; margin: 6px 0; }
-  .next-stage a.back-home { margin-left: 0; }
+  .topbar .progress-bar { width: 80px; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 </head>
 <body>
 
-<!-- HOMEPAGE -->
-<div id="home">
-  <div class="hero">
-    <div class="wrap">
-      <h1>从这里开始用 AI</h1>
-      <p class="sub">完全不会也没关系。跟着走，4 步从零到能独立做事。</p>
-      <div class="progress-bar">
-        <span class="on"></span><span></span><span></span><span></span>
+<div class="topbar">
+  <div class="inner">
+    <span class="brand">World Space</span>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span class="progress-text" id="progressText">0/14</span>
+      <div class="progress-bar"><div class="fill" id="progressFill" style="width:0%"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ HERO ============ -->
+<div class="hero">
+  <h1>从这里开始用 AI</h1>
+  <p class="sub">完全不会也没关系。跟着走，<strong>4 个阶段、14 个小步骤</strong>，从零到能独立用 AI 解决实际问题。</p>
+  <a class="start-btn" href="#stage-1">开始第一步 →</a>
+</div>
+
+<!-- ============ ROADMAP ============ -->
+<div class="roadmap">
+
+<!-- ===== STAGE 1 ===== -->
+<div class="stage" id="stage-1">
+  <div class="stage-header" onclick="toggleStage(1)">
+    <div class="stage-badge s1">1</div>
+    <div class="info">
+      <div class="title">新手村：认识 AI，跟它说上话</div>
+      <div class="desc">约 5 分钟 · 知道 AI 是什么，能帮你干什么</div>
+    </div>
+    <span class="stage-status todo" id="status-1">未开始</span>
+    <span class="arrow">▶</span>
+  </div>
+  <div class="stage-body">
+
+    <div class="step" id="step-1">
+      <div class="step-header" onclick="toggleStep(1)">
+        <div class="step-num">1</div>
+        <div class="step-content"><div class="step-title">AI 到底是什么？</div></div>
       </div>
-      <p class="hint">↓ 从第一步开始 ↓</p>
+      <div class="step-body">
+        <p>用大白话说：AI 就是一个<strong>读过很多很多书的助手</strong>。你问它问题，它帮你回答；你让它写东西，它帮你写。</p>
+        <p>它不像搜索引擎那样只给你链接，而是直接给你<strong>写好的答案</strong>。</p>
+        <div class="tip">💡 但要记住：它会出错。它不是万能的。它不知道今天发生了什么（除非你让它联网搜索）。</div>
+      </div>
     </div>
-  </div>
 
-  <div class="levels">
-    <button class="level-card" onclick="showPath('village')">
-      <span class="level-badge badge-village">村</span>
-      <span class="text">
-        <span class="lvl">第一阶段 · 新手村</span>
-        <span class="title">先跟 AI 说句话</span>
-        <span class="desc">打开就能用，打字就行。试试让 AI 帮你写段话</span>
-      </span>
-      <span class="arrow">→</span>
-    </button>
+    <div class="step" id="step-2">
+      <div class="step-header" onclick="toggleStep(2)">
+        <div class="step-num">2</div>
+        <div class="step-content"><div class="step-title">AI 能帮你做什么？</div></div>
+      </div>
+      <div class="step-body">
+        <p>下面这些，现在的 AI 都能做到：</p>
+        <ul>
+          <li>✍️ <strong>写东西</strong> — 朋友圈文案、文章、邮件、自我介绍</li>
+          <li>🖥️ <strong>做东西</strong> — 网站、PPT、海报</li>
+          <li>🔍 <strong>找答案</strong> — 查资料、对比、解释概念</li>
+          <li>📄 <strong>处理文件</strong> — 合并 PDF、压缩、转换格式</li>
+          <li>🔄 <strong>翻译</strong> — 中英互译，还能解释语法</li>
+        </ul>
+        <p>接下来 4 个阶段，你会一样一样试过来。</p>
+      </div>
+    </div>
 
-    <button class="level-card" onclick="showPath('quest')">
-      <span class="level-badge badge-quest">①</span>
-      <span class="text">
-        <span class="lvl">第二阶段 · 第一关</span>
-        <span class="title">做出一个真东西</span>
-        <span class="desc">说一句话，AI 帮你生成网站、PPT 或文章</span>
-      </span>
-      <span class="arrow">→</span>
-    </button>
-
-    <button class="level-card" onclick="showPath('research')">
-      <span class="level-badge badge-research">②</span>
-      <span class="text">
-        <span class="lvl">第三阶段 · 第二关</span>
-        <span class="title">自己找答案</span>
-        <span class="desc">不懂的事问 AI，几秒就有答案，还能联网搜索</span>
-      </span>
-      <span class="arrow">→</span>
-    </button>
-
-    <button class="level-card" onclick="showPath('boss')">
-      <span class="level-badge badge-boss">★</span>
-      <span class="text">
-        <span class="lvl">第四阶段 · 最终 BOSS</span>
-        <span class="title">让工具替你干活</span>
-        <span class="desc">处理 PDF、自动整理文件——重复的事不用再手动了</span>
-      </span>
-      <span class="arrow">→</span>
-    </button>
-  </div>
-</div>
-
-<!-- 新手村 -->
-<div id="path-village" class="path-page">
-  <div class="wrap">
-    <button class="back" onclick="showHome()">← 回到首页</button>
-    <h2>🟢 新手村：先跟 AI 说句话</h2>
-    <p class="lede">所有人从这里开始。不用注册，不用下载，会打字就行。</p>
-
-    <section>
-      <h3>今天用什么？</h3>
-      <p><strong>豆包</strong> — 字节跳动做的 AI 助手。就像微信聊天一样，你说一句，它回一句。</p>
-      <div class="info-box">✅ 国内直接打开 ✅ 全中文界面 ✅ 免费 ✅ 不用注册也能聊</div>
-      <a class="btn-go" href="https://www.doubao.com" target="_blank" rel="noopener">打开豆包 →</a>
-    </section>
-
-    <section>
-      <h3>第一句话说什么？</h3>
-      <p>打开豆包后，你会看到一个聊天框。点一下这个框，把下面这段话复制进去，然后点发送：</p>
-      <div class="prompt-box">我是做手工的，帮我写一段朋友圈文案，
+    <div class="step" id="step-3">
+      <div class="step-header" onclick="toggleStep(3)">
+        <div class="step-num">3</div>
+        <div class="step-content"><div class="step-title">打开豆包，说第一句话</div></div>
+      </div>
+      <div class="step-body">
+        <p><strong>豆包</strong>是字节跳动做的 AI 助手。就像微信聊天一样，你说一句，它回一句。</p>
+        <p>✅ 国内直接打开 ✅ 全中文界面 ✅ 免费 ✅ 不用注册也能聊</p>
+        <a class="tool-btn" href="https://www.doubao.com" target="_blank" rel="noopener">打开豆包 →</a>
+        <p>打开后你会看到一个聊天框。把下面这段话复制进去，发送：</p>
+        <div class="prompt-box">我是做手工的，帮我写一段朋友圈文案，
 介绍我新做的一个羊毛毡小猫，语气可爱一点，100字左右。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
-      <p>等几秒，AI 就会给你写好一段文案。</p>
-    </section>
-
-    <section>
-      <h3>这就成功了 🎉</h3>
-      <div class="success-box">你刚才完成了人生第一次 AI 对话。就这么简单——跟 AI 聊天，跟跟朋友聊天没区别。</div>
-    </section>
-
-    <section>
-      <h3>再多试几句</h3>
-      <p>不用怕说错，随便聊。试试这些：</p>
-      <ul>
-        <li>"你能帮我做什么？" — 它会告诉你它能干什么</li>
-        <li>"帮我把这段话改得正式一点" — 粘贴你写的任何东西</li>
-        <li>"用大白话解释一下什么是人工智能" — 不懂的尽管问</li>
-      </ul>
-    </section>
-
-    <section>
-      <h3>卡住了？</h3>
-      <table>
-        <tr><th>问题</th><th>怎么办</th></tr>
-        <tr><td>打不开豆包</td><td>换 DeepSeek（chat.deepseek.com），也是国内的，免费</td></tr>
-        <tr><td>AI 回答得不好</td><td>告诉它哪里不好。比如"太长了，短一点"或"语气不对，正式一点"</td></tr>
-        <tr><td>不知道说什么</td><td>随便说。把它当成一个什么都知道的朋友</td></tr>
-      </table>
-    </section>
-
-    <div class="next-stage">
-      <p>✅ 新手村通关了！你已经会用 AI 聊天了。</p>
-      <a href="#" class="go" onclick="showPath('quest'); return false;">去第一关：做出一个真东西 →</a>
-      <a href="#" class="back-home" onclick="showHome(); return false;">回首页</a>
+        <p>等几秒，AI 就会给你写好一段文案。你可以读一下，看看是不是你想要的。</p>
+        <div class="tip">💡 如果写得不好，直接跟它说哪里不好。比如"太长了，短一点"或"语气太正式了，可爱一点"。</div>
+      </div>
     </div>
+
+    <div class="step" id="step-4">
+      <div class="step-header" onclick="toggleStep(4)">
+        <div class="step-num">4</div>
+        <div class="step-content"><div class="step-title">再多试几句，感受一下</div></div>
+      </div>
+      <div class="step-body">
+        <p>不用怕说错，随便聊。试几句：</p>
+        <ul>
+          <li>"你能帮我做什么？"</li>
+          <li>"用大白话解释一下什么是人工智能"</li>
+          <li>"帮我把'今天天气真好'翻译成英文"</li>
+          <li>"给我讲个笑话"</li>
+        </ul>
+        <p>你会发现，它就像一个什么都知道一点的朋友，你问什么它都能回。</p>
+      </div>
+    </div>
+
+    <div class="checkpoint" id="cp-1">
+      <div class="label">🏁 检查点：你完成新手村了吗？</div>
+      <p style="margin-bottom:12px">如果你已经跟 AI 聊上了，而且它给了你回答——恭喜，你入门了。</p>
+      <button class="checkpoint-btn" onclick="completeStage(1)">完成了，去第一关 →</button>
+    </div>
+
   </div>
 </div>
 
-<!-- 第一关 -->
-<div id="path-quest" class="path-page">
-  <div class="wrap">
-    <button class="back" onclick="showHome()">← 回到首页</button>
-    <h2>🔵 第一关：做出一个真东西</h2>
-    <p class="lede">新手村里你只是聊天。这次，你要用 AI 做出一个能给别人看的东西。</p>
+<!-- ===== STAGE 2 ===== -->
+<div class="stage" id="stage-2">
+  <div class="stage-header" onclick="toggleStage(2)">
+    <div class="stage-badge s2">2</div>
+    <div class="info">
+      <div class="title">第一关：用 AI 做出一个真东西</div>
+      <div class="desc">约 15 分钟 · 做出网站、PPT 或文章，能给别人看</div>
+    </div>
+    <span class="stage-status todo" id="status-2">未开始</span>
+    <span class="arrow">▶</span>
+  </div>
+  <div class="stage-body">
 
-    <section>
-      <h3>今天用什么？</h3>
-      <p><strong>扣子</strong> — 也是字节跳动做的。豆包只能聊天，扣子能帮你做出真的东西：网站、PPT、文章。</p>
-      <div class="info-box">✅ 国内直接打开 ✅ 全中文界面 ✅ 一个工具做网站+PPT+文章 ✅ 手机也能用</div>
-      <a class="btn-go" href="https://www.coze.cn" target="_blank" rel="noopener">打开扣子 →</a>
-    </section>
+    <div class="step" id="step-5">
+      <div class="step-header" onclick="toggleStep(5)">
+        <div class="step-num">5</div>
+        <div class="step-content"><div class="step-title">认识扣子：能帮你"做东西"的 AI</div></div>
+      </div>
+      <div class="step-body">
+        <p>新手村里你用豆包聊天，但豆包只能<strong>说</strong>，不能<strong>做</strong>。</p>
+        <p><strong>扣子</strong>（coze.cn）也是字节跳动做的，和豆包是同一家。但扣子能帮你做出真的东西：网站、PPT、文章、图片。</p>
+        <p>✅ 国内直接打开 ✅ 全中文界面 ✅ 一个工具搞定网站+PPT+文章 ✅ 手机也能用</p>
+        <a class="tool-btn" href="https://www.coze.cn" target="_blank" rel="noopener">打开扣子 →</a>
+      </div>
+    </div>
 
-    <section>
-      <h3>做个网站（最推荐先试这个）</h3>
-      <p>打开扣子，找到输入框，把这段话发进去：</p>
-      <div class="prompt-box">帮我做一个手工作品展示网站。
+    <div class="step" id="step-6">
+      <div class="step-header" onclick="toggleStep(6)">
+        <div class="step-num">6</div>
+        <div class="step-content"><div class="step-title">做一个网站（最推荐先试这个）</div></div>
+      </div>
+      <div class="step-body">
+        <p>打开扣子后，找到输入框，把这段话发进去：</p>
+        <div class="prompt-box">帮我做一个手工作品展示网站。
 顶部写网站名字"我的手工作品"。
 下面放一段自我介绍。
 然后放一个作品展示区，每个作品有图片和名字。
 最下面留联系方式。
 整体风格温暖简洁。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
-      <p>等一会儿，扣子会帮你生成一个网页。你能看到它，也能改它。</p>
-    </section>
+        <p>等一会儿，扣子会帮你生成一个网页。你能看到它，也能改它。</p>
+        <div class="tip">💡 不满意？不用重新做。直接说哪里要改："把颜色换成暖棕色""加一个关于我的页面""标题大一号"。</div>
+      </div>
+    </div>
 
-    <section>
-      <h3>做一份 PPT</h3>
-      <p>同样在扣子里，换个要求就行：</p>
-      <div class="prompt-box">帮我做一份关于"我的手工作品"的演示文稿，
+    <div class="step" id="step-7">
+      <div class="step-header" onclick="toggleStep(7)">
+        <div class="step-num">7</div>
+        <div class="step-content"><div class="step-title">做一份 PPT</div></div>
+      </div>
+      <div class="step-body">
+        <p>同样在扣子里，换个要求就行：</p>
+        <div class="prompt-box">帮我做一份关于"我的手工作品"的演示文稿，
 大约8页，每页一个作品，带介绍。
 风格温暖简洁。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
-    </section>
+        <p>扣子会帮你生成一份可以翻页的演示。比 PPT 省时间得多。</p>
+      </div>
+    </div>
 
-    <section>
-      <h3>写一篇文章</h3>
-      <p>如果你只是想写东西：</p>
-      <div class="prompt-box">帮我写一篇关于"我为什么开始做手工"的短文，
+    <div class="step" id="step-8">
+      <div class="step-header" onclick="toggleStep(8)">
+        <div class="step-num">8</div>
+        <div class="step-content"><div class="step-title">写一篇文章</div></div>
+      </div>
+      <div class="step-body">
+        <p>如果你只是想写东西，也可以让扣子帮你：</p>
+        <div class="prompt-box">帮我写一篇关于"我为什么开始做手工"的短文，
 语气像在跟朋友聊天，500字左右。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
-    </section>
-
-    <section>
-      <h3>做到什么算通关？</h3>
-      <div class="success-box">你做出了一个能看的东西——网站、PPT 或文章。能给别人看，就算通关。</div>
-    </section>
-
-    <section>
-      <h3>不满意？继续改</h3>
-      <p>不用重新做。直接跟扣子说哪里要改：</p>
-      <ul>
-        <li>"把颜色换成暖棕色" — 改风格</li>
-        <li>"加一个关于我的页面" — 加内容</li>
-        <li>"标题大一号" — 调细节</li>
-      </ul>
-    </section>
-
-    <section>
-      <h3>卡住了？</h3>
-      <table>
-        <tr><th>问题</th><th>怎么办</th></tr>
-        <tr><td>找不到输入框</td><td>首页就有聊天框，直接打字</td></tr>
-        <tr><td>做出来的不像我要的</td><td>说得更具体。别说"做好看点"，说"顶部用暖棕色，标题大一号"</td></tr>
-        <tr><td>想发布到网上</td><td>扣子生成的网页可以直接分享链接</td></tr>
-      </table>
-    </section>
-
-    <div class="next-stage">
-      <p>✅ 第一关通关了！你做出了一个真东西。</p>
-      <a href="#" class="go" onclick="showPath('research'); return false;">去第二关：自己找答案 →</a>
-      <a href="#" class="back-home" onclick="showHome(); return false;">回首页</a>
+        <p>写完后你可以直接改，让它变成你自己的话。</p>
+      </div>
     </div>
+
+    <div class="checkpoint" id="cp-2">
+      <div class="label">🏁 检查点：你做出东西了吗？</div>
+      <p style="margin-bottom:12px">如果你做出了一个能看的东西——网站、PPT 或文章——而且能给别人看，这关就过了。</p>
+      <button class="checkpoint-btn" onclick="completeStage(2)">通关了，去第二关 →</button>
+    </div>
+
   </div>
 </div>
 
-<!-- 第二关 -->
-<div id="path-research" class="path-page">
-  <div class="wrap">
-    <button class="back" onclick="showHome()">← 回到首页</button>
-    <h2>🟣 第二关：自己找答案</h2>
-    <p class="lede">不懂的事不用翻几十个网页。问 AI，几秒就有答案，还能帮你联网搜索。</p>
+<!-- ===== STAGE 3 ===== -->
+<div class="stage" id="stage-3">
+  <div class="stage-header" onclick="toggleStage(3)">
+    <div class="stage-badge s3">3</div>
+    <div class="info">
+      <div class="title">第二关：让 AI 帮你找答案</div>
+      <div class="desc">约 10 分钟 · 查资料、找答案，而且知道答案靠不靠谱</div>
+    </div>
+    <span class="stage-status todo" id="status-3">未开始</span>
+    <span class="arrow">▶</span>
+  </div>
+  <div class="stage-body">
 
-    <section>
-      <h3>今天用什么？</h3>
-      <p><strong>DeepSeek</strong> — 国产 AI，免费，中文好。比豆包更强的地方：能联网搜索，还有"深度思考"模式。</p>
-      <div class="info-box">✅ 国内直接打开 ✅ 全中文界面 ✅ 免费 ✅ 能联网搜索 ✅ 有深度思考模式</div>
-      <a class="btn-go" href="https://chat.deepseek.com" target="_blank" rel="noopener">打开 DeepSeek →</a>
-    </section>
+    <div class="step" id="step-9">
+      <div class="step-header" onclick="toggleStep(9)">
+        <div class="step-num">9</div>
+        <div class="step-content"><div class="step-title">认识 DeepSeek：比豆包更强的"思考者"</div></div>
+      </div>
+      <div class="step-body">
+        <p>豆包适合日常聊天，但如果你要<strong>认真查一个问题</strong>，用 <strong>DeepSeek</strong> 更好。</p>
+        <p>DeepSeek 有两个豆包没有的能力：</p>
+        <ul>
+          <li>🧠 <strong>深度思考</strong> — 它会先想一会儿，再给你更详细的回答</li>
+          <li>🌐 <strong>联网搜索</strong> — 它会去网上找真实信息，告诉你答案从哪来的</li>
+        </ul>
+        <p>✅ 国内直接打开 ✅ 全中文 ✅ 免费</p>
+        <a class="tool-btn" href="https://chat.deepseek.com" target="_blank" rel="noopener">打开 DeepSeek →</a>
+      </div>
+    </div>
 
-    <section>
-      <h3>第一步：问个问题</h3>
-      <p>打开 DeepSeek，你会看到页面下方有个"深度思考"的开关。打开它，然后把问题打进去：</p>
-      <div class="prompt-box">我想了解一下，做手工艺品在网上卖，一般从哪里开始？
+    <div class="step" id="step-10">
+      <div class="step-header" onclick="toggleStep(10)">
+        <div class="step-num">10</div>
+        <div class="step-content"><div class="step-title">问一个真问题</div></div>
+      </div>
+      <div class="step-body">
+        <p>打开 DeepSeek，找到页面下方的<strong>"深度思考"</strong>开关，打开它。然后把问题打进去：</p>
+        <div class="prompt-box">我想了解一下，做手工艺品在网上卖，一般从哪里开始？
 我不懂电商，请用大白话解释。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
-      <p>DeepSeek 会先思考一下，然后给你一个详细的回答。</p>
-    </section>
-
-    <section>
-      <h3>想搜最新的信息？</h3>
-      <p>找到"联网搜索"开关，打开它，再问：</p>
-      <div class="prompt-box">2026年适合个人手工艺者开店的平台有哪些？
-请对比它们的费用和门槛。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
-      <p>这次 DeepSeek 会先去网上搜真实信息，然后帮你总结。每个答案都会标注信息来源。</p>
-    </section>
-
-    <section>
-      <h3>做到什么算通关？</h3>
-      <div class="success-box">你得到了一个有依据的答案，而且知道这个答案是从哪来的。以后遇到不懂的事，你知道去哪问了。</div>
-    </section>
-
-    <section>
-      <h3>⚠️ 重要提醒</h3>
-      <div class="warn-box">AI 会出错。重要信息一定要自己核实。比如 AI 说"某平台免费"，你最好去那个平台确认一下。</div>
-    </section>
-
-    <section>
-      <h3>还有别的选择</h3>
-      <p><strong>Kimi</strong>（kimi.moonshot.cn）— 如果你有一份很长的资料（PDF、 Word 文档），想让 AI 帮你读，用 Kimi。它特别擅长读长文章。</p>
-      <p><strong>豆包</strong>（doubao.com）— 日常问简单问题也够用。你在新手村已经用过了。</p>
-    </section>
-
-    <section>
-      <h3>卡住了？</h3>
-      <table>
-        <tr><th>问题</th><th>怎么办</th></tr>
-        <tr><td>回答太笼统</td><td>打开"深度思考"模式，或者加一句"请详细分析"</td></tr>
-        <tr><td>答案好像不对</td><td>AI 会出错。重要信息自己核实，别全信</td></tr>
-        <tr><td>想读一份很长的文件</td><td>用 Kimi（kimi.moonshot.cn），它能读很长的文档</td></tr>
-      </table>
-    </section>
-
-    <div class="next-stage">
-      <p>✅ 第二关通关了！以后不懂的事，你知道怎么查了。</p>
-      <a href="#" class="go" onclick="showPath('boss'); return false;">去最终 BOSS 关 →</a>
-      <a href="#" class="back-home" onclick="showHome(); return false;">回首页</a>
+        <p>DeepSeek 会先思考一下，然后给你一个详细的回答。你会看到它的"思考过程"，这是正常的。</p>
+      </div>
     </div>
+
+    <div class="step" id="step-11">
+      <div class="step-header" onclick="toggleStep(11)">
+        <div class="step-num">11</div>
+        <div class="step-content"><div class="step-title">让 AI 联网搜索最新信息</div></div>
+      </div>
+      <div class="step-body">
+        <p>这次打开<strong>"联网搜索"</strong>开关，再问一个需要最新信息的问题：</p>
+        <div class="prompt-box">2026年适合个人手工艺者开店的平台有哪些？
+请对比它们的费用和门槛。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
+        <p>DeepSeek 会先去网上搜索真实信息，然后帮你总结。每个答案都会标注信息来源——你可以点进去核实。</p>
+      </div>
+    </div>
+
+    <div class="step" id="step-12">
+      <div class="step-header" onclick="toggleStep(12)">
+        <div class="step-num">12</div>
+        <div class="step-content"><div class="step-title">⚠️ 重要：AI 会出错，怎么判断答案靠不靠谱</div></div>
+      </div>
+      <div class="step-body">
+        <div class="warn">⚠️ AI 会一本正经地说错话。它不是故意的，但它确实会出错。重要信息一定要自己核实。</div>
+        <p>怎么判断答案靠不靠谱：</p>
+        <ul>
+          <li>有来源链接的 → 点进去看一眼，确认是不是真的</li>
+          <li>涉及钱、政策、法律的 → 一定要去官方渠道确认</li>
+          <li>感觉不太对的 → 换个工具再问一遍，对比两个答案</li>
+          <li>太具体的数据（比如"某平台用户数"）→ 可能是编的，自己查</li>
+        </ul>
+        <p>还有个工具叫 <strong>Kimi</strong>（kimi.moonshot.cn），特别擅长读很长的文章或文件。如果你有一份长 PDF 想理解，用 Kimi。</p>
+      </div>
+    </div>
+
+    <div class="checkpoint" id="cp-3">
+      <div class="label">🏁 检查点：你能自己找答案了吗？</div>
+      <p style="margin-bottom:12px">如果你用 DeepSeek 查到了一个问题的答案，而且知道这个答案是从哪来的——这关过了。</p>
+      <button class="checkpoint-btn" onclick="completeStage(3)">通关了，去打 BOSS →</button>
+    </div>
+
   </div>
 </div>
 
-<!-- 最终BOSS -->
-<div id="path-boss" class="path-page">
-  <div class="wrap">
-    <button class="back" onclick="showHome()">← 回到首页</button>
-    <h2>🟠 最终 BOSS：让工具替你干活</h2>
-    <p class="lede">前三关你学会了用 AI 聊天、做东西、找答案。这关教你让工具自动帮你干活。</p>
-
-    <section>
-      <h3>两件事，选一个开始</h3>
-      <p><strong>处理 PDF 文件</strong>（合并、拆分、压缩、转换格式）→ 比较简单，先试这个</p>
-      <p><strong>自动整理文件/数据</strong>（比如自动把收到的信息整理成表格）→ 稍有挑战</p>
-    </section>
-
-    <section>
-      <h3>处理 PDF（简单，先试这个）</h3>
-      <p><strong>Stirling PDF</strong> — 免费的桌面软件。合并、拆分、压缩、转换 PDF，全部免费，不用联网。</p>
-      <div class="info-box">✅ 完全免费 ✅ 中文界面 ✅ 下载到电脑用，文件不上传到网上</div>
-      <a class="btn-go" href="https://stirling.com" target="_blank" rel="noopener">下载 Stirling PDF →</a>
-      <p>下载后打开，选你要做的事（合并/拆分/压缩/转换），把文件拖进去，点执行。就完成了。</p>
-      <p style="font-size:14px; color:var(--fg-muted)">Windows 电脑选 .exe，Mac 电脑选 .dmg。</p>
-    </section>
-
-    <section>
-      <h3>自动整理信息（稍有挑战）</h3>
-      <p><strong>WorkBuddy</strong> — 腾讯出的 AI 办公助手。你跟它说你要做什么，它帮你自动完成。</p>
-      <div class="info-box">✅ 国内直接打开 ✅ 中文界面 ✅ 腾讯出品</div>
-      <a class="btn-go" href="https://www.workbuddy.cn" target="_blank" rel="noopener">打开 WorkBuddy →</a>
-      <p>比如你可以说："帮我把这份资料整理成一份摘要报告"，它会自动完成。</p>
-    </section>
-
-    <section>
-      <h3>做到什么算通关？</h3>
-      <div class="success-box">你成功处理了一个 PDF，或者用 WorkBuddy 完成了一次自动整理。以后这种重复的事，不用再手动做了。</div>
-    </section>
-
-    <section>
-      <h3>什么时候才需要自动化？</h3>
-      <div class="info-box">偶尔做一次的事不用自动化。每周都要重复做 3 次以上的事，才值得花时间设置自动化。</div>
-    </section>
-
-    <section>
-      <h3>卡住了？</h3>
-      <table>
-        <tr><th>问题</th><th>怎么办</th></tr>
-        <tr><td>Stirling 下载哪个版本</td><td>Windows 选 .exe，Mac 选 .dmg</td></tr>
-        <tr><td>WorkBuddy 不知道怎么用</td><td>打开后直接用大白话说你要做什么，它会自己理解</td></tr>
-        <tr><td>不确定要不要用自动化</td><td>偶尔做一次的事不需要。每周重复3次以上才值得</td></tr>
-      </table>
-    </section>
-
-    <div class="next-stage">
-      <p>🎉 全部通关！你已经从零学会了用 AI 聊天、做东西、找答案、自动干活。</p>
-      <p style="font-size:15px; color:var(--leaf); font-weight:600;">这就是 60 分。你现在能独立用 AI 解决实际问题了。</p>
-      <a href="#" class="back-home" onclick="showHome(); return false;">回到首页</a>
+<!-- ===== STAGE 4 ===== -->
+<div class="stage" id="stage-4">
+  <div class="stage-header" onclick="toggleStage(4)">
+    <div class="stage-badge s4">4</div>
+    <div class="info">
+      <div class="title">最终 BOSS：让工具替你干活</div>
+      <div class="desc">约 10 分钟 · 不用再手动做重复的事</div>
     </div>
+    <span class="stage-status todo" id="status-4">未开始</span>
+    <span class="arrow">▶</span>
   </div>
+  <div class="stage-body">
+
+    <div class="step" id="step-13">
+      <div class="step-header" onclick="toggleStep(13)">
+        <div class="step-num">13</div>
+        <div class="step-content"><div class="step-title">处理 PDF：下载一个免费工具就够</div></div>
+      </div>
+      <div class="step-body">
+        <p>合并 PDF、拆分 PDF、压缩 PDF、转换格式——这些事不用花钱，不用在线上传文件。</p>
+        <p><strong>Stirling PDF</strong>（stirling.com）— 免费的桌面软件，下载到电脑就能用，文件不用上传到网上。</p>
+        <p>✅ 完全免费 ✅ 中文界面 ✅ 下载到电脑用，保护隐私</p>
+        <a class="tool-btn" href="https://stirling.com" target="_blank" rel="noopener">下载 Stirling PDF →</a>
+        <p>下载后打开，选你要做的事（合并/拆分/压缩/转换），把文件拖进去，点执行。就完成了。</p>
+        <div class="tip">💡 Windows 电脑选 .exe，Mac 电脑选 .dmg。</div>
+      </div>
+    </div>
+
+    <div class="step" id="step-14">
+      <div class="step-header" onclick="toggleStep(14)">
+        <div class="step-num">14</div>
+        <div class="step-content"><div class="step-title">自动整理：跟 AI 说句话就帮你做完</div></div>
+      </div>
+      <div class="step-body">
+        <p>如果你有一堆资料要整理成报告，或者每周都要做类似的事，可以让 AI 帮你自动完成。</p>
+        <p><strong>WorkBuddy</strong>（workbuddy.cn）— 腾讯出的 AI 办公助手。你跟它说你要做什么，它帮你自动完成。</p>
+        <p>✅ 国内直接打开 ✅ 中文界面 ✅ 腾讯出品</p>
+        <a class="tool-btn" href="https://www.workbuddy.cn" target="_blank" rel="noopener">打开 WorkBuddy →</a>
+        <p>打开后直接用大白话说你要做什么，比如"帮我把这份资料整理成一份摘要报告"。它会自动完成。</p>
+        <div class="tip">💡 什么时候才需要自动化？偶尔做一次的事不用自动化。每周都要重复做 3 次以上的事，才值得花时间设置。</div>
+      </div>
+    </div>
+
+    <div class="checkpoint" id="cp-4">
+      <div class="label">🏁 检查点：你让工具替你干活了吗？</div>
+      <p style="margin-bottom:12px">如果你成功处理了一个 PDF，或者用 WorkBuddy 完成了一次自动整理——恭喜，全部通关！</p>
+      <button class="checkpoint-btn" onclick="completeStage(4)">全部通关 🎉</button>
+    </div>
+
+  </div>
+</div>
+
+</div>
+
+<!-- ============ GRADUATION ============ -->
+<div class="graduation" id="graduation" style="display:none">
+  <div class="emoji">🎉</div>
+  <h2>恭喜，你到 60 分了！</h2>
+  <p>你已经从零学会了：</p>
+  <ul class="skills">
+    <li>跟 AI 聊天，让它帮你写东西</li>
+    <li>用 AI 做出网站、PPT、文章</li>
+    <li>用 AI 查资料，还知道答案靠不靠谱</li>
+    <li>让工具替你处理 PDF、自动整理信息</li>
+  </ul>
+  <p style="margin-top:16px">这就是 60 分。<br>你现在能独立用 AI 解决实际问题了。</p>
+  <p style="margin-top:20px"><a href="#" onclick="resetAll();return false" style="color:var(--fg-muted);font-size:14px">重新走一遍</a></p>
 </div>
 
 <footer>
-  <p>World Space · 从零开始用 AI · ymai.fun</p>
+  <p>World Space · 从零开始用 AI</p>
 </footer>
 
 <script>
-function showPath(id) {
-  document.getElementById('home').style.display = 'none';
-  document.querySelectorAll('.path-page').forEach(function(el) { el.classList.remove('active'); });
-  document.getElementById('path-' + id).classList.add('active');
-  window.scrollTo(0, 0);
+var completedSteps = {};
+var totalSteps = 14;
+
+function toggleStage(n) {
+  var el = document.getElementById('stage-' + n);
+  el.classList.toggle('open');
 }
-function showHome() {
-  document.querySelectorAll('.path-page').forEach(function(el) { el.classList.remove('active'); });
-  document.getElementById('home').style.display = 'block';
-  window.scrollTo(0, 0);
+function toggleStep(n) {
+  var el = document.getElementById('step-' + n);
+  el.classList.toggle('open');
+  if (!completedSteps[n]) {
+    completedSteps[n] = true;
+    el.classList.add('done');
+    el.querySelector('.step-num').textContent = '✓';
+    updateProgress();
+  }
+}
+function completeStage(n) {
+  var el = document.getElementById('status-' + n);
+  el.className = 'stage-status done';
+  el.textContent = '已完成';
+  var nextStage = n + 1;
+  if (nextStage <= 4) {
+    var next = document.getElementById('stage-' + nextStage);
+    if (next) { next.classList.add('open'); next.scrollIntoView({behavior:'smooth', block:'start'}); }
+  } else {
+    document.getElementById('graduation').style.display = 'block';
+    document.getElementById('graduation').scrollIntoView({behavior:'smooth', block:'center'});
+  }
+}
+function updateProgress() {
+  var count = Object.keys(completedSteps).length;
+  document.getElementById('progressText').textContent = count + '/' + totalSteps;
+  document.getElementById('progressFill').style.width = Math.round(count / totalSteps * 100) + '%';
 }
 function copyPrompt(btn) {
   var box = btn.parentElement;
   var text = box.cloneNode(true);
-  var b = text.querySelector('.copy-btn');
-  if (b) b.remove();
+  var b = text.querySelector('.copy-btn'); if (b) b.remove();
   var plain = text.textContent.trim();
   if (navigator.clipboard) {
-    navigator.clipboard.writeText(plain).then(function() {
-      btn.textContent = '已复制 ✓';
-      btn.classList.add('copied');
-      setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
-    });
+    navigator.clipboard.writeText(plain).then(function() { showCopied(btn); });
   } else {
-    var ta = document.createElement('textarea');
-    ta.value = plain; document.body.appendChild(ta); ta.select();
-    document.execCommand('copy'); document.body.removeChild(ta);
-    btn.textContent = '已复制 ✓';
-    btn.classList.add('copied');
-    setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+    var ta = document.createElement('textarea'); ta.value = plain;
+    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+    showCopied(btn);
   }
 }
+function showCopied(btn) {
+  btn.textContent = '已复制 ✓'; btn.classList.add('copied');
+  setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+}
+function resetAll() {
+  completedSteps = {};
+  document.querySelectorAll('.step').forEach(function(el) { el.classList.remove('done','open'); });
+  document.querySelectorAll('.step-num').forEach(function(el) { el.textContent = el.parentElement.parentElement.id.split('-')[1]; });
+  document.querySelectorAll('.stage-status').forEach(function(el) { el.className = 'stage-status todo'; el.textContent = '未开始'; });
+  document.querySelectorAll('.stage').forEach(function(el) { el.classList.remove('open'); });
+  document.getElementById('graduation').style.display = 'none';
+  updateProgress();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+// Auto-open first stage
+document.getElementById('stage-1').classList.add('open');
 </script>
 </body>
 </html>
