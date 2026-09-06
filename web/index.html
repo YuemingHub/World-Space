@@ -165,6 +165,19 @@ body {
 
 footer { text-align: center; padding: 24px; border-top: 1px solid var(--border); color: var(--fg-muted); font-size: 13px; }
 
+/* Copy button inside prompt-box */
+.prompt-box { position: relative; }
+.copy-btn {
+  position: absolute; top: 8px; right: 8px;
+  padding: 4px 12px; font-size: 13px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); cursor: pointer;
+  color: var(--fg-muted); font-family: inherit;
+  transition: background .15s, color .15s;
+}
+.copy-btn:hover { background: var(--accent); color: white; border-color: var(--accent); }
+.copy-btn.copied { background: var(--leaf); color: white; border-color: var(--leaf); }
+
 @media (max-width: 480px) {
   .hero { padding: 40px 20px 24px; }
   .hero h1 { font-size: 24px; }
@@ -175,7 +188,8 @@ footer { text-align: center; padding: 24px; border-top: 1px solid var(--border);
   .level-badge { width: 36px; height: 36px; font-size: 17px; }
   .path-page { padding: 24px 18px 48px; }
   .path-page h2 { font-size: 20px; }
-  .prompt-box { font-size: 14px; padding: 12px; }
+  .prompt-box { font-size: 14px; padding: 12px; padding-top: 36px; }
+  .copy-btn { font-size: 12px; padding: 3px 10px; }
   body { font-size: 16px; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
@@ -257,8 +271,8 @@ footer { text-align: center; padding: 24px; border-top: 1px solid var(--border);
     <section>
       <h3>第一步：试一句话</h3>
       <p>打开豆包后，你会看到一个聊天框。把下面这段话复制进去，发送：</p>
-      <div class="prompt-box">我是做手工的，帮我写一段朋友圈文案，
-介绍我新做的一个羊毛毡小猫，语气可爱一点，100字左右。</div>
+      <div class="prompt-box" data-copy="true">我是做手工的，帮我写一段朋友圈文案，
+介绍我新做的一个羊毛毡小猫，语气可爱一点，100字左右。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
       <p>发送后，AI 会几秒内给你写好一段文案。</p>
     </section>
 
@@ -302,28 +316,28 @@ footer { text-align: center; padding: 24px; border-top: 1px solid var(--border);
     <section>
       <h3>做一个网站</h3>
       <p>打开扣子后，找到输入框，把下面这段话发进去：</p>
-      <div class="prompt-box">帮我做一个手工作品展示网站。
+      <div class="prompt-box" data-copy="true">帮我做一个手工作品展示网站。
 顶部写网站名字"我的手工作品"。
 下面放一段自我介绍。
 然后放一个作品展示区，每个作品有图片和名字。
 最下面留联系方式。
-整体风格温暖简洁。</div>
+整体风格温暖简洁。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
       <p>扣子会帮你生成一个网页。你能看到它、改它、发布它。</p>
     </section>
 
     <section>
       <h3>做一份 PPT</h3>
       <p>同样是扣子，换个要求：</p>
-      <div class="prompt-box">帮我做一份关于"我的手工作品"的演示文稿，
+      <div class="prompt-box" data-copy="true">帮我做一份关于"我的手工作品"的演示文稿，
 大约8页，每页一个作品，带介绍。
-风格温暖简洁。</div>
+风格温暖简洁。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
     </section>
 
     <section>
       <h3>写一篇文章</h3>
       <p>如果你只是想写东西，也可以直接让扣子帮你：</p>
-      <div class="prompt-box">帮我写一篇关于"我为什么开始做手工"的短文，
-语气像在跟朋友聊天，500字左右。</div>
+      <div class="prompt-box" data-copy="true">帮我写一篇关于"我为什么开始做手工"的短文，
+语气像在跟朋友聊天，500字左右。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
     </section>
 
     <section>
@@ -367,15 +381,15 @@ footer { text-align: center; padding: 24px; border-top: 1px solid var(--border);
     <section>
       <h3>第一步：问个问题</h3>
       <p>打开 DeepSeek，打开"深度思考"开关，把问题打进去：</p>
-      <div class="prompt-box">我想了解一下，做手工艺品在网上卖，一般从哪里开始？
-我不懂电商，请用大白话解释。</div>
+      <div class="prompt-box" data-copy="true">我想了解一下，做手工艺品在网上卖，一般从哪里开始？
+我不懂电商，请用大白话解释。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
     </section>
 
     <section>
       <h3>想搜索最新信息？</h3>
       <p>打开"联网搜索"开关，再问：</p>
-      <div class="prompt-box">2026年适合个人手工艺者开店的平台有哪些？
-请对比它们的费用和门槛。</div>
+      <div class="prompt-box" data-copy="true">2026年适合个人手工艺者开店的平台有哪些？
+请对比它们的费用和门槛。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
       <p>DeepSeek 会搜索网上的真实信息，然后总结给你。</p>
     </section>
 
@@ -513,6 +527,27 @@ function showHome() {
   document.querySelectorAll('.path-page').forEach(function(el) { el.classList.remove('active'); });
   document.getElementById('home').style.display = 'block';
   window.scrollTo(0, 0);
+}
+function copyPrompt(btn) {
+  var box = btn.parentElement;
+  var text = box.cloneNode(true);
+  var b = text.querySelector('.copy-btn');
+  if (b) b.remove();
+  var plain = text.textContent.trim();
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(plain).then(function() {
+      btn.textContent = '已复制 ✓';
+      btn.classList.add('copied');
+      setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+    });
+  } else {
+    var ta = document.createElement('textarea');
+    ta.value = plain; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    btn.textContent = '已复制 ✓';
+    btn.classList.add('copied');
+    setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+  }
 }
 </script>
 </body>
