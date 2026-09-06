@@ -1,7 +1,6 @@
 # CURRENT_STATE
 
 > 最后更新：2026-09-06
-> 分支：foundation/our-world-v0
 > 方向：Resource First — 发现、筛选、带着普通人使用世界已有优秀能力
 
 ---
@@ -10,16 +9,14 @@
 
 | 项目 | 值 |
 |---|---|
-| 当前分支 | `foundation/our-world-v0`（从 `main` 创建） |
-| 当前 HEAD | 见 `git log --oneline -1` |
-| Commits ahead main | 4 |
-| PR #1 | OPEN, head=`foundation/our-world-v0`, base=`main` |
-| Runtime | 无后端；前端为纯静态 HTML（web/index.html） |
-| Build system | 无需 build（纯静态） |
-| Tests | 手动验收 |
+| 当前分支 | `main` |
+| 当前 HEAD | `74c04bc` |
+| PR #1 | MERGED, merge SHA `981b816`, merged at 2026-09-06T09:45:56Z |
+| Runtime | 纯静态 HTML（web/index.html），无后端 |
+| Build system | 无需 build |
 | CI | 无 |
-| Deployment | 待部署（ymai.fun DNS 已指向 GitHub Pages，待启用） |
-| AI Provider | 无 |
+| Deployment | DEPLOYED — GitHub Pages, CNAME=`ymai.fun` |
+| Public URL | https://ymai.fun |
 
 ## 2. 资源目录
 
@@ -55,7 +52,8 @@
 | CURRENT_STATE.md | 当前状态（本文件） |
 | catalog/resources.json | 资源目录（机器可读） |
 | paths/*.md | 行动路径（5 条） |
-| web/index.html | 公开行动入口 |
+| web/index.html | 公开行动入口（canonical） |
+| index.html | 根跳转页（指向 web/index.html） |
 | docs/design/CURRENT_DESIGN.md | 唯一设计真源 |
 
 ## 5. 已归档（历史，不再当前）
@@ -68,10 +66,11 @@
 
 ## 6. 当前明确没有的能力
 
-- 无 web 服务器（纯静态 HTML）
+- 无 web 服务器（纯静态 HTML，GitHub Pages 托管）
 - 无后端
 - 无数据库
 - 无 AI runtime
 - 无账号系统
 - 无 CI/CD
 - 无构建系统
+- 无自研 Agent / Workflow / Research / Browser infrastructure
