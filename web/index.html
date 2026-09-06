@@ -570,8 +570,16 @@ function markDone(n) {
     var el = document.getElementById('step-' + n);
     el.classList.add('done');
     el.querySelector('.step-num').textContent = '✓';
+    el.classList.remove('open');
     updateProgress();
     saveProgress();
+    // Auto-open next step
+    var nextNum = n + 1;
+    var nextEl = document.getElementById('step-' + nextNum);
+    if (nextEl) {
+      nextEl.classList.add('open');
+      setTimeout(function() { nextEl.scrollIntoView({behavior:'smooth', block:'center'}); }, 200);
+    }
   }
 }
 function completeStage(n) {
