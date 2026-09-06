@@ -1,76 +1,66 @@
 # 当前设计真源（Current Design Source）
 
-> 本文件是 World Space 仓库唯一的当前设计真源。
-> 历史设计资产保存在 `archive/design/v1/` 和 `archive/design/v2/`，仅供追溯，不再作为实施依据。
+> 本文件描述当前线上产品（`web/index.html`）实际生效的设计。
+> 历史设计资产（叙事单页 v1/v2）保存在 `archive/design/`，仅供追溯，不再作为实施依据。
+> 最后更新：2026-09-06
 
 ---
 
-## 1. 视觉方向
+## 1. 产品形态
 
-**Storytelling（叙事极简）** — 由用户在 v1 选卡中明确选中，通过 R2 评审（8.0/10）和渲染质量门（89/100）。
+单页行动路径（纯静态，单文件 HTML）：
 
-### 设计 Token
+```
+sticky topbar（品牌 + 总进度 x/10 + 进度条）
+→ hero（一句话主张 + 工具说明 + 开始按钮）
+→ 4 阶段总览 pills（随完成亮起）
+→ 4 个阶段卡（手风琴）：
+    阶段引言（一段话，不占步骤）
+    → 编号步骤（手风琴）：说明 + prompt 复制框 + 工具按钮 + "做完了 ✓"
+    → 阶段检查点
+→ 完成画面（做成的事清单 + 下一步建议 + 分享）
+```
+
+一次只展开一个阶段、一个步骤；完成即自动折叠并展开下一步。
+
+## 2. 设计 Token（与 `web/index.html` :root 一致）
 
 | Token | 值 | 用途 |
 |---|---|---|
-| `--accent` | `#3B82F6` | 唯一强调色：CTA、链接、焦点环 |
-| `--accent-strong` | `#2563EB` | 文字级 accent、hover |
-| `--accent-press` | `#1D4ED8` | active |
-| `--sun` | `#D97706` | 暖色点缀（每节 ≤1 处） |
-| `--leaf` | `#16A34A` | 成功/生长隐喻 |
-| `--bg` | `#FAF9F6` | 页面背景：暖纸白 |
+| `--accent` | `#3B82F6` | 主操作按钮、工具按钮 |
+| `--accent-strong` | `#2563EB` | hover、链接 |
+| `--leaf` | `#16A34A` | 完成/生长、进度条 |
+| `--sun` | `#D97706` | 第 4 阶段点缀 |
+| `--bg` | `#FAF9F6` | 页面背景（暖纸白） |
 | `--surface` | `#FFFFFF` | 卡片面 |
 | `--fg` | `#111827` | 主文本 |
-| `--fg-muted` | `#4B5563` | 次文本 |
-| `--border` | `#E7E5E0` | 暖灰描边 |
+| `--fg-muted` | `#6B7280` | 次文本 |
+| `--border` | `#E7E5E0` | 描边 |
 
-### 字体
+半径：12px（卡片）/ 6px（小件）。阶段点缀色：s1 `--leaf`、s2 `--accent`、s3 `#8B5CF6`、s4 `--sun`。
 
-- Display: Abril Fatface → Songti SC / STSong / SimSun（中文回退）
-- Body: Inter → PingFang SC / Microsoft YaHei / Noto Sans SC
-- Mono: JetBrains Mono → SFMono-Regular / Consolas
+## 3. 字体与排版
 
-### 间距
+- 系统字体栈：`-apple-system, 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif`，0 外部字体请求
+- 正文 17px / 行高 1.8；h1 `clamp(24px, 5vw, 34px)`；步骤标题 16px；辅助文字 14–15px
+- 内容列最大宽 680px
 
-4 / 8 / 12 / 16 / 24 / 32 px
+## 4. 交互与无障碍
 
-### 圆角
+- 手风琴聚焦：当前阶段/步骤展开，其余折叠；完成自动折叠 + 滚动到下一步
+- `prefers-reduced-motion` 停用全部动画
+- 移动端（≤480px）触控目标 ≥44px：工具按钮 14px×28px padding、检查点按钮 10px×24px padding
+- 标题语义：阶段标题 h2、步骤标题 h3、完成画面 h2
+- 复制：`navigator.clipboard` → `execCommand` fallback（微信内置浏览器等）
+- 外链一律 `target="_blank" rel="noopener"`
 
-sm: 4px / md: 8px（编辑感，不用气泡大圆角）
+## 5. 性能约束
 
----
-
-## 2. 色彩纪律
-
-- 每屏 `--accent` 可见使用 ≤ 2 处
-- `--sun` 每节 ≤ 1 处
-- 禁止紫→蓝渐变 hero
-- 禁止 emoji 图标（用 1.7px 单线 SVG）
-- 背景主体为暖纸白 70-90% 面积
+单文件 HTML（CSS/JS 全内联），0 外部请求（无字体/图标/JS/CSS 依赖），无构建步骤。 emoji 作为轻量图标语言，不引入图标库。
 
 ---
 
-## 3. 排版规则
-
-- 层级：display/H1 仅一处 → H2 分节 → H3 卡片 → 正文 17px
-- 中文回退必须显式声明
-- 字重三档：400 阅读 / 500 强调 / 600 宣告
-- 行长：中文正文 `max-width: 40em`（约 38-42 字/行）
-- 行高：正文 1.75 / 标题 1.15
-
----
-
-## 4. 无障碍底线（WCAG 2.2 AA）
-
-- 正文对 `--bg` ≥ 4.5:1
-- 非文本 UI ≥ 3:1
-- 触控目标 ≥ 24×24（主按钮 44px 高）
-- `prefers-reduced-motion` 停用动画
-- `<html lang="zh-CN">`
-
----
-
-## 5. 历史资产索引
+## 6. 历史资产索引
 
 | 资产 | 路径 | 说明 |
 |---|---|---|
