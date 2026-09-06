@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="世界已经有这么多能力，你想做点什么？">
+<title>World Space — 你想做点什么？</title>
+<style>
+/* === Design Tokens === */
+:root {
+  --accent: #3B82F6;
+  --accent-strong: #2563EB;
+  --accent-press: #1D4ED8;
+  --sun: #D97706;
+  --leaf: #16A34A;
+  --bg: #FAF9F6;
+  --surface: #FFFFFF;
+  --fg: #111827;
+  --fg-muted: #4B5563;
+  --border: #E7E5E0;
+  --radius: 8px;
+  --radius-sm: 4px;
+  --maxw: 720px;
+  --space: 24px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  font-family: 'Inter', -apple-system, 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  line-height: 1.75;
+  font-size: 17px;
+  min-height: 100vh;
+}
+
+.wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
+
+/* === Homepage Hero === */
+.hero { text-align: center; padding: 80px 24px 48px; }
+.hero h1 {
+  font-family: 'Abril Fatface', 'Songti SC', 'STSong', 'SimSun', serif;
+  font-size: clamp(28px, 5vw, 40px);
+  font-weight: 600;
+  line-height: 1.15;
+  margin-bottom: 16px;
+}
+.hero .sub {
+  color: var(--fg-muted);
+  font-size: 17px;
+  max-width: 480px;
+  margin: 0 auto 40px;
+}
+
+/* === Goal Cards === */
+.goals { max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+.goal-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color .15s, box-shadow .15s;
+  text-decoration: none;
+  color: var(--fg);
+  text-align: left;
+}
+.goal-card:hover { border-color: var(--accent); box-shadow: 0 2px 8px rgba(59,130,246,.08); }
+.goal-card:active { border-color: var(--accent-press); }
+.goal-card .icon { flex-shrink: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
+.goal-card .icon svg { width: 28px; height: 28px; stroke: var(--sun); stroke-width: 1.7; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.goal-card .text { flex: 1; }
+.goal-card .text .title { font-size: 18px; font-weight: 500; margin-bottom: 4px; }
+.goal-card .text .desc { font-size: 14px; color: var(--fg-muted); line-height: 1.5; }
+.goal-card .arrow { flex-shrink: 0; color: var(--fg-muted); font-size: 20px; transition: transform .15s; }
+.goal-card:hover .arrow { transform: translateX(4px); color: var(--accent); }
+
+/* === Advanced link === */
+.advanced-link {
+  text-align: center;
+  padding: 24px 24px 80px;
+}
+.advanced-link a {
+  color: var(--fg-muted);
+  font-size: 14px;
+  text-decoration: none;
+  border-bottom: 1px dashed var(--border);
+  padding-bottom: 2px;
+}
+.advanced-link a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* === Path Page === */
+.path-page { display: none; padding: 40px 24px 80px; }
+.path-page.active { display: block; }
+.path-page .back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--fg-muted);
+  text-decoration: none;
+  margin-bottom: 32px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: inherit;
+}
+.path-page .back:hover { color: var(--accent); }
+.path-page h2 {
+  font-family: 'Abril Fatface', 'Songti SC', 'STSong', 'SimSun', serif;
+  font-size: clamp(24px, 4vw, 32px);
+  font-weight: 600;
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+.path-page .lede { color: var(--fg-muted); font-size: 16px; margin-bottom: 32px; }
+.path-page section { margin-bottom: 32px; }
+.path-page h3 { font-size: 16px; font-weight: 500; color: var(--fg); margin-bottom: 12px; padding-left: 12px; border-left: 3px solid var(--accent); }
+.path-page p { margin-bottom: 12px; }
+.path-page ul { padding-left: 20px; margin-bottom: 12px; }
+.path-page li { margin-bottom: 8px; }
+.path-page a { color: var(--accent-strong); text-decoration: none; }
+.path-page a:hover { text-decoration: underline; }
+.path-page .resource {
+  display: inline-block;
+  padding: 8px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+  color: var(--accent-strong);
+  text-decoration: none;
+  margin: 4px 8px 4px 0;
+  transition: border-color .15s;
+}
+.path-page .resource:hover { border-color: var(--accent); text-decoration: none; }
+.path-page .prompt {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  font-family: 'JetBrains Mono', 'SFMono-Regular', 'Consolas', monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 8px 0 16px;
+  color: var(--fg);
+}
+.path-page .callout {
+  background: var(--surface);
+  border-left: 3px solid var(--leaf);
+  padding: 12px 16px;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  margin: 16px 0;
+  font-weight: 500;
+}
+.path-page table { width: 100%; border-collapse: collapse; margin: 8px 0 16px; font-size: 15px; }
+.path-page th, .path-page td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); }
+.path-page .warning {
+  padding: 12px 16px;
+  background: rgba(217,119,6,.08);
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  color: var(--fg-muted);
+}
+
+/* === Footer === */
+footer { text-align: center; padding: 32px 24px; border-top: 1px solid var(--border); color: var(--fg-muted); font-size: 13px; }
+footer a { color: var(--fg-muted); text-decoration: none; }
+
+/* === Mobile === */
+@media (max-width: 480px) {
+  .hero { padding: 48px 20px 32px; }
+  .hero h1 { font-size: 26px; }
+  .hero .sub { font-size: 15px; }
+  .goal-card { padding: 20px 16px; gap: 12px; }
+  .goal-card .text .title { font-size: 16px; }
+  .goal-card .text .desc { font-size: 13px; }
+  .path-page { padding: 32px 20px 64px; }
+  .path-page h2 { font-size: 22px; }
+  .path-page .prompt { font-size: 13px; padding: 12px; }
+  body { font-size: 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============ HOMEPAGE ============ -->
+<div id="home" class="hero">
+  <div class="wrap">
+    <h1>你想做点什么？</h1>
+    <p class="sub">世界已经有这么多能力，你不需要从零开始。选一个方向，我带你找到最省事的起点。</p>
+  </div>
+</div>
+
+<div class="goals" id="goals">
+  <button class="goal-card" onclick="showPath('make-website')">
+    <span class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></span>
+    <span class="text"><span class="title">做一个自己的东西</span><span class="desc">网站、小应用——不会编程也能做</span></span>
+    <span class="arrow">→</span>
+  </button>
+
+  <button class="goal-card" onclick="showPath('express-idea')">
+    <span class="icon"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span>
+    <span class="text"><span class="title">把一个想法表达出来</span><span class="desc">写文章、画图、整理知识</span></span>
+    <span class="arrow">→</span>
+  </button>
+
+  <button class="goal-card" onclick="showPath('understand-topic')">
+    <span class="icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></span>
+    <span class="text"><span class="title">搞明白一件事情</span><span class="desc">查资料、找答案、搞清楚</span></span>
+    <span class="arrow">→</span>
+  </button>
+
+  <button class="goal-card" onclick="showPath('automate-work')">
+    <span class="icon"><svg viewBox="0 0 24 24"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg></span>
+    <span class="text"><span class="title">少做一些重复工作</span><span class="desc">自动整理、批量处理</span></span>
+    <span class="arrow">→</span>
+  </button>
+</div>
+
+<div class="advanced-link">
+  <a href="#" onclick="showPath('ai-operate'); return false;">想让 AI 真正替你操作？看进阶能力 →</a>
+</div>
+
+<!-- ============ PATH: 做一个东西 ============ -->
+<div id="path-make-website" class="path-page">
+  <div class="wrap">
+    <button class="back" onclick="showHome()">← 回到首页</button>
+    <h2>做一个自己的东西</h2>
+    <p class="lede">你完全不会编程，现在也已经可以开始。</p>
+
+    <section>
+      <h3>你现在可以做到什么？</h3>
+      <p>你可以在 5 分钟内，用一句话让 AI 帮你生成一个能打开的网页。</p>
+    </section>
+
+    <section>
+      <h3>先从这里开始</h3>
+      <p><strong>v0</strong> — 打开网页，打字，出结果。不用装软件，不用懂代码。</p>
+      <a class="resource" href="https://v0.dev" target="_blank" rel="noopener">v0 →</a>
+      <div class="callout">做到这里以后，如果发现需要数据库、登录等功能，再看看 Bolt.new。</div>
+      <a class="resource" href="https://bolt.new" target="_blank" rel="noopener">Bolt.new →</a>
+      <p style="margin-top:12px">不要纠结选哪个。先从 v0 开始。</p>
+    </section>
+
+    <section>
+      <h3>要钱吗？</h3>
+      <p>可以免费开始。具体价格以官网为准。</p>
+    </section>
+
+    <section>
+      <h3>第一步</h3>
+      <ul>
+        <li>打开 v0.dev</li>
+        <li>找到输入框</li>
+        <li>用一句中文描述你想要的网站</li>
+      </ul>
+      <div class="prompt">我想给手工作品做一个展示网站。
+页面顶部写网站名字"XX的手工作品"。
+下面放一段自我介绍，说我喜欢做什么手工。
+然后放一个作品展示区，每个作品有图片和名字。
+最下面留一个联系方式区域。
+整体风格温暖、简洁、适合手工艺感。</div>
+    </section>
+
+    <section>
+      <h3>做到什么算第一步成功？</h3>
+      <p>你看到一个能打开的网页，上面有你写的内容，布局合理。<strong>这就是第一步成功。</strong></p>
+    </section>
+
+    <section>
+      <h3>下一步怎么走？</h3>
+      <ul>
+        <li>看看哪里不满意，继续在对话里告诉它怎么改</li>
+        <li>需要数据库/登录等功能 → 看 Bolt.new</li>
+        <li>想自己改代码 → 以后再看 Replit 或 Cursor</li>
+      </ul>
+    </section>
+
+    <section>
+      <h3>卡住了怎么办？</h3>
+      <table>
+        <tr><th>问题</th><th>解决</th></tr>
+        <tr><td>生成的不像我要的</td><td>给更具体的描述。不要说"做好看点"，说"顶部用暖棕色，字体大一号"</td></tr>
+        <tr><td>想改某个部分</td><td>直接告诉它："把联系方式区域改成表单"</td></tr>
+        <tr><td>想发布到网上</td><td>v0 生成后可以直接部署，按提示操作</td></tr>
+      </table>
+    </section>
+  </div>
+</div>
+
+<!-- ============ PATH: 表达想法 ============ -->
+<div id="path-express-idea" class="path-page">
+  <div class="wrap">
+    <button class="back" onclick="showHome()">← 回到首页</button>
+    <h2>把一个想法表达出来</h2>
+    <p class="lede">写文章、做演示、画图——都有了最省事的起点。</p>
+
+    <section>
+      <h3>你现在可以做到什么？</h3>
+      <p>不管你是想写一篇文章、做一份演示，还是画一张图，都有不用学就能上手的工具。</p>
+    </section>
+
+    <section>
+      <h3>先从这里开始</h3>
+      <p><strong>写文章 / 整理知识</strong> → Notion</p>
+      <a class="resource" href="https://notion.so" target="_blank" rel="noopener">Notion →</a>
+      <p style="margin-top:12px"><strong>画图 / 画流程图</strong> → Excalidraw</p>
+      <a class="resource" href="https://excalidraw.com" target="_blank" rel="noopener">Excalidraw →</a>
+      <p style="margin-top:12px"><strong>做演示</strong> → Gamma（国内可能无法直接访问，打不开先用 Notion 写内容）</p>
+      <a class="resource" href="https://gamma.app" target="_blank" rel="noopener">Gamma →</a>
+    </section>
+
+    <section>
+      <h3>要钱吗？</h3>
+      <ul>
+        <li>Notion：可以免费开始</li>
+        <li>Excalidraw：完全免费</li>
+        <li>Gamma：可以免费开始（具体价格以官网为准）</li>
+      </ul>
+    </section>
+
+    <section>
+      <h3>第一步</h3>
+      <p><strong>写文章（Notion）</strong></p>
+      <ul>
+        <li>打开 notion.so，注册</li>
+        <li>新建一个页面</li>
+        <li>开始写，或者让 AI 帮你写</li>
+      </ul>
+      <div class="prompt">帮我写一篇关于"我为什么开始做手工"的短文。
+语气像在跟朋友聊天，500字左右。</div>
+
+      <p style="margin-top:16px"><strong>画图（Excalidraw）</strong></p>
+      <ul>
+        <li>打开 excalidraw.com</li>
+        <li>直接画，不用注册</li>
+        <li>画完可以导出图片或分享链接</li>
+      </ul>
+    </section>
+
+    <section>
+      <h3>做到什么算第一步成功？</h3>
+      <ul>
+        <li>写文章：你有一篇可以读的完整文章</li>
+        <li>画图：你有一张能分享的图</li>
+      </ul>
+    </section>
+
+    <section>
+      <h3>卡住了怎么办？</h3>
+      <table>
+        <tr><th>问题</th><th>解决</th></tr>
+        <tr><td>AI 写的东西不像我说的</td><td>给它具体要求：语气、长度、受众。不要说"写好一点"，说"像给小学生解释一样写"</td></tr>
+        <tr><td>Notion 界面太复杂</td><td>只用一个页面就够了。不要管数据库、模板那些功能</td></tr>
+        <tr><td>Excalidraw 画不好看</td><td>手绘风格本来就不追求精确。放开画，越随意越好看</td></tr>
+        <tr><td>Gamma 打不开</td><td>国内可能无法直接访问。先用 Notion 写内容</td></tr>
+      </table>
+    </section>
+  </div>
+</div>
+
+<!-- ============ PATH: 搞明白一件事 ============ -->
+<div id="path-understand-topic" class="path-page">
+  <div class="wrap">
+    <button class="back" onclick="showHome()">← 回到首页</button>
+    <h2>搞明白一件事情</h2>
+    <p class="lede">查资料、找答案、搞清楚——现在有免费的 AI 帮你。</p>
+
+    <section>
+      <h3>你现在可以做到什么？</h3>
+      <p>你不用翻几十个网页自己拼凑信息。用 AI 对话，直接得到答案。</p>
+    </section>
+
+    <section>
+      <h3>先从这里开始</h3>
+      <p><strong>DeepSeek</strong> — 免费、中文好、有深度思考模式、国内可以直接访问。</p>
+      <a class="resource" href="https://chat.deepseek.com" target="_blank" rel="noopener">DeepSeek →</a>
+      <p style="margin-top:12px">需要带来源引用的深度研究可以用 Perplexity，但国内可能无法直接访问。如果打不开，先用 DeepSeek。</p>
+      <a class="resource" href="https://perplexity.ai" target="_blank" rel="noopener">Perplexity →</a>
+    </section>
+
+    <section>
+      <h3>要钱吗？</h3>
+      <ul>
+        <li>DeepSeek：免费</li>
+        <li>Perplexity：可以免费开始（具体价格以官网为准）</li>
+      </ul>
+    </section>
+
+    <section>
+      <h3>第一步</h3>
+      <p><strong>日常问答 / 查资料（DeepSeek）</strong></p>
+      <ul>
+        <li>打开 chat.deepseek.com</li>
+        <li>打开"深度思考"开关</li>
+        <li>问你的问题</li>
+      </ul>
+      <div class="prompt">我想了解一下，做手工艺品在网上卖，一般从哪里开始？
+我不懂电商，请用大白话解释。</div>
+    </section>
+
+    <section>
+      <h3>做到什么算第一步成功？</h3>
+      <p>你得到了一个有依据的答案，并且知道这个答案的来源是什么。</p>
+    </section>
+
+    <section>
+      <h3>卡住了怎么办？</h3>
+      <table>
+        <tr><th>问题</th><th>解决</th></tr>
+        <tr><td>DeepSeek 回答太笼统</td><td>打开"深度思考"模式，或者在问题里加"请详细分析"</td></tr>
+        <tr><td>Perplexity 打不开</td><td>先用 DeepSeek。DeepSeek 也能联网搜索</td></tr>
+        <tr><td>答案跟我知道的不一样</td><td>AI 会出错。重要信息一定要自己核实</td></tr>
+      </table>
+    </section>
+  </div>
+</div>
+
+<!-- ============ PATH: 少做重复工作 ============ -->
+<div id="path-automate-work" class="path-page">
+  <div class="wrap">
+    <button class="back" onclick="showHome()">← 回到首页</button>
+    <h2>少做一些重复工作</h2>
+    <p class="lede">自动整理、批量处理——让工具替你跑重复步骤。</p>
+
+    <section>
+      <h3>你现在可以做到什么？</h3>
+      <p>把那些你每天/每周重复做的事情，用工具自动跑。比如"收到邮件→自动存到表格→发消息通知"。</p>
+    </section>
+
+    <section>
+      <h3>先从这里开始</h3>
+      <p><strong>处理 PDF 文件</strong> → Stirling PDF</p>
+      <a class="resource" href="https://stirling.com" target="_blank" rel="noopener">Stirling PDF →</a>
+      <p style="margin-top:12px"><strong>串联多个工具自动跑</strong> → n8n</p>
+      <a class="resource" href="https://n8n.io" target="_blank" rel="noopener">n8n →</a>
+    </section>
+
+    <section>
+      <h3>要钱吗？</h3>
+      <ul>
+        <li>Stirling PDF：开源免费（桌面版/自部署）</li>
+        <li>n8n：自部署免费但有技术门槛；Cloud 有免费试用（具体价格以官网为准）</li>
+      </ul>
+    </section>
+
+    <section>
+      <h3>第一步</h3>
+      <p><strong>处理 PDF（Stirling PDF）</strong></p>
+      <ul>
+        <li>打开 stirling.com，下载桌面版（免费）</li>
+        <li>选择你要的操作（合并 / 拆分 / 压缩 / 转换）</li>
+        <li>上传文件，点执行</li>
+      </ul>
+
+      <p style="margin-top:16px"><strong>自动化工作流（n8n）</strong></p>
+      <ul>
+        <li>打开 n8n.io，注册 Cloud 试用</li>
+        <li>点"Create Workflow"</li>
+        <li>添加一个触发器（比如"每天早上 8 点"）</li>
+        <li>添加一个动作（比如"调用 AI 总结邮件"）</li>
+        <li>连起来，激活</li>
+      </ul>
+      <div class="prompt">触发器：每天早上 8 点
+动作：调用 AI 总结昨天的邮件
+动作：把总结发到我的微信/飞书</div>
+    </section>
+
+    <section>
+      <h3>做到什么算第一步成功？</h3>
+      <ul>
+        <li>Stirling PDF：你成功合并/拆分/压缩了一个 PDF</li>
+        <li>n8n：你的第一个工作流成功跑了一次，自动完成了一件以前要手动做的事</li>
+      </ul>
+    </section>
+
+    <section>
+      <h3>卡住了怎么办？</h3>
+      <table>
+        <tr><th>问题</th><th>解决</th></tr>
+        <tr><td>n8n 不知道怎么开始</td><td>先看官方模板库，找一个接近你需求的复制改</td></tr>
+        <tr><td>n8n 连不上某个应用</td><td>检查该应用是否需要 API Key 或授权</td></tr>
+        <tr><td>不确定要不要用 n8n</td><td>如果你只是偶尔手动操作一次，不需要自动化。n8n 适合每周重复 3 次以上的任务</td></tr>
+      </table>
+    </section>
+  </div>
+</div>
+
+<!-- ============ PATH: 进阶能力 ============ -->
+<div id="path-ai-operate" class="path-page">
+  <div class="wrap">
+    <button class="back" onclick="showHome()">← 回到首页</button>
+    <h2>进阶能力</h2>
+    <p class="lede">让 AI 像人一样操作浏览器或电脑。这是进阶选项，需要一定技术基础。</p>
+
+    <div class="warning">⚠️ 这条路径门槛最高。如果你完全不想碰技术，建议先走前 4 条路径。</div>
+
+    <section>
+      <h3>先从这里开始</h3>
+      <p><strong>Browser Use</strong> — 让 AI 自动完成网页上的操作。有 Cloud 版本可以降低门槛。</p>
+      <a class="resource" href="https://browser-use.com" target="_blank" rel="noopener">Browser Use →</a>
+      <p style="margin-top:12px">想让 AI 在本地电脑上执行更广泛的任务，了解 Open Interpreter。</p>
+      <a class="resource" href="https://openinterpreter.com" target="_blank" rel="noopener">Open Interpreter →</a>
+    </section>
+
+    <section>
+      <h3>要钱吗？</h3>
+      <ul>
+        <li>Browser Use：开源免费自部署；Cloud 有免费额度。需要 AI API Key</li>
+        <li>Open Interpreter：开源免费。需要 AI API Key 或本地模型</li>
+      </ul>
+      <p>具体价格以官网为准。</p>
+    </section>
+
+    <section>
+      <h3>第一步</h3>
+      <p><strong>Browser Use Cloud</strong></p>
+      <ul>
+        <li>打开 browser-use.com</li>
+        <li>注册</li>
+        <li>创建一个任务，用自然语言描述</li>
+      </ul>
+      <div class="prompt">打开淘宝，搜索"羊毛混纺毛线"，把前 10 个结果的
+名称、价格、店铺名整理成一个表格。</div>
+    </section>
+
+    <section>
+      <h3>做到什么算第一步成功？</h3>
+      <p>AI 成功打开了一个网页，执行了你描述的操作，并返回了结果（截图/数据/完成通知）。</p>
+    </section>
+
+    <section>
+      <h3>卡住了怎么办？</h3>
+      <table>
+        <tr><th>问题</th><th>解决</th></tr>
+        <tr><td>Cloud 版免费额度用完了</td><td>可以自部署，或者减少使用频率</td></tr>
+        <tr><td>自部署安装失败</td><td>确认 Python 版本 ≥ 3.11，用虚拟环境隔离</td></tr>
+        <tr><td>AI 操作网页不稳定</td><td>网页结构会变。给 AI 更明确的指令，比如"点击右上角蓝色的登录按钮"</td></tr>
+        <tr><td>觉得太复杂</td><td>先走"少做一些重复工作"路径，用 n8n 可能更简单</td></tr>
+      </table>
+    </section>
+  </div>
+</div>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <p>World Space · 帮助普通人找到并使用世界已有优秀能力</p>
+</footer>
+
+<script>
+function showPath(id) {
+  document.getElementById('home').style.display = 'none';
+  document.querySelector('.goals').style.display = 'none';
+  document.querySelector('.advanced-link').style.display = 'none';
+  document.querySelectorAll('.path-page').forEach(function(el) { el.classList.remove('active'); });
+  document.getElementById('path-' + id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+function showHome() {
+  document.getElementById('home').style.display = 'block';
+  document.querySelector('.goals').style.display = 'flex';
+  document.querySelector('.advanced-link').style.display = 'block';
+  document.querySelectorAll('.path-page').forEach(function(el) { el.classList.remove('active'); });
+  window.scrollTo(0, 0);
+}
+</script>
+</body>
+</html>

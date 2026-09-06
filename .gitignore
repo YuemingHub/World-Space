@@ -4,3 +4,7 @@ nul
 # OS files
 Thumbs.db
 .DS_Store
+
+# Temp files
+.fetch/
+.pr-body.md
