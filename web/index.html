@@ -601,17 +601,23 @@ function copyPrompt(btn) {
   var text = box.cloneNode(true);
   var b = text.querySelector('.copy-btn'); if (b) b.remove();
   var plain = text.textContent.trim();
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(plain).then(function() { showCopied(btn); });
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(plain).then(function() { showCopied(btn); }).catch(function() { fallbackCopy(plain, btn); });
   } else {
-    var ta = document.createElement('textarea'); ta.value = plain;
-    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
-    showCopied(btn);
+    fallbackCopy(plain, btn);
   }
 }
 function showCopied(btn) {
   btn.textContent = '已复制 ✓'; btn.classList.add('copied');
   setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+}
+function fallbackCopy(text, btn) {
+  var ta = document.createElement('textarea'); ta.value = text;
+  ta.style.position = 'fixed'; ta.style.left = '-9999px';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); } catch(e) {}
+  document.body.removeChild(ta);
+  showCopied(btn);
 }
 function resetAll() {
   completedSteps = {};
