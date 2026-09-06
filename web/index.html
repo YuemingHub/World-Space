@@ -69,7 +69,8 @@ body {
 .stage-badge.s3 { background: #8B5CF6; }
 .stage-badge.s4 { background: var(--sun); }
 .stage-header .info { flex: 1; }
-.stage-header .info .title { font-size: 18px; font-weight: 600; margin-bottom: 2px; }
+.stage-header .info .title { font-size: 18px; font-weight: 600; margin-bottom: 2px; cursor: pointer; }
+.stage-header:hover .info .title { text-decoration: underline; }
 .stage-header .info .desc { font-size: 14px; color: var(--fg-muted); }
 .stage-header .arrow { flex-shrink: 0; color: var(--fg-muted); font-size: 14px; transition: transform .2s; }
 .stage.open .stage-header .arrow { transform: rotate(90deg); }
@@ -87,7 +88,8 @@ body {
 .step-num { flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border-active); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: var(--fg-muted); margin-top: 2px; transition: all .15s; }
 .step.done .step-num { background: var(--leaf); border-color: var(--leaf); color: white; }
 .step-content { flex: 1; }
-.step-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+.step-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; cursor: pointer; }
+.step-title:hover { text-decoration: underline; }
 .step-body { display: none; margin-top: 12px; }
 .step.open .step-body { display: block; }
 .step-body p { margin-bottom: 12px; }
