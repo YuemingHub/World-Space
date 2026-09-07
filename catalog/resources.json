@@ -1,7 +1,7 @@
 {
-  "version": "2.2.0",
+  "version": "3.0.0",
   "last_reviewed_at": "2026-09-07",
-  "reviewer_note": "All GitHub data verified via gh api on 2026-09-06. Official URLs and pricing pages verified via direct HTTP on 2026-09-06. China accessibility tested from local network on 2026-09-06. doubao.com verified reachable and free on 2026-09-06. Poster/photo resources (gaoding, yike_album, xingtu) verified via official pages/store listings on 2026-09-07; yike.com domain had SSL errors so the App Store listing is used as official source. Prices are NOT hardcoded — use cost_category. Specific pricing should always be checked on official websites. used_in 反映当前产品（web 首页入口/4 步路径/目标面板）实际使用位置。",
+  "reviewer_note": "Macro 7 pruning (2026-09-07): removed bolt_new, replit (covered by v0 simpler / cursor deeper), gamma, perplexity (china-restricted alternatives with working domestic defaults), gpt_academic (maintenance unclear + API key), browser_use (requires API key + setup, no UI goal) — §23 rules: stale / not best for audience / tech-circle fashion. Remaining 10 entries re-verified: official pages checked 2026-09-06/07; doubao/deepseek/gaoding/xingtu/yike_album free tiers confirmed; prices NOT hardcoded — use cost_category. used_in 反映当前产品（web 首页入口/4 步路径/目标面板）实际使用位置。",
   "resources": [
     {
       "id": "doubao",
@@ -10,7 +10,9 @@
       "one_line": "字节跳动的 AI 助手，像聊天一样帮你写东西、做东西。",
       "github": null,
       "official_url": "https://www.doubao.com",
-      "source_urls": ["https://www.doubao.com"],
+      "source_urls": [
+        "https://www.doubao.com"
+      ],
       "license": "Proprietary (hosted service)",
       "maintenance_status": "active",
       "difficulty": "very_easy",
@@ -20,7 +22,11 @@
       "requires_api_key": false,
       "china_accessibility": "direct",
       "recommendation_level": "default",
-      "used_in": ["step-1-first-small-task", "step-2-make-something-real", "step-4-let-tools-work"],
+      "used_in": [
+        "step-1-first-small-task",
+        "step-2-make-something-real",
+        "step-4-let-tools-work"
+      ],
       "best_for": "第一次用 AI：聊天、写文案、写文章、做简单网页，全中文，手机电脑都能用",
       "not_for": "需要核查信息来源的严肃查证（用 DeepSeek 更合适）",
       "why_selected": "对中国普通用户门槛最低：国内直接打开、全中文、免费、手机号/微信即可登录，对话里能直接生成网页并显示预览。",
@@ -33,7 +39,10 @@
       "one_line": "用一句话描述你想要的网页或应用，AI 直接帮你生成。",
       "github": null,
       "official_url": "https://v0.dev",
-      "source_urls": ["https://v0.dev", "https://v0.app/pricing"],
+      "source_urls": [
+        "https://v0.dev",
+        "https://v0.app/pricing"
+      ],
       "license": "Proprietary (hosted service)",
       "maintenance_status": "active",
       "difficulty": "very_easy",
@@ -49,57 +58,15 @@
       "last_reviewed_at": "2026-09-06"
     },
     {
-      "id": "bolt_new",
-      "name": "Bolt.new",
-      "goal": "A_make_something",
-      "one_line": "在浏览器里用 AI 搭建和部署完整应用，自带后端。",
-      "github": "https://github.com/stackblitz/bolt.new",
-      "official_url": "https://bolt.new",
-      "source_urls": ["https://bolt.new", "https://bolt.new/pricing", "https://github.com/stackblitz/bolt.new"],
-      "license": "MIT (OSS SDK) / Proprietary (hosted)",
-      "maintenance_status": "active_hosted; oss_sdk_stale_2024_12",
-      "difficulty": "very_easy",
-      "cost_category": "可以免费开始",
-      "pricing_checked_at": "2026-09-06",
-      "pricing_source": "https://bolt.new/pricing",
-      "requires_api_key": false,
-      "china_accessibility": "direct",
-      "recommendation_level": "alternative",
-      "best_for": "想做一个比纯展示页更复杂一点的应用，但不想装任何开发环境",
-      "not_for": "需要完整代码控制权的专业开发者（开源 SDK 已不再积极更新）",
-      "why_selected": "与 v0 互补：Bolt 自带后端，适合需要数据库/集成的场景。开源 SDK 已停更但托管产品活跃。",
-      "last_reviewed_at": "2026-09-06"
-    },
-    {
-      "id": "replit",
-      "name": "Replit",
-      "goal": "A_make_something",
-      "one_line": "在浏览器里写代码、运行、部署，AI 全程辅助。",
-      "github": null,
-      "official_url": "https://replit.com",
-      "source_urls": ["https://replit.com"],
-      "license": "Proprietary (hosted service)",
-      "maintenance_status": "active",
-      "difficulty": "easy",
-      "cost_category": "可以免费开始",
-      "pricing_checked_at": "2026-09-06",
-      "pricing_source": "https://replit.com/pricing",
-      "requires_api_key": false,
-      "china_accessibility": "direct",
-      "recommendation_level": "alternative",
-      "best_for": "想从'用 AI 生成'过渡到'自己也能改一点'的人",
-      "not_for": "只想一键出结果、完全不想看代码的人",
-      "why_selected": "比 v0/Bolt 多一层'你也能参与编辑'的能力，适合想稍微学一点的人过渡。支持中文界面。",
-      "last_reviewed_at": "2026-09-06"
-    },
-    {
       "id": "cursor",
       "name": "Cursor",
       "goal": "A_make_something",
       "one_line": "AI 代码编辑器，用自然语言指挥它写代码、改代码。",
       "github": null,
       "official_url": "https://cursor.com",
-      "source_urls": ["https://cursor.com"],
+      "source_urls": [
+        "https://cursor.com"
+      ],
       "license": "Proprietary",
       "maintenance_status": "active",
       "difficulty": "medium",
@@ -121,7 +88,9 @@
       "one_line": "写作 + 知识管理 + AI 助手，一个页面搞定内容整理和表达。",
       "github": null,
       "official_url": "https://notion.so",
-      "source_urls": ["https://notion.so"],
+      "source_urls": [
+        "https://notion.so"
+      ],
       "license": "Proprietary (hosted service)",
       "maintenance_status": "active",
       "difficulty": "very_easy",
@@ -143,7 +112,10 @@
       "one_line": "手绘风格白板，打开就能画，不用注册。",
       "github": "https://github.com/excalidraw/excalidraw",
       "official_url": "https://excalidraw.com",
-      "source_urls": ["https://excalidraw.com", "https://github.com/excalidraw/excalidraw"],
+      "source_urls": [
+        "https://excalidraw.com",
+        "https://github.com/excalidraw/excalidraw"
+      ],
       "license": "MIT",
       "maintenance_status": "active",
       "difficulty": "very_easy",
@@ -159,35 +131,15 @@
       "last_reviewed_at": "2026-09-06"
     },
     {
-      "id": "gamma",
-      "name": "Gamma",
-      "goal": "B_express",
-      "one_line": "用 AI 一键生成演示文稿，输入主题就能出 slides。",
-      "github": null,
-      "official_url": "https://gamma.app",
-      "source_urls": ["https://gamma.app"],
-      "license": "Proprietary (hosted service)",
-      "maintenance_status": "active",
-      "difficulty": "very_easy",
-      "cost_category": "可以免费开始",
-      "pricing_checked_at": "2026-09-06",
-      "pricing_source": "https://gamma.app/pricing",
-      "requires_api_key": false,
-      "china_accessibility": "restricted",
-      "recommendation_level": "alternative",
-      "best_for": "需要做演示/汇报/分享，但不会用 PPT 也不想花时间排版",
-      "not_for": "需要精确控制每一像素的专业设计",
-      "why_selected": "目前 AI 做演示效果最好的工具之一。输入主题，自动生成结构和视觉。注意：国内可能无法直接访问。",
-      "last_reviewed_at": "2026-09-06"
-    },
-    {
       "id": "deepseek",
       "name": "DeepSeek",
       "goal": "C_understand",
       "one_line": "免费、强大的 AI 对话，中文体验好，能联网搜索和深度思考。",
       "github": null,
       "official_url": "https://chat.deepseek.com",
-      "source_urls": ["https://chat.deepseek.com"],
+      "source_urls": [
+        "https://chat.deepseek.com"
+      ],
       "license": "Proprietary (hosted service)",
       "maintenance_status": "active",
       "difficulty": "very_easy",
@@ -197,54 +149,12 @@
       "requires_api_key": false,
       "china_accessibility": "direct",
       "recommendation_level": "default",
-      "used_in": ["step-3-find-answers"],
+      "used_in": [
+        "step-3-find-answers"
+      ],
       "best_for": "想问问题、查资料、理解一个概念、写东西，希望免费且中文友好",
       "not_for": "需要访问被墙资源的场景",
       "why_selected": "对中文用户来说是最省事的 AI 入口：免费、中文好、有深度思考模式、国内可直接访问。无需翻墙，无需 API Key。",
-      "last_reviewed_at": "2026-09-06"
-    },
-    {
-      "id": "perplexity",
-      "name": "Perplexity",
-      "goal": "C_understand",
-      "one_line": "专注「带来源的搜索+研究」，每个答案都有出处链接。",
-      "github": null,
-      "official_url": "https://perplexity.ai",
-      "source_urls": ["https://perplexity.ai"],
-      "license": "Proprietary (hosted service)",
-      "maintenance_status": "active",
-      "difficulty": "very_easy",
-      "cost_category": "可以免费开始",
-      "pricing_checked_at": "2026-09-06",
-      "pricing_source": "https://perplexity.ai/pricing",
-      "requires_api_key": false,
-      "china_accessibility": "restricted",
-      "recommendation_level": "alternative",
-      "best_for": "需要带来源引用的深度研究场景",
-      "not_for": "国内无法直接访问的用户（先用 DeepSeek 替代）",
-      "why_selected": "专注「带来源的搜索+研究」。每个答案都有出处链接，不是凭空生成。注意：国内可能无法直接访问。",
-      "last_reviewed_at": "2026-09-06"
-    },
-    {
-      "id": "gpt_academic",
-      "name": "GPT-Academic",
-      "goal": "C_understand",
-      "one_line": "专为学术场景优化：一键论文总结、翻译、润色。",
-      "github": "https://github.com/binary-husky/gpt_academic",
-      "official_url": "https://github.com/binary-husky/gpt_academic",
-      "source_urls": ["https://github.com/binary-husky/gpt_academic"],
-      "license": "GPL-3.0",
-      "maintenance_status": "maintenance_unclear",
-      "difficulty": "medium",
-      "cost_category": "开源免费（需自备 API Key）",
-      "pricing_checked_at": "2026-09-06",
-      "pricing_source": "https://github.com/binary-husky/gpt_academic",
-      "requires_api_key": true,
-      "china_accessibility": "requires_setup",
-      "recommendation_level": "advanced",
-      "best_for": "经常读论文的学生和研究者",
-      "not_for": "不想安装配置的人（先用 DeepSeek）",
-      "why_selected": "专为学术场景优化，一键论文总结、翻译、润色。支持多种模型。注意：最后提交 2026-01-25，维护状态不明确，使用前需自行确认。",
       "last_reviewed_at": "2026-09-06"
     },
     {
@@ -254,7 +164,10 @@
       "one_line": "可视化拖拽自动化工具，不用写代码，连接 400+ 应用。",
       "github": "https://github.com/n8n-io/n8n",
       "official_url": "https://n8n.io",
-      "source_urls": ["https://n8n.io", "https://github.com/n8n-io/n8n"],
+      "source_urls": [
+        "https://n8n.io",
+        "https://github.com/n8n-io/n8n"
+      ],
       "license": "Sustainable Use License (source available, fair-code)",
       "license_note": "自己使用/Cloud 可以直接开始；如果准备拿它做商业产品，需要另外看授权。",
       "maintenance_status": "active",
@@ -277,7 +190,10 @@
       "one_line": "强大的 PDF 工具箱，合并、拆分、压缩、转换，全部免费。",
       "github": "https://github.com/Stirling-Tools/Stirling-PDF",
       "official_url": "https://stirling.com",
-      "source_urls": ["https://stirling.com", "https://github.com/Stirling-Tools/Stirling-PDF"],
+      "source_urls": [
+        "https://stirling.com",
+        "https://github.com/Stirling-Tools/Stirling-PDF"
+      ],
       "license": "MIT (核心) + 专有模块 (open-core)",
       "license_note": "核心开源（MIT），部分云/SaaS 模块为专有授权。桌面版和自部署免费。",
       "maintenance_status": "active",
@@ -288,7 +204,9 @@
       "requires_api_key": false,
       "china_accessibility": "direct",
       "recommendation_level": "default",
-      "used_in": ["step-4-let-tools-work"],
+      "used_in": [
+        "step-4-let-tools-work"
+      ],
       "best_for": "需要处理 PDF 文件（合并、拆分、压缩、转换）",
       "not_for": "需要在线 API 集成的自动化场景（用 n8n 配合）",
       "why_selected": "强大的 PDF 工具箱，桌面版免费下载（Windows/macOS/Linux），也可以自己部署。活跃维护。",
@@ -301,7 +219,10 @@
       "one_line": "模板改字就能出海报、通知、促销图，不用学设计。",
       "github": null,
       "official_url": "https://www.gaoding.com",
-      "source_urls": ["https://www.gaoding.com", "https://m.gaoding.com"],
+      "source_urls": [
+        "https://www.gaoding.com",
+        "https://m.gaoding.com"
+      ],
       "license": "Proprietary (hosted service)",
       "maintenance_status": "active",
       "difficulty": "very_easy",
@@ -311,7 +232,9 @@
       "requires_api_key": false,
       "china_accessibility": "direct",
       "recommendation_level": "default",
-      "used_in": ["goal-poster-panel"],
+      "used_in": [
+        "goal-poster-panel"
+      ],
       "best_for": "要把准确信息（价格、时间、地址、电话）放进海报/招生图/促销图的人",
       "not_for": "追求专业设计精度和完全商用授权保障的场景",
       "why_selected": "模板改字是普通人把准确信息放上图的最低门槛路径。与创客贴、图怪兽同类（三方同质，选一家即可，2026-09-07 核对）。如实标注：免费模板够用，但部分模板导出带水印、商用要看授权。",
@@ -324,7 +247,9 @@
       "one_line": "百度网盘出品的手机相册 App，宣传免费无限空间备份照片。",
       "github": null,
       "official_url": "https://apps.apple.com/cn/app/id1467852587",
-      "source_urls": ["https://apps.apple.com/cn/app/id1467852587"],
+      "source_urls": [
+        "https://apps.apple.com/cn/app/id1467852587"
+      ],
       "license": "Proprietary (hosted service)",
       "maintenance_status": "active",
       "difficulty": "very_easy",
@@ -334,7 +259,9 @@
       "requires_api_key": false,
       "china_accessibility": "direct",
       "recommendation_level": "default",
-      "used_in": ["goal-photo-panel"],
+      "used_in": [
+        "goal-photo-panel"
+      ],
       "best_for": "手机照片多、想要大空间备份的人",
       "not_for": "只有少量照片的人（手机自带云相册就够）；把唯一副本只存在它这里的人",
       "why_selected": "百度网盘团队出品、官方宣传免费无限空间、带相似图清理。如实标注：部分功能要开会员；黑猫投诉平台有丢照片投诉，重要照片建议存两个地方。官网域名 yike.com 于 2026-09-07 出现 SSL 异常，故以 App Store 官方页为来源。",
@@ -347,7 +274,10 @@
       "one_line": "字节出品的免费修图 App，滤镜、调色、消除路人都能做。",
       "github": null,
       "official_url": "https://www.retouchpics.com",
-      "source_urls": ["https://www.retouchpics.com", "https://apps.apple.com/cn/app/id1500526240"],
+      "source_urls": [
+        "https://www.retouchpics.com",
+        "https://apps.apple.com/cn/app/id1500526240"
+      ],
       "license": "Proprietary",
       "maintenance_status": "active",
       "difficulty": "very_easy",
@@ -357,33 +287,13 @@
       "requires_api_key": false,
       "china_accessibility": "direct",
       "recommendation_level": "default",
-      "used_in": ["goal-photo-panel"],
+      "used_in": [
+        "goal-photo-panel"
+      ],
       "best_for": "手机上修图、调色、把照片变好看",
       "not_for": "专业摄影后期精修",
       "why_selected": "字节出品、免费、中文、手机端门槛最低；与剪映同系配合顺滑。2026-09-07 核对官网与 App Store 在架状态。",
       "last_reviewed_at": "2026-09-07"
-    },
-    {
-      "id": "browser_use",
-      "name": "Browser Use",
-      "goal": "E_ai_operate",
-      "one_line": "让 AI 像人一样操作浏览器：打开网页、点击、填表、收集信息。",
-      "github": "https://github.com/browser-use/browser-use",
-      "official_url": "https://browser-use.com",
-      "source_urls": ["https://browser-use.com", "https://github.com/browser-use/browser-use"],
-      "license": "MIT",
-      "maintenance_status": "active",
-      "difficulty": "medium",
-      "cost_category": "开源免费自部署；Cloud 有免费额度",
-      "pricing_checked_at": "2026-09-06",
-      "pricing_source": "https://browser-use.com",
-      "requires_api_key": true,
-      "china_accessibility": "requires_setup",
-      "recommendation_level": "advanced",
-      "best_for": "需要 AI 自动完成网页上的重复操作",
-      "not_for": "完全不想碰技术的人",
-      "why_selected": "目前最成熟的开源浏览器自动化 AI。有 Cloud 版本降低门槛。活跃维护。",
-      "last_reviewed_at": "2026-09-06"
     }
   ]
 }
