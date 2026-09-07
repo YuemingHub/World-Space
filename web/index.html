@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦐</text></svg>">
-<meta name="description" content="从零开始把 AI 用起来。4 步，每一步都让 AI 帮你真的做成一件事。免费、中文、手机可用。">
-<meta property="og:title" content="World Space — 从零开始用 AI">
-<meta property="og:description" content="完全不会也没关系。跟着走，4 步，每一步都让 AI 帮你真的做成一件事。">
+<meta name="description" content="想写点东西、做个网页、查清一件事、整理资料？选一件事，马上开始。每一步都替你选好工具和第一步。">
+<meta property="og:title" content="World Space — 你想做什么事？">
+<meta property="og:description" content="选一件事，马上开始。每一步都替你选好工具和第一步，照着做就行。">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://ymai.fun">
 <title>World Space — 从零开始用 AI</title>
@@ -43,14 +43,16 @@ body {
 .topbar .progress-bar .fill { height: 100%; background: var(--leaf); border-radius: 3px; transition: width .3s; }
 
 /* === Hero === */
-.hero { text-align: center; padding: 56px 24px 24px; }
+.hero { text-align: center; padding: 52px 24px 24px; }
 .hero h1 { font-size: clamp(24px, 5vw, 34px); font-weight: 700; line-height: 1.25; margin-bottom: 12px; }
-.hero .sub { color: var(--fg-muted); font-size: 16px; max-width: 420px; margin: 0 auto 8px; }
-.hero .sub strong { color: var(--leaf); }
-.hero .tools { font-size: 14px; color: var(--fg-muted); margin-bottom: 20px; }
+.hero .sub { color: var(--fg-muted); font-size: 16px; max-width: 460px; margin: 0 auto 20px; }
+.intents { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-width: 520px; margin: 0 auto 12px; }
+.intent-btn { display: flex; align-items: center; gap: 10px; text-align: left; padding: 12px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; color: var(--fg); transition: border-color .15s, background .15s; }
+.intent-btn:hover { border-color: var(--accent-strong); background: #F0F6FF; }
+.intent-btn.wide { grid-column: 1 / -1; }
+.intent-btn .em { font-size: 19px; flex-shrink: 0; }
+.hero .tools { font-size: 14px; color: var(--fg-muted); margin-top: 14px; }
 .hero .tools span { display: inline-block; padding: 4px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; margin: 0 4px; }
-.hero .start-btn { display: inline-block; padding: 14px 36px; background: var(--accent-strong); color: white; border-radius: var(--radius); font-size: 17px; font-weight: 600; text-decoration: none; transition: background .15s; }
-.hero .start-btn:hover { background: #1D4ED8; }
 
 /* === Overview pills === */
 .overview { max-width: var(--maxw); margin: 0 auto; padding: 0 24px 32px; }
@@ -142,6 +144,7 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
   .prompt-box { font-size: 14px; padding: 12px; padding-top: 36px; }
   .copy-btn { font-size: 12px; padding: 6px 14px; min-height: 44px; }
   .tool-btn { padding: 14px 28px; font-size: 16px; }
+  .intents { grid-template-columns: 1fr; }
   .checkpoint-btn { padding: 10px 24px; font-size: 15px; min-height: 44px; }
   body { font-size: 16px; }
   .topbar .progress-bar { width: 80px; }
@@ -164,10 +167,17 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
 
 <!-- ============ HERO ============ -->
 <div class="hero">
-  <h1>从这里开始用 AI</h1>
-  <p class="sub">不用先学、不用先懂。跟着走，<strong>4 步</strong>，每一步都让 AI 帮你真的做成一件事。</p>
+  <h1>你想做什么事？</h1>
+  <p class="sub">选一件事，马上开始。每件事都替你选好了工具和第一步，照着做就行。</p>
+  <div class="intents">
+    <button class="intent-btn" onclick="openIntent(1)"><span class="em">✍️</span>写点东西</button>
+    <button class="intent-btn" onclick="openIntent(3)"><span class="em">🛠️</span>做个网页或文件</button>
+    <button class="intent-btn" onclick="openIntent(6)"><span class="em">🔍</span>查明一件事</button>
+    <button class="intent-btn" onclick="openIntent(9)"><span class="em">🗂️</span>整理乱资料</button>
+    <button class="intent-btn" onclick="openIntent(10)"><span class="em">📄</span>处理 PDF</button>
+    <button class="intent-btn wide" id="startBtn" onclick="startJourney()"><span class="em">🌱</span><span id="startLbl">不知道从哪开始？跟着 4 步走</span></button>
+  </div>
   <p class="tools">主要就两个工具，网页直接打开，免费：<span>豆包</span> <span>DeepSeek</span></p>
-  <a class="start-btn" id="startBtn" href="#stage-1" onclick="return startJourney()">开始第一步 →</a>
 </div>
 
 <!-- ============ OVERVIEW ============ -->
@@ -591,7 +601,7 @@ function completeStage(n) {
     }
   } else {
     document.getElementById('graduation').style.display = 'block';
-    document.getElementById('startBtn').textContent = '查看你做成的事 →';
+    document.getElementById('startLbl').textContent = '看看你做成了什么 🎉';
     document.getElementById('graduation').scrollIntoView({behavior:'smooth', block:'center'});
   }
   syncAria(document);
@@ -645,7 +655,7 @@ function resetAll() {
   document.getElementById('graduation').style.display = 'none';
   document.getElementById('stage-1').classList.add('open');
   document.getElementById('step-1').classList.add('open');
-  document.getElementById('startBtn').textContent = '开始第一步 →';
+  document.getElementById('startLbl').textContent = '不知道从哪开始？跟着 4 步走';
   updateProgress();
   saveProgress();
   window.scrollTo({top:0, behavior:'smooth'});
@@ -667,12 +677,9 @@ function restoreProgress() {
     var pill = document.getElementById('pill-' + s);
     if (pill) { pill.classList.add('active'); }
   }
-  // Returning users see "continue" instead of "start"
-  if (Object.keys(completedSteps).length > 0 && Object.keys(completedStages).length < 4) {
-    document.getElementById('startBtn').textContent = '继续上次的进度 →';
-  }
+  // Returning users land on their actual next step (open first incomplete stage below)
   if (Object.keys(completedStages).length >= 4) {
-    document.getElementById('startBtn').textContent = '查看你做成的事 →';
+    document.getElementById('startLbl').textContent = '看看你做成了什么 🎉';
     document.getElementById('graduation').style.display = 'block';
   }
   // Open first incomplete stage
@@ -693,7 +700,20 @@ function restoreProgress() {
 // Keep aria-expanded truthful after any programmatic open/close
 syncAria(document);
 
-// Hero button: go to wherever this user actually is
+// Hero intent buttons: jump straight to the step that gets this exact thing done
+function openIntent(n) {
+  var el = document.getElementById('step-' + n);
+  if (!el) { startJourney(); return; }
+  var stage = el.closest('.stage');
+  document.querySelectorAll('.stage.open').forEach(function(s) { if (s !== stage) s.classList.remove('open'); });
+  stage.classList.add('open');
+  document.querySelectorAll('.step.open').forEach(function(s) { s.classList.remove('open'); });
+  el.classList.add('open');
+  syncAria(document);
+  setTimeout(function() { el.scrollIntoView({behavior:'smooth', block:'center'}); }, 100);
+}
+
+// Hero fallback button: go to wherever this user actually is
 function startJourney() {
   if (Object.keys(completedStages).length >= 4) {
     var grad = document.getElementById('graduation');
