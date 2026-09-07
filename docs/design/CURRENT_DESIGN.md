@@ -27,17 +27,17 @@ sticky topbar（品牌 + 总进度 x/10 + 进度条）
 
 | Token | 值 | 用途 |
 |---|---|---|
-| `--accent` | `#3B82F6` | 主操作按钮、工具按钮 |
-| `--accent-strong` | `#2563EB` | hover、链接 |
-| `--leaf` | `#16A34A` | 完成/生长、进度条 |
-| `--sun` | `#D97706` | 第 4 阶段点缀 |
+| `--accent` | `#3B82F6` | 阶段徽章数字底、状态 pill 底色 |
+| `--accent-strong` | `#2563EB` | 主操作/工具按钮背景、链接 |
+| `--leaf` | `#16A34A` | 完成/生长、进度条、徽章 |
+| `--sun` | `#D97706` | 第 4 阶段徽章 |
 | `--bg` | `#FAF9F6` | 页面背景（暖纸白） |
 | `--surface` | `#FFFFFF` | 卡片面 |
 | `--fg` | `#111827` | 主文本 |
 | `--fg-muted` | `#6B7280` | 次文本 |
 | `--border` | `#E7E5E0` | 描边 |
 
-半径：12px（卡片）/ 6px（小件）。阶段点缀色：s1 `--leaf`、s2 `--accent`、s3 `#8B5CF6`、s4 `--sun`。
+半径：12px（卡片）/ 6px（小件）。阶段点缀色：s1 `--leaf`、s2 `--accent`、s3 `#8B5CF6`、s4 `--sun`（仅徽章/底色；前景文字用深化变体 #166534 / #1D4ED8 / #6D28D9 / #92400E 以满足 WCAG AA）。主按钮与工具按钮背景用 `--accent-strong`（白字 5.17:1），完成类按钮与复制成功态用 `#15803D`（白字 5.02:1），徽章数字 19px bold（大文本 3:1 档）。
 
 ## 3. 字体与排版
 
@@ -49,7 +49,7 @@ sticky topbar（品牌 + 总进度 x/10 + 进度条）
 
 - 手风琴聚焦：当前阶段/步骤展开，其余折叠；完成自动折叠 + 滚动到下一步
 - `prefers-reduced-motion` 停用全部动画
-- 移动端（≤480px）触控目标 ≥44px：工具按钮 14px×28px padding、检查点按钮 10px×24px padding
+- 移动端（≤480px）触控目标 ≥44px：复制按钮与检查点按钮 `min-height: 44px`，工具按钮 14px×28px padding
 - 标题语义：阶段标题 h2、步骤标题 h3、完成画面 h2
 - 复制：`navigator.clipboard` → `execCommand` fallback（微信内置浏览器等）
 - 外链一律 `target="_blank" rel="noopener"`

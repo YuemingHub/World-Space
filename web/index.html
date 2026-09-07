@@ -49,18 +49,18 @@ body {
 .hero .sub strong { color: var(--leaf); }
 .hero .tools { font-size: 14px; color: var(--fg-muted); margin-bottom: 20px; }
 .hero .tools span { display: inline-block; padding: 4px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; margin: 0 4px; }
-.hero .start-btn { display: inline-block; padding: 14px 36px; background: var(--accent); color: white; border-radius: var(--radius); font-size: 17px; font-weight: 600; text-decoration: none; transition: background .15s; }
-.hero .start-btn:hover { background: var(--accent-strong); }
+.hero .start-btn { display: inline-block; padding: 14px 36px; background: var(--accent-strong); color: white; border-radius: var(--radius); font-size: 17px; font-weight: 600; text-decoration: none; transition: background .15s; }
+.hero .start-btn:hover { background: #1D4ED8; }
 
 /* === Overview pills === */
 .overview { max-width: var(--maxw); margin: 0 auto; padding: 0 24px 32px; }
 .overview .row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; align-items: center; }
 .overview .pill { padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 500; opacity: .5; transition: opacity .2s; }
 .overview .pill.active { opacity: 1; }
-.overview .pill.p1 { background: var(--leaf-light); color: var(--leaf); }
-.overview .pill.p2 { background: rgba(59,130,246,.1); color: var(--accent); }
-.overview .pill.p3 { background: rgba(139,92,246,.1); color: #8B5CF6; }
-.overview .pill.p4 { background: rgba(217,119,6,.1); color: var(--sun); }
+.overview .pill.p1 { background: var(--leaf-light); color: #166534; }
+.overview .pill.p2 { background: rgba(59,130,246,.1); color: #1D4ED8; }
+.overview .pill.p3 { background: rgba(139,92,246,.1); color: #6D28D9; }
+.overview .pill.p4 { background: rgba(217,119,6,.1); color: #92400E; }
 .overview .arrow { color: var(--fg-muted); font-size: 14px; }
 
 /* === Roadmap === */
@@ -68,7 +68,7 @@ body {
 .stage { margin-bottom: 32px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; scroll-margin-top: 64px; }
 .stage-header { padding: 20px 24px; cursor: pointer; display: flex; align-items: center; gap: 16px; transition: background .15s; }
 .stage-header:hover { background: rgba(0,0,0,.02); }
-.stage-badge { flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; color: white; }
+.stage-badge { flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 19px; font-weight: 700; color: white; }
 .stage-badge.s1 { background: var(--leaf); }
 .stage-badge.s2 { background: var(--accent); }
 .stage-badge.s3 { background: #8B5CF6; }
@@ -81,8 +81,7 @@ body {
 .stage.open .stage-header .arrow { transform: rotate(90deg); }
 .stage-status { flex-shrink: 0; font-size: 13px; padding: 3px 10px; border-radius: 12px; font-weight: 500; }
 .stage-status.todo { background: var(--border); color: #4B5563; }
-.stage-status.doing { background: rgba(59,130,246,.1); color: var(--accent); }
-.stage-status.done { background: var(--leaf-light); color: var(--leaf); }
+.stage-status.done { background: var(--leaf-light); color: #15803D; }
 
 /* === Steps === */
 .stage-body { display: none; padding: 0 24px 24px; }
@@ -109,16 +108,16 @@ body {
 .prompt-box { position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px; padding-top: 40px; font-size: 15px; line-height: 1.7; margin: 8px 0 16px; }
 .copy-btn { position: absolute; top: 8px; right: 8px; padding: 4px 12px; font-size: 13px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; color: var(--fg-muted); font-family: inherit; transition: all .15s; }
 .copy-btn:hover { background: var(--accent); color: white; border-color: var(--accent); }
-.copy-btn.copied { background: var(--leaf); color: white; border-color: var(--leaf); }
+.copy-btn.copied { background: #15803D; color: white; border-color: #15803D; }
 
 /* Tool button */
-.tool-btn { display: inline-block; padding: 10px 24px; background: var(--accent); color: white; border-radius: var(--radius-sm); font-weight: 600; font-size: 15px; text-decoration: none; margin: 8px 0; transition: background .15s; }
-.tool-btn:hover { background: var(--accent-strong); }
+.tool-btn { display: inline-block; padding: 10px 24px; background: var(--accent-strong); color: white; border-radius: var(--radius-sm); font-weight: 600; font-size: 15px; text-decoration: none; margin: 8px 0; transition: background .15s; }
+.tool-btn:hover { background: #1D4ED8; }
 
 /* Checkpoint */
 .checkpoint { margin-top: 16px; padding: 16px; background: var(--leaf-light); border-radius: var(--radius-sm); }
 .checkpoint .label { font-size: 14px; font-weight: 600; color: #15803D; margin-bottom: 8px; }
-.checkpoint-btn { display: inline-block; padding: 8px 20px; background: var(--leaf); color: white; border: none; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; }
+.checkpoint-btn { display: inline-block; padding: 8px 20px; background: #15803D; color: white; border: none; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; }
 .checkpoint-btn:hover { opacity: .9; }
 
 /* Graduation */
@@ -141,9 +140,9 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
   .stage-header .info .title { font-size: 16px; }
   .stage-body { padding: 0 16px 16px; }
   .prompt-box { font-size: 14px; padding: 12px; padding-top: 36px; }
-  .copy-btn { font-size: 12px; padding: 6px 14px; }
+  .copy-btn { font-size: 12px; padding: 6px 14px; min-height: 44px; }
   .tool-btn { padding: 14px 28px; font-size: 16px; }
-  .checkpoint-btn { padding: 10px 24px; font-size: 15px; }
+  .checkpoint-btn { padding: 10px 24px; font-size: 15px; min-height: 44px; }
   body { font-size: 16px; }
   .topbar .progress-bar { width: 80px; }
   .topbar .progress-text { display: none; }
@@ -210,7 +209,7 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
         <p><strong>豆包</strong>是字节跳动做的 AI 助手。就像微信聊天一样，你说一句，它回一句。</p>
         <p>✅ 国内直接打开 ✅ 全中文界面 ✅ 免费</p>
         <p>打开后如果提示登录，用手机号或微信登录就行，很快。</p>
-        <p>先把下面这段话复制了：</p>
+        <p>先把下面这段话复制了。它只是个例子——你想让 AI 写什么，就把开头换成什么，比如「帮我写一段想对孩子说的话」：</p>
         <div class="prompt-box">帮我写一段朋友圈文案，介绍我今天做的一件事，
 语气轻松一点，100字左右。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
         <p>复制好了，点这里打开豆包，把刚复制的话粘贴到聊天框里（手机上长按聊天框选"粘贴"，电脑上按 Ctrl+V），发送：</p>
@@ -520,7 +519,14 @@ function saveProgress() {
 
 function toggleStage(n) {
   var el = document.getElementById('stage-' + n);
+  var opening = !el.classList.contains('open');
   el.classList.toggle('open');
+  if (opening && !el.querySelector('.step.open')) {
+    var steps = el.querySelectorAll('.step');
+    for (var i = 0; i < steps.length; i++) {
+      if (!steps[i].classList.contains('done')) { steps[i].classList.add('open'); break; }
+    }
+  }
   syncAria(el);
 }
 function stageKey(e, n) {
@@ -585,6 +591,7 @@ function completeStage(n) {
     }
   } else {
     document.getElementById('graduation').style.display = 'block';
+    document.getElementById('startBtn').textContent = '查看你做成的事 →';
     document.getElementById('graduation').scrollIntoView({behavior:'smooth', block:'center'});
   }
   syncAria(document);
@@ -614,9 +621,15 @@ function fallbackCopy(text, btn) {
   var ta = document.createElement('textarea'); ta.value = text;
   ta.style.position = 'fixed'; ta.style.left = '-9999px';
   document.body.appendChild(ta); ta.select();
-  try { document.execCommand('copy'); } catch(e) {}
+  var ok = false;
+  try { ok = document.execCommand('copy'); } catch(e) {}
   document.body.removeChild(ta);
-  showCopied(btn);
+  if (ok) {
+    showCopied(btn);
+  } else {
+    btn.textContent = '没复制上，长按文字复制';
+    setTimeout(function() { btn.textContent = '复制'; }, 3000);
+  }
 }
 function resetAll() {
   completedSteps = {};
