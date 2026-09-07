@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦐</text></svg>">
-<meta name="description" content="想写点东西、做个网页、查清一件事、整理资料？选一件事，马上开始。每一步都替你选好工具和第一步。">
+<meta name="description" content="想写点东西、做张海报、整理手机照片、查清一件事、处理 PDF？选一件事，马上开始。每一步都替你选好工具和第一步。">
 <meta property="og:title" content="World Space — 你想做什么事？">
 <meta property="og:description" content="选一件事，马上开始。每一步都替你选好工具和第一步，照着做就行。">
 <meta property="og:type" content="website">
@@ -51,6 +51,15 @@ body {
 .intent-btn:hover { border-color: var(--accent-strong); background: #F0F6FF; }
 .intent-btn.wide { grid-column: 1 / -1; }
 .intent-btn .em { font-size: 19px; flex-shrink: 0; }
+.goal-panel { display: none; max-width: 520px; margin: 0 auto 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; text-align: left; }
+.goal-panel.open { display: block; }
+.goal-panel h2 { font-size: 17px; margin: 0 0 6px; }
+.goal-panel .goal-sub { font-size: 15px; color: var(--fg-muted); margin: 0 0 4px; }
+.goal-panel .choice { border-top: 1px solid var(--border); margin-top: 12px; padding-top: 10px; }
+.goal-panel .choice > b { display: block; font-size: 15px; margin-bottom: 4px; }
+.goal-panel .choice p { font-size: 15px; line-height: 1.7; margin: 4px 0; }
+.goal-panel .tool-btn { margin-top: 6px; }
+.close-goal { display: block; margin: 14px auto 0; padding: 8px 20px; min-height: 44px; background: none; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; color: var(--fg-muted); cursor: pointer; font-family: inherit; }
 .hero .tools { font-size: 14px; color: var(--fg-muted); margin-top: 14px; }
 .hero .tools span { display: inline-block; padding: 4px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; margin: 0 4px; }
 
@@ -171,13 +180,48 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
   <p class="sub">选一件事，马上开始。每件事都替你选好了工具和第一步，照着做就行。</p>
   <div class="intents">
     <button class="intent-btn" onclick="openIntent(1)"><span class="em">✍️</span>写点东西</button>
+    <button class="intent-btn" id="btn-poster" aria-expanded="false" onclick="toggleGoal('goal-poster')"><span class="em">🖼️</span>做一张海报</button>
     <button class="intent-btn" onclick="openIntent(3)"><span class="em">🛠️</span>做个网页或文件</button>
+    <button class="intent-btn" id="btn-photo" aria-expanded="false" onclick="toggleGoal('goal-photo')"><span class="em">📷</span>整理手机照片</button>
     <button class="intent-btn" onclick="openIntent(6)"><span class="em">🔍</span>查明一件事</button>
-    <button class="intent-btn" onclick="openIntent(9)"><span class="em">🗂️</span>整理乱资料</button>
-    <button class="intent-btn" onclick="openIntent(10)"><span class="em">📄</span>处理 PDF</button>
+    <button class="intent-btn" onclick="openIntent(9)"><span class="em">🗂️</span>整理资料 / 处理 PDF</button>
     <button class="intent-btn wide" id="startBtn" onclick="startJourney()"><span class="em">🌱</span><span id="startLbl">不知道从哪开始？跟着 4 步走</span></button>
   </div>
-  <p class="tools">主要就两个工具，网页直接打开，免费：<span>豆包</span> <span>DeepSeek</span></p>
+  <div class="goal-panel" id="goal-poster" role="region" aria-label="做一张海报">
+    <h2>🖼️ 做一张海报</h2>
+    <p class="goal-sub">先想一件事：海报上要不要放准确的信息（价格、时间、地址、电话）？</p>
+    <div class="choice"><b>要（促销、招生、活动通知）→ 用模板改字</b>
+      <p>推荐<strong>稿定设计</strong>：搜你的场景（比如「开业促销」）→ 挑一张免费模板 → 换字换图 → 下载。模板改字保证价格、电话一字不差。</p>
+      <p>如实说：免费模板够用，但部分模板导出带水印、商用要看授权，用之前看清楚标注。</p>
+      <a class="tool-btn" href="https://www.gaoding.com" target="_blank" rel="noopener">打开稿定设计 →</a>
+    </div>
+    <div class="choice"><b>不用精确排版（生日邀请、家庭聚会）→ 让豆包直接画</b>
+      <p>复制下面这段话（内容换成你的事），打开豆包的图片生成，粘贴发送：</p>
+      <div class="prompt-box">帮我做一张海报：我妈妈的60岁生日家庭聚会，时间9月20日中午11点，地点我们家里。风格温馨喜庆，大标题写"妈妈生日快乐"，把时间和地点放在显眼的位置。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
+      <p>如实说：生成的图片自己用没问题；拿去商用（卖东西、发广告）有版权限制，那种情况用上面的模板工具。</p>
+      <a class="tool-btn" href="https://www.doubao.com/chat/create-image" target="_blank" rel="noopener">打开豆包图片生成 →</a>
+    </div>
+    <button class="close-goal" onclick="closeGoal()">收起</button>
+  </div>
+  <div class="goal-panel" id="goal-photo" role="region" aria-label="整理手机照片">
+    <h2>📷 整理手机照片</h2>
+    <p class="goal-sub">好消息：这些事大多不用装 App，手机自带的就够，还免费。挑你最想先做的一件：</p>
+    <div class="choice"><b>删掉重复照片</b>
+      <p><strong>iPhone：</strong>打开「照片」→「精选集」→ 往下滑找到「重复项目」→ 轻点「合并」。需要 iOS 16 以上；第一次没看到，充着电连 Wi-Fi 放一晚，等手机自己分析完。</p>
+      <p><strong>安卓（华为/荣耀/小米等）：</strong>打开「图库」或「相册」App → 找「清理」「清理建议」或「重复照片」（有的手机在 设置 → 存储里）。各家叫法略有差别，但基本都自带。</p>
+    </div>
+    <div class="choice"><b>备份照片</b>
+      <p>最省事是手机自带的云相册（iPhone 叫 iCloud，免费只有 5GB，超出要付费）。照片多、想要大空间，可以用百度网盘出品的<strong>一刻相册</strong>——官方宣传免费无限空间，但部分功能要开会员，网上也有丢照片的投诉。重要的照片，建议存两个地方。</p>
+    </div>
+    <div class="choice"><b>做成一本能拿在手里的相册</b>
+      <p>微信里搜「照片书」小程序：选模板 → 传照片 → 下单印刷，十几元起。各家质量参差，先做一本小的试试。要更好的纸质和装帧，可以搜 Photobook China（157 元起）。</p>
+    </div>
+    <div class="choice"><b>修图、把照片变好看</b>
+      <p>装<strong>醒图</strong>（字节出品，手机 App，免费够用），滤镜、调色、消除路人都能做。</p>
+    </div>
+    <button class="close-goal" onclick="closeGoal()">收起</button>
+  </div>
+  <p class="tools">大部分事，<span>豆包</span> <span>DeepSeek</span>就够用；有些事，用手机自带的或现成模板更好。</p>
 </div>
 
 <!-- ============ OVERVIEW ============ -->
@@ -711,6 +755,26 @@ function openIntent(n) {
   el.classList.add('open');
   syncAria(document);
   setTimeout(function() { el.scrollIntoView({behavior:'smooth', block:'center'}); }, 100);
+}
+
+// Goal panels (photos / posters): answers that live outside the AI path
+function toggleGoal(id) {
+  var panel = document.getElementById(id);
+  var wasOpen = panel.classList.contains('open');
+  document.querySelectorAll('.goal-panel.open').forEach(function(p) { p.classList.remove('open'); });
+  ['btn-poster', 'btn-photo'].forEach(function(bid) {
+    var b = document.getElementById(bid);
+    if (b) b.setAttribute('aria-expanded', 'false');
+  });
+  if (!wasOpen) {
+    panel.classList.add('open');
+    document.getElementById(id === 'goal-poster' ? 'btn-poster' : 'btn-photo').setAttribute('aria-expanded', 'true');
+    setTimeout(function() { panel.scrollIntoView({behavior:'smooth', block:'start'}); }, 60);
+  }
+}
+function closeGoal() {
+  document.querySelectorAll('.goal-panel.open').forEach(function(p) { p.classList.remove('open'); });
+  document.querySelectorAll('.intents .intent-btn[aria-expanded]').forEach(function(b) { b.setAttribute('aria-expanded', 'false'); });
 }
 
 // Hero fallback button: go to wherever this user actually is
