@@ -163,6 +163,7 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
 </style>
 </head>
 <body>
+<noscript><p style="max-width:680px;margin:16px auto;padding:12px 16px;background:#FFF7ED;border:1px solid #FDBA74;border-radius:8px;font-size:15px">此页需要开启 JavaScript 才能使用（手机自带浏览器一般都支持）。</p></noscript>
 
 <div class="topbar">
   <div class="inner">
@@ -795,12 +796,25 @@ function toggleGoal(id) {
     var btnMap = { 'goal-poster': 'btn-poster', 'goal-photo': 'btn-photo', 'goal-ocr': 'btn-ocr' };
     document.getElementById(btnMap[id]).setAttribute('aria-expanded', 'true');
     setTimeout(function() { panel.scrollIntoView({behavior:'smooth', block:'start'}); }, 60);
+    try { history.replaceState(null, '', '#' + id.replace('goal-', '')); } catch(e) {}
+  } else {
+    try { history.replaceState(null, '', location.pathname + location.search); } catch(e) {}
   }
 }
 function closeGoal() {
   document.querySelectorAll('.goal-panel.open').forEach(function(p) { p.classList.remove('open'); });
   document.querySelectorAll('.intents .intent-btn[aria-expanded]').forEach(function(b) { b.setAttribute('aria-expanded', 'false'); });
+  try { history.replaceState(null, '', location.pathname + location.search); } catch(e) {}
 }
+// Deep link: #photo / #poster / #ocr opens that goal directly (shareable answers)
+(function () {
+  var h = (location.hash || '').replace('#', '');
+  var map = { photo: 'btn-photo', poster: 'btn-poster', ocr: 'btn-ocr' };
+  if (map[h]) {
+    var b = document.getElementById(map[h]);
+    if (b) b.click();
+  }
+})();
 
 // Hero fallback button: go to wherever this user actually is
 function startJourney() {
