@@ -185,7 +185,26 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
     <button class="intent-btn" id="btn-photo" aria-expanded="false" onclick="toggleGoal('goal-photo')"><span class="em">📷</span>整理手机照片</button>
     <button class="intent-btn" onclick="openIntent(6)"><span class="em">🔍</span>查明一件事</button>
     <button class="intent-btn" onclick="openIntent(9)"><span class="em">🗂️</span>整理资料 / 处理 PDF</button>
+    <button class="intent-btn" id="btn-ocr" aria-expanded="false" onclick="toggleGoal('goal-ocr')"><span class="em">🔤</span>提取图片文字</button>
     <button class="intent-btn wide" id="startBtn" onclick="startJourney()"><span class="em">🌱</span><span id="startLbl">不知道从哪开始？跟着 4 步走</span></button>
+  </div>
+  <div class="goal-panel" id="goal-ocr" role="region" aria-label="提取图片文字">
+    <h2>🔤 提取图片文字</h2>
+    <p class="goal-sub">好消息：不用装任何 App。微信和手机自带就能做，免费。</p>
+    <div class="choice"><b>图片在微信里（聊天记录、朋友圈）</b>
+      <p>长按那张图片 → 点「提取文字」→ 识别出来的字可以直接复制、转发。</p>
+    </div>
+    <div class="choice"><b>图片在手机相册里（截图、拍的书页）</b>
+      <p><strong>iPhone：</strong>打开图片 → 长按文字（或轻点右下角的「实况文本」图标）→ 直接选取拷贝。</p>
+      <p><strong>安卓（华为/荣耀/小米等）：</strong>相册打开图片 → 找「提取文字」或「识别文字」。</p>
+    </div>
+    <div class="choice"><b>纸上的字（书、单据、招牌）</b>
+      <p>微信「扫一扫」对准 → 点「提取文字」→ 全选复制。</p>
+    </div>
+    <div class="choice"><b>如实说</b>
+      <p>工整印刷体识别很准；手写字和复杂表格会出错，重要的数字、名字、金额识别完务必核对一遍。</p>
+    </div>
+    <button class="close-goal" onclick="closeGoal()">收起</button>
   </div>
   <div class="goal-panel" id="goal-poster" role="region" aria-label="做一张海报">
     <h2>🖼️ 做一张海报</h2>
@@ -776,13 +795,14 @@ function toggleGoal(id) {
   var panel = document.getElementById(id);
   var wasOpen = panel.classList.contains('open');
   document.querySelectorAll('.goal-panel.open').forEach(function(p) { p.classList.remove('open'); });
-  ['btn-poster', 'btn-photo'].forEach(function(bid) {
+  ['btn-poster', 'btn-photo', 'btn-ocr'].forEach(function(bid) {
     var b = document.getElementById(bid);
     if (b) b.setAttribute('aria-expanded', 'false');
   });
   if (!wasOpen) {
     panel.classList.add('open');
-    document.getElementById(id === 'goal-poster' ? 'btn-poster' : 'btn-photo').setAttribute('aria-expanded', 'true');
+    var btnMap = { 'goal-poster': 'btn-poster', 'goal-photo': 'btn-photo', 'goal-ocr': 'btn-ocr' };
+    document.getElementById(btnMap[id]).setAttribute('aria-expanded', 'true');
     setTimeout(function() { panel.scrollIntoView({behavior:'smooth', block:'start'}); }, 60);
   }
 }
