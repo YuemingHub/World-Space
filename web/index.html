@@ -519,7 +519,14 @@ function saveProgress() {
 
 function toggleStage(n) {
   var el = document.getElementById('stage-' + n);
+  var opening = !el.classList.contains('open');
   el.classList.toggle('open');
+  if (opening && !el.querySelector('.step.open')) {
+    var steps = el.querySelectorAll('.step');
+    for (var i = 0; i < steps.length; i++) {
+      if (!steps[i].classList.contains('done')) { steps[i].classList.add('open'); break; }
+    }
+  }
   syncAria(el);
 }
 function stageKey(e, n) {
