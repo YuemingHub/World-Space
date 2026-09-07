@@ -191,31 +191,31 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
   <div class="goal-panel" id="goal-ocr" role="region" aria-label="提取图片文字">
     <h2>🔤 提取图片文字</h2>
     <p class="goal-sub">好消息：不用装任何 App。微信和手机自带就能做，免费。</p>
-    <div class="choice"><b>图片在微信里（聊天记录、朋友圈）</b>
-      <p>长按那张图片 → 点「提取文字」→ 识别出来的字可以直接复制、转发。</p>
+    <div class="choice"><b>图片在微信里</b>
+      <p>💬 长按那张图片 → 点「提取文字」→ 直接复制、转发</p>
     </div>
-    <div class="choice"><b>图片在手机相册里（截图、拍的书页）</b>
-      <p><strong>iPhone：</strong>打开图片 → 长按文字（或轻点右下角的「实况文本」图标）→ 直接选取拷贝。</p>
-      <p><strong>安卓（华为/荣耀/小米等）：</strong>相册打开图片 → 找「提取文字」或「识别文字」。</p>
+    <div class="choice"><b>图片在相册里</b>
+      <p>📱 iPhone：打开图片 → 长按文字（或点右下角「实况文本」）→ 拷贝</p>
+      <p>🤖 安卓：相册打开图片 → 「提取文字」或「识别文字」</p>
     </div>
     <div class="choice"><b>纸上的字（书、单据、招牌）</b>
-      <p>微信「扫一扫」对准 → 点「提取文字」→ 全选复制。</p>
+      <p>📄 微信「扫一扫」对准 → 点「提取文字」→ 全选复制</p>
     </div>
     <div class="choice"><b>如实说</b>
-      <p>工整印刷体识别很准；手写字和复杂表格会出错，重要的数字、名字、金额识别完务必核对一遍。</p>
+      <p>⚠️ 印刷体很准；手写和复杂表格会出错——数字、名字、金额务必核对</p>
     </div>
     <button class="close-goal" onclick="closeGoal()">收起</button>
   </div>
   <div class="goal-panel" id="goal-poster" role="region" aria-label="做一张海报">
     <h2>🖼️ 做一张海报</h2>
     <p class="goal-sub">先想一件事：海报上要不要放准确的信息（价格、时间、地址、电话）？</p>
-    <div class="choice"><b>要（促销、招生、活动通知）→ 用模板改字</b>
-      <p>推荐<strong>稿定设计</strong>：搜你的场景（比如「开业促销」）→ 挑一张免费模板 → 换字换图 → 下载。模板改字保证价格、电话一字不差。</p>
-      <p>如实说：免费模板够用，但部分模板导出带水印、商用要看授权，用之前看清楚标注。</p>
+    <div class="choice"><b>要放准确信息（促销、招生、通知）→ 模板改字</b>
+      <p>📋 稿定设计：搜你的场景 → 挑一张免费模板 → 换字换图 → 下载。价格、电话一字不差。</p>
+      <p>如实说：免费模板够用；部分导出带水印，商用先看授权。</p>
       <a class="tool-btn" href="https://www.gaoding.com" target="_blank" rel="noopener">打开稿定设计 →</a>
     </div>
     <div class="choice"><b>不用精确排版（生日邀请、家庭聚会）→ 让豆包直接画</b>
-      <p>复制下面这段话（内容换成你的事），打开豆包的图片生成，粘贴发送：</p>
+      <p>🎨 复制下面这段话（换成你的事），打开豆包的图片生成，粘贴发送：</p>
       <div class="prompt-box">帮我做一张海报：我妈妈的60岁生日家庭聚会，时间9月20日中午11点，地点我们家里。风格温馨喜庆，大标题写"妈妈生日快乐"，把时间和地点放在显眼的位置。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
       <p>如实说：生成的图片自己用没问题；拿去商用（卖东西、发广告）有版权限制，那种情况用上面的模板工具。</p>
       <a class="tool-btn" href="https://www.doubao.com/chat/create-image" target="_blank" rel="noopener">打开豆包图片生成 →</a>
@@ -226,17 +226,18 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
     <h2>📷 整理手机照片</h2>
     <p class="goal-sub">好消息：这些事大多不用装 App，手机自带的就够，还免费。挑你最想先做的一件：</p>
     <div class="choice"><b>删掉重复照片</b>
-      <p><strong>iPhone：</strong>打开「照片」→「精选集」→ 往下滑找到「重复项目」→ 轻点「合并」。需要 iOS 16 以上；第一次没看到，充着电连 Wi-Fi 放一晚，等手机自己分析完。</p>
-      <p><strong>安卓（华为/荣耀/小米等）：</strong>打开「图库」或「相册」App → 找「清理」「清理建议」或「重复照片」（有的手机在 设置 → 存储里）。各家叫法略有差别，但基本都自带。</p>
+      <p>📱 <strong>iPhone：</strong>照片 → 精选集 → 滑到「重复项目」→ 合并（要 iOS 16；没有就充着电连 Wi-Fi 等一晚）</p>
+      <p>🤖 <strong>安卓：</strong>图库/相册 → 找「清理」或「重复照片」</p>
     </div>
     <div class="choice"><b>备份照片</b>
-      <p>最省事是手机自带的云相册（iPhone 叫 iCloud，免费只有 5GB，超出要付费）。照片多、想要大空间，可以用百度网盘出品的<strong>一刻相册</strong>——官方宣传免费无限空间，但部分功能要开会员，网上也有丢照片的投诉。重要的照片，建议存两个地方。</p>
+      <p>☁️ 先用手机自带云相册（iPhone 免费只有 5GB）</p>
+      <p>📦 照片很多：用一刻相册（宣传免费无限空间；部分功能要会员，网上有丢照片投诉——重要的存两处）</p>
     </div>
-    <div class="choice"><b>做成一本能拿在手里的相册</b>
-      <p>微信里搜「照片书」小程序：选模板 → 传照片 → 下单印刷，十几元起。各家质量参差，先做一本小的试试。要更好的纸质和装帧，可以搜 Photobook China（157 元起）。</p>
+    <div class="choice"><b>做成一本拿在手里的相册</b>
+      <p>📖 微信搜「照片书」小程序：十几元起，先做一本小的试试。要更好纸质可以搜 Photobook China（157 元起）</p>
     </div>
     <div class="choice"><b>修图、把照片变好看</b>
-      <p>装<strong>醒图</strong>（字节出品，手机 App，免费够用），滤镜、调色、消除路人都能做。</p>
+      <p>✨ 装「醒图」，免费够用：滤镜、调色、消除路人</p>
     </div>
     <button class="close-goal" onclick="closeGoal()">收起</button>
   </div>
