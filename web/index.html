@@ -615,9 +615,15 @@ function fallbackCopy(text, btn) {
   var ta = document.createElement('textarea'); ta.value = text;
   ta.style.position = 'fixed'; ta.style.left = '-9999px';
   document.body.appendChild(ta); ta.select();
-  try { document.execCommand('copy'); } catch(e) {}
+  var ok = false;
+  try { ok = document.execCommand('copy'); } catch(e) {}
   document.body.removeChild(ta);
-  showCopied(btn);
+  if (ok) {
+    showCopied(btn);
+  } else {
+    btn.textContent = '没复制上，长按文字复制';
+    setTimeout(function() { btn.textContent = '复制'; }, 3000);
+  }
 }
 function resetAll() {
   completedSteps = {};
