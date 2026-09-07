@@ -808,7 +808,7 @@ function closeGoal() {
 }
 // Deep link: #photo / #poster / #ocr opens that goal directly (shareable answers)
 (function () {
-  var h = (location.hash || '').replace('#', '');
+  var h = (location.hash || '').replace('#', '').split('?')[0].split('&')[0];
   var map = { photo: 'btn-photo', poster: 'btn-poster', ocr: 'btn-ocr' };
   if (map[h]) {
     var b = document.getElementById(map[h]);
