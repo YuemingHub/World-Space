@@ -8,3 +8,6 @@ Thumbs.db
 # Temp files
 .fetch/
 .pr-body.md
+
+# Scratch / prototypes
+.tmp/
