@@ -1,7 +1,7 @@
 {
   "version": "3.0.0",
   "last_reviewed_at": "2026-09-07",
-  "reviewer_note": "Macro 7 pruning (2026-09-07): removed bolt_new, replit (covered by v0 simpler / cursor deeper), gamma, perplexity (china-restricted alternatives with working domestic defaults), gpt_academic (maintenance unclear + API key), browser_use (requires API key + setup, no UI goal) — §23 rules: stale / not best for audience / tech-circle fashion. Remaining 10 entries re-verified: official pages checked 2026-09-06/07; doubao/deepseek/gaoding/xingtu/yike_album free tiers confirmed; prices NOT hardcoded — use cost_category. used_in 反映当前产品（web 首页入口/4 步路径/目标面板）实际使用位置。",
+  "reviewer_note": "Macro 7 pruning (2026-09-07): removed bolt_new, replit (covered by v0 simpler / cursor deeper), gamma, perplexity (china-restricted alternatives with working domestic defaults), gpt_academic (maintenance unclear + API key), browser_use (requires API key + setup, no UI goal) — §23 rules: stale / not best for audience / tech-circle fashion. All 11 entries re-verified reachable on 2026-09-07 (chat.deepseek.com 429 and gaoding.com 405 on curl are bot-shield artifacts, real fetches confirmed); doubao/deepseek/gaoding/xingtu/yike_album free tiers confirmed; prices NOT hardcoded — use cost_category. used_in 反映当前产品（web 首页入口/4 步路径/目标面板）实际使用位置。",
   "resources": [
     {
       "id": "doubao",
@@ -30,7 +30,7 @@
       "best_for": "第一次用 AI：聊天、写文案、写文章、做简单网页，全中文，手机电脑都能用",
       "not_for": "需要核查信息来源的严肃查证（用 DeepSeek 更合适）",
       "why_selected": "对中国普通用户门槛最低：国内直接打开、全中文、免费、手机号/微信即可登录，对话里能直接生成网页并显示预览。",
-      "last_reviewed_at": "2026-09-06"
+      "last_reviewed_at": "2026-09-07"
     },
     {
       "id": "v0",
@@ -55,7 +55,7 @@
       "best_for": "完全不会编程，但想快速做出一个能看的网页或小应用",
       "not_for": "需要复杂后端逻辑或私有数据的项目",
       "why_selected": "门槛最低：打开网页，打字，出结果。Vercel 出品，部署一体化。对普通人是目前最省事的起点。",
-      "last_reviewed_at": "2026-09-06"
+      "last_reviewed_at": "2026-09-07"
     },
     {
       "id": "cursor",
@@ -79,7 +79,7 @@
       "best_for": "已经会基本编程，或愿意花一个周末学的人",
       "not_for": "完全不想碰代码的人",
       "why_selected": "目前最好的 AI 辅助编程体验。当你想从'生成'走向'掌控'，这是过渡工具。",
-      "last_reviewed_at": "2026-09-06"
+      "last_reviewed_at": "2026-09-07"
     },
     {
       "id": "notion",
@@ -103,7 +103,7 @@
       "best_for": "想写文章、整理知识、做笔记，偶尔需要 AI 帮忙润色或扩展",
       "not_for": "需要离线 / 完全私有部署的场景",
       "why_selected": "写作体验好，AI 集成自然，中文支持良好。对普通人来说是最自然的'把想法变成文字'的入口。",
-      "last_reviewed_at": "2026-09-06"
+      "last_reviewed_at": "2026-09-07"
     },
     {
       "id": "excalidraw",
@@ -128,7 +128,7 @@
       "best_for": "想快速画一个流程图、示意图、思维导图，不想学复杂工具",
       "not_for": "需要专业精度制图的场景",
       "why_selected": "零门槛：打开网页就能画，不用注册，不用安装。手绘风格让普通人也有表达自信。活跃维护。中文界面可用。",
-      "last_reviewed_at": "2026-09-06"
+      "last_reviewed_at": "2026-09-07"
     },
     {
       "id": "deepseek",
@@ -155,7 +155,7 @@
       "best_for": "想问问题、查资料、理解一个概念、写东西，希望免费且中文友好",
       "not_for": "需要访问被墙资源的场景",
       "why_selected": "对中文用户来说是最省事的 AI 入口：免费、中文好、有深度思考模式、国内可直接访问。无需翻墙，无需 API Key。",
-      "last_reviewed_at": "2026-09-06"
+      "last_reviewed_at": "2026-09-07"
     },
     {
       "id": "n8n",
@@ -181,7 +181,7 @@
       "best_for": "想把重复工作串起来自动跑，不想写代码",
       "not_for": "只是偶尔手动操作一次的场景",
       "why_selected": "可视化拖拽，不用写代码，连接 400+ 应用。Cloud 版免安装。活跃维护。",
-      "last_reviewed_at": "2026-09-06"
+      "last_reviewed_at": "2026-09-07"
     },
     {
       "id": "stirling_pdf",
@@ -210,7 +210,7 @@
       "best_for": "需要处理 PDF 文件（合并、拆分、压缩、转换）",
       "not_for": "需要在线 API 集成的自动化场景（用 n8n 配合）",
       "why_selected": "强大的 PDF 工具箱，桌面版免费下载（Windows/macOS/Linux），也可以自己部署。活跃维护。",
-      "last_reviewed_at": "2026-09-06"
+      "last_reviewed_at": "2026-09-07"
     },
     {
       "id": "gaoding",
