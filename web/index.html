@@ -725,6 +725,20 @@ function restoreProgress() {
   if (Object.keys(completedStages).length >= 4) {
     document.getElementById('startLbl').textContent = '看看你做成了什么 🎉';
     document.getElementById('graduation').style.display = 'block';
+  } else {
+    // Returning user mid-journey: the fallback button should tell the truth about where they are
+    var doneSteps = 0, nextStep = null;
+    for (var k = 1; k <= 10; k++) {
+      var st = document.getElementById('step-' + k);
+      if (!st) continue;
+      if (st.classList.contains('done')) { doneSteps++; }
+      else if (nextStep === null) { nextStep = k; }
+    }
+    if (doneSteps > 0) {
+      document.getElementById('startLbl').textContent = nextStep
+        ? '接着上次继续：第 ' + nextStep + ' 步（共 10 步）'
+        : '接着上次继续';
+    }
   }
   // Open first incomplete stage
   var firstIncomplete = 1;
