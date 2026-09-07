@@ -49,7 +49,7 @@ sticky topbar（品牌 + 总进度 x/10 + 进度条）
 
 - 手风琴聚焦：当前阶段/步骤展开，其余折叠；完成自动折叠 + 滚动到下一步
 - `prefers-reduced-motion` 停用全部动画
-- 移动端（≤480px）触控目标 ≥44px：工具按钮 14px×28px padding、检查点按钮 10px×24px padding
+- 移动端（≤480px）触控目标 ≥44px：复制按钮与检查点按钮 `min-height: 44px`，工具按钮 14px×28px padding
 - 标题语义：阶段标题 h2、步骤标题 h3、完成画面 h2
 - 复制：`navigator.clipboard` → `execCommand` fallback（微信内置浏览器等）
 - 外链一律 `target="_blank" rel="noopener"`

@@ -141,9 +141,9 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
   .stage-header .info .title { font-size: 16px; }
   .stage-body { padding: 0 16px 16px; }
   .prompt-box { font-size: 14px; padding: 12px; padding-top: 36px; }
-  .copy-btn { font-size: 12px; padding: 6px 14px; }
+  .copy-btn { font-size: 12px; padding: 6px 14px; min-height: 44px; }
   .tool-btn { padding: 14px 28px; font-size: 16px; }
-  .checkpoint-btn { padding: 10px 24px; font-size: 15px; }
+  .checkpoint-btn { padding: 10px 24px; font-size: 15px; min-height: 44px; }
   body { font-size: 16px; }
   .topbar .progress-bar { width: 80px; }
   .topbar .progress-text { display: none; }
@@ -585,6 +585,7 @@ function completeStage(n) {
     }
   } else {
     document.getElementById('graduation').style.display = 'block';
+    document.getElementById('startBtn').textContent = '查看你做成的事 →';
     document.getElementById('graduation').scrollIntoView({behavior:'smooth', block:'center'});
   }
   syncAria(document);
