@@ -121,9 +121,9 @@ body {
 .copy-btn:hover { background: var(--accent); color: white; border-color: var(--accent); }
 .copy-btn.copied { background: #15803D; color: white; border-color: #15803D; }
 
-/* Tool button */
-.tool-btn { display: inline-block; padding: 10px 24px; background: var(--accent-strong); color: white; border-radius: var(--radius-sm); font-weight: 600; font-size: 15px; text-decoration: none; margin: 8px 0; transition: background .15s; }
-.tool-btn:hover { background: #1D4ED8; }
+/* Tool button — a.tool-btn (0,1,1) must outrank .step-body a (0,1,1) by order, else link color turns text invisible on blue */
+a.tool-btn { display: inline-block; padding: 10px 24px; background: var(--accent-strong); color: white; border-radius: var(--radius-sm); font-weight: 600; font-size: 15px; text-decoration: none; margin: 8px 0; transition: background .15s; }
+a.tool-btn:hover { background: #1D4ED8; }
 
 /* Checkpoint */
 .checkpoint { margin-top: 16px; padding: 16px; background: var(--leaf-light); border-radius: var(--radius-sm); }
@@ -152,7 +152,7 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
   .stage-body { padding: 0 16px 16px; }
   .prompt-box { font-size: 14px; padding: 12px; padding-top: 36px; }
   .copy-btn { font-size: 12px; padding: 6px 14px; min-height: 44px; }
-  .tool-btn { padding: 14px 28px; font-size: 16px; }
+  a.tool-btn { padding: 14px 28px; font-size: 16px; }
   .intents { grid-template-columns: 1fr; }
   .checkpoint-btn { padding: 10px 24px; font-size: 15px; min-height: 44px; }
   body { font-size: 16px; }
