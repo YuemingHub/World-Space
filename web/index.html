@@ -63,6 +63,11 @@ body {
 .hero .tools { font-size: 14px; color: var(--fg-muted); margin-top: 14px; }
 .hero .tools span { display: inline-block; padding: 4px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; margin: 0 4px; }
 
+/* === Fallback journey heading === */
+.journey-head { max-width: var(--maxw); margin: 0 auto; padding: 4px 24px 14px; text-align: center; }
+.journey-head h2 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+.journey-head p { font-size: 15px; color: var(--fg-muted); }
+
 /* === Overview pills === */
 .overview { max-width: var(--maxw); margin: 0 auto; padding: 0 24px 32px; }
 .overview .row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; align-items: center; }
@@ -121,9 +126,9 @@ body {
 .copy-btn:hover { background: var(--accent); color: white; border-color: var(--accent); }
 .copy-btn.copied { background: #15803D; color: white; border-color: #15803D; }
 
-/* Tool button */
-.tool-btn { display: inline-block; padding: 10px 24px; background: var(--accent-strong); color: white; border-radius: var(--radius-sm); font-weight: 600; font-size: 15px; text-decoration: none; margin: 8px 0; transition: background .15s; }
-.tool-btn:hover { background: #1D4ED8; }
+/* Tool button — a.tool-btn (0,1,1) must outrank .step-body a (0,1,1) by order, else link color turns text invisible on blue */
+a.tool-btn { display: inline-block; padding: 10px 24px; background: var(--accent-strong); color: white; border-radius: var(--radius-sm); font-weight: 600; font-size: 15px; text-decoration: none; margin: 8px 0; transition: background .15s; }
+a.tool-btn:hover { background: #1D4ED8; }
 
 /* Checkpoint */
 .checkpoint { margin-top: 16px; padding: 16px; background: var(--leaf-light); border-radius: var(--radius-sm); }
@@ -150,9 +155,9 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
   .stage-header { padding: 16px; gap: 12px; }
   .stage-header .info .title { font-size: 16px; }
   .stage-body { padding: 0 16px 16px; }
-  .prompt-box { font-size: 14px; padding: 12px; padding-top: 36px; }
+  .prompt-box { font-size: 14px; padding: 12px; padding-top: 62px; }
   .copy-btn { font-size: 12px; padding: 6px 14px; min-height: 44px; }
-  .tool-btn { padding: 14px 28px; font-size: 16px; }
+  a.tool-btn { padding: 14px 28px; font-size: 16px; }
   .intents { grid-template-columns: 1fr; }
   .checkpoint-btn { padding: 10px 24px; font-size: 15px; min-height: 44px; }
   body { font-size: 16px; }
@@ -168,8 +173,8 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
 <div class="topbar">
   <div class="inner">
     <span class="brand">World Space</span>
-    <div style="display:flex;align-items:center;gap:10px">
-      <span class="progress-text" id="progressText">0/10</span>
+    <div id="progressWrap" style="display:none;align-items:center;gap:10px">
+      <span class="progress-text" id="progressText">0/9</span>
       <div class="progress-bar"><div class="fill" id="progressFill" style="width:0%"></div></div>
     </div>
   </div>
@@ -180,13 +185,13 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
   <h1>你想做什么事？</h1>
   <p class="sub">选一件事，马上开始。每件事都替你选好了工具和第一步，照着做就行。</p>
   <div class="intents">
-    <button class="intent-btn" onclick="openIntent(1)"><span class="em">✍️</span>写点东西</button>
+    <button class="intent-btn" id="btn-write" aria-expanded="false" onclick="toggleGoal('goal-write')"><span class="em">✍️</span>写点东西</button>
     <button class="intent-btn" id="btn-poster" aria-expanded="false" onclick="toggleGoal('goal-poster')"><span class="em">🖼️</span>做一张海报</button>
-    <button class="intent-btn" onclick="openIntent(3)"><span class="em">🛠️</span>做个网页</button>
+    <button class="intent-btn" id="btn-web" aria-expanded="false" onclick="toggleGoal('goal-web')"><span class="em">🛠️</span>做个网页</button>
     <button class="intent-btn" id="btn-photo" aria-expanded="false" onclick="toggleGoal('goal-photo')"><span class="em">📷</span>整理手机照片</button>
-    <button class="intent-btn" onclick="openIntent(6)"><span class="em">🔍</span>查明一件事</button>
-    <button class="intent-btn" onclick="openIntent(9)"><span class="em">🗂️</span>整理资料 / 处理 PDF</button>
-    <button class="intent-btn" id="btn-ocr" aria-expanded="false" onclick="toggleGoal('goal-ocr')"><span class="em">🔤</span>提取图片文字</button>
+    <button class="intent-btn" id="btn-find" aria-expanded="false" onclick="toggleGoal('goal-find')"><span class="em">🔍</span>查明一件事</button>
+    <button class="intent-btn" id="btn-organize" aria-expanded="false" onclick="toggleGoal('goal-organize')"><span class="em">🗂️</span>整理资料 / 处理 PDF</button>
+    <button class="intent-btn wide" id="btn-ocr" aria-expanded="false" onclick="toggleGoal('goal-ocr')"><span class="em">🔤</span>提取图片文字</button>
     <button class="intent-btn wide" id="startBtn" onclick="startJourney()"><span class="em">🌱</span><span id="startLbl">不知道从哪开始？跟着 4 步走</span></button>
   </div>
   <div class="goal-panel" id="goal-ocr" role="region" aria-label="提取图片文字">
@@ -242,7 +247,77 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
     </div>
     <button class="close-goal" onclick="closeGoal()">收起</button>
   </div>
+  <div class="goal-panel" id="goal-write" role="region" aria-label="写点东西">
+    <h2>✍️ 写点东西</h2>
+    <p class="goal-sub">不用学写作：把要说的事说清楚，豆包几秒给你一版初稿。</p>
+    <div class="choice"><b>第一步：复制这句话，把括号里换成你的事</b>
+      <div class="prompt-box">帮我写一段话：（说说在哪发、说什么事，比如：发朋友圈，介绍今天带孩子去爬山）语气轻松一点，100 字左右。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
+      <a class="tool-btn" href="https://www.doubao.com" target="_blank" rel="noopener">打开豆包 →</a>
+      <p>它回你初稿后，直接说哪里改：「太正式了」「短一点」「结尾加一句」。改到你能直接用为止。</p>
+    </div>
+    <div class="choice"><b>写更长、更正式的（文章、总结、自我评价）</b>
+      <p>同一件事多交代几句：给谁看、大概多长、必须提到什么。说得越具体，初稿越能用。</p>
+    </div>
+    <div class="choice"><b>如实说</b>
+      <p>⚠️ 初稿里的事实（时间、名字、数字）可能是它猜的，发出去之前自己过一遍。</p>
+    </div>
+    <button class="close-goal" onclick="closeGoal()">收起</button>
+  </div>
+  <div class="goal-panel" id="goal-web" role="region" aria-label="做个网页">
+    <h2>🛠️ 做个网页</h2>
+    <p class="goal-sub">不用学编程：跟豆包说你要什么网页，它直接做出来给你看效果。</p>
+    <div class="choice"><b>第一步：复制这句话，换成你的内容</b>
+      <div class="prompt-box">帮我做一个个人介绍网页。顶部写我的名字。下面放一段自我介绍。然后放一个我做过的事情列表。最下面留联系方式。整体风格简洁好看。做好后直接显示预览效果。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
+      <a class="tool-btn" href="https://www.doubao.com" target="_blank" rel="noopener">打开豆包 →</a>
+      <p>想改哪里直接说：「颜色换成蓝色」「标题大一号」「加一个我的爱好」。</p>
+    </div>
+    <div class="choice"><b>想发布到网上，让别人也能打开</b>
+      <p>豆包给的是对话里的预览。要真正上线，用 <strong>v0</strong>：一句话描述想要的网页，它生成后可以直接发布。免费能开始，用量大了要付费。</p>
+      <a class="tool-btn" href="https://v0.dev" target="_blank" rel="noopener">打开 v0 →</a>
+    </div>
+    <div class="choice"><b>如实说</b>
+      <p>⚠️ 登录、支付、存数据这类复杂功能一句话做不出来——先把最简单的第一版做出来，再一点点加。</p>
+    </div>
+    <button class="close-goal" onclick="closeGoal()">收起</button>
+  </div>
+  <div class="goal-panel" id="goal-find" role="region" aria-label="查明一件事">
+    <h2>🔍 查明一件事</h2>
+    <p class="goal-sub">要查就查得可靠：用 DeepSeek 联网搜真实信息，答案还标来源。</p>
+    <div class="choice"><b>第一步</b>
+      <p>打开 DeepSeek → 打开输入框下方的「深度思考」和「联网搜索」→ 用大白话把问题打出来发送。比如：「2026 年个人开网店的平台有哪些？费用和门槛各是多少？」</p>
+      <a class="tool-btn" href="https://chat.deepseek.com" target="_blank" rel="noopener">打开 DeepSeek →</a>
+    </div>
+    <div class="choice"><b>拿到答案，花 30 秒核实</b>
+      <p>有来源链接的点进去看一眼；涉及钱、政策、法律的，一定去官方渠道再确认；太具体的数据可能是编的；不放心就用豆包再问一遍，对比两个答案。</p>
+    </div>
+    <div class="choice"><b>如实说</b>
+      <p>⚠️ AI 会一本正经地说错话。重要的决定，不要只靠它一句话。</p>
+    </div>
+    <button class="close-goal" onclick="closeGoal()">收起</button>
+  </div>
+  <div class="goal-panel" id="goal-organize" role="region" aria-label="整理资料 / 处理 PDF">
+    <h2>🗂️ 整理资料 / 处理 PDF</h2>
+    <p class="goal-sub">乱文字让 AI 归类，PDF 文件用免费软件处理，都不用花钱。</p>
+    <div class="choice"><b>一堆乱文字（笔记、记录、聊天记录）→ 豆包整理</b>
+      <div class="prompt-box">我有一份资料内容很乱，帮我整理成三部分：现状、主要选择、给我的建议。以下是需要整理的内容：（在这里粘贴你的资料）<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
+      <a class="tool-btn" href="https://www.doubao.com" target="_blank" rel="noopener">打开豆包 →</a>
+    </div>
+    <div class="choice"><b>PDF 文件（合并、拆分、压缩、转格式）→ Stirling PDF</b>
+      <p>免费桌面软件，文件不上传网络。需要电脑：官网下载安装，把文件拖进去，选要做的事，点执行。</p>
+      <a class="tool-btn" href="https://stirling.com" target="_blank" rel="noopener">打开 Stirling PDF 官网 →</a>
+    </div>
+    <div class="choice"><b>如实说</b>
+      <p>⚠️ Stirling PDF 需要电脑，手机上没有——只有手机时，把 PDF 里的文字复制给豆包或 DeepSeek 帮你处理。AI 整理可能漏掉或归错类，重要的自己再核对一遍。</p>
+    </div>
+    <button class="close-goal" onclick="closeGoal()">收起</button>
+  </div>
   <p class="tools">大部分事，<span>豆包</span> <span>DeepSeek</span>就够用；有些事，用手机自带的或现成模板更好。</p>
+</div>
+
+<!-- ============ FALLBACK JOURNEY ============ -->
+<div class="journey-head">
+  <h2>第一次用 AI？跟着 4 步走</h2>
+  <p>不用先学任何东西，每一步都亲手做成一件真事。</p>
 </div>
 
 <!-- ============ OVERVIEW ============ -->
@@ -652,12 +727,16 @@ function completeStage(n) {
     document.getElementById('graduation').scrollIntoView({behavior:'smooth', block:'center'});
   }
   syncAria(document);
+  updateProgress();
   saveProgress();
 }
 function updateProgress() {
   var count = Object.keys(completedSteps).length;
   document.getElementById('progressText').textContent = count + '/' + totalSteps;
   document.getElementById('progressFill').style.width = Math.round(count / totalSteps * 100) + '%';
+  // 进度条属于 4 步路径：课程真正开始后才出现，只带目标来的人不该看到 0/9
+  var started = count > 0 || Object.keys(completedStages).length > 0;
+  document.getElementById('progressWrap').style.display = started ? 'flex' : 'none';
 }
 function copyPrompt(btn) {
   var box = btn.parentElement;
@@ -769,32 +848,20 @@ function restoreProgress() {
 // Keep aria-expanded truthful after any programmatic open/close
 syncAria(document);
 
-// Hero intent buttons: jump straight to the step that gets this exact thing done
-function openIntent(n) {
-  var el = document.getElementById('step-' + n);
-  if (!el) { startJourney(); return; }
-  var stage = el.closest('.stage');
-  document.querySelectorAll('.stage.open').forEach(function(s) { if (s !== stage) s.classList.remove('open'); });
-  stage.classList.add('open');
-  document.querySelectorAll('.step.open').forEach(function(s) { s.classList.remove('open'); });
-  el.classList.add('open');
-  syncAria(document);
-  setTimeout(function() { el.scrollIntoView({behavior:'smooth', block:'center'}); }, 100);
-}
-
-// Goal panels (photos / posters): answers that live outside the AI path
+// Hero intent buttons: every goal gets its own direct answer panel
+var GOAL_BTNS = ['btn-poster', 'btn-photo', 'btn-ocr', 'btn-write', 'btn-web', 'btn-find', 'btn-organize'];
 function toggleGoal(id) {
   var panel = document.getElementById(id);
   var wasOpen = panel.classList.contains('open');
   document.querySelectorAll('.goal-panel.open').forEach(function(p) { p.classList.remove('open'); });
-  ['btn-poster', 'btn-photo', 'btn-ocr'].forEach(function(bid) {
+  GOAL_BTNS.forEach(function(bid) {
     var b = document.getElementById(bid);
     if (b) b.setAttribute('aria-expanded', 'false');
   });
   if (!wasOpen) {
     panel.classList.add('open');
-    var btnMap = { 'goal-poster': 'btn-poster', 'goal-photo': 'btn-photo', 'goal-ocr': 'btn-ocr' };
-    document.getElementById(btnMap[id]).setAttribute('aria-expanded', 'true');
+    var btn = document.getElementById('btn-' + id.replace('goal-', ''));
+    if (btn) { btn.setAttribute('aria-expanded', 'true'); }
     setTimeout(function() { panel.scrollIntoView({behavior:'smooth', block:'start'}); }, 60);
     try { history.replaceState(null, '', '#' + id.replace('goal-', '')); } catch(e) {}
   } else {
@@ -806,10 +873,10 @@ function closeGoal() {
   document.querySelectorAll('.intents .intent-btn[aria-expanded]').forEach(function(b) { b.setAttribute('aria-expanded', 'false'); });
   try { history.replaceState(null, '', location.pathname + location.search); } catch(e) {}
 }
-// Deep link: #photo / #poster / #ocr opens that goal directly (shareable answers)
+// Deep link: shareable answers (#write #web #find #organize #photo #poster #ocr)
 (function () {
   var h = (location.hash || '').replace('#', '').split('?')[0].split('&')[0];
-  var map = { photo: 'btn-photo', poster: 'btn-poster', ocr: 'btn-ocr' };
+  var map = { photo: 'btn-photo', poster: 'btn-poster', ocr: 'btn-ocr', write: 'btn-write', web: 'btn-web', find: 'btn-find', organize: 'btn-organize' };
   if (map[h]) {
     var b = document.getElementById(map[h]);
     if (b) b.click();
