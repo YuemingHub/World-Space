@@ -579,7 +579,17 @@ function restoreProgress() {
   // Graduated: finished the current 3 steps, or completed the old 4-stage path
   var allDone = ALL_STEPS.every(function(id) { return completedSteps[id]; });
   var legacyDone = [1,2,3,4].every(function(s) { return completedStages[s]; });
-  if (allDone || legacyDone) {
+  if (legacyDone && !allDone) {
+    // old full completer: the new 3 steps are a subset of what they already did — mark them honestly
+    for (var i = 0; i < ALL_STEPS.length; i++) {
+      completedSteps[ALL_STEPS[i]] = true;
+      var sel = document.getElementById('step-' + ALL_STEPS[i]);
+      if (sel) { sel.classList.add('done'); sel.querySelector('.step-num').textContent = '✓'; }
+    }
+    saveProgress();
+    allDone = true;
+  }
+  if (allDone) {
     document.getElementById('startLbl').textContent = '看看你做成了什么 🎉';
     document.getElementById('graduation').style.display = 'block';
   } else {
