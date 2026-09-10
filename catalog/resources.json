@@ -1,7 +1,7 @@
 {
   "version": "3.0.0",
   "last_reviewed_at": "2026-09-07",
-  "reviewer_note": "Macro 7 pruning (2026-09-07): removed bolt_new, replit (covered by v0 simpler / cursor deeper), gamma, perplexity (china-restricted alternatives with working domestic defaults), gpt_academic (maintenance unclear + API key), browser_use (requires API key + setup, no UI goal) — §23 rules: stale / not best for audience / tech-circle fashion. All 11 entries re-verified reachable on 2026-09-07 (chat.deepseek.com 429 and gaoding.com 405 on curl are bot-shield artifacts, real fetches confirmed); doubao/deepseek/gaoding/xingtu/yike_album free tiers confirmed; prices NOT hardcoded — use cost_category. used_in 反映当前产品（web 首页入口/4 步路径/目标面板）实际使用位置。2026-09-11: v0 pricing re-verified (free plan $0, $5 monthly credits, 7 msg/day) and v0 now surfaced in goal-web-panel as the publish-online alternative; doubao/deepseek/stirling used_in updated for the four new goal panels (facts unchanged from 09-06/07 verification). 2026-09-11 Mission 2: fallback path shrunk to 3 steps (step-2-make-it-better replaces step-2-make-something-real; step-4-let-tools-work removed — organize/PDF judgment lives in goal-organize-panel).",
+  "reviewer_note": "Macro 7 pruning (2026-09-07): removed bolt_new, replit (covered by v0 simpler / cursor deeper), gamma, perplexity (china-restricted alternatives with working domestic defaults), gpt_academic (maintenance unclear + API key), browser_use (requires API key + setup, no UI goal) — §23 rules: stale / not best for audience / tech-circle fashion. All 11 entries re-verified reachable on 2026-09-07 (chat.deepseek.com 429 and gaoding.com 405 on curl are bot-shield artifacts, real fetches confirmed); doubao/deepseek/gaoding/xingtu/yike_album free tiers confirmed; prices NOT hardcoded — use cost_category. used_in 反映当前产品（web 首页入口/4 步路径/目标面板）实际使用位置。2026-09-11: v0 pricing re-verified (free plan $0, $5 monthly credits, 7 msg/day) and v0 now surfaced in goal-web-panel as the publish-online alternative; doubao/deepseek/stirling used_in updated for the four new goal panels (facts unchanged from 09-06/07 verification). 2026-09-11 Mission 2: fallback path shrunk to 3 steps (step-2-make-it-better replaces step-2-make-something-real; step-4-let-tools-work removed — organize/PDF judgment lives in goal-organize-panel). 2026-09-11 Mission 6: removed 4 product-unused bench entries (n8n, notion, excalidraw, cursor — none referenced by web/paths; recommendation needed periodic re-verification with zero user value). If a future goal needs them, re-research then — the world will have changed anyway. 7 entries remain, all product-surfaced.",
   "resources": [
     {
       "id": "doubao",
@@ -63,79 +63,6 @@
       "last_reviewed_at": "2026-09-11"
     },
     {
-      "id": "cursor",
-      "name": "Cursor",
-      "goal": "A_make_something",
-      "one_line": "AI 代码编辑器，用自然语言指挥它写代码、改代码。",
-      "github": null,
-      "official_url": "https://cursor.com",
-      "source_urls": [
-        "https://cursor.com"
-      ],
-      "license": "Proprietary",
-      "maintenance_status": "active",
-      "difficulty": "medium",
-      "cost_category": "可以免费开始",
-      "pricing_checked_at": "2026-09-06",
-      "pricing_source": "https://cursor.com/pricing",
-      "requires_api_key": false,
-      "china_accessibility": "direct",
-      "recommendation_level": "advanced",
-      "best_for": "已经会基本编程，或愿意花一个周末学的人",
-      "not_for": "完全不想碰代码的人",
-      "why_selected": "目前最好的 AI 辅助编程体验。当你想从'生成'走向'掌控'，这是过渡工具。",
-      "last_reviewed_at": "2026-09-07"
-    },
-    {
-      "id": "notion",
-      "name": "Notion",
-      "goal": "B_express",
-      "one_line": "写作 + 知识管理 + AI 助手，一个页面搞定内容整理和表达。",
-      "github": null,
-      "official_url": "https://notion.so",
-      "source_urls": [
-        "https://notion.so"
-      ],
-      "license": "Proprietary (hosted service)",
-      "maintenance_status": "active",
-      "difficulty": "very_easy",
-      "cost_category": "可以免费开始",
-      "pricing_checked_at": "2026-09-06",
-      "pricing_source": "https://notion.so/pricing",
-      "requires_api_key": false,
-      "china_accessibility": "direct",
-      "recommendation_level": "default",
-      "best_for": "想写文章、整理知识、做笔记，偶尔需要 AI 帮忙润色或扩展",
-      "not_for": "需要离线 / 完全私有部署的场景",
-      "why_selected": "写作体验好，AI 集成自然，中文支持良好。对普通人来说是最自然的'把想法变成文字'的入口。",
-      "last_reviewed_at": "2026-09-07"
-    },
-    {
-      "id": "excalidraw",
-      "name": "Excalidraw",
-      "goal": "B_express",
-      "one_line": "手绘风格白板，打开就能画，不用注册。",
-      "github": "https://github.com/excalidraw/excalidraw",
-      "official_url": "https://excalidraw.com",
-      "source_urls": [
-        "https://excalidraw.com",
-        "https://github.com/excalidraw/excalidraw"
-      ],
-      "license": "MIT",
-      "maintenance_status": "active",
-      "difficulty": "very_easy",
-      "cost_category": "开源免费",
-      "pricing_checked_at": "2026-09-06",
-      "pricing_source": "https://excalidraw.com",
-      "requires_api_key": false,
-      "china_accessibility": "direct",
-      "recommendation_level": "default",
-      "best_for": "想快速画一个流程图、示意图、思维导图，不想学复杂工具",
-      "not_for": "需要专业精度制图的场景",
-      "why_selected": "零门槛：打开网页就能画，不用注册，不用安装。手绘风格让普通人也有表达自信。活跃维护。中文界面可用。",
-      "last_reviewed_at": "2026-09-07"
-    },
-    {
       "id": "deepseek",
       "name": "DeepSeek",
       "goal": "C_understand",
@@ -161,32 +88,6 @@
       "best_for": "想问问题、查资料、理解一个概念、写东西，希望免费且中文友好",
       "not_for": "需要访问被墙资源的场景",
       "why_selected": "对中文用户来说是最省事的 AI 入口：免费、中文好、有深度思考模式、国内可直接访问。无需翻墙，无需 API Key。",
-      "last_reviewed_at": "2026-09-07"
-    },
-    {
-      "id": "n8n",
-      "name": "n8n",
-      "goal": "D_automate",
-      "one_line": "可视化拖拽自动化工具，不用写代码，连接 400+ 应用。",
-      "github": "https://github.com/n8n-io/n8n",
-      "official_url": "https://n8n.io",
-      "source_urls": [
-        "https://n8n.io",
-        "https://github.com/n8n-io/n8n"
-      ],
-      "license": "Sustainable Use License (source available, fair-code)",
-      "license_note": "自己使用/Cloud 可以直接开始；如果准备拿它做商业产品，需要另外看授权。",
-      "maintenance_status": "active",
-      "difficulty": "medium",
-      "cost_category": "自部署免费但有技术门槛；Cloud 有免费试用",
-      "pricing_checked_at": "2026-09-06",
-      "pricing_source": "https://n8n.io/pricing",
-      "requires_api_key": false,
-      "china_accessibility": "direct",
-      "recommendation_level": "default",
-      "best_for": "想把重复工作串起来自动跑，不想写代码",
-      "not_for": "只是偶尔手动操作一次的场景",
-      "why_selected": "可视化拖拽，不用写代码，连接 400+ 应用。Cloud 版免安装。活跃维护。",
       "last_reviewed_at": "2026-09-07"
     },
     {
