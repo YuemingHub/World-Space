@@ -43,6 +43,7 @@ paths/                  兜底路径（3 步，与网页一致）
 web/index.html          公开入口
 index.html              根跳转页
 docs/design/CURRENT_DESIGN.md  当前设计真源
+docs/goal-coverage.md  目标覆盖判断（为什么是这 7 个）
 
 archive/                历史资产
 ```
