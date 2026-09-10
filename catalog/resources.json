@@ -1,7 +1,7 @@
 {
   "version": "3.0.0",
   "last_reviewed_at": "2026-09-07",
-  "reviewer_note": "Macro 7 pruning (2026-09-07): removed bolt_new, replit (covered by v0 simpler / cursor deeper), gamma, perplexity (china-restricted alternatives with working domestic defaults), gpt_academic (maintenance unclear + API key), browser_use (requires API key + setup, no UI goal) — §23 rules: stale / not best for audience / tech-circle fashion. All 11 entries re-verified reachable on 2026-09-07 (chat.deepseek.com 429 and gaoding.com 405 on curl are bot-shield artifacts, real fetches confirmed); doubao/deepseek/gaoding/xingtu/yike_album free tiers confirmed; prices NOT hardcoded — use cost_category. used_in 反映当前产品（web 首页入口/4 步路径/目标面板）实际使用位置。2026-09-11: v0 pricing re-verified (free plan $0, $5 monthly credits, 7 msg/day) and v0 now surfaced in goal-web-panel as the publish-online alternative; doubao/deepseek/stirling used_in updated for the four new goal panels (facts unchanged from 09-06/07 verification).",
+  "reviewer_note": "Macro 7 pruning (2026-09-07): removed bolt_new, replit (covered by v0 simpler / cursor deeper), gamma, perplexity (china-restricted alternatives with working domestic defaults), gpt_academic (maintenance unclear + API key), browser_use (requires API key + setup, no UI goal) — §23 rules: stale / not best for audience / tech-circle fashion. All 11 entries re-verified reachable on 2026-09-07 (chat.deepseek.com 429 and gaoding.com 405 on curl are bot-shield artifacts, real fetches confirmed); doubao/deepseek/gaoding/xingtu/yike_album free tiers confirmed; prices NOT hardcoded — use cost_category. used_in 反映当前产品（web 首页入口/4 步路径/目标面板）实际使用位置。2026-09-11: v0 pricing re-verified (free plan $0, $5 monthly credits, 7 msg/day) and v0 now surfaced in goal-web-panel as the publish-online alternative; doubao/deepseek/stirling used_in updated for the four new goal panels (facts unchanged from 09-06/07 verification). 2026-09-11 Mission 2: fallback path shrunk to 3 steps (step-2-make-it-better replaces step-2-make-something-real; step-4-let-tools-work removed — organize/PDF judgment lives in goal-organize-panel).",
   "resources": [
     {
       "id": "doubao",
@@ -24,8 +24,7 @@
       "recommendation_level": "default",
       "used_in": [
         "step-1-first-small-task",
-        "step-2-make-something-real",
-        "step-4-let-tools-work",
+        "step-2-make-it-better",
         "goal-write-panel",
         "goal-web-panel",
         "goal-organize-panel"
@@ -212,7 +211,6 @@
       "china_accessibility": "direct",
       "recommendation_level": "default",
       "used_in": [
-        "step-4-let-tools-work",
         "goal-organize-panel"
       ],
       "best_for": "需要处理 PDF 文件（合并、拆分、压缩、转换）",
