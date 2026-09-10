@@ -1,7 +1,7 @@
 {
   "version": "3.0.0",
   "last_reviewed_at": "2026-09-07",
-  "reviewer_note": "Macro 7 pruning (2026-09-07): removed bolt_new, replit (covered by v0 simpler / cursor deeper), gamma, perplexity (china-restricted alternatives with working domestic defaults), gpt_academic (maintenance unclear + API key), browser_use (requires API key + setup, no UI goal) — §23 rules: stale / not best for audience / tech-circle fashion. All 11 entries re-verified reachable on 2026-09-07 (chat.deepseek.com 429 and gaoding.com 405 on curl are bot-shield artifacts, real fetches confirmed); doubao/deepseek/gaoding/xingtu/yike_album free tiers confirmed; prices NOT hardcoded — use cost_category. used_in 反映当前产品（web 首页入口/4 步路径/目标面板）实际使用位置。",
+  "reviewer_note": "Macro 7 pruning (2026-09-07): removed bolt_new, replit (covered by v0 simpler / cursor deeper), gamma, perplexity (china-restricted alternatives with working domestic defaults), gpt_academic (maintenance unclear + API key), browser_use (requires API key + setup, no UI goal) — §23 rules: stale / not best for audience / tech-circle fashion. All 11 entries re-verified reachable on 2026-09-07 (chat.deepseek.com 429 and gaoding.com 405 on curl are bot-shield artifacts, real fetches confirmed); doubao/deepseek/gaoding/xingtu/yike_album free tiers confirmed; prices NOT hardcoded — use cost_category. used_in 反映当前产品（web 首页入口/4 步路径/目标面板）实际使用位置。2026-09-11: v0 pricing re-verified (free plan $0, $5 monthly credits, 7 msg/day) and v0 now surfaced in goal-web-panel as the publish-online alternative; doubao/deepseek/stirling used_in updated for the four new goal panels (facts unchanged from 09-06/07 verification).",
   "resources": [
     {
       "id": "doubao",
@@ -25,7 +25,10 @@
       "used_in": [
         "step-1-first-small-task",
         "step-2-make-something-real",
-        "step-4-let-tools-work"
+        "step-4-let-tools-work",
+        "goal-write-panel",
+        "goal-web-panel",
+        "goal-organize-panel"
       ],
       "best_for": "第一次用 AI：聊天、写文案、写文章、做简单网页，全中文，手机电脑都能用",
       "not_for": "需要核查信息来源的严肃查证（用 DeepSeek 更合适）",
@@ -47,7 +50,7 @@
       "maintenance_status": "active",
       "difficulty": "very_easy",
       "cost_category": "可以免费开始",
-      "pricing_checked_at": "2026-09-06",
+      "pricing_checked_at": "2026-09-11",
       "pricing_source": "https://v0.app/pricing",
       "requires_api_key": false,
       "china_accessibility": "direct",
@@ -55,7 +58,10 @@
       "best_for": "完全不会编程，但想快速做出一个能看的网页或小应用",
       "not_for": "需要复杂后端逻辑或私有数据的项目",
       "why_selected": "门槛最低：打开网页，打字，出结果。Vercel 出品，部署一体化。对普通人是目前最省事的起点。",
-      "last_reviewed_at": "2026-09-07"
+      "used_in": [
+        "goal-web-panel"
+      ],
+      "last_reviewed_at": "2026-09-11"
     },
     {
       "id": "cursor",
@@ -150,7 +156,8 @@
       "china_accessibility": "direct",
       "recommendation_level": "default",
       "used_in": [
-        "step-3-find-answers"
+        "step-3-find-answers",
+        "goal-find-panel"
       ],
       "best_for": "想问问题、查资料、理解一个概念、写东西，希望免费且中文友好",
       "not_for": "需要访问被墙资源的场景",
@@ -205,7 +212,8 @@
       "china_accessibility": "direct",
       "recommendation_level": "default",
       "used_in": [
-        "step-4-let-tools-work"
+        "step-4-let-tools-work",
+        "goal-organize-panel"
       ],
       "best_for": "需要处理 PDF 文件（合并、拆分、压缩、转换）",
       "not_for": "需要在线 API 集成的自动化场景（用 n8n 配合）",
