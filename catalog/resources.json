@@ -1,7 +1,7 @@
 {
   "version": "3.0.0",
   "last_reviewed_at": "2026-09-11",
-  "reviewer_note": "Macro 7 pruning (2026-09-07): removed bolt_new, replit (covered by v0 simpler / cursor deeper), gamma, perplexity (china-restricted alternatives with working domestic defaults), gpt_academic (maintenance unclear + API key), browser_use (requires API key + setup, no UI goal) — §23 rules: stale / not best for audience / tech-circle fashion. All 11 entries re-verified reachable on 2026-09-07 (chat.deepseek.com 429 and gaoding.com 405 on curl are bot-shield artifacts, real fetches confirmed); doubao/deepseek/gaoding/xingtu/yike_album free tiers confirmed; prices NOT hardcoded — use cost_category. used_in 反映当前产品（web 首页入口/4 步路径/目标面板）实际使用位置。2026-09-11: v0 pricing re-verified (free plan $0, $5 monthly credits, 7 msg/day) and v0 now surfaced in goal-web-panel as the publish-online alternative; doubao/deepseek/stirling used_in updated for the four new goal panels (facts unchanged from 09-06/07 verification). 2026-09-11 Mission 2: fallback path shrunk to 3 steps (step-2-make-it-better replaces step-2-make-something-real; step-4-let-tools-work removed — organize/PDF judgment lives in goal-organize-panel). 2026-09-11 Mission 6: removed 4 product-unused bench entries (n8n, notion, excalidraw, cursor — none referenced by web/paths; recommendation needed periodic re-verification with zero user value). If a future goal needs them, re-research then — the world will have changed anyway. 2026-09-11 Reality Batch 1: added tingwu (通义听悟) — 会议录音场景压力测试发现缺口，官方计费文档核证新用户免费 90 天、上传文件转写每天免费 2 小时，进入 goal-organize-panel 一个 choice；如实标注要登录、90 天后收费。8 entries, all product-surfaced.",
+  "reviewer_note": "Macro 7 pruning (2026-09-07): removed bolt_new, replit (covered by v0 simpler / cursor deeper), gamma, perplexity (china-restricted alternatives with working domestic defaults), gpt_academic (maintenance unclear + API key), browser_use (requires API key + setup, no UI goal) — §23 rules: stale / not best for audience / tech-circle fashion. All 11 entries re-verified reachable on 2026-09-07 (chat.deepseek.com 429 and gaoding.com 405 on curl are bot-shield artifacts, real fetches confirmed); doubao/deepseek/gaoding/xingtu/yike_album free tiers confirmed; prices NOT hardcoded — use cost_category. used_in 反映当前产品（web 首页入口/4 步路径/目标面板）实际使用位置。2026-09-11: v0 pricing re-verified (free plan $0, $5 monthly credits, 7 msg/day) and v0 now surfaced in goal-web-panel as the publish-online alternative; doubao/deepseek/stirling used_in updated for the four new goal panels (facts unchanged from 09-06/07 verification). 2026-09-11 Mission 2: fallback path shrunk to 3 steps (step-2-make-it-better replaces step-2-make-something-real; step-4-let-tools-work removed — organize/PDF judgment lives in goal-organize-panel). 2026-09-11 Mission 6: removed 4 product-unused bench entries (n8n, notion, excalidraw, cursor — none referenced by web/paths; recommendation needed periodic re-verification with zero user value). If a future goal needs them, re-research then — the world will have changed anyway. 2026-09-11 Reality Batch 1: added tingwu (通义听悟) — 会议录音场景压力测试发现缺口，官方计费文档核证新用户免费 90 天、上传文件转写每天免费 2 小时，进入 goal-organize-panel 一个 choice；如实标注要登录、90 天后收费。8 entries, all product-surfaced. 2026-09-12: 豆包付费计划（2026-05 上线，新京报报道）经免费策略监控触发核实——免费版同一套模型、转每日积分额度制，「免费开始」仍成立；doubao 条目如实更新并给海报面板补「每天免费次数有限」标注。",
   "resources": [
     {
       "id": "doubao",
@@ -16,9 +16,9 @@
       "license": "Proprietary (hosted service)",
       "maintenance_status": "active",
       "difficulty": "very_easy",
-      "cost_category": "免费",
-      "pricing_checked_at": "2026-09-06",
-      "pricing_source": "https://www.doubao.com",
+      "cost_category": "免费开始（2026-05 上线付费计划 68/200/500 元月，免费版转每日额度制，文字与图片生成仍可免费开始）",
+      "pricing_checked_at": "2026-09-12",
+      "pricing_source": "https://www.bjnews.com.cn/detail/1778131853129431.html",
       "requires_api_key": false,
       "china_accessibility": "direct",
       "recommendation_level": "default",
@@ -27,12 +27,13 @@
         "step-2-make-it-better",
         "goal-write-panel",
         "goal-web-panel",
-        "goal-organize-panel"
+        "goal-organize-panel",
+        "goal-poster-panel"
       ],
       "best_for": "第一次用 AI：聊天、写文案、写文章、做简单网页，全中文，手机电脑都能用",
-      "not_for": "需要核查信息来源的严肃查证（用 DeepSeek 更合适）",
-      "why_selected": "对中国普通用户门槛最低：国内直接打开、全中文、免费、手机号/微信即可登录，对话里能直接生成网页并显示预览。",
-      "last_reviewed_at": "2026-09-07"
+      "not_for": "需要核查信息来源的严肃查证（用 DeepSeek 更合适）；每天大量生成图片/视频的重度创作（免费额度按日积分限制）",
+      "why_selected": "对中国普通用户门槛最低：国内直接打开、全中文、免费、手机号/微信即可登录，对话里能直接生成网页并显示预览。2026-09-12 如实更新：豆包 2026-05 上线付费计划（新京报等公开报道），免费版同一套模型、每日积分额度制，免费开始仍然成立；海报面板已加「每天免费次数有限，用完等明天」。",
+      "last_reviewed_at": "2026-09-12"
     },
     {
       "id": "v0",
