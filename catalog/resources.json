@@ -1,7 +1,7 @@
 {
   "version": "3.0.0",
   "last_reviewed_at": "2026-09-11",
-  "reviewer_note": "Macro 7 pruning (2026-09-07): removed bolt_new, replit (covered by v0 simpler / cursor deeper), gamma, perplexity (china-restricted alternatives with working domestic defaults), gpt_academic (maintenance unclear + API key), browser_use (requires API key + setup, no UI goal) — §23 rules: stale / not best for audience / tech-circle fashion. All 11 entries re-verified reachable on 2026-09-07 (chat.deepseek.com 429 and gaoding.com 405 on curl are bot-shield artifacts, real fetches confirmed); doubao/deepseek/gaoding/xingtu/yike_album free tiers confirmed; prices NOT hardcoded — use cost_category. used_in 反映当前产品（web 首页入口/4 步路径/目标面板）实际使用位置。2026-09-11: v0 pricing re-verified (free plan $0, $5 monthly credits, 7 msg/day) and v0 now surfaced in goal-web-panel as the publish-online alternative; doubao/deepseek/stirling used_in updated for the four new goal panels (facts unchanged from 09-06/07 verification). 2026-09-11 Mission 2: fallback path shrunk to 3 steps (step-2-make-it-better replaces step-2-make-something-real; step-4-let-tools-work removed — organize/PDF judgment lives in goal-organize-panel). 2026-09-11 Mission 6: removed 4 product-unused bench entries (n8n, notion, excalidraw, cursor — none referenced by web/paths; recommendation needed periodic re-verification with zero user value). If a future goal needs them, re-research then — the world will have changed anyway. 2026-09-11 Reality Batch 1: added tingwu (通义听悟) — 会议录音场景压力测试发现缺口，官方计费文档核证新用户免费 90 天、上传文件转写每天免费 2 小时，进入 goal-organize-panel 一个 choice；如实标注要登录、90 天后收费。8 entries, all product-surfaced. 2026-09-12: 豆包付费计划（2026-05 上线，新京报报道）经免费策略监控触发核实——免费版同一套模型、转每日积分额度制，「免费开始」仍成立；doubao 条目如实更新并给海报面板补「每天免费次数有限」标注。2026-09-12 复核预分诊（约 2026-10 中旬全量复核时按此顺序）：① yike_album（丢照片投诉+官网 SSL 异常史，声誉风险最高）② gaoding（水印/商用授权/免费额度易漂移）③ tingwu（90 天试用条款在走钟）④ stirling_pdf（桌面版下载页状态）⑤ v0（额度）⑥ xingtu ⑦ doubao（2026-09-12 刚核）⑧ deepseek（2026-09-12 刚核）。",
+  "reviewer_note": "Macro 7 pruning (2026-09-07): removed bolt_new, replit (covered by v0 simpler / cursor deeper), gamma, perplexity (china-restricted alternatives with working domestic defaults), gpt_academic (maintenance unclear + API key), browser_use (requires API key + setup, no UI goal) — §23 rules: stale / not best for audience / tech-circle fashion. All 11 entries re-verified reachable on 2026-09-07 (chat.deepseek.com 429 and gaoding.com 405 on curl are bot-shield artifacts, real fetches confirmed); doubao/deepseek/gaoding/xingtu/yike_album free tiers confirmed; prices NOT hardcoded — use cost_category. used_in 反映当前产品（web 首页入口/4 步路径/目标面板）实际使用位置。2026-09-11: v0 pricing re-verified (free plan $0, $5 monthly credits, 7 msg/day) and v0 now surfaced in goal-web-panel as the publish-online alternative; doubao/deepseek/stirling used_in updated for the four new goal panels (facts unchanged from 09-06/07 verification). 2026-09-11 Mission 2: fallback path shrunk to 3 steps (step-2-make-it-better replaces step-2-make-something-real; step-4-let-tools-work removed — organize/PDF judgment lives in goal-organize-panel). 2026-09-11 Mission 6: removed 4 product-unused bench entries (n8n, notion, excalidraw, cursor — none referenced by web/paths; recommendation needed periodic re-verification with zero user value). If a future goal needs them, re-research then — the world will have changed anyway. 2026-09-11 Reality Batch 1: added tingwu (通义听悟) — 会议录音场景压力测试发现缺口，官方计费文档核证新用户免费 90 天、上传文件转写每天免费 2 小时，进入 goal-organize-panel 一个 choice；如实标注要登录、90 天后收费。8 entries, all product-surfaced. 2026-09-12: 豆包付费计划（2026-05 上线，新京报报道）经免费策略监控触发核实——免费版同一套模型、转每日积分额度制，「免费开始」仍成立；doubao 条目如实更新并给海报面板补「每天免费次数有限」标注。2026-09-12 复核预分诊（约 2026-10 中旬全量复核时按此顺序）：① yike_album（丢照片投诉+官网 SSL 异常史，声誉风险最高）② gaoding（水印/商用授权/免费额度易漂移）③ tingwu（90 天试用条款在走钟）④ stirling_pdf（桌面版下载页状态）⑤ v0（额度）⑥ xingtu ⑦ doubao（2026-09-12 刚核）⑧ deepseek（2026-09-12 刚核）。2026-09-12 Reality Batch 7: added jianying（剪映）——「把照片做成视频」场景压测发现缺口，官网核证「一键成片」在售、基础免费，以一个 choice 进入 goal-photo-panel；如实标注部分模板/音色要会员。9 entries, all product-surfaced.",
   "resources": [
     {
       "id": "doubao",
@@ -230,6 +230,33 @@
       "not_for": "每天要转大量录音的人（文件转写免费额度每天 2 小时，90 天后收费）",
       "why_selected": "官方计费文档核证（2026-09-11）：新用户免费试用 90 天，上传音视频文件转写每天免费 2 小时、实时记录每天 48 小时；转文字+总结一体化，国内直连。如实标注：要登录，90 天后收费。豆包「录音转写」登录态未核证，未采用。",
       "last_reviewed_at": "2026-09-11"
+    },
+    {
+      "id": "jianying",
+      "name": "剪映",
+      "goal": "F_organize_photos",
+      "one_line": "字节出品的视频剪辑 App，「一键成片」把照片自动配乐做成视频。",
+      "github": null,
+      "official_url": "https://www.jianying.com",
+      "source_urls": [
+        "https://www.jianying.com"
+      ],
+      "license": "Proprietary",
+      "maintenance_status": "active",
+      "difficulty": "very_easy",
+      "cost_category": "免费（部分模板/AI 音色要会员）",
+      "pricing_checked_at": "2026-09-12",
+      "pricing_source": "https://www.jianying.com",
+      "requires_api_key": false,
+      "china_accessibility": "direct",
+      "recommendation_level": "default",
+      "used_in": [
+        "goal-photo-panel"
+      ],
+      "best_for": "把手机里的照片做成能发朋友圈/群的音乐相册、展示视频",
+      "not_for": "精细专业剪辑；需要完全免费无任何会员提示的重度使用",
+      "why_selected": "国民级剪辑工具，官网主推「一键成片/图文成片」零门槛（2026-09-12 官网核证功能在售；基础功能免费、部分高级模板与 AI 配音音色需会员，如实标注）。仅以「一键成片」进照片面板，不推荐复杂剪辑。",
+      "last_reviewed_at": "2026-09-12"
     }
   ]
 }
