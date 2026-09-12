@@ -57,6 +57,20 @@ ok('F1 根因确认：词表确实漏掉 血氧阈值/体检时机 样本', clai
   ok('F1 正控（high_risk + official_primary）→ 保留', g.resources.length === 1 && res(g).high_risk === true && res(g).source_type === 'official_primary', JSON.stringify(g.resources));
 }
 
+// ── 时效旗标：高风险资源的证据过旧或时间未知 → 如实标注；近期 → 不标 ──
+{
+  const oldEv = evidenceTable([{ title: '旧文', url: 'https://synthetic-test.gov.cn/news/201910/t20191030_1.shtml', snippet: '旧报道', published_at: '' }]);
+  const freshEv = evidenceTable([{ title: '新文', url: 'https://synthetic-test.gov.cn/news/202507/t20250709_1.shtml', snippet: '新文', published_at: '' }]);
+  const r = { name: '延续护理入口', type: 'service', why: '出院后换药', claim: '有医院开通线上预约上门换药入口', evidence_id: 'e1', confidence: 'medium' };
+  const gOld = guard({ understanding: 'x', needs_clarification: false, questions: [], safe_next_action: null, recommended_path: null, resources: [r], uncertainties: [], reality_feedback_prompt: '', fallback_if_refused: '' }, oldEv);
+  ok('时效旗标（2019 证据 + 高风险）→ 标注较旧', gOld.uncertainties.some(u => u.indexOf('较旧') !== -1 && u.indexOf('延续护理入口') !== -1) && hasAct(gOld, 'resource_freshness_flagged'), JSON.stringify(gOld.uncertainties));
+  const gFresh = guard({ understanding: 'x', needs_clarification: false, questions: [], safe_next_action: null, recommended_path: null, resources: [r], uncertainties: [], reality_feedback_prompt: '', fallback_if_refused: '' }, freshEv);
+  ok('时效旗标（2025 证据）→ 不标', !hasAct(gFresh, 'resource_freshness_flagged'), JSON.stringify(gFresh.meta.guard_actions));
+  const noYear = evidenceTable([{ title: '无年份页', url: 'https://synthetic-test.gov.cn/doc', snippet: '正文', published_at: '' }]);
+  const gNone = guard({ understanding: 'x', needs_clarification: false, questions: [], safe_next_action: null, recommended_path: null, resources: [r], uncertainties: [], reality_feedback_prompt: '', fallback_if_refused: '' }, noYear);
+  ok('时效旗标（时间未知）→ 标注需核对', gNone.uncertainties.some(u => u.indexOf('未能确认发布时间') !== -1), JSON.stringify(gNone.uncertainties));
+}
+
 // ── F2：路径与资源同一把尺 ──
 const PKG = (path) => ({ understanding: 'x', needs_clarification: false, questions: [], safe_next_action: '先把事情记录下来。', recommended_path: path, resources: [], uncertainties: [], reality_feedback_prompt: '', fallback_if_refused: '' });
 {

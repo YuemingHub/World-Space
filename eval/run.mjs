@@ -129,9 +129,10 @@ for (const item of items) {
   } catch (e) { r = { status: 0, body: { error: String(e.message || e) } }; }
   const j = judge(item, r);
   const m = r.body.meta || {};
-  rows.push({ item, r, j, ms: Date.now() - t0, m });
+  const ms = Date.now() - t0;
+  rows.push({ item, r, j, ms, m });
   const tag = j.p0.length ? 'P0' : (j.rejected ? 'REJ' : (j.p1.length ? 'P1' : 'ok'));
-  console.log(`${tag.padEnd(3)} ${item.id.padEnd(6)} ${String(j.p0.length).padStart(2)}P0/${String(j.p1.length).padStart(2)}P1/${String((j.cands || []).length).padStart(2)}候选  ${String(m.llm_calls || 0)}llm+${String(m.search_calls || 0)}srch  ${(m.request_cost_rmb || 0).toFixed(4)}元  ${x.ms}ms  ${j.p0[0] || j.p1[0] || (j.cands || [])[0] || j.note[0] || ''}`);
+  console.log(`${tag.padEnd(3)} ${item.id.padEnd(6)} ${String(j.p0.length).padStart(2)}P0/${String(j.p1.length).padStart(2)}P1/${String((j.cands || []).length).padStart(2)}候选  ${String(m.llm_calls || 0)}llm+${String(m.search_calls || 0)}srch  ${(m.request_cost_rmb || 0).toFixed(4)}元  ${ms}ms  ${j.p0[0] || j.p1[0] || (j.cands || [])[0] || j.note[0] || ''}`);
 }
 
 const p0n = rows.filter(x => x.j.p0.length).length;

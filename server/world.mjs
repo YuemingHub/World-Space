@@ -64,7 +64,10 @@ const CFG = {
 
 /* ── 预算：读不到就停，不静默放行 ─────────────────────────── */
 let MEM = { day: today(), calls: 0, month: thisMonth(), cost: 0 };
-function today() { return new Date().toISOString().slice(0, 10); }
+function today() { // 本地日期。此前用 UTC：每天有 8 小时模型会拿到"昨天"的日期，日额度也在早上 8 点才重置
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
 function thisMonth() { return today().slice(0, 7); }
 function roll(s) {
   if (s.day !== today()) { s.day = today(); s.calls = 0; }
@@ -199,7 +202,7 @@ const SYSTEM = [
   `输出结构（${'questions 里每一项必须是对象'}）：${SHAPE}`,
 ].join('\n');
 const TRIAGE_OUT = '输出 {"needs_search":boolean,"search_query":string,"draft":<上面的结构>}';
-const COMPOSE_OUT = '只能引用给出的证据 id；按上面的结构输出完整契约，不要改变结构';
+const COMPOSE_OUT = '只能引用给出的证据 id；按上面的结构输出完整契约，不要改变结构。可用证据里与用户下一步真正相关的，应做成 resources（最多 3 条）；确实没有相关的才留空';
 
 /* ── HTTP：同源静态页 + 收费 API 的来源边界 ────────────────── */
 function isLocalOrigin(o) { return /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(o); }

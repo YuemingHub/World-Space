@@ -70,6 +70,16 @@ export function guard(c, ev) {
       downgrades.push(`${x.name}：量化结论的证据未获授权，已降级为低置信线索，行动前请自行核实`);
       acts.push('resource_downgraded_unverified_important');
     }
+    /* 时效旗标：高风险资源的证据若确认较旧或无法确认发布时间，如实标注"是否现行需核对"。
+       （真实复放：2019 年媒体转载被当成现行入口；provider 常不给发布时间，退而从 URL 提取年份。） */
+    if (x.risk === 'high_risk') {
+      const pubYear = (String(x.published_at || '').match(/(20\d{2})/) || (String(x.source_url || '').match(/(20\d{2})/)) || [])[1];
+      const age = pubYear ? new Date().getFullYear() - Number(pubYear) : null;
+      if (age === null || age > 3) {
+        downgrades.push(`${x.name}：该证据${age === null ? '未能确认发布时间' : `发布于 ${pubYear} 年，较旧`}，口径是否仍然现行请在行动前核对`);
+        acts.push('resource_freshness_flagged');
+      }
+    }
     return x;
   }).filter(Boolean);
 
