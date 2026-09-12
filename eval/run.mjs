@@ -121,11 +121,12 @@ const okn = rows.length - p0n - p1n - rejn;
 const reqCost = rows.reduce((a, x) => a + (Number(x.m.request_cost_rmb) || 0), 0);
 const llm = rows.reduce((a, x) => a + (Number(x.m.llm_calls) || 0), 0);
 const srch = rows.reduce((a, x) => a + (Number(x.m.search_calls) || 0), 0);
+const offline = rows.some(x => x.m.model === 'stub' || x.m.evidence_fixture);
 console.log(`\n共 ${rows.length} 条：P0 ${p0n}｜仅 P1 ${p1n}｜被拦下 ${rejn}｜通过 ${okn}`);
-console.log(`provider 调用：LLM ${llm} 次 + 搜索 ${srch} 次；本轮 request 合计 ${reqCost.toFixed(4)} 元（月累计见 /healthz）`);
+console.log(`${offline ? '【离线桩 / fixture 搜索，不是真实 provider 调用】' : '真实 provider 调用：'}LLM ${llm} 次 + 搜索 ${srch} 次；本轮 request 合计 ${reqCost.toFixed(4)} 元（月累计见 /healthz）`);
 
 if (OUT) {
-  let md = `# 压测报告\n\n- 时间：${new Date().toISOString()}\n- 目标：${BASE}\n- 条数：${rows.length}\n- P0 ${p0n}｜仅 P1 ${p1n}｜被拦下 ${rejn}｜通过 ${okn}\n- provider 调用：LLM ${llm} + 搜索 ${srch}；request 合计 ${reqCost.toFixed(4)} 元\n\n> 自动检查只覆盖机器能判的部分；P0 的语义判定（编造资源、失效政策当现行、高风险误指路）看下面每条原始输出。\n\n`;
+  let md = `# 压测报告\n\n- 时间：${new Date().toISOString()}\n- 目标：${BASE}\n- 条数：${rows.length}\n- P0 ${p0n}｜仅 P1 ${p1n}｜被拦下 ${rejn}｜通过 ${okn}\n- ${offline ? '**离线桩 / fixture 搜索，不是真实 provider 调用**' : '真实 provider 调用'}：LLM ${llm} + 搜索 ${srch}；request 合计 ${reqCost.toFixed(4)} 元\n\n> 自动检查只覆盖机器能判的部分；P0 的语义判定（编造资源、失效政策当现行、高风险误指路）看下面每条原始输出。\n\n`;
   rows.forEach(x => {
     md += `## ${x.item.id} — ${x.item.intent}\n\n风险 ${x.item.risk}｜判定 ${x.j.p0.length ? '**P0**' : (x.j.rejected ? '被拦下' : (x.j.p1.length ? 'P1' : 'ok'))}｜llm ${x.m.llm_calls || 0} 搜索 ${x.m.search_calls || 0}｜${(x.m.request_cost_rmb || 0).toFixed(4)} 元\n\n`;
     if (x.j.p0.length) md += `**P0**\n${x.j.p0.map(s => `- ${s}`).join('\n')}\n\n`;
