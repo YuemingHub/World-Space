@@ -131,7 +131,7 @@ for (const item of items) {
   const m = r.body.meta || {};
   rows.push({ item, r, j, ms: Date.now() - t0, m });
   const tag = j.p0.length ? 'P0' : (j.rejected ? 'REJ' : (j.p1.length ? 'P1' : 'ok'));
-  console.log(`${tag.padEnd(3)} ${item.id.padEnd(6)} ${String(j.p0.length).padStart(2)}P0/${String(j.p1.length).padStart(2)}P1/${String((j.cands || []).length).padStart(2)}候选  ${String(m.llm_calls || 0)}llm+${String(m.search_calls || 0)}srch  ${(m.request_cost_rmb || 0).toFixed(4)}元  ${j.p0[0] || j.p1[0] || (j.cands || [])[0] || j.note[0] || ''}`);
+  console.log(`${tag.padEnd(3)} ${item.id.padEnd(6)} ${String(j.p0.length).padStart(2)}P0/${String(j.p1.length).padStart(2)}P1/${String((j.cands || []).length).padStart(2)}候选  ${String(m.llm_calls || 0)}llm+${String(m.search_calls || 0)}srch  ${(m.request_cost_rmb || 0).toFixed(4)}元  ${x.ms}ms  ${j.p0[0] || j.p1[0] || (j.cands || [])[0] || j.note[0] || ''}`);
 }
 
 const p0n = rows.filter(x => x.j.p0.length).length;
@@ -143,7 +143,12 @@ const llm = rows.reduce((a, x) => a + (Number(x.m.llm_calls) || 0), 0);
 const srch = rows.reduce((a, x) => a + (Number(x.m.search_calls) || 0), 0);
 const candsN = rows.reduce((a, x) => a + ((x.j.cands || []).length), 0);
 const offline = rows.some(x => x.m.model === 'stub' || x.m.evidence_fixture);
+const lat = rows.map(x => x.ms).sort((a, b) => a - b);
+const p = q => lat.length ? Math.round(lat[Math.min(lat.length - 1, Math.floor((q / 100) * lat.length))]) : 0;
+const retries = rows.reduce((a, x) => a + (Number(x.m.llm_retry_count) || 0), 0);
+const searched = rows.filter(x => Number(x.m.search_calls || 0) > 0).length;
 console.log(`\n共 ${rows.length} 条：P0 ${p0n}｜自动判 P1 ${p1n}｜被拦下 ${rejn}｜通过 ${okn}｜候选待人工裁决 ${candsN}`);
+console.log(`性能/成本画像：延迟 p50 ${p(50)}ms｜p95 ${p(95)}ms｜max ${lat[lat.length - 1] || 0}ms｜平均 ${(lat.reduce((a, b) => a + b, 0) / (lat.length || 1)).toFixed(0)}ms；重试 ${retries} 次（重试率 ${(retries / (rows.length || 1) * 100).toFixed(0)}%）；触发搜索 ${searched}/${rows.length} 条；单条最贵 ${(rows.reduce((a, x) => Math.max(a, Number(x.m.request_cost_rmb) || 0), 0)).toFixed(4)} 元`);
 console.log(`注意：候选只由 must_ask_semantic 的表达式变体给出提示，不构成 P1；最终 P1 见人工复核文档。`);
 console.log(`${offline ? '【离线桩 / fixture 搜索，不是真实 provider 调用】' : '真实 provider 调用：'}LLM ${llm} 次 + 搜索 ${srch} 次；本轮 request 合计 ${reqCost.toFixed(4)} 元（月累计见 /healthz）`);
 

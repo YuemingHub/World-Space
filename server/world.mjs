@@ -19,9 +19,9 @@
  */
 import http from 'node:http';
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { dirname, join, normalize, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { evidenceTable, minimizeQuery } from './evidence.mjs';
+import { evidenceTable, minimizeQuery, filterLive } from './evidence.mjs';
 import { PROVIDERS, KNOWN } from './search.mjs';
 import { guard } from './guard.mjs';
 import { validate } from './validate.mjs';
@@ -55,6 +55,11 @@ const CFG = {
   // 真实 provider 模式必须 fail closed；桩/fixture 模式成本为 0，允许内存兜底以便回归
   failClosed: process.env.WS_BUDGET_FAIL_CLOSED ? process.env.WS_BUDGET_FAIL_CLOSED === '1'
     : (process.env.WS_PROVIDER || 'stub') !== 'stub',
+  // 部署边界：来源白名单（逗号分隔）、每 IP 每分钟请求上限、F3 链接存活检查
+  liveness: process.env.WS_LIVENESS !== '0',
+  rateLimitPerMin: Number(process.env.WS_RATE_LIMIT || 20),
+  allowedOrigins: (process.env.WS_ALLOWED_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean),
+  webDir: join(HERE, '..', 'web', 'v2'),
 };
 
 /* ── 预算：读不到就停，不静默放行 ─────────────────────────── */
@@ -94,18 +99,17 @@ function overCap(s) {
   return null;
 }
 
-/* ── 本轮调用计量（真实次数与真实成本，分开记）───────────── */
-const usage = { llm_calls: 0, search_calls: 0, request_cost_rmb: 0, llm_retries: 0 };
-function countCall(s, cost) {
+/* ── 本轮调用计量：request-local，绝不在请求间共享（并发回归盯住这一点）── */
+function countCall(s, usage, cost) {
   s.calls += 1;
   s.cost = Math.round((s.cost + cost) * 1e6) / 1e6;
   usage.request_cost_rmb = Math.round((usage.request_cost_rmb + cost) * 1e6) / 1e6;
   if (!persist(s)) throw new Error('budget_guard_unavailable');
 }
 
-async function llm(s, system, user) {
+async function llm(s, usage, system, user) {
   if (CFG.provider === 'stub') {
-    countCall(s, 0);
+    countCall(s, usage, 0);
     usage.llm_calls += 1;
     const fx = JSON.parse(readFileSync(join(HERE, 'fixtures', 'stub.json'), 'utf8'))[CFG.stubCase];
     return system.indexOf('STAGE: compose') !== -1 ? (fx.compose || fx.triage) : fx.triage;
@@ -122,7 +126,7 @@ async function llm(s, system, user) {
   if (!res.ok) throw new Error(`llm_http_${res.status}`);
   const j = await res.json();
   const u = j.usage || {};
-  countCall(s, ((u.prompt_tokens || 0) / 1000) * CFG.priceInPer1k + ((u.completion_tokens || 0) / 1000) * CFG.priceOutPer1k);
+  countCall(s, usage, ((u.prompt_tokens || 0) / 1000) * CFG.priceInPer1k + ((u.completion_tokens || 0) / 1000) * CFG.priceOutPer1k);
   usage.llm_calls += 1;
   return ((j.choices && j.choices[0] && j.choices[0].message) || {}).content || '';
 }
@@ -130,9 +134,9 @@ async function llm(s, system, user) {
 /* F4：真实 pilot 里 6% 的响应解析失败。同一任务、同一 schema 只重试一次；
    每次尝试都照常计入预算（llm 内部 countCall），不重搜、不改意图、不新增问题。
    两次都失败就 fail closed（502），不产出"差不多能用"的答案。 */
-async function llmJson(s, system, user) {
+async function llmJson(s, usage, system, user) {
   for (let attempt = 1; attempt <= 2; attempt++) {
-    const out = await llm(s, system, user);
+    const out = await llm(s, usage, system, user);
     if (out && typeof out === 'object') return out; // 桩模式直接返回对象
     try { return parseJsonLoose(out); }
     catch (e) {
@@ -152,18 +156,25 @@ function parseJsonLoose(txt) {
   throw new Error('llm_bad_json');
 }
 
-async function runSearch(s, query) {
+async function runSearch(s, usage, query) {
   if (CFG.search === 'none') return { skipped: 'no_search_provider', items: [] };
   if (CFG.search === 'fixture') {
-    countCall(s, 0);
+    countCall(s, usage, 0);
     usage.search_calls += 1;
-    return { items: JSON.parse(readFileSync(join(HERE, 'fixtures', 'search.json'), 'utf8')).items, note: 'fixture_search' };
+    return { items: JSON.parse(readFileSync(join(HERE, 'fixtures', 'search.json'), 'utf8')).items, note: 'fixture_search', liveness_dropped: 0 };
   }
   if (!CFG.searchKey) return { skipped: 'no_search_key', items: [] };
   if (!KNOWN.includes(CFG.search)) return { skipped: 'unknown_provider', items: [] };
-  countCall(s, CFG.priceSearch);
+  countCall(s, usage, CFG.priceSearch);
   usage.search_calls += 1;
-  return { items: await PROVIDERS[CFG.search](CFG, query) };
+  let items = await PROVIDERS[CFG.search](CFG, query);
+  let liveness_dropped = 0;
+  if (CFG.liveness && items.length) {
+    const lr = await filterLive(items);
+    items = lr.items;
+    liveness_dropped = lr.dropped;
+  }
+  return { items, liveness_dropped };
 }
 
 /* ── 提示词：只给 id，不给它复制 URL 的机会 ───────────────── */
@@ -190,13 +201,41 @@ const SYSTEM = [
 const TRIAGE_OUT = '输出 {"needs_search":boolean,"search_query":string,"draft":<上面的结构>}';
 const COMPOSE_OUT = '只能引用给出的证据 id；按上面的结构输出完整契约，不要改变结构';
 
-/* ── HTTP ─────────────────────────────────────────────────── */
-function json(res, code, body) {
-  res.writeHead(code, {
-    'content-type': 'application/json; charset=utf-8',
-    'access-control-allow-origin': '*', 'access-control-allow-headers': 'content-type',
-    'access-control-allow-methods': 'POST, OPTIONS, GET',
-  });
+/* ── HTTP：同源静态页 + 收费 API 的来源边界 ────────────────── */
+function isLocalOrigin(o) { return /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(o); }
+function corsFor(req) {
+  const o = req.headers.origin || '';
+  const allowed = !o || isLocalOrigin(o) || CFG.allowedOrigins.includes(o);
+  const headers = allowed && o ? {
+    'access-control-allow-origin': o, 'access-control-allow-headers': 'content-type',
+    'access-control-allow-methods': 'POST, OPTIONS, GET', vary: 'Origin',
+  } : {};
+  return { allowed, headers };
+}
+/* 极薄滥用防护：每 IP 每分钟计数（内存，非预算账本；预算账本永远走文件 fail closed） */
+const hits = new Map();
+function rateLimited(req) {
+  const ip = req.socket.remoteAddress || '?';
+  const now = Date.now();
+  if (hits.size > 10000) hits.clear();
+  const h = hits.get(ip);
+  if (!h || now - h.t0 > 60000) { hits.set(ip, { t0: now, n: 1 }); return false; }
+  h.n += 1;
+  return h.n > CFG.rateLimitPerMin;
+}
+const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml' };
+function serveStatic(req, res, corsH) {
+  let p = req.url === '/' ? '/index.html' : req.url.split('?')[0];
+  const file = join(CFG.webDir, normalize(p).replace(/^([.][.][/\\])+/, ''));
+  if (!file.startsWith(CFG.webDir)) return false;
+  let data;
+  try { data = readFileSync(file); } catch (e) { return false; }
+  res.writeHead(200, Object.assign({ 'content-type': MIME[extname(file)] || 'application/octet-stream', 'cache-control': 'no-cache' }, corsH));
+  res.end(req.method === 'HEAD' ? undefined : data);
+  return true;
+}
+function json(res, code, body, corsH = {}) {
+  res.writeHead(code, Object.assign({ 'content-type': 'application/json; charset=utf-8' }, corsH));
   res.end(JSON.stringify(body));
 }
 function readBody(req) {
@@ -210,56 +249,75 @@ function readBody(req) {
 
 const server = http.createServer(async (req, res) => {
   const t0 = Date.now();
-  if (req.method === 'OPTIONS') return json(res, 204, {});
+  const { allowed, headers: corsH } = corsFor(req);
+  if (req.method === 'OPTIONS') {
+    if (!allowed) { res.writeHead(403); return res.end(); }
+    res.writeHead(204, corsH);
+    return res.end();
+  }
   if (req.url === '/healthz') {
     const b = loadBudget();
     return json(res, 200, {
       ok: true, provider: CFG.provider, search: CFG.search, model: CFG.llmModel || 'stub',
       // 只报告"配没配"，绝不回显 key
       search_configured: CFG.search === 'fixture' ? true : (CFG.search !== 'none' && !!CFG.searchKey),
+      origins_configured: CFG.allowedOrigins.length > 0, rate_limit_per_min: CFG.rateLimitPerMin,
+      liveness: CFG.liveness,
       budget_mode: b.mode, today_calls: b.state ? b.state.calls : null,
       month_cost_rmb: b.state ? b.state.cost : null,
       daily_cap: CFG.dailyCap, monthly_cap_rmb: CFG.monthlyCapRmb, fail_closed: CFG.failClosed,
-    });
+    }, corsH);
   }
-  if (req.method !== 'POST' || req.url !== '/api/world') return json(res, 404, { error: 'only POST /api/world exists' });
+  if (req.method === 'POST' && req.url === '/api/world') {
+    if (!allowed) return json(res, 403, { error: 'origin_not_allowed' });
+    if (rateLimited(req)) return json(res, 429, {
+      error: 'rate_limited', fallback_if_refused: '这一分钟请求太密了。等一分钟再试；期间可以先把要做的事写下来。',
+    }, corsH);
+    return handleWorld(req, res, corsH, t0);
+  }
+  if (req.method === 'GET' && serveStatic(req, res, corsH)) return;
+  return json(res, 404, { error: 'only POST /api/world exists' });
+});
 
-  usage.llm_calls = 0; usage.search_calls = 0; usage.request_cost_rmb = 0; usage.llm_retries = 0;
+async function handleWorld(req, res, corsH, t0) {
+  // 每个请求一份计数器；并发请求互不可见（并发回归自测盯住这一点）
+  const usage = { llm_calls: 0, search_calls: 0, request_cost_rmb: 0, llm_retries: 0 };
   const b = loadBudget();
   if (!b.state) return json(res, 503, {
     error: 'budget_guard_unavailable', reason: b.error,
     fallback_if_refused: '预算护栏读不到状态时不产生付费调用。稍后再试，或走手工路径：把意图改写成 3 个搜索词自己去官方站点核对。',
-  });
+  }, corsH);
   const s = b.state;
   const cap = overCap(s);
   if (cap) return json(res, 429, {
     error: 'budget_exceeded', limit: cap, daily_cap: CFG.dailyCap, month_cost_rmb: s.cost,
     fallback_if_refused: '今天额度用完：把这件事改写成几个关键词，优先查对应的官方机构、实际服务提供方或真实平台；仍无法判断时，再找这个领域的人工客服、专业人员或现实中的人确认。',
-  });
+  }, corsH);
 
   let body;
-  try { body = await readBody(req); } catch (e) { return json(res, 400, { error: e.message }); }
+  try { body = await readBody(req); } catch (e) { return json(res, 400, { error: e.message }, corsH); }
   const intent = String(body.intent || '').trim();
-  if (intent.length < 2) return json(res, 400, { error: 'intent_too_short' });
-  if (intent.length > 500) return json(res, 400, { error: 'intent_too_long' });
+  if (intent.length < 2) return json(res, 400, { error: 'intent_too_short' }, corsH);
+  if (intent.length > 500) return json(res, 400, { error: 'intent_too_long' }, corsH);
   const ctx = JSON.stringify({ intent, answers: Array.isArray(body.answers) ? body.answers.slice(0, 4) : [], today: today() });
 
   let out;
   const sMeta = {};
   try {
-    const tri = await llmJson(s, `${SYSTEM}\nSTAGE: triage\n${TRIAGE_OUT}`, `输入：${ctx}`);
+    const tri = await llmJson(s, usage, `${SYSTEM}\nSTAGE: triage\n${TRIAGE_OUT}`, `输入：${ctx}`);
     out = tri.draft || tri;
     let ev = evidenceTable([]);
     const q = minimizeQuery(tri.search_query || '');
     sMeta.search_query_used = q;
     if (tri.needs_search && q) {
-      if (overCap(s)) return json(res, 429, { error: 'budget_exceeded', limit: overCap(s) });
-      const sr = await runSearch(s, q);
+      if (overCap(s)) return json(res, 429, { error: 'budget_exceeded', limit: overCap(s) }, corsH);
+      const sr = await runSearch(s, usage, q);
       ev = evidenceTable(sr.items);
       sMeta.search_skipped_reason = sr.skipped || '';
       sMeta.evidence_fixture = sr.note || '';
+      if (sr.liveness_dropped) sMeta.evidence_dead_links_dropped = sr.liveness_dropped;
       if (ev.size()) {
-        const composed = await llmJson(s, `${SYSTEM}\nSTAGE: compose\n${COMPOSE_OUT}`,
+        const composed = await llmJson(s, usage, `${SYSTEM}\nSTAGE: compose\n${COMPOSE_OUT}`,
           `输入：${ctx}\n可用证据（只能按 id 引用）：${JSON.stringify(ev.forPrompt())}\n待修订草稿：${JSON.stringify(out)}`);
         out = composed.draft || composed;
       } else {
@@ -279,16 +337,16 @@ const server = http.createServer(async (req, res) => {
     if (errs.length) return json(res, 502, {
       error: 'intelligence_contract_failure', violations: errs.slice(0, 12),
       fallback_if_refused: '智能层这轮没按契约交付，不要拿它的结果去行动。', partial: out,
-    });
-    json(res, 200, out);
+    }, corsH);
+    json(res, 200, out, corsH);
   } catch (e) {
     const code = String(e.message || e);
     if (code.indexOf('budget_guard_unavailable') === 0) {
-      return json(res, 503, { error: 'budget_guard_unavailable', fallback_if_refused: '预算状态写不进去就不继续产生付费调用；请走手工路径或稍后再试。' });
+      return json(res, 503, { error: 'budget_guard_unavailable', fallback_if_refused: '预算状态写不进去就不继续产生付费调用；请走手工路径或稍后再试。' }, corsH);
     }
-    json(res, 502, { error: 'intelligence_unavailable', code: code.slice(0, 60) });
+    json(res, 502, { error: 'intelligence_unavailable', code: code.slice(0, 60) }, corsH);
   } finally {
-    console.log(`${new Date().toISOString()} ${req.method} ${res.statusCode} ${Date.now() - t0}ms llm=${usage.llm_calls} search=${usage.search_calls} req_cost=${usage.request_cost_rmb} month=${s.cost} calls=${s.calls}`);
+    console.log(`${new Date().toISOString()} ${req.method} ${res.statusCode} ${Date.now() - t0}ms llm=${usage.llm_calls} search=${usage.search_calls} retry=${usage.llm_retries} req_cost=${usage.request_cost_rmb} month=${s.cost} calls=${s.calls}`);
   }
-});
-server.listen(CFG.port, CFG.host, () => console.log(`world api http://${CFG.host}:${CFG.port} provider=${CFG.provider} search=${CFG.search} caps=${CFG.dailyCap}/day ${CFG.monthlyCapRmb}RMB/month fail_closed=${CFG.failClosed}`));
+}
+server.listen(CFG.port, CFG.host, () => console.log(`world api http://${CFG.host}:${CFG.port} provider=${CFG.provider} search=${CFG.search} caps=${CFG.dailyCap}/day ${CFG.monthlyCapRmb}RMB/month fail_closed=${CFG.failClosed} origins=${CFG.allowedOrigins.length ? 'configured' : 'local-only'} rate=${CFG.rateLimitPerMin}/min liveness=${CFG.liveness}`));

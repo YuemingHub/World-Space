@@ -86,3 +86,26 @@ export function minimizeQuery(q) {
     .replace(/\s+/g, ' ')
     .trim().slice(0, 80);
 }
+
+/*
+ * F3 最小链接存活保护（真实 pilot 两次出现"索引有、点开无"的转载死链后才启用）：
+ * 对搜索候选做 HEAD 检查——只查前 max 条、有超时、不递归、不抓正文，不是爬虫。
+ * 只有 404/410 判死剔除；超时、网络错、HEAD 被拒（405/403/429/501）一律保守保留：
+ * 宁可漏放一条可能死链，不误删一条活证据。
+ */
+async function alive(url, timeoutMs) {
+  let u = '';
+  try { u = new URL(String(url || '')).href; } catch (e) { return true; }
+  if (!/^https?:/.test(u)) return true;
+  try {
+    const res = await fetch(u, { method: 'HEAD', redirect: 'follow', signal: AbortSignal.timeout(timeoutMs) });
+    return res.status !== 404 && res.status !== 410;
+  } catch (e) { return true; }
+}
+export async function filterLive(items, { max = 6, timeoutMs = 2500 } = {}) {
+  const isHttp = u => { try { return /^https?:/.test(new URL(u).href); } catch (e) { return false; } };
+  const list = (items || []).slice(0, max).filter(x => x && x.url && isHttp(x.url));
+  await Promise.allSettled(list.map(async x => { x._dead = !(await alive(x.url, timeoutMs)); }));
+  const kept = (items || []).filter(x => !x._dead);
+  return { items: kept, checked: list.length, dropped: (items || []).length - kept.length };
+}
