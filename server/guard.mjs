@@ -19,6 +19,13 @@ export function guard(c, ev) {
   const acts = [], dropped = [];
   const out = JSON.parse(JSON.stringify(c || {}));
 
+  if (!Array.isArray(out.questions) && Array.isArray(out.clarifying_questions)) {
+    out.questions = out.clarifying_questions;
+    acts.push('questions_alias_normalized');
+  }
+  if (Array.isArray(out.questions)) {
+    out.questions = out.questions.map(q => (typeof q === 'string' ? { ask: q, why: '' } : q));
+  }
   const rawQ = Array.isArray(out.questions) ? out.questions.length : 0;
   out.questions = rawQ > 2 ? out.questions.slice(0, 2) : (Array.isArray(out.questions) ? out.questions : []);
   if (rawQ > 2) acts.push(`questions_truncated:${rawQ}->2`);
@@ -70,10 +77,18 @@ export function guard(c, ev) {
     }
   }
 
-  if (out.safe_next_action && hasHighRisk(out.safe_next_action) && !backed.length) {
-    dropped.push('立即动作里含未经证实的说法，已换成不做任何事实断言的通用动作');
-    out.safe_next_action = NEUTRAL_ACTION;
-    acts.push('safe_action_neutralized');
+  // safe_next_action 是契约里指定的降级目标：动作本身不是"确定结论"，不能一看到高风险词就删掉。
+  // 只做两件事：动作形态的保留并标注需自己核实；不像动作的（更像断言）才中性化。
+  const ACTION_SHAPED = ['打', '拨', '问', '记', '录', '查', '搜', '写', '列', '数', '约', '联系', '打开', '整理', '提交', '准备', '带', '挂'];
+  if (out.safe_next_action && hasHighRisk(out.safe_next_action)) {
+    if (ACTION_SHAPED.some(v => out.safe_next_action.indexOf(v) !== -1)) {
+      out.uncertainties.push('这条立即动作里提到的具体部门或入口，请当作待核实的线索，别当成已经确认的结论；先按它动起来，同时自己核对一次归口。');
+      acts.push('safe_action_kept_flagged');
+    } else {
+      dropped.push('立即动作读起来像一条未经证实的结论，已换成不做任何事实断言的通用动作');
+      out.safe_next_action = NEUTRAL_ACTION;
+      acts.push('safe_action_neutralized');
+    }
   }
 
   out.uncertainties = (Array.isArray(out.uncertainties) ? out.uncertainties : []).concat(dropped);

@@ -35,6 +35,11 @@ const CFG = {
   llmBase: (process.env.WS_LLM_BASE_URL || '').replace(/\/$/, ''),
   llmKey: process.env.WS_LLM_KEY || '',
   llmModel: process.env.WS_LLM_MODEL || '',
+  // 有的网关不支持 response_format（会返回空内容），有的需要额外请求头；都做成配置
+  jsonMode: process.env.WS_LLM_JSON_MODE !== '0',
+  extraHeaders: (() => { try { return JSON.parse(process.env.WS_LLM_EXTRA_HEADERS || '{}'); } catch (e) { return {}; } })(),
+  maxTokens: Number(process.env.WS_MAX_TOKENS || 1500),
+  debug: process.env.WS_DEBUG_LLM === '1',
   search: process.env.WS_SEARCH || 'none', // none | fixture | bocha | aliyun
   searchKey: process.env.WS_SEARCH_KEY || '',
   searchUrl: process.env.WS_SEARCH_URL || '',
@@ -106,11 +111,11 @@ async function llm(s, system, user) {
   }
   const res = await fetch(`${CFG.llmBase}/chat/completions`, {
     method: 'POST',
-    headers: { 'content-type': 'application/json', authorization: `Bearer ${CFG.llmKey}` },
-    body: JSON.stringify({
-      model: CFG.llmModel, temperature: 0.2, response_format: { type: 'json_object' },
+    headers: Object.assign({ 'content-type': 'application/json', authorization: `Bearer ${CFG.llmKey}` }, CFG.extraHeaders),
+    body: JSON.stringify(Object.assign({
+      model: CFG.llmModel, temperature: 0.2, max_tokens: CFG.maxTokens,
       messages: [{ role: 'system', content: system }, { role: 'user', content: user }],
-    }),
+    }, CFG.jsonMode ? { response_format: { type: 'json_object' } } : {})),
     signal: AbortSignal.timeout(CFG.timeoutMs),
   });
   if (!res.ok) throw new Error(`llm_http_${res.status}`);
@@ -119,7 +124,20 @@ async function llm(s, system, user) {
   countCall(s, ((u.prompt_tokens || 0) / 1000) * CFG.priceInPer1k + ((u.completion_tokens || 0) / 1000) * CFG.priceOutPer1k);
   usage.llm_calls += 1;
   const txt = ((j.choices && j.choices[0] && j.choices[0].message) || {}).content || '';
-  try { return JSON.parse(txt); } catch (e) { throw new Error('llm_bad_json'); }
+  try { return parseJsonLoose(txt); }
+  catch (e) {
+    if (CFG.debug) console.log(`[debug] llm_bad_json len=${String(txt).length} head=${JSON.stringify(String(txt).slice(0, 160))} finish=${(j.choices && j.choices[0] || {}).finish_reason}`);
+    throw e;
+  }
+}
+
+/** 有的网关在被要求 JSON 模式时返回空串，有的会包一层代码围栏：都按同一套宽松解析处理 */
+function parseJsonLoose(txt) {
+  const s = String(txt || '').trim().replace(/^```(?:json)?/i, '').replace(/```$/, '').trim();
+  try { return JSON.parse(s); } catch (e) { /* 继续尝试截取 */ }
+  const a = s.indexOf('{'), b = s.lastIndexOf('}');
+  if (a >= 0 && b > a) { try { return JSON.parse(s.slice(a, b + 1)); } catch (e) { /* 下一个 */ } }
+  throw new Error('llm_bad_json');
 }
 
 async function runSearch(s, query) {
@@ -146,6 +164,12 @@ async function runSearch(s, query) {
 }
 
 /* ── 提示词：只给 id，不给它复制 URL 的机会 ───────────────── */
+const SHAPE = '{"understanding":string,"needs_clarification":boolean,'
+  + '"questions":[{"ask":string,"why":string}],"safe_next_action":string|null,'
+  + '"recommended_path":{"summary":string,"why":string,"first_action":string,"evidence_ids":[string]}|null,'
+  + '"resources":[{"name":string,"type":string,"why":string,"claim":string,"evidence_id":string,"confidence":"low"|"medium"|"high"}],'
+  + '"uncertainties":[string],"reality_feedback_prompt":string,"fallback_if_refused":string}';
+
 const SYSTEM = [
   '你是 World Space 的智能层：帮一个普通人把"想做的一件事"变成今天能做的下一步。',
   '规则：',
@@ -155,12 +179,13 @@ const SYSTEM = [
   '4. 法律、医疗、政策、价格、资格、公共服务等高风险判断，没有证据 id 支撑时不要写成确定结论；写进 uncertainties，或把 recommended_path 设为 null。',
   '5. 绝不编造机构、政策、热线、平台。"不知道"是合法输出，比猜一个答案好。',
   '6. 第一步必须是今天能做的动作（打谁的电话、去哪个页面、记录什么），不是研究报告。',
-  '7. 需要查现实信息时才给搜索意图；不需要就留空，不要为了流程完整硬搜。',
+  '7. 需要查现实信息时才给搜索意图；不需要就留空。',
   '8. 搜索意图只保留解决问题所需的事实，不要带姓名、手机号、身份证号、精确住址等个人标识。',
-  '9. 只输出 JSON，不加解释文字。',
+  '9. 严格遵守输出结构，不要加这个结构之外的字段，不要用数组代替对象，不要输出解释或思考过程。',
+  `输出结构（${'questions 里每一项必须是对象'}）：${SHAPE}`,
 ].join('\n');
-const TRIAGE_OUT = '输出 {"needs_search":true/false,"search_query":"最多1条","draft":{契约字段，resources 只能用 evidence_id 引用证据}}';
-const COMPOSE_OUT = '只能引用给出的证据 id；修订 draft 后输出完整契约 JSON';
+const TRIAGE_OUT = '输出 {"needs_search":boolean,"search_query":string,"draft":<上面的结构>}';
+const COMPOSE_OUT = '只能引用给出的证据 id；按上面的结构输出完整契约，不要改变结构';
 
 /* ── HTTP ─────────────────────────────────────────────────── */
 function json(res, code, body) {
