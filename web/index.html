@@ -2,682 +2,606 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦐</text></svg>">
-<meta name="description" content="想写点东西、做张海报、整理手机照片、查清一件事、处理 PDF？选一件事，马上开始。每一步都替你选好工具和第一步。">
-<meta property="og:title" content="World Space — 你想做什么事？">
-<meta property="og:description" content="选一件事，马上开始。每一步都替你选好工具和第一步，照着做就行。">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="你想做成什么事？一句话说清楚，替你选一个默认做法，给第一步，做完把结果交回来。">
+<meta property="og:title" content="World Space — 你想做成什么？">
+<meta property="og:description" content="一句话说出你要做的事，给你一个默认做法和第一步。">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://ymai.fun">
-<title>World Space — 你想做什么事？</title>
+<meta name="theme-color" content="#FAF9F6">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦐</text></svg>">
+<title>World Space — 你想做成什么？</title>
 <style>
-:root {
-  --accent: #3B82F6;
-  --accent-strong: #2563EB;
-  --sun: #D97706;
-  --leaf: #16A34A;
-  --leaf-light: rgba(22,163,74,.1);
-  --bg: #FAF9F6;
-  --surface: #FFFFFF;
-  --fg: #111827;
-  --fg-muted: #6B7280;
-  --border: #E7E5E0;
-  --border-active: #D1D5DB;
-  --radius: 12px;
-  --radius-sm: 6px;
-  --maxw: 680px;
+:root{
+  --accent:#3B82F6;
+  --accent-strong:#2563EB;
+  --leaf:#16A34A;
+  --leaf-strong:#15803D;
+  --sun:#D97706;
+  --bg:#FAF9F6;
+  --surface:#FFFFFF;
+  --fg:#111827;
+  --fg-muted:#6B7280;
+  --border:#E7E5E0;
+  --quiet:#F3F1EC;
+  --r-card:12px;
+  --r-sm:6px;
 }
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { -webkit-text-size-adjust: 100%; }
-body {
-  font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
-  background: var(--bg); color: var(--fg); line-height: 1.8; font-size: 17px; min-height: 100vh;
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--fg);
+  font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei','Noto Sans SC',sans-serif;
+  font-size:17px;
+  line-height:1.8;
+}
+.wrap{max-width:680px;margin:0 auto;padding:0 20px 72px}
+
+/* topbar */
+.topbar{
+  position:sticky;top:0;z-index:10;
+  background:rgba(250,249,246,.94);
+  backdrop-filter:saturate(1.6) blur(8px);
+  border-bottom:1px solid var(--border);
+}
+.topbar__in{
+  max-width:680px;margin:0 auto;padding:10px 20px;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+}
+.brand{font-weight:700;letter-spacing:.01em;font-size:16px}
+.brand span{color:var(--fg-muted);font-weight:400;font-size:14px;margin-left:6px}
+
+/* stepper */
+.stepper{display:flex;gap:6px;list-style:none;margin:0;padding:0}
+.stepper li{
+  font-size:12px;color:var(--fg-muted);
+  border:1px solid var(--border);border-radius:999px;
+  padding:1px 8px;background:var(--surface);white-space:nowrap;
+}
+.stepper li[data-state="now"]{color:#fff;background:var(--accent-strong);border-color:var(--accent-strong);font-weight:600}
+.stepper li[data-state="done"]{color:var(--leaf-strong);border-color:#BBE3C8;background:#F0FAF3}
+@media (max-width:420px){.stepper li{font-size:11px;padding:1px 6px}}
+
+/* hero */
+.hero{padding:28px 0 8px}
+h1{
+  font-size:clamp(24px,5.4vw,34px);
+  line-height:1.35;margin:0 0 10px;letter-spacing:-.01em;
+}
+.lede{margin:0 0 18px;color:var(--fg-muted);font-size:16px}
+
+/* beats */
+.beat{padding:22px 0 4px}
+.beat__head{display:flex;align-items:baseline;gap:10px;margin-bottom:12px}
+.beat__no{
+  flex:0 0 auto;width:26px;height:26px;border-radius:50%;
+  background:var(--quiet);color:var(--fg-muted);
+  font-size:14px;font-weight:700;line-height:26px;text-align:center;
+}
+.beat__no[data-state="now"]{background:var(--accent-strong);color:#fff}
+.beat__no[data-state="done"]{background:var(--leaf);color:#fff}
+h2{font-size:19px;margin:0;letter-spacing:-.005em}
+.beat[hidden]{display:none}
+
+/* card */
+.card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r-card);padding:18px;margin:14px 0 0;
+}
+.card--quiet{background:var(--quiet);border-color:transparent}
+.tag{
+  display:inline-block;font-size:12px;font-weight:600;color:var(--leaf-strong);
+  background:#F0FAF3;border:1px solid #BBE3C8;border-radius:999px;padding:1px 9px;margin-bottom:10px;
+}
+.card h3{font-size:17px;margin:0 0 6px}
+.card p{margin:0 0 10px}
+.muted{color:var(--fg-muted);font-size:15px}
+
+/* form */
+textarea{
+  width:100%;min-height:88px;resize:vertical;
+  font:inherit;color:inherit;background:var(--surface);
+  border:1px solid var(--border);border-radius:var(--r-card);
+  padding:12px 14px;
+}
+textarea:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+.hint{color:var(--fg-muted);font-size:14px;margin:8px 0 0}
+
+/* buttons */
+button{font:inherit;cursor:pointer}
+.btn-primary{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-height:44px;padding:10px 20px;margin-top:12px;
+  background:var(--accent-strong);color:#fff;border:0;border-radius:var(--r-sm);
+  font-weight:600;
+}
+.btn-primary:disabled{opacity:.45;cursor:not-allowed}
+.btn-tool{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:44px;padding:10px 20px;margin:4px 0 12px;
+  background:var(--accent-strong);color:#fff;text-decoration:none;border-radius:var(--r-sm);
+  font-weight:600;
+}
+.btn-ghost{
+  min-height:44px;padding:8px 16px;
+  background:var(--surface);color:var(--accent-strong);
+  border:1px solid var(--border);border-radius:var(--r-sm);font-weight:600;
+}
+.btn-ghost[data-ok="1"]{color:var(--leaf-strong);border-color:#BBE3C8;background:#F0FAF3}
+.btn-done{
+  min-height:44px;padding:10px 20px;margin-top:10px;
+  background:var(--leaf-strong);color:#fff;border:0;border-radius:var(--r-sm);font-weight:600;
+}
+.btn-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+
+/* copy block */
+.say{margin-top:6px}
+.say__k{font-size:14px;color:var(--fg-muted);margin-bottom:6px}
+pre{
+  margin:0 0 10px;padding:12px 14px;white-space:pre-wrap;word-break:break-word;
+  background:var(--quiet);border-radius:var(--r-sm);
+  font-family:inherit;font-size:16px;line-height:1.7;
+}
+.quote{
+  margin:0;padding:12px 14px;background:var(--quiet);border-radius:var(--r-sm);
+  font-size:16px;white-space:pre-wrap;word-break:break-word;
 }
 
-/* === Top Bar === */
-.topbar { position: sticky; top: 0; z-index: 100; background: rgba(250,249,246,.95); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); padding: 12px 24px; }
-.topbar .inner { max-width: var(--maxw); margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
-.topbar .brand { font-weight: 700; font-size: 16px; }
-.topbar .progress-text { font-size: 14px; color: var(--fg-muted); }
-.topbar .progress-bar { width: 120px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
-.topbar .progress-bar .fill { height: 100%; background: var(--leaf); border-radius: 3px; transition: width .3s; }
+/* facts */
+dl.facts{margin:0 0 12px}
+dl.facts dt{font-size:13px;font-weight:700;color:var(--fg-muted);margin-top:8px}
+dl.facts dd{margin:0}
 
-/* === Hero === */
-.hero { text-align: center; padding: 52px 24px 24px; }
-.hero h1 { font-size: clamp(24px, 5vw, 34px); font-weight: 700; line-height: 1.25; margin-bottom: 12px; }
-.hero .sub { color: var(--fg-muted); font-size: 16px; max-width: 460px; margin: 0 auto 20px; }
-.intents { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-width: 520px; margin: 0 auto 12px; }
-.intent-btn { display: flex; align-items: center; gap: 10px; text-align: left; padding: 12px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; color: var(--fg); transition: border-color .15s, background .15s; }
-.intent-btn:hover { border-color: var(--accent-strong); background: #F0F6FF; }
-.intent-btn.wide { grid-column: 1 / -1; }
-.intent-btn .em { font-size: 19px; flex-shrink: 0; }
-.goal-panel { display: none; max-width: 520px; margin: 0 auto 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; text-align: left; scroll-margin-top: 64px; }
-.goal-panel.open { display: block; }
-.goal-panel h2 { font-size: 17px; margin: 0 0 6px; }
-.goal-panel .goal-sub { font-size: 15px; color: var(--fg-muted); margin: 0 0 4px; }
-.goal-panel .choice { border-top: 1px solid var(--border); margin-top: 12px; padding-top: 10px; }
-.goal-panel .choice > b { display: block; font-size: 15px; margin-bottom: 4px; }
-.goal-panel .choice p { font-size: 15px; line-height: 1.7; margin: 4px 0; }
-.goal-panel .tool-btn { margin-top: 6px; }
-.close-goal { display: block; margin: 14px auto 0; padding: 8px 20px; min-height: 44px; background: none; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; color: var(--fg-muted); cursor: pointer; font-family: inherit; }
-.hero .tools { font-size: 14px; color: var(--fg-muted); margin-top: 14px; }
-.hero .tools span { display: inline-block; padding: 4px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; margin: 0 4px; }
+/* steps */
+.step{border-top:1px solid var(--border);padding-top:14px;margin-top:14px}
+.step:first-of-type{border-top:0;padding-top:0;margin-top:0}
+.step__t{display:flex;gap:8px;align-items:baseline;font-weight:700}
+.step__t em{font-style:normal;color:var(--accent-strong)}
+.step[data-done="1"]{opacity:.62}
+.step[data-done="1"] .step__t{text-decoration:line-through;text-decoration-thickness:1px}
+.sub{font-size:14px;color:var(--fg-muted);margin:2px 0 8px}
 
-/* === Fallback journey heading === */
-.journey-head { max-width: var(--maxw); margin: 0 auto; padding: 4px 24px 14px; text-align: center; }
-.journey-head h2 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
-.journey-head p { font-size: 15px; color: var(--fg-muted); }
-
-/* === Roadmap === */
-.roadmap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px 48px; }
-.stage { margin-bottom: 32px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; scroll-margin-top: 64px; }
-.stage-header { padding: 20px 24px; cursor: pointer; display: flex; align-items: center; gap: 16px; transition: background .15s; }
-.stage-header:hover { background: rgba(0,0,0,.02); }
-.stage-badge { flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 19px; font-weight: 700; color: white; }
-.stage-badge.s1 { background: var(--leaf); }
-.stage-header .info { flex: 1; }
-.stage-header .info .title { font-size: 18px; font-weight: 600; margin-bottom: 2px; cursor: pointer; }
-.stage-header:hover .info .title { text-decoration: underline; }
-.stage-header .info .desc { font-size: 14px; color: var(--fg-muted); }
-.stage-header .arrow { flex-shrink: 0; color: var(--fg-muted); font-size: 14px; transition: transform .2s; }
-.stage.open .stage-header .arrow { transform: rotate(90deg); }
-.stage-status { flex-shrink: 0; font-size: 13px; padding: 3px 10px; border-radius: 12px; font-weight: 500; }
-.stage-status.todo { background: var(--border); color: #4B5563; }
-.stage-status.done { background: var(--leaf-light); color: #15803D; }
-
-/* === Steps === */
-.stage-body { display: none; padding: 0 24px 24px; }
-.stage.open .stage-body { display: block; }
-.stage-intro { font-size: 15px; color: var(--fg-muted); padding: 4px 0 12px; }
-.step { padding: 16px 0; border-top: 1px solid var(--border); }
-.step:first-child { border-top: none; }
-.step-header { display: flex; align-items: flex-start; gap: 12px; cursor: pointer; }
-.step-num { flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border-active); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: var(--fg-muted); margin-top: 2px; transition: all .15s; }
-.step.done .step-num { background: var(--leaf); border-color: var(--leaf); color: white; }
-.step-content { flex: 1; }
-.step-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; cursor: pointer; }
-.step-title:hover { text-decoration: underline; }
-.step-body { display: none; margin-top: 12px; }
-.step.open .step-body { display: block; }
-.step-body p { margin-bottom: 12px; }
-.step-body ul { padding-left: 20px; margin-bottom: 12px; }
-.step-body li { margin-bottom: 6px; }
-.step-body a { color: var(--accent-strong); }
-.step-body .tip { padding: 12px 16px; background: rgba(59,130,246,.06); border-radius: var(--radius-sm); margin-bottom: 12px; font-size: 15px; }
-.step-body .warn { padding: 12px 16px; background: rgba(217,119,6,.08); border-radius: var(--radius-sm); margin-bottom: 12px; font-size: 15px; }
-
-/* Prompt box */
-.prompt-box { position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px; padding-top: 40px; font-size: 15px; line-height: 1.7; margin: 8px 0 16px; }
-.copy-btn { position: absolute; top: 8px; right: 8px; padding: 4px 12px; font-size: 13px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; color: var(--fg-muted); font-family: inherit; transition: all .15s; }
-.copy-btn:hover { background: var(--accent); color: white; border-color: var(--accent); }
-.copy-btn.copied { background: #15803D; color: white; border-color: #15803D; }
-
-/* Tool button — a.tool-btn (0,1,1) must outrank .step-body a (0,1,1) by order, else link color turns text invisible on blue */
-a.tool-btn { display: inline-block; padding: 10px 24px; background: var(--accent-strong); color: white; border-radius: var(--radius-sm); font-weight: 600; font-size: 15px; text-decoration: none; margin: 8px 0; transition: background .15s; }
-a.tool-btn:hover { background: #1D4ED8; }
-
-/* Checkpoint */
-.checkpoint { margin-top: 16px; padding: 16px; background: var(--leaf-light); border-radius: var(--radius-sm); }
-.checkpoint .label { font-size: 14px; font-weight: 600; color: #15803D; margin-bottom: 8px; }
-.checkpoint-btn { display: inline-block; padding: 8px 20px; background: #15803D; color: white; border: none; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; }
-.checkpoint-btn:hover { opacity: .9; }
-
-/* Graduation */
-.graduation { text-align: center; padding: 48px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); max-width: var(--maxw); margin: 0 auto 48px; }
-.graduation .emoji { font-size: 48px; margin-bottom: 16px; }
-.graduation h2 { font-size: 24px; font-weight: 700; margin-bottom: 12px; }
-.graduation .skills { display: inline-block; text-align: left; margin: 16px 0; }
-.graduation .skills li { margin-bottom: 6px; list-style: none; padding-left: 24px; position: relative; }
-.graduation .skills li::before { content: '✓'; position: absolute; left: 0; color: var(--leaf); font-weight: 700; }
-
-/* Footer */
-footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 13px; border-top: 1px solid var(--border); }
-
-/* Mobile */
-@media (max-width: 480px) {
-  .hero { padding: 40px 20px 20px; }
-  .hero h1 { font-size: 22px; }
-  .hero .sub { font-size: 15px; }
-  .stage-header { padding: 16px; gap: 12px; }
-  .stage-header .info .title { font-size: 16px; }
-  .stage-body { padding: 0 16px 16px; }
-  .prompt-box { font-size: 14px; padding: 12px; padding-top: 62px; }
-  .copy-btn { font-size: 12px; padding: 6px 14px; min-height: 44px; }
-  a.tool-btn { padding: 14px 28px; font-size: 16px; }
-  .intents { grid-template-columns: 1fr; }
-  .checkpoint-btn { padding: 10px 24px; font-size: 15px; min-height: 44px; }
-  body { font-size: 16px; }
-  .topbar .progress-bar { width: 80px; }
-  .topbar .progress-text { display: none; }
+/* radio list */
+.opts{list-style:none;margin:0;padding:0}
+.opts li{margin:0 0 8px}
+.opts label{
+  display:flex;gap:10px;align-items:center;min-height:44px;
+  padding:8px 12px;border:1px solid var(--border);border-radius:var(--r-sm);
+  background:var(--surface);cursor:pointer;
 }
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+.opts input{width:20px;height:20px;accent-color:var(--accent-strong);flex:0 0 auto}
+
+/* footer */
+footer{margin-top:34px;padding-top:16px;border-top:1px solid var(--border);color:var(--fg-muted);font-size:13px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (prefers-reduced-motion:no-preference){
+  .beat{animation:rise .28s ease both}
+  @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  html{scroll-behavior:smooth}
+}
 </style>
 </head>
 <body>
-<noscript><p style="max-width:680px;margin:16px auto;padding:12px 16px;background:#FFF7ED;border:1px solid #FDBA74;border-radius:8px;font-size:15px">此页需要开启 JavaScript 才能使用（手机自带浏览器一般都支持）。</p></noscript>
 
-<div class="topbar">
-  <div class="inner">
-    <span class="brand">World Space</span>
-    <div id="progressWrap" style="display:none;align-items:center;gap:10px">
-      <span class="progress-text" id="progressText">0/3</span>
-      <div class="progress-bar"><div class="fill" id="progressFill" style="width:0%"></div></div>
-    </div>
+<header class="topbar">
+  <div class="topbar__in">
+    <div class="brand">World Space<span>用世界上已有的能力</span></div>
+    <ol class="stepper" id="stepper">
+      <li data-beat="1" data-state="now">① 意图</li>
+      <li data-beat="2">② 资源</li>
+      <li data-beat="3">③ 行动</li>
+      <li data-beat="4">④ 反馈</li>
+    </ol>
   </div>
-</div>
+</header>
 
-<!-- ============ HERO ============ -->
-<div class="hero">
-  <h1>你想做什么事？</h1>
-  <p class="sub">选一件事，马上开始。每件事都替你选好了工具和第一步，照着做就行。</p>
-  <div class="intents">
-    <button class="intent-btn" id="btn-write" aria-expanded="false" onclick="toggleGoal('goal-write')"><span class="em">✍️</span>写点东西</button>
-    <button class="intent-btn" id="btn-poster" aria-expanded="false" onclick="toggleGoal('goal-poster')"><span class="em">🖼️</span>做一张海报</button>
-    <button class="intent-btn" id="btn-web" aria-expanded="false" onclick="toggleGoal('goal-web')"><span class="em">🛠️</span>做个网页</button>
-    <button class="intent-btn" id="btn-photo" aria-expanded="false" onclick="toggleGoal('goal-photo')"><span class="em">📷</span>整理手机照片</button>
-    <button class="intent-btn" id="btn-find" aria-expanded="false" onclick="toggleGoal('goal-find')"><span class="em">🔍</span>查明一件事</button>
-    <button class="intent-btn" id="btn-organize" aria-expanded="false" onclick="toggleGoal('goal-organize')"><span class="em">🗂️</span>整理资料 / 处理 PDF</button>
-    <button class="intent-btn wide" id="btn-ocr" aria-expanded="false" onclick="toggleGoal('goal-ocr')"><span class="em">🔤</span>提取图片文字</button>
-    <button class="intent-btn wide" id="startBtn" onclick="startJourney()"><span class="em">🌱</span><span id="startLbl">不知道从哪开始？跟着三步走</span></button>
-  </div>
-  <div class="goal-panel" id="goal-ocr" role="region" aria-label="提取图片文字">
-    <h2>🔤 提取图片文字</h2>
-    <p class="goal-sub">好消息：不用装任何 App。微信和手机自带就能做，免费。</p>
-    <div class="choice"><b>图片在微信里</b>
-      <p>💬 长按那张图片 → 点「提取文字」→ 直接复制、转发（老版本微信：点图片右下角「…」→「识别图中文字」）</p>
-    </div>
-    <div class="choice"><b>图片在相册里</b>
-      <p>📱 iPhone：打开图片 → 长按文字（或点右下角「实况文本」）→ 拷贝</p>
-      <p>🤖 安卓：相册打开图片 → 「提取文字」或「识别文字」</p>
-    </div>
-    <div class="choice"><b>纸上的字（书、单据、招牌）</b>
-      <p>📄 微信「扫一扫」对准 → 点「提取文字」→ 全选复制</p>
-    </div>
-    <div class="choice"><b>如实说</b>
-      <p>⚠️ 印刷体很准；手写和复杂表格会出错——数字、名字、金额务必核对</p>
-    </div>
-    <button class="close-goal" onclick="closeGoal()">收起</button>
-  </div>
-  <div class="goal-panel" id="goal-poster" role="region" aria-label="做一张海报">
-    <h2>🖼️ 做一张海报</h2>
-    <p class="goal-sub">先想一件事：海报上要不要放准确的信息（价格、时间、地址、电话）？</p>
-    <div class="choice"><b>要放准确信息（促销、招生、通知）→ 模板改字</b>
-      <p>📋 稿定设计：搜你的场景 → 挑一张免费模板 → 换字换图 → 下载。价格、电话一字不差。</p>
-      <p>如实说：免费模板够用；部分导出带水印，商用先看授权。</p>
-      <a class="tool-btn" href="https://www.gaoding.com" target="_blank" rel="noopener">打开稿定设计 →</a>
-    </div>
-    <div class="choice"><b>不用精确排版（生日邀请、家庭聚会）→ 让豆包直接画</b>
-      <p>🎨 复制下面这段话（换成你的事），打开豆包的图片生成，粘贴发送：</p>
-      <div class="prompt-box">帮我做一张海报：我妈妈的60岁生日家庭聚会，时间9月20日中午11点，地点我们家里。风格温馨喜庆，大标题写"妈妈生日快乐"，把时间和地点放在显眼的位置。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
-      <p>如实说：生成的图片自己用没问题；拿去商用（卖东西、发广告）有版权限制，那种情况用上面的模板工具。</p>
-      <a class="tool-btn" href="https://www.doubao.com/chat/create-image" target="_blank" rel="noopener">打开豆包图片生成 →</a>
-    </div>
-    <button class="close-goal" onclick="closeGoal()">收起</button>
-  </div>
-  <div class="goal-panel" id="goal-photo" role="region" aria-label="整理手机照片">
-    <h2>📷 整理手机照片</h2>
-    <p class="goal-sub">好消息：这些事大多不用装 App，手机自带的就够，还免费。挑你最想先做的一件：</p>
-    <div class="choice"><b>删掉重复照片</b>
-      <p>📱 <strong>iPhone：</strong>照片 → 精选集 → 滑到「重复项目」→ 合并（要 iOS 16；没有就充着电连 Wi-Fi 等一晚）</p>
-      <p>🤖 <strong>安卓：</strong>图库/相册 → 找「清理」或「重复照片」</p>
-    </div>
-    <div class="choice"><b>备份照片</b>
-      <p>☁️ 先用手机自带云相册（iPhone 免费只有 5GB）</p>
-      <p>📦 照片很多：用一刻相册（宣传免费无限空间；部分功能要会员，网上有丢照片投诉——重要的存两处）</p>
-    </div>
-    <div class="choice"><b>做成一本拿在手里的相册</b>
-      <p>📖 微信里搜「照片书」小程序：选模板 → 传照片 → 下单印刷，十几元起。各家质量参差，先做一本小的试试。要更好的纸质和装帧，可以搜 Photobook China（157 元起）。</p>
-    </div>
-    <div class="choice"><b>修图、把照片变好看</b>
-      <p>✨ 装「醒图」，免费够用：滤镜、调色、消除路人</p>
-    </div>
-    <button class="close-goal" onclick="closeGoal()">收起</button>
-  </div>
-  <div class="goal-panel" id="goal-write" role="region" aria-label="写点东西">
-    <h2>✍️ 写点东西</h2>
-    <p class="goal-sub">不用学写作：把要说的事说清楚，豆包几秒给你一版初稿。</p>
-    <div class="choice"><b>第一步：复制这句话，把括号里换成你的事</b>
-      <div class="prompt-box">帮我写一段话：（说说在哪发、说什么事，比如：发朋友圈，介绍今天带孩子去爬山）语气轻松一点，100 字左右。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
-      <a class="tool-btn" href="https://www.doubao.com" target="_blank" rel="noopener">打开豆包 →</a>
-      <p>它回你初稿后，直接说哪里改：「太正式了」「短一点」「结尾加一句」。改到你能直接用为止。</p>
-    </div>
-    <div class="choice"><b>写更长、更正式的（文章、总结、自我评价）</b>
-      <p>同一件事多交代几句：给谁看、大概多长、必须提到什么。说得越具体，初稿越能用。PPT 大纲、发言稿也是这一招。</p>
-    </div>
-    <div class="choice"><b>如实说</b>
-      <p>⚠️ 初稿里的事实（时间、名字、数字）可能是它猜的，发出去之前自己过一遍。</p>
-    </div>
-    <button class="close-goal" onclick="closeGoal()">收起</button>
-  </div>
-  <div class="goal-panel" id="goal-web" role="region" aria-label="做个网页">
-    <h2>🛠️ 做个网页</h2>
-    <p class="goal-sub">不用学编程：跟豆包说你要什么网页，它直接做出来给你看效果。</p>
-    <div class="choice"><b>第一步：复制这句话，换成你的内容</b>
-      <div class="prompt-box">帮我做一个个人介绍网页。顶部写我的名字。下面放一段自我介绍。然后放一个我做过的事情列表。最下面留联系方式。整体风格简洁好看。做好后直接显示预览效果。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
-      <a class="tool-btn" href="https://www.doubao.com" target="_blank" rel="noopener">打开豆包 →</a>
-      <p>豆包会直接显示网页效果；只看到代码没看到预览，跟它说「显示预览」。想改哪里直接说：「颜色换成蓝色」「标题大一号」「加一个我的爱好」。</p>
-    </div>
-    <div class="choice"><b>想发布到网上，让别人也能打开</b>
-      <p>豆包给的是对话里的预览。要真正上线，用 <strong>v0</strong>：一句话描述想要的网页，它生成后可以直接发布。免费能开始，用量大了要付费。</p>
-      <a class="tool-btn" href="https://v0.dev" target="_blank" rel="noopener">打开 v0 →</a>
-    </div>
-    <div class="choice"><b>如实说</b>
-      <p>⚠️ 登录、支付、存数据这类复杂功能一句话做不出来——先把最简单的第一版做出来，再一点点加。</p>
-    </div>
-    <button class="close-goal" onclick="closeGoal()">收起</button>
-  </div>
-  <div class="goal-panel" id="goal-find" role="region" aria-label="查明一件事">
-    <h2>🔍 查明一件事</h2>
-    <p class="goal-sub">要查就查得可靠：用 DeepSeek 联网搜真实信息，答案还标来源。</p>
-    <div class="choice"><b>第一步</b>
-      <p>打开 DeepSeek → 打开输入框下方的「深度思考」和「联网搜索」（找不到开关就直接发，也行）→ 用大白话把问题打出来发送。比如：「2026 年个人开网店的平台有哪些？费用和门槛各是多少？」</p>
-      <a class="tool-btn" href="https://chat.deepseek.com" target="_blank" rel="noopener">打开 DeepSeek →</a>
-    </div>
-    <div class="choice"><b>拿到答案，花 30 秒核实</b>
-      <p>有来源链接的点进去看一眼；涉及钱、政策、法律的，一定去官方渠道再确认；太具体的数据可能是编的；不放心就用豆包再问一遍，对比两个答案。</p>
-    </div>
-    <div class="choice"><b>如实说</b>
-      <p>⚠️ AI 会一本正经地说错话。重要的决定，不要只靠它一句话。</p>
-    </div>
-    <button class="close-goal" onclick="closeGoal()">收起</button>
-  </div>
-  <div class="goal-panel" id="goal-organize" role="region" aria-label="整理资料 / 处理 PDF">
-    <h2>🗂️ 整理资料 / 处理 PDF</h2>
-    <p class="goal-sub">乱文字让 AI 归类，PDF 文件用免费软件处理，都不用花钱。</p>
-    <div class="choice"><b>一堆乱文字（笔记、记录、聊天记录）→ 豆包整理</b>
-      <div class="prompt-box">我有一份资料内容很乱，帮我整理成三部分：现状、主要选择、给我的建议。以下是需要整理的内容：（在这里粘贴你的资料）<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
-      <a class="tool-btn" href="https://www.doubao.com" target="_blank" rel="noopener">打开豆包 →</a>
-    </div>
-    <div class="choice"><b>PDF 文件（合并、拆分、压缩、转格式）→ Stirling PDF</b>
-      <p>免费桌面软件，文件不上传网络。需要电脑：官网下载安装，把文件拖进去，选要做的事，点执行。</p>
-      <a class="tool-btn" href="https://stirling.com" target="_blank" rel="noopener">打开 Stirling PDF 官网 →</a>
-    </div>
-    <div class="choice"><b>如实说</b>
-      <p>⚠️ Stirling PDF 需要电脑，手机上没有——只有手机时，把 PDF 里的文字复制给豆包或 DeepSeek 帮你处理。AI 整理可能漏掉或归错类，重要的自己再核对一遍。</p>
-    </div>
-    <button class="close-goal" onclick="closeGoal()">收起</button>
-  </div>
-  <p class="tools">大部分事，<span>豆包</span> <span>DeepSeek</span>就够用；有些事，用手机自带的或现成模板更好。</p>
-</div>
+<main class="wrap">
 
-<!-- ============ FALLBACK JOURNEY ============ -->
-<div class="journey-head">
-  <h2>第一次用 AI？跟着三步走</h2>
-  <p>不用先学任何东西：做成一件小事、让它更好、再亲手查证一次。</p>
-</div>
-
-<!-- ============ ROADMAP ============ -->
-<div class="roadmap">
-
-<div class="stage" id="stage-1">
-  <div class="stage-header" role="button" tabindex="0" aria-expanded="true" onclick="toggleStage(1)" onkeydown="stageKey(event,1)">
-    <div class="stage-badge s1">1</div>
-    <div class="info">
-      <h2 class="title">三步上手：做成、改好、查证</h2>
-      <div class="desc">约 10 分钟 · 每一步都亲手做成一件真事</div>
-    </div>
-    <span class="stage-status todo" id="status-1">未开始</span>
-    <span class="arrow">▶</span>
+  <div class="hero">
+    <h1>你想做成什么？</h1>
+    <p class="lede">一句话说清楚就行，不用组织语言。剩下的替你选好。</p>
   </div>
-  <div class="stage-body">
-    <p class="stage-intro">一句话就够：AI 是一个读过很多很多书的助手，你让它写、它就帮你写。它会出错，不是万能的。别的以后再说，现在直接开工。</p>
 
-    <div class="step" id="step-1">
-      <div class="step-header" role="button" tabindex="0" aria-expanded="false" onclick="toggleStep(1)" onkeydown="stepKey(event,1)">
-        <div class="step-num">1</div>
-        <div class="step-content"><h3 class="step-title">打开豆包，跟它说第一句话</h3></div>
-      </div>
-      <div class="step-body">
-        <p><strong>豆包</strong>是字节跳动做的 AI 助手。就像微信聊天一样，你说一句，它回一句。</p>
-        <p>✅ 国内直接打开 ✅ 全中文界面 ✅ 免费</p>
-        <p>打开后如果提示登录，用手机号或微信登录就行，很快。</p>
-        <p>先把下面这段话复制了。它只是个例子——你想让 AI 写什么，就把开头换成什么，比如「帮我写一段想对孩子说的话」：</p>
-        <div class="prompt-box">帮我写一段朋友圈文案，介绍我今天做的一件事，
-语气轻松一点，100字左右。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
-        <p>复制好了，点这里打开豆包，把刚复制的话粘贴到聊天框里（手机上长按聊天框选"粘贴"，电脑上按 Ctrl+V），发送：</p>
-        <a class="tool-btn" href="https://www.doubao.com" target="_blank" rel="noopener">打开豆包 →</a>
-        <p style="font-size:14px;color:var(--fg-muted);margin-top:4px">发完后回到这个页面继续下一步。</p>
-        <p>等几秒，AI 就会给你写好一段文案。读一下，看看是不是你想要的。</p>
-        <div class="tip">💡 写得不好？直接跟它说哪里不好。比如"太长了，短一点"或"语气太正式了，轻松一点"。还可以随便试：「你能帮我做什么？」「帮我给客户写一条改约时间的短信」「帮我把'今天天气真好'翻译成英文」。</div>
-        <button class="checkpoint-btn" onclick="markDone(1)" style="margin-top:8px">这步做完了 ✓</button>
+  <!-- ① 真实意图 -->
+  <section class="beat" id="beat1">
+    <div class="beat__head">
+      <div class="beat__no" data-beatno="1" data-state="now">1</div>
+      <h2>先说你想做成的事</h2>
+    </div>
+    <label class="sr-only" for="intent">你想做成什么</label>
+    <textarea id="intent" rows="3" placeholder="我想……（例：把这次家长课的笔记，变成能直接发出去的一段话）"></textarea>
+    <p class="hint">写不具体也没关系，下一步会给你一个默认做法。这句话只存在你自己的浏览器里。</p>
+    <button class="btn-primary" id="startBtn" type="button">开始</button>
+  </section>
+
+  <!-- ② 世界资源 -->
+  <section class="beat" id="beat2" hidden>
+    <div class="beat__head">
+      <div class="beat__no" data-beatno="2">2</div>
+      <h2>这件事，先从这一个开始</h2>
+    </div>
+
+    <div class="card card--quiet">
+      <div class="card-k" style="font-size:14px;color:var(--fg-muted);margin-bottom:6px">你的意图</div>
+      <p class="quote" id="intentEcho"></p>
+      <div class="btn-row" style="margin-top:10px">
+        <button class="btn-ghost" data-copy="intent" type="button">复制这句话</button>
+        <button class="btn-ghost" id="editIntent" type="button">改一下</button>
       </div>
     </div>
 
-    <div class="step" id="step-2">
-      <div class="step-header" role="button" tabindex="0" aria-expanded="false" onclick="toggleStep(2)" onkeydown="stepKey(event,2)">
-        <div class="step-num">2</div>
-        <div class="step-content"><h3 class="step-title">让它改成你满意的样子</h3></div>
+    <div class="card">
+      <span class="tag">默认只用这一个，先别换</span>
+      <h3 id="resName">豆包 · 手机和电脑都能开</h3>
+      <p id="resWhat">把零散的想法或笔记，整理成一段能直接发出去的话。</p>
+      <dl class="facts">
+        <dt>为什么是它</dt>
+        <dd id="resWhy">免费开始、国内直接打开、中文、手机可用、不用 API Key。</dd>
+        <dt>如实说</dt>
+        <dd id="resLimit">免费额度有上限；它写出来的事实，你要自己过目一次。</dd>
+      </dl>
+      <a class="btn-tool" id="resLink" href="https://www.doubao.com/chat/" target="_blank" rel="noopener">打开豆包 →</a>
+
+      <div class="say">
+        <div class="say__k" id="promptK">复制这段话，粘贴给豆包：</div>
+        <pre id="promptText"></pre>
+        <div class="btn-row">
+          <button class="btn-ghost" data-copy="prompt" type="button">复制这段话</button>
+        </div>
       </div>
-      <div class="step-body">
-        <p>刚才那段话，多半还不是你愿意直接发出去的样子。这一步才是真本事：把不满意的地方<strong>直接说给它听</strong>。</p>
-        <div class="prompt-box">把你刚才写的改一下：太长了，短一半；语气再轻松一点，像在跟朋友说话。结尾加一句问大家的问题。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
-        <p>不用推倒重来——它会在原来的基础上改。继续提要求，直到那段话你真的愿意用。</p>
-        <div class="tip">💡 这招通用于所有事：网页「标题大一号」、海报「换个颜色」、文章「例子再具体一点」。会提要求，AI 才真正好用。</div>
-        <button class="checkpoint-btn" onclick="markDone(2)" style="margin-top:8px">这步做完了 ✓</button>
-      </div>
+
+      <button class="btn-primary nextBtn" type="button">这一步我看完了 →</button>
+    </div>
+  </section>
+
+  <!-- ③ 行动 -->
+  <section class="beat" id="beat3" hidden>
+    <div class="beat__head">
+      <div class="beat__no" data-beatno="3">3</div>
+      <h2>照着做，做到就算开始</h2>
+    </div>
+    <div class="card" id="stepsBox"></div>
+  </section>
+
+  <!-- ④ 反馈 -->
+  <section class="beat" id="beat4" hidden>
+    <div class="beat__head">
+      <div class="beat__no" data-beatno="4">4</div>
+      <h2>做成了吗？</h2>
     </div>
 
-    <div class="step" id="step-3">
-      <div class="step-header" role="button" tabindex="0" aria-expanded="false" onclick="toggleStep(3)" onkeydown="stepKey(event,3)">
-        <div class="step-num">3</div>
-        <div class="step-content"><h3 class="step-title">查一件你真想知道的事，并核实</h3></div>
+    <div class="card">
+      <div class="btn-row" id="outcomeRow">
+        <button class="btn-ghost" data-outcome="done" type="button">做成了 ✓</button>
+        <button class="btn-ghost" data-outcome="stuck" type="button">卡住了</button>
       </div>
-      <div class="step-body">
-        <p>做东西，豆包就够；<strong>查重要的事</strong>，用 <strong>DeepSeek</strong>（chat.deepseek.com）：能联网搜真实信息，还标注来源。</p>
-        <p>✅ 免费 ✅ 全中文 ✅ 国内直接打开（提示登录就手机号/微信登录）</p>
-        <p>打开输入框下方的「深度思考」和「联网搜索」（找不到开关就直接发，也行），把你的问题用大白话发过去。比如：</p>
-        <div class="prompt-box">2026年适合个人开网店的平台有哪些？请对比它们的费用和门槛。我没什么经验，请用大白话讲。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
-        <a class="tool-btn" href="https://chat.deepseek.com" target="_blank" rel="noopener">打开 DeepSeek →</a>
-        <p style="font-size:14px;color:var(--fg-muted);margin-top:4px">它可能先显示"思考过程"，是正常的。等答案给全，读一遍。</p>
-        <div class="warn">⚠️ AI 会一本正经地说错话。拿到答案，花 30 秒核实：有来源链接的点进去看一眼；涉及钱、政策、法律的，去官方渠道再确认；太具体的数据可能是编的；不放心就用豆包再问一遍，对比两个答案。</div>
-        <button class="checkpoint-btn" onclick="markDone(3)" style="margin-top:8px">这步做完了 ✓</button>
+
+      <div id="stuckBox" hidden style="margin-top:14px">
+        <div class="say__k">卡在哪一步？</div>
+        <ul class="opts" id="stuckOpts"></ul>
+      </div>
+
+      <div id="feedbackBox" hidden style="margin-top:16px">
+        <div class="say__k">把这句话发回给我（复制后发微信就行）：</div>
+        <pre id="feedbackText"></pre>
+        <div class="btn-row">
+          <button class="btn-ghost" data-copy="feedback" type="button">复制反馈</button>
+          <button class="btn-ghost" id="restartBtn" type="button">重新来一遍</button>
+        </div>
       </div>
     </div>
+  </section>
 
-    <div class="checkpoint" id="cp-1">
-      <div class="label">✅ 做到这里：你已经会用了</div>
-      <p style="margin-bottom:12px">做成过一件小事、把它改到满意、还自己核实过一个答案——这三下就是全部基本功。接下来，回到上面选一件你真正想做的事。</p>
-      <button class="checkpoint-btn" onclick="completeStage(1)">走完了 🎉</button>
-    </div>
+  <footer>
+    <p>本页不联网、不收集数据、不埋统计：你写的内容和进度只存在你这台设备的浏览器里，清掉浏览器数据就没了。</p>
+    <p id="placeholderNote">页面结构先行：目前的“资源 / 第一步”是占位内容，等真实场景确定后替换。</p>
+  </footer>
 
-  </div>
-</div>
-
-<!-- ============ GRADUATION ============ -->
-<div class="graduation" id="graduation" style="display:none">
-  <div class="emoji">🎉</div>
-  <h2>恭喜，这些事你都真的做成了</h2>
-  <p>不是听完了课——是亲手做成了：</p>
-  <ul class="skills">
-    <li>让 AI 写出了你的话，还把它改到满意</li>
-    <li>自己查到了答案，还核实过它靠不靠谱</li>
-  </ul>
-  <div style="margin-top:16px;padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);text-align:left">
-    <p style="font-weight:600;margin-bottom:8px">接下来，回到上面选一件你真正想做的事。</p>
-    <p style="font-size:15px;color:var(--fg-muted)">👉 首页每个按钮都是一件真实的事：写东西、做个网页、做海报、整理照片、查事情、处理文件——第一步都替你写好了。</p>
-    <p style="font-size:15px;color:var(--fg-muted);margin-top:8px">👉 每天拿一件真事试一试：写个通知、查个政策、改段文字。用得越真，越顺手。</p>
-  </div>
-  <p style="margin-top:20px"><a href="#" onclick="resetAll();return false" style="display:inline-block;padding:12px 20px;color:var(--fg-muted);font-size:14px">重新走一遍</a></p>
-  <div style="margin-top:16px;padding:16px;background:var(--leaf-light);border-radius:var(--radius-sm)">
-    <p style="font-weight:600;margin-bottom:4px">觉得有用？</p>
-    <p style="font-size:15px;color:var(--fg-muted)">把这个网址发给朋友：<strong>ymai.fun</strong></p>
-  </div>
-</div>
-
-<footer>
-  <p>World Space · 从零开始，把 AI 用起来</p>
-</footer>
+</main>
 
 <script>
-var completedSteps = {};
-var completedStages = {};
-var totalSteps = 3;
-var ALL_STEPS = ['1', '2', '3'];
-// 2026-09-11: fallback shrunk from 4 stages/9 steps to 1 stage/3 steps; old step ids vanish as phantoms
-var STORAGE_KEY = 'ws_progress_v2';
-
-// Load progress from localStorage
-try {
-  var saved = localStorage.getItem(STORAGE_KEY);
-  if (saved) {
-    var data = JSON.parse(saved);
-    completedSteps = data.steps || {};
-    completedStages = data.stages || {};
-  }
-} catch(e) {}
-
-function saveProgress() {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({steps: completedSteps, stages: completedStages}));
-  } catch(e) {}
-}
-
-function toggleStage(n) {
-  var el = document.getElementById('stage-' + n);
-  var opening = !el.classList.contains('open');
-  el.classList.toggle('open');
-  if (opening && !el.querySelector('.step.open')) {
-    var steps = el.querySelectorAll('.step');
-    for (var i = 0; i < steps.length; i++) {
-      if (!steps[i].classList.contains('done')) { steps[i].classList.add('open'); break; }
+// ─────────────────────────────────────────────────────────────
+// 【待替换】真实场景确定后，只改这一块。
+// 四个环节的骨架不变：真实意图 → 世界资源 → 行动 → 反馈。
+// ─────────────────────────────────────────────────────────────
+const LOOP = {
+  intentPlaceholder: '我想……（例：把这次家长课的笔记，变成能直接发出去的一段话）',
+  resource: {
+    name: '豆包 · 手机和电脑都能开',
+    what: '把零散的想法或笔记，整理成一段能直接发出去的话。',
+    why: '免费开始、国内直接打开、中文、手机可用、不用 API Key。',
+    limit: '免费额度有上限；它写出来的事实，你要自己过目一次。',
+    link: 'https://www.doubao.com/chat/',
+    linkLabel: '打开豆包 →'
+  },
+  prompt: function (intent) {
+    return '我要做一件事：' + (intent || '（这里写你想做成的事）') + '\n' +
+      '请帮我做三件事：\n' +
+      '1. 先把这件事拆成 3 步以内，告诉我第一步做什么；\n' +
+      '2. 直接给我第一版内容，别问我要不要，先给一版；\n' +
+      '3. 写完之后，指出哪些地方是你不确定的，我需要自己核实。';
+  },
+  steps: [
+    {
+      title: '把上面那段话发给豆包',
+      sub: '复制 → 打开豆包 → 粘贴 → 发送',
+      start: '豆包回了你一版内容，哪怕你不满意，也算开始了。',
+      stuck: '不知道说什么，就用上面那段话；登录麻烦，用手机号或微信一键登录。'
+    },
+    {
+      title: '改成你敢直接发出去的样子',
+      sub: '告诉它"太书面了，改成我平时说话的样子"这类具体要求',
+      start: '有一段话，你可以原样复制出去用，不用再改。',
+      stuck: '它改不动，就把你满意的那一句贴给它，说"按这个感觉重写整段"。'
     }
-  }
-  syncAria(el);
-}
-function stageKey(e, n) {
-  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleStage(n); }
-}
-function toggleStep(n) {
-  var el = document.getElementById('step-' + n);
-  el.classList.toggle('open');
-  syncAria(el);
-}
-function stepKey(e, n) {
-  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleStep(n); }
-}
-function syncAria(scope) {
-  var items = (scope || document).querySelectorAll('[aria-expanded]');
-  for (var i = 0; i < items.length; i++) {
-    var box = items[i].closest('.stage, .step');
-    if (box) { items[i].setAttribute('aria-expanded', box.classList.contains('open') ? 'true' : 'false'); }
-  }
-}
-function markDone(n) {
-  if (!completedSteps[n]) {
-    completedSteps[n] = true;
-    var el = document.getElementById('step-' + n);
-    el.classList.add('done');
-    el.querySelector('.step-num').textContent = '✓';
-    el.classList.remove('open');
-    updateProgress();
-    saveProgress();
-    // Auto-open next step (open its stage first if needed); otherwise scroll to this stage's checkpoint
-    var nextEl = document.getElementById('step-' + (n + 1));
-    if (nextEl) {
-      var nextStage = nextEl.closest('.stage');
-      if (nextStage && !nextStage.classList.contains('open')) { nextStage.classList.add('open'); }
-      nextEl.classList.add('open');
-      setTimeout(function() { nextEl.scrollIntoView({behavior:'smooth', block:'center'}); }, 200);
-    } else {
-      var stageEl = el.closest('.stage');
-      var cp = stageEl && stageEl.querySelector('.checkpoint');
-      if (cp) { setTimeout(function() { cp.scrollIntoView({behavior:'smooth', block:'center'}); }, 200); }
+  ],
+  feedback: function (intent, outcome, stepTitle) {
+    if (outcome === 'done') {
+      return '我想做成的事：' + (intent || '（未填）') + '\n' +
+        '结果：做成了。' + (stepTitle ? '走到「' + stepTitle + '」就够用了。' : '') + '\n' +
+        '我实际用到的工具/做法：';
     }
-    syncAria(document);
+    return '我想做成的事：' + (intent || '（未填）') + '\n' +
+      '结果：卡住了。卡在「' + (stepTitle || '说不清哪一步') + '」。\n' +
+      '我当时想的是：';
   }
-}
-function completeStage(n) {
-  completedStages[n] = true;
-  var el = document.getElementById('status-' + n);
-  el.className = 'stage-status done';
-  el.textContent = '已完成';
-  var current = document.getElementById('stage-' + n);
-  if (current) { current.classList.remove('open'); }
-  document.getElementById('graduation').style.display = 'block';
-  document.getElementById('startLbl').textContent = '看看你做成了什么 🎉';
-  setTimeout(function() { document.getElementById('graduation').scrollIntoView({behavior:'smooth', block:'center'}); }, 150);
-  syncAria(document);
-  updateProgress();
-  saveProgress();
-}
-function updateProgress() {
-  var count = Object.keys(completedSteps).length;
-  document.getElementById('progressText').textContent = count + '/' + totalSteps;
-  document.getElementById('progressFill').style.width = Math.round(count / totalSteps * 100) + '%';
-  // 进度条属于兜底路径：真正开始后才出现，只带目标来的人不该看到 0/3
-  var started = count > 0 || Object.keys(completedStages).length > 0;
-  document.getElementById('progressWrap').style.display = started ? 'flex' : 'none';
-}
-function copyPrompt(btn) {
-  var box = btn.parentElement;
-  var text = box.cloneNode(true);
-  var b = text.querySelector('.copy-btn'); if (b) b.remove();
-  var plain = text.textContent.trim();
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(plain).then(function() { showCopied(btn); }).catch(function() { fallbackCopy(plain, btn); });
-  } else {
-    fallbackCopy(plain, btn);
-  }
-}
-function showCopied(btn) {
-  btn.textContent = '已复制 ✓'; btn.classList.add('copied');
-  setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
-}
-function fallbackCopy(text, btn) {
-  var ta = document.createElement('textarea'); ta.value = text;
-  ta.style.position = 'fixed'; ta.style.left = '-9999px';
-  document.body.appendChild(ta); ta.select();
-  var ok = false;
-  try { ok = document.execCommand('copy'); } catch(e) {}
-  document.body.removeChild(ta);
-  if (ok) {
-    showCopied(btn);
-  } else {
-    btn.textContent = '没复制上，长按文字复制';
-    setTimeout(function() { btn.textContent = '复制'; }, 3000);
-  }
-}
-function resetAll() {
-  completedSteps = {};
-  completedStages = {};
-  document.querySelectorAll('.step').forEach(function(el) { el.classList.remove('done','open');
-    var num = el.id.split('-')[1];
-    el.querySelector('.step-num').textContent = num;
-  });
-  document.querySelectorAll('.stage-status').forEach(function(el) { el.className = 'stage-status todo'; el.textContent = '未开始'; });
-  document.querySelectorAll('.stage').forEach(function(el) { el.classList.remove('open'); });
-  document.getElementById('graduation').style.display = 'none';
-  document.getElementById('stage-1').classList.add('open');
-  document.getElementById('step-1').classList.add('open');
-  document.getElementById('startLbl').textContent = '不知道从哪开始？跟着三步走';
-  updateProgress();
-  saveProgress();
-  window.scrollTo({top:0, behavior:'smooth'});
-  syncAria(document);
-}
+};
 
-// Restore progress on load
-function restoreProgress() {
-  var cleaned = false;
-  for (var n in completedSteps) {
-    var el = document.getElementById('step-' + n);
-    if (el) {
-      el.classList.add('done');
-      el.querySelector('.step-num').textContent = '✓';
-    } else {
-      // step no longer exists (fallback shrunk in 2026-09-11) — drop the phantom count
-      delete completedSteps[n];
-      cleaned = true;
-    }
-  }
-  if (cleaned) saveProgress();
-  if (completedStages[1]) {
-    var st = document.getElementById('status-1');
-    st.className = 'stage-status done';
-    st.textContent = '已完成';
-  }
-  // Graduated: finished the current 3 steps, or completed the old 4-stage path
-  var allDone = ALL_STEPS.every(function(id) { return completedSteps[id]; });
-  var legacyDone = [1,2,3,4].every(function(s) { return completedStages[s]; });
-  if (legacyDone && !allDone) {
-    // old full completer: the new 3 steps are a subset of what they already did — mark them honestly
-    for (var i = 0; i < ALL_STEPS.length; i++) {
-      completedSteps[ALL_STEPS[i]] = true;
-      var sel = document.getElementById('step-' + ALL_STEPS[i]);
-      if (sel) { sel.classList.add('done'); sel.querySelector('.step-num').textContent = '✓'; }
-    }
-    saveProgress();
-    allDone = true;
-  }
-  if (allDone) {
-    document.getElementById('startLbl').textContent = '看看你做成了什么 🎉';
-    document.getElementById('graduation').style.display = 'block';
-  } else {
-    // Returning user mid-journey: the fallback button should tell the truth about where they are
-    var nextStepEl = null;
-    for (var i = 0; i < ALL_STEPS.length; i++) {
-      var sel = document.getElementById('step-' + ALL_STEPS[i]);
-      if (sel && !sel.classList.contains('done')) { nextStepEl = sel; break; }
-    }
-    if (Object.keys(completedSteps).length > 0 && nextStepEl) {
-      var pos = nextStepEl ? nextStepEl.querySelector('.step-num').textContent : null;
-      document.getElementById('startLbl').textContent = pos
-        ? '接着上次继续：第 ' + pos + ' 步（共 ' + totalSteps + ' 步）'
-        : '接着上次继续';
-    }
-    document.getElementById('stage-1').classList.add('open');
-    if (nextStepEl) { nextStepEl.classList.add('open'); }
-  }
-  updateProgress();
-}
-
-// Keep aria-expanded truthful after any programmatic open/close
-syncAria(document);
-
-// Hero intent buttons: every goal gets its own direct answer panel
-var GOAL_BTNS = ['btn-poster', 'btn-photo', 'btn-ocr', 'btn-write', 'btn-web', 'btn-find', 'btn-organize'];
-function toggleGoal(id) {
-  var panel = document.getElementById(id);
-  var wasOpen = panel.classList.contains('open');
-  document.querySelectorAll('.goal-panel.open').forEach(function(p) { p.classList.remove('open'); });
-  GOAL_BTNS.forEach(function(bid) {
-    var b = document.getElementById(bid);
-    if (b) b.setAttribute('aria-expanded', 'false');
-  });
-  if (!wasOpen) {
-    panel.classList.add('open');
-    var btn = document.getElementById('btn-' + id.replace('goal-', ''));
-    if (btn) { btn.setAttribute('aria-expanded', 'true'); }
-    setTimeout(function() { panel.scrollIntoView({behavior:'smooth', block:'start'}); }, 60);
-    try { history.replaceState(null, '', '#' + id.replace('goal-', '')); } catch(e) {}
-  } else {
-    try { history.replaceState(null, '', location.pathname + location.search); } catch(e) {}
-  }
-}
-function closeGoal() {
-  document.querySelectorAll('.goal-panel.open').forEach(function(p) { p.classList.remove('open'); });
-  document.querySelectorAll('.intents .intent-btn[aria-expanded]').forEach(function(b) { b.setAttribute('aria-expanded', 'false'); });
-  try { history.replaceState(null, '', location.pathname + location.search); } catch(e) {}
-}
-// Deep link: shareable answers (#write #web #find #organize #photo #poster #ocr)
+// ── 以下为骨架逻辑，换场景不用动 ─────────────────────────────
 (function () {
-  var h = (location.hash || '').replace('#', '').split('?')[0].split('&')[0];
-  var map = { photo: 'btn-photo', poster: 'btn-poster', ocr: 'btn-ocr', write: 'btn-write', web: 'btn-web', find: 'btn-find', organize: 'btn-organize' };
-  if (map[h]) {
-    var b = document.getElementById(map[h]);
-    if (b) b.click();
+  var KEY = 'ws_loop_state';
+  var state = { intent: '', outcome: null, stuckAt: null, stepsDone: [] };
+  var $ = function (id) { return document.getElementById(id); };
+
+  try {
+    var saved = JSON.parse(localStorage.getItem(KEY) || 'null');
+    if (saved && typeof saved === 'object') { state = Object.assign(state, saved); }
+  } catch (e) { /* 本地记录损坏就当没存过 */ }
+
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* 无痕模式等，忽略 */ }
+  }
+
+  function copyText(text, btn) {
+    var ok = function () {
+      var old = btn.textContent;
+      btn.textContent = '已复制 ✓';
+      btn.setAttribute('data-ok', '1');
+      setTimeout(function () { btn.textContent = old; btn.removeAttribute('data-ok'); }, 1600);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(ok, function () { fallback(); });
+    } else { fallback(); }
+
+    function fallback() {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.top = '-1000px';
+      document.body.appendChild(ta);
+      ta.select();
+      var done = false;
+      try { done = document.execCommand('copy'); } catch (e) { done = false; }
+      document.body.removeChild(ta);
+      if (done) { ok(); } else { btn.textContent = '复制失败，请长按选中'; }
+    }
+  }
+
+  function setStepper(now) {
+    var items = $('stepper').querySelectorAll('li');
+    for (var i = 0; i < items.length; i++) {
+      var n = Number(items[i].getAttribute('data-beat'));
+      var st = n < now ? 'done' : (n === now ? 'now' : '');
+      if (st) { items[i].setAttribute('data-state', st); } else { items[i].removeAttribute('data-state'); }
+    }
+    var nos = document.querySelectorAll('.beat__no');
+    for (var j = 0; j < nos.length; j++) {
+      var bn = Number(nos[j].getAttribute('data-beatno'));
+      var s = bn < now ? 'done' : (bn === now ? 'now' : '');
+      if (s) { nos[j].setAttribute('data-state', s); } else { nos[j].removeAttribute('data-state'); }
+    }
+  }
+
+  function show(id) {
+    var el = $(id);
+    el.hidden = false;
+    el.scrollIntoView({ block: 'start' });
+  }
+
+  function renderIntent() {
+    $('intentEcho').textContent = state.intent || '（还没写）';
+  }
+
+  function renderResource() {
+    $('resName').textContent = LOOP.resource.name;
+    $('resWhat').textContent = LOOP.resource.what;
+    $('resWhy').textContent = LOOP.resource.why;
+    $('resLimit').textContent = LOOP.resource.limit;
+    $('resLink').href = LOOP.resource.link;
+    $('resLink').textContent = LOOP.resource.linkLabel;
+    $('promptText').textContent = LOOP.prompt(state.intent);
+  }
+
+  function renderSteps() {
+    var box = $('stepsBox');
+    box.innerHTML = '';
+    LOOP.steps.forEach(function (s, i) {
+      var done = state.stepsDone.indexOf(i) !== -1;
+      var d = document.createElement('div');
+      d.className = 'step';
+      d.setAttribute('data-done', done ? '1' : '0');
+
+      var t = document.createElement('div');
+      t.className = 'step__t';
+      t.innerHTML = '<em>' + (i + 1) + '</em><span></span>';
+      t.querySelector('span').textContent = s.title;
+
+      var sub = document.createElement('p');
+      sub.className = 'sub';
+      sub.textContent = s.sub;
+
+      var start = document.createElement('p');
+      start.innerHTML = '<strong>做到什么算开始：</strong>';
+      start.appendChild(document.createTextNode(s.start));
+
+      var stuck = document.createElement('p');
+      stuck.className = 'muted';
+      stuck.innerHTML = '<strong>卡住怎么办：</strong>';
+      stuck.appendChild(document.createTextNode(s.stuck));
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'btn-done';
+      btn.textContent = done ? '已做完 ✓' : '这一步做完了 ✓';
+      btn.addEventListener('click', function () {
+        var idx = state.stepsDone.indexOf(i);
+        if (idx === -1) { state.stepsDone.push(i); } else { state.stepsDone.splice(idx, 1); }
+        save();
+        renderSteps();
+        if (state.stepsDone.length) { revealFeedback(); }
+      });
+
+      d.appendChild(t); d.appendChild(sub); d.appendChild(start); d.appendChild(stuck); d.appendChild(btn);
+      box.appendChild(d);
+    });
+  }
+
+  function renderStuckOpts() {
+    var ul = $('stuckOpts');
+    ul.innerHTML = '';
+    LOOP.steps.forEach(function (s) {
+      var li = document.createElement('li');
+      var label = document.createElement('label');
+      var radio = document.createElement('input');
+      radio.type = 'radio';
+      radio.name = 'stuckAt';
+      radio.value = s.title;
+      if (state.stuckAt === s.title) { radio.checked = true; }
+      radio.addEventListener('change', function () { state.stuckAt = s.title; save(); renderFeedback(); });
+      var span = document.createElement('span');
+      span.textContent = s.title;
+      label.appendChild(radio); label.appendChild(span);
+      li.appendChild(label);
+      ul.appendChild(li);
+    });
+    var li2 = document.createElement('li');
+    var l2 = document.createElement('label');
+    var r2 = document.createElement('input');
+    r2.type = 'radio'; r2.name = 'stuckAt'; r2.value = '';
+    if (state.stuckAt === '') { r2.checked = true; }
+    r2.addEventListener('change', function () { state.stuckAt = ''; save(); renderFeedback(); });
+    var s2 = document.createElement('span');
+    s2.textContent = '都不是，是别的地方卡住了';
+    l2.appendChild(r2); l2.appendChild(s2); li2.appendChild(l2);
+    ul.appendChild(li2);
+  }
+
+  function renderFeedback() {
+    if (!state.outcome) {
+      $('feedbackText').textContent = '（先在上面选一个：做成了 / 卡住了）';
+      return;
+    }
+    $('feedbackText').textContent = LOOP.feedback(state.intent, state.outcome, state.stuckAt);
+  }
+
+  function revealFeedback() {
+    setStepper(4);
+    if ($('beat4').hidden) { show('beat4'); }
+    renderFeedback();
+  }
+
+  function setOutcome(v) {
+    state.outcome = v;
+    save();
+    var btns = document.querySelectorAll('#outcomeRow button');
+    for (var i = 0; i < btns.length; i++) {
+      var on = btns[i].getAttribute('data-outcome') === v;
+      btns[i].style.borderColor = on ? 'var(--accent-strong)' : '';
+      btns[i].style.color = on ? 'var(--accent-strong)' : '';
+      btns[i].style.background = on ? '#EFF5FF' : '';
+    }
+    $('stuckBox').hidden = (v !== 'stuck');
+    $('feedbackBox').hidden = false;
+    renderStuckOpts();
+    renderFeedback();
+  }
+
+  // 复制按钮
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest ? e.target.closest('[data-copy]') : null;
+    if (!btn) { return; }
+    var kind = btn.getAttribute('data-copy');
+    var text = '';
+    if (kind === 'intent') { text = state.intent; }
+    if (kind === 'prompt') { text = $('promptText').textContent; }
+    if (kind === 'feedback') { text = $('feedbackText').textContent; }
+    if (text) { copyText(text, btn); }
+  });
+
+  // 开始
+  $('startBtn').addEventListener('click', function () {
+    var v = $('intent').value.trim();
+    if (!v) {
+      $('intent').focus();
+      $('intent').style.borderColor = 'var(--sun)';
+      return;
+    }
+    state.intent = v;
+    save();
+    setStepper(2);
+    renderIntent();
+    renderResource();
+    show('beat2');
+  });
+
+  $('editIntent').addEventListener('click', function () {
+    setStepper(1);
+    $('beat1').hidden = false;
+    $('intent').focus();
+    $('beat1').scrollIntoView({ block: 'start' });
+  });
+
+  $('beat2').querySelector('.nextBtn').addEventListener('click', function () {
+    setStepper(3);
+    renderSteps();
+    show('beat3');
+    revealFeedback();
+  });
+
+  document.querySelectorAll('#outcomeRow button').forEach(function (b) {
+    b.addEventListener('click', function () { setOutcome(b.getAttribute('data-outcome')); });
+  });
+
+  $('restartBtn').addEventListener('click', function () {
+    state = { intent: '', outcome: null, stuckAt: null, stepsDone: [] };
+    save();
+    $('intent').value = '';
+    $('beat2').hidden = true;
+    $('beat3').hidden = true;
+    $('beat4').hidden = true;
+    $('stuckBox').hidden = true;
+    $('feedbackBox').hidden = true;
+    setStepper(1);
+    $('beat1').scrollIntoView({ block: 'start' });
+  });
+
+  // 恢复上次的进度
+  $('intent').placeholder = LOOP.intentPlaceholder;
+  if (state.intent) {
+    $('intent').value = state.intent;
+    renderIntent(); renderResource(); renderSteps();
+    setStepper(state.outcome ? 4 : (state.stepsDone.length ? 4 : 2));
+    $('beat2').hidden = false;
+    if (state.stepsDone.length || state.outcome) {
+      $('beat3').hidden = false;
+      $('beat4').hidden = false;
+      renderStuckOpts(); renderFeedback();
+      if (state.outcome) { setOutcome(state.outcome); }
+    }
   }
 })();
-
-// Hero fallback button: go to wherever this user actually is
-function startJourney() {
-  var allDone = ALL_STEPS.every(function(id) { return completedSteps[id]; });
-  var legacyDone = [1,2,3,4].every(function(s) { return completedStages[s]; });
-  if (allDone || legacyDone) {
-    var grad = document.getElementById('graduation');
-    grad.style.display = 'block';
-    grad.scrollIntoView({behavior:'smooth', block:'center'});
-    return false;
-  }
-  var stageEl = document.getElementById('stage-1');
-  stageEl.classList.add('open');
-  var steps = stageEl.querySelectorAll('.step');
-  var target = null;
-  for (var j = 0; j < steps.length; j++) {
-    if (!steps[j].classList.contains('done')) { target = steps[j]; break; }
-  }
-  if (target) {
-    target.classList.add('open');
-    setTimeout(function() { target.scrollIntoView({behavior:'smooth', block:'center'}); }, 100);
-  } else {
-    var cp = stageEl.querySelector('.checkpoint');
-    setTimeout(function() { cp.scrollIntoView({behavior:'smooth', block:'center'}); }, 100);
-  }
-  return false;
-}
-
-// Auto-open first stage
-restoreProgress();
 </script>
 </body>
 </html>
