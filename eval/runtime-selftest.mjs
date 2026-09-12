@@ -79,7 +79,7 @@ const kill = c => { try { c.kill('SIGKILL'); } catch (e) { } };
   ok('预算总账 = 48 次（16×3），无漏记重记', st.calls === 48, JSON.stringify(st));
   const page = await fetch('http://127.0.0.1:8872/');
   const html = await page.text();
-  ok('静态页可访问且诚实标注未接入', page.status === 200 && html.includes('还在接入真正的智能层'));
+  ok('静态页可访问且是真实入口（标题+第三方披露）', page.status === 200 && html.includes('你现在想做成什么') && html.includes('第三方 AI 与搜索服务'));
   kill(inst.child);
 }
 

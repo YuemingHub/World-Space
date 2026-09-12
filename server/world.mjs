@@ -102,12 +102,18 @@ function overCap(s) {
   return null;
 }
 
-/* ── 本轮调用计量：request-local，绝不在请求间共享（并发回归盯住这一点）── */
+/* ── 本轮调用计量：request-local，绝不在请求间共享（并发回归盯住这一点）──
+   计数本身每次从磁盘重读再累加：请求各自的副本会过期——真实模式下两条并发请求
+   跨 await 各自回写就会丢计数（反方攻击发现，延迟网关并发回归盯住）。 */
 function countCall(s, usage, cost) {
-  s.calls += 1;
-  s.cost = Math.round((s.cost + cost) * 1e6) / 1e6;
+  const fresh = loadBudget();
+  if (!fresh.state) throw new Error('budget_guard_unavailable');
+  const st = fresh.state;
+  st.calls += 1;
+  st.cost = Math.round((st.cost + cost) * 1e6) / 1e6;
+  if (!persist(st)) throw new Error('budget_guard_unavailable');
+  s.calls = st.calls; s.cost = st.cost;
   usage.request_cost_rmb = Math.round((usage.request_cost_rmb + cost) * 1e6) / 1e6;
-  if (!persist(s)) throw new Error('budget_guard_unavailable');
 }
 
 async function llm(s, usage, system, user) {

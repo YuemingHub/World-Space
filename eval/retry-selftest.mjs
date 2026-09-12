@@ -96,5 +96,35 @@ const kill = c => { try { c.kill('SIGKILL'); } catch (e) { } };
   kill(child); gw.close();
 }
 
+// 场景 C：并发计数竞态——带延迟的网关让 4 条请求同时在途，每次计数必须磁盘重读，
+// 最终总账必须恰好 4（旧实现各自持过期副本回写会丢成 1–2）
+{
+  rmSync('var/retry-c.json', { force: true });
+  const gw = http.createServer((req, res) => {
+    let buf = '';
+    req.on('data', d => buf += d);
+    req.on('end', () => setTimeout(() => {
+      res.writeHead(200, { 'content-type': 'application/json' });
+      res.end(JSON.stringify({ choices: [{ message: { content: GOOD_TRIAGE } }], usage: { prompt_tokens: 10, completion_tokens: 10 } }));
+    }, 150));
+  });
+  const worldPort = 8894, gwPort = worldPort + 100;
+  await new Promise(r => gw.listen(gwPort, '127.0.0.1', r));
+  const child = spawn(process.execPath, [join(ROOT, 'server', 'world.mjs')], {
+    env: Object.assign({}, process.env, {
+      WS_PROVIDER: 'openai_compatible', WS_LLM_BASE_URL: `http://127.0.0.1:${gwPort}`,
+      WS_LLM_MODEL: 'mock', WS_SEARCH: 'none', WS_PORT: String(worldPort), WS_HOST: '127.0.0.1',
+      WS_STATE_FILE: join(ROOT, 'var', 'retry-c.json'), WS_DAILY_CAP: '50', WS_TIMEOUT_MS: '5000',
+    }), stdio: 'ignore',
+  });
+  await worldUp(worldPort);
+  const rs = await Promise.all([1, 2, 3, 4].map(i => ask(worldPort, '并发计数竞态测试 ' + i)));
+  const codes = rs.map(r => r.status);
+  const st = JSON.parse(readFileSync(join(ROOT, 'var', 'retry-c.json'), 'utf8'));
+  ok('C: 4 条并发（在途交叠）全部 200', codes.every(c => c === 200), JSON.stringify(codes));
+  ok('C: 并发下预算总账 = 4，无丢计数', st.calls === 4, JSON.stringify(st));
+  kill(child); gw.close();
+}
+
 console.log(failures ? `\n失败 ${failures} 项` : '\nF4 重试回归全部通过（本地 mock，非真实 provider）');
 process.exitCode = failures ? 1 : 0;
