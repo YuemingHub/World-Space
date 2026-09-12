@@ -81,6 +81,10 @@ triage → search 之间过 `minimizeQuery()`：手机号 / 18 位证件号 / 8 
 
 ## 4. 现在这一层的真实数据流
 
+模块分工（提交 `7230ef0` 起）：`server/world.mjs` 流程与预算（264 行）、
+`server/guard.mjs` 护栏（86 行）、`server/evidence.mjs` 证据表与授权（79 行）、
+`server/validate.mjs` 契约校验（39 行）。护栏单独成模块，是为了能脱离流程被单独评审。
+
 ```
 浏览器（持有回路状态） ──POST /api/world {intent, answers[]}──▶
   1. 预算护栏 fail closed（读不到/写不进 → 503；到上限 → 429 + 手工降级）
