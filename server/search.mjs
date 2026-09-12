@@ -17,12 +17,13 @@ async function post(url, headers, body) {
   return res.json();
 }
 
-/** Tavily：只取 results（标题/链接/摘要/发布时间），明确不要它的 answer 生成能力 */
+/** Tavily：只取 results（标题/链接/摘要/发布时间），明确不要它的 answer 生成能力。
+ *  认证只走 Authorization: Bearer，key 不进请求体；body 里只有搜索参数。 */
 export async function tavily(cfg, query) {
   const j = await post(
     cfg.searchUrl || 'https://api.tavily.com/search',
     { authorization: `Bearer ${cfg.searchKey}` },
-    { api_key: cfg.searchKey, query, max_results: 8, search_depth: 'basic', include_answer: false, include_raw_content: false },
+    { query, max_results: 8, search_depth: 'basic', include_answer: false, include_raw_content: false },
   );
   return (j.results || []).map(x => ({
     title: x.title || '', url: x.url || '', snippet: x.content || '', published_at: x.published_date || '',

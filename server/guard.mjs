@@ -35,7 +35,7 @@ export function guard(c, ev) {
   out.reality_feedback_prompt = String(out.reality_feedback_prompt || '');
   out.safe_next_action = out.safe_next_action || null;
   out.fallback_if_refused = String(out.fallback_if_refused ||
-    '不愿交给 AI：把这件事改写成 3 个搜索词自己去官方站点核对，或打 12345 人工问归口。');
+    '如果你不愿把内容交给 AI：把这件事改写成几个关键词，优先查对应的官方机构、实际服务提供方或真实平台；仍无法判断时，再找这个领域的人工客服、专业人员或现实中的人确认。');
 
   // 资源必须绑定本轮有效证据；模型自报的来源字段一律作废
   out.resources = (Array.isArray(out.resources) ? out.resources : []).slice(0, 3).map(r => {

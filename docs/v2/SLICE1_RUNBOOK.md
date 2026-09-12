@@ -17,6 +17,14 @@ curl http://127.0.0.1:8794/healthz
 伪造的官方域名被压测器抓成 P0、每日上限一到就 429 并给出人工降级路径。
 **桩的输出不得当作智能结果汇报。**
 
+每次动过 `server/**` 之后，三个静态/单元 Gate 必须全绿（详见 `SEARCH_PILOT_PREFLIGHT.md` §7）：
+
+```bash
+node eval/runtime-isolation-selftest.mjs   # 生产路径对评测数据的引用必须为 0，违规输出 PRODUCTION_RUNTIME_REFERENCES_EVAL_DATA
+node eval/authority-selftest.mjs           # 授权判定的正负控 + 旧白名单残留检查
+node eval/adapter-shape-selftest.mjs       # 搜索适配层响应形状 + Bearer-only 请求形状
+```
+
 ## 2. 接真实智能层还缺两把钥匙（Founder 提供）
 
 | 需要的 | 备选 | 现状 |
@@ -66,6 +74,11 @@ Tavily 只作 Search Provider：`query → results`。**不用它的 answer 生�
    **compose 没触发就停**，先查原因，不要直接跑 12 条。
 2. 人工打开最终引用的 URL，逐条核对：URL 真存在、标题大体一致、snippet 没截反语义、
    claim 真由该 source 支撑、authority 判级正确、模型引用的是本轮 evidence 而不是自造 URL。
+   每条按**两个独立字段**记录（authority 本轮只回答"这是谁的网站"，不回答"有没有资格支撑这个 claim"）：
+   - `domain_authority_correct`：系统有没有认对"这是谁的网站"（government / trusted media / unverified）；
+   - `claim_source_role_correct`：这个具体网页是否真有资格支撑这个具体 claim
+     （例：政府网站转载新华社文章 → domain=government，不自动等于这是一手政府结论）。
+   两字段分开记，先靠 pilot 暴露问题，不提前开发 Claim Verification Engine。
 3. 全部成立后，才用**完全相同的 12 条**跑 Pilot 12（`eval/pilot12.json`），
    产物写 `docs/v2/SEARCH_EVIDENCE_PILOT12.md` + raw evidence。
 

@@ -15,7 +15,7 @@
  *   2. 没有有效证据的资源不进答案，高风险判断没有证据就不给确定路径；
  *   3. 预算 fail closed：状态读不到或写不进就停止付费调用，不把硬上限变成软提示。
  *
- * 硬边界见 docs/v2/NORTH_STAR.md §4.3。唯一写盘的是预算计数（次数与金额，不含用户正文）。
+ * 硬边界见仓库文档区的"北极星"文件 §4.3。唯一写盘的是预算计数（次数与金额，不含用户正文）。
  */
 import http from 'node:http';
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
@@ -41,7 +41,7 @@ const CFG = {
   extraHeaders: (() => { try { return JSON.parse(process.env.WS_LLM_EXTRA_HEADERS || '{}'); } catch (e) { return {}; } })(),
   maxTokens: Number(process.env.WS_MAX_TOKENS || 1500),
   debug: process.env.WS_DEBUG_LLM === '1',
-  search: process.env.WS_SEARCH || 'none', // none | fixture | bocha | aliyun
+  search: process.env.WS_SEARCH || 'none', // none | fixture | tavily | bocha | aliyun
   searchKey: process.env.WS_SEARCH_KEY || '',
   searchUrl: process.env.WS_SEARCH_URL || '',
   dailyCap: Number(process.env.WS_DAILY_CAP || 50),
@@ -223,7 +223,7 @@ const server = http.createServer(async (req, res) => {
   const cap = overCap(s);
   if (cap) return json(res, 429, {
     error: 'budget_exceeded', limit: cap, daily_cap: CFG.dailyCap, month_cost_rmb: s.cost,
-    fallback_if_refused: '今天额度用完：自己在官方站点搜同一件事，或打 12345 人工问归口。',
+    fallback_if_refused: '今天额度用完：把这件事改写成几个关键词，优先查对应的官方机构、实际服务提供方或真实平台；仍无法判断时，再找这个领域的人工客服、专业人员或现实中的人确认。',
   });
 
   let body;

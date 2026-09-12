@@ -33,6 +33,29 @@ await check('tavily', tavily, SYNTHETIC_TAVILY, [1, 2]);
 await check('bocha', bocha, SYNTHETIC_BOCHA, [1]);
 await check('aliyun', aliyun, SYNTHETIC_ALIYUN, [1]);
 
+// 请求形状：认证只走 Authorization: Bearer，key 不进任何请求体；Tavily 的 answer 能力保持关闭
+const realFetch2 = globalThis.fetch;
+{
+  const KEY = 'SYNTHETIC-KEY-NOT-REAL';
+  let captured = null;
+  globalThis.fetch = async (url, opts) => {
+    captured = { url, headers: opts.headers || {}, body: JSON.parse(opts.body || '{}') };
+    return { ok: true, status: 200, json: async () => SYNTHETIC_TAVILY };
+  };
+  await tavily({ searchKey: KEY, searchUrl: '' }, 'q');
+  const checks = {
+    'Authorization=Bearer': captured.headers.authorization === `Bearer ${KEY}`,
+    'body 无 api_key 字段': !('api_key' in captured.body),
+    'body 全文无 key': JSON.stringify(captured.body).indexOf(KEY) === -1,
+    'include_answer=false': captured.body.include_answer === false,
+    'include_raw_content=false': captured.body.include_raw_content === false,
+    '只带搜索参数': ['query', 'max_results', 'search_depth', 'include_answer', 'include_raw_content']
+      .every(k => k in captured.body) && Object.keys(captured.body).length === 5,
+  };
+  Object.entries(checks).forEach(([k, ok]) => { console.log(`${ok ? '✓' : '✗'} tavily 请求形状：${k}`); if (!ok) failures++; });
+}
+globalThis.fetch = realFetch2;
+
 // 出错时不能把 key 带进错误信息
 globalThis.fetch = async () => ({ ok: false, status: 401, json: async () => ({}) });
 let msg = '';

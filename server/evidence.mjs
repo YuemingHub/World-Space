@@ -3,15 +3,15 @@
  *   1. Evidence Binding：证据身份由服务端生成，模型只能引用 id，不能自己造 URL；
  *   2. Source Authority Guard：authority 由系统按规则授予，模型自称 official_primary 无效；
  *   3. 搜索词最小化：明显手机号/证件号/长号码在进入搜索前隐去。
- * 注意：VERIFIED_HOSTS 只用于"授权判定"，**绝不写进提示词**，
- * 否则 Reality Eval 就从裁判变成了模型的答案库。
+ * Authority 只回答"这个域名是谁的"（政府 / 权威媒体 / 未核实），
+ * 不回答"这个页面是否有资格支撑这个具体 claim"——后者靠真实 pilot 的人工审查暴露。
+ * 来源只有两类，且都不读任何评测或文档数据：
+ *   a. 稳定、可独立解释的域名规则（政府/教育/科研域名 + 一小撮权威媒体）；
+ *   b. 将来确有需要时才建的极少量长期 registry（config/source_authority.json，
+ *      每项须含 host/authority/why/checked_at，理由必须独立成立，不许"评测需要它"）。
+ * 本轮只保留 a。判断不了的一律 unverified：宁可少授予，不造"互联网权威数据库"。
+ * 授权表永远不写进提示词，否则它就从判定规则变成了模型的答案库。
  */
-import { readFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-
 export const HIGH_RISK = ['法', '条例', '政策', '规定', '医保', '保险', '报销', '补贴', '资格',
   '证书', '职业标准', '备案', '许可', '价格', '收费', '免费', '部门', '热线', '投诉', '受理',
   '医院', '护理', '药品', '名单', '官方', '定点', '110', '12345', '12369', '12348', '12315'];
@@ -22,25 +22,17 @@ export function hasHighRisk(text) {
   return HIGH_RISK.some(k => s.indexOf(k) !== -1);
 }
 
-const VERIFIED_HOSTS = new Set();
-try {
-  const set = JSON.parse(readFileSync(join(ROOT, 'eval', 'reality_eval.json'), 'utf8'));
-  (set.items || []).forEach(i => (i.official_entry || []).forEach(e => {
-    try { if (e.url) VERIFIED_HOSTS.add(new URL(e.url).hostname.toLowerCase()); } catch (x) { /* 空串或非 URL 忽略 */ }
-  }));
-} catch (e) { /* 读不到评测集就全部按未核实降级，不影响线上 */ }
-
 /** 一小撮权威二手来源，故意不做大而全的域名库；不在表里的一律降级 */
 const TRUSTED_MEDIA = ['people.com.cn', 'xinhuanet.com', 'cinet.cn', 'cnr.cn', 'thepaper.cn'];
 
-/** 授权由系统判定：官方原始 > 权威二手 > 未核实。永不升级，只会降级。 */
+/** 授权由系统判定：官方原始 > 权威二手 > 未核实。永不升级，只会降级。
+ *  域名匹配只认整段：h === t，或 h 以 '.' + t 结尾——防 evilxinhuanet.com 这类假亲戚。 */
 export function authority(url) {
   let h = '';
   try { h = new URL(url).hostname.toLowerCase(); } catch (e) { return { source_type: 'unverified', host: '' }; }
-  if (VERIFIED_HOSTS.has(h)) return { source_type: 'official_primary', host: h };
   if (/(\.|^)gov\.cn$/.test(h)) return { source_type: 'official_primary', host: h };
   if (/\.(edu|ac)\.cn$/.test(h)) return { source_type: 'official_primary', host: h };
-  if (TRUSTED_MEDIA.some(t => h === t || h.endsWith('.' + t) || h.endsWith(t))) return { source_type: 'trusted_secondary', host: h };
+  if (TRUSTED_MEDIA.some(t => h === t || h.endsWith('.' + t))) return { source_type: 'trusted_secondary', host: h };
   return { source_type: 'unverified', host: h };
 }
 

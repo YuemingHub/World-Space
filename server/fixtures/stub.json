@@ -3,7 +3,7 @@
   "ok": {
     "triage": {
       "needs_search": true,
-      "search_query": "居住小区 夜间噪声 投诉 归口部门 12345 受理",
+      "search_query": "居住小区 夜间噪声 投诉 归口部门 受理",
       "draft": { "understanding": "你想让晚上的噪声停下来。", "needs_clarification": true, "questions": [], "safe_next_action": null, "recommended_path": null, "resources": [], "uncertainties": [], "reality_feedback_prompt": "" }
     },
     "compose": {
@@ -22,7 +22,7 @@
       ],
       "uncertainties": ["社会生活噪声（邻里）多由公安与物业先行处理，你所在城市的具体分工本轮未核实。"],
       "reality_feedback_prompt": "去做之后告诉我：你拿到受理编号了吗？对方给了什么答复？",
-      "fallback_if_refused": "不愿意把内容交给 AI：自己在浏览器搜『居住小区 夜间噪声 投诉 + 你所在城市』，或直接打 12345 问归口。"
+      "fallback_if_refused": "不愿意把内容交给 AI：自己在浏览器搜『居住小区 夜间噪声 投诉 + 你所在城市』，找到对应官方渠道后电话或线上反映。"
     }
   },
   "bad": {
