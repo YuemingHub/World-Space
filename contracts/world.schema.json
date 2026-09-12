@@ -30,9 +30,14 @@
       "properties": {
         "summary": { "type": "string" },
         "why": { "type": "string" },
-        "first_action": { "type": "string", "description": "今天就能执行的第一步" }
+        "first_action": { "type": "string", "description": "今天就能执行的第一步" },
+        "evidence_ids": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "路径里的高风险判断依赖哪几条服务端签发的证据；无有效证据不得给出确定路径"
+        }
       },
-      "required": ["summary", "why", "first_action"]
+      "required": ["summary", "why", "first_action", "evidence_ids"]
     },
     "resources": {
       "type": "array",
@@ -49,9 +54,10 @@
           },
           "why": { "type": "string" },
           "claim": { "type": "string", "description": "这条资源支撑的具体说法" },
-          "source_url": { "type": "string" },
-          "source_title": { "type": "string" },
-          "source_type": { "type": "string", "enum": ["official_primary", "trusted_secondary", "third_party", "unverified"] },
+          "evidence_id": { "type": "string", "description": "服务端签发的证据 id；模型不得自行填写 URL" },
+          "source_url": { "type": "string", "description": "由服务端从 evidence_id 解析回填" },
+          "source_title": { "type": "string", "description": "由服务端从 evidence_id 解析回填" },
+          "source_type": { "type": "string", "enum": ["official_primary", "trusted_secondary", "third_party", "unverified"], "description": "由服务端授权判定；模型自称无效" },
           "checked_at": { "type": "string" },
           "published_at": { "type": "string" },
           "confidence": { "type": "string", "enum": ["low", "medium", "high"] },
