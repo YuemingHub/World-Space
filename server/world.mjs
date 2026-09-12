@@ -22,6 +22,7 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { evidenceTable, minimizeQuery } from './evidence.mjs';
+import { PROVIDERS, KNOWN } from './search.mjs';
 import { guard } from './guard.mjs';
 import { validate } from './validate.mjs';
 
@@ -148,19 +149,10 @@ async function runSearch(s, query) {
     return { items: JSON.parse(readFileSync(join(HERE, 'fixtures', 'search.json'), 'utf8')).items, note: 'fixture_search' };
   }
   if (!CFG.searchKey) return { skipped: 'no_search_key', items: [] };
+  if (!KNOWN.includes(CFG.search)) return { skipped: 'unknown_provider', items: [] };
   countCall(s, CFG.priceSearch);
   usage.search_calls += 1;
-  const conf = CFG.search === 'bocha'
-    ? { url: 'https://api.bochaai.com/v1/web-search', body: { query, summary: true, count: 8 },
-        pick: j => (((j.data || {}).webPages || {}).value || []).map(x => ({ title: x.name, url: x.url, snippet: x.summary || x.snippet, published_at: x.datePublished || '' })) }
-    : { url: CFG.searchUrl || 'https://maasaisearchproxy.aliyuncs.com/api/web-search', body: { query, limit: 8 },
-        pick: j => (j.pageItems || j.items || []).map(x => ({ title: x.title, url: x.url, snippet: x.snippet || x.content, published_at: x.publishedTime || '' })) };
-  const res = await fetch(conf.url, {
-    method: 'POST', headers: { 'content-type': 'application/json', authorization: `Bearer ${CFG.searchKey}` },
-    body: JSON.stringify(conf.body), signal: AbortSignal.timeout(CFG.timeoutMs),
-  });
-  if (!res.ok) throw new Error(`search_http_${res.status}`);
-  return { items: conf.pick(await res.json()) };
+  return { items: await PROVIDERS[CFG.search](CFG, query) };
 }
 
 /* ── 提示词：只给 id，不给它复制 URL 的机会 ───────────────── */
@@ -212,6 +204,8 @@ const server = http.createServer(async (req, res) => {
     const b = loadBudget();
     return json(res, 200, {
       ok: true, provider: CFG.provider, search: CFG.search, model: CFG.llmModel || 'stub',
+      // 只报告"配没配"，绝不回显 key
+      search_configured: CFG.search === 'fixture' ? true : (CFG.search !== 'none' && !!CFG.searchKey),
       budget_mode: b.mode, today_calls: b.state ? b.state.calls : null,
       month_cost_rmb: b.state ? b.state.cost : null,
       daily_cap: CFG.dailyCap, monthly_cap_rmb: CFG.monthlyCapRmb, fail_closed: CFG.failClosed,

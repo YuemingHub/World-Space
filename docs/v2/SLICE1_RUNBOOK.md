@@ -44,11 +44,40 @@ EOF
 cd D:/服务器/repos/World-Space && set -a && . var/.env.local && set +a && node server/world.mjs
 ```
 
-## 3. 预算与轮次（她定的硬上限已在代码里强制）
+## 3.5 接真实搜索（PHASE 1，等 Founder 给 Key）
 
-- 每日 50 次智能/搜索请求、每月 20 元，超了就 429 并返回人工降级提示，**不静默跳过**。
-- 全量 37 条一轮 ≈ 37–74 次 LLM + ≤37 次搜索 ⇒ **会顶到每日 50 的上限**，需要分两天跑或临时提上限（她定）。
-- 粗估一轮真实成本：搜索 ≈ 0.44 元（12 元/千次口径）+ 模型走免费额度 ≈ 0 元。
+Key 纪律：**只存在 `var/.env.local`（已 gitignored）**；不打印、不进报告、不进 eval 输出、不进异常堆栈、不进 Git。
+只允许验证"配没配"：`/healthz` 的 `search_configured` 字段（不回显 key）。
+
+她要在本机执行（一次即可）：
+
+```bash
+cd D:/服务器/repos/World-Space && printf 'WS_SEARCH=tavily\nWS_SEARCH_KEY=<粘贴 Tavily key>\n' >> var/.env.local
+```
+
+Tavily 只作 Search Provider：`query → results`。**不用它的 answer 生成能力**（请求里已写死 `include_answer:false`）。
+它返回的网页**不等于**官方来源：判级仍由 `server/evidence.mjs` 按真实 URL 决定（找东西与判定证据是两种权力，不合并）。
+
+顺序**不可跳过**：
+
+1. 先跑一条**必须触发搜索**的 smoke（建议 S5-a 或 S3），确认链条完整：
+   triage → `needs_search=true` → 最小化后的 query → Tavily 真实请求 → ≥1 条结果 → 服务端签发 e1…
+   → compose → 模型引用 evidence_id → 服务端解析回 URL → 授权判级 → guard → validate → 200。
+   **compose 没触发就停**，先查原因，不要直接跑 12 条。
+2. 人工打开最终引用的 URL，逐条核对：URL 真存在、标题大体一致、snippet 没截反语义、
+   claim 真由该 source 支撑、authority 判级正确、模型引用的是本轮 evidence 而不是自造 URL。
+3. 全部成立后，才用**完全相同的 12 条**跑 Pilot 12（`eval/pilot12.json`），
+   产物写 `docs/v2/SEARCH_EVIDENCE_PILOT12.md` + raw evidence。
+
+## 3.6 预算（不变）
+
+`WS_DAILY_CAP=50`、月上限 20 元，**不调高**。注意 50 是 **provider 调用次数**，不是 `/api/world` 请求数：
+有搜索的 case 最坏是 `2 LLM + 1 Search = 3` 次。12 条全触发搜索 = 36 次，仍在 50 以内。
+
+
+- 每日 50 次 provider 调用、每月 20 元，超了就 429 并返回人工降级提示，**不静默跳过**。
+- 全量 37 条一轮 ≈ 37–74 次 LLM + ≤37 次搜索 ⇒ **会顶到每日 50 的上限**，需要分两天跑或由她决定是否提上限。
+- 粗估一轮真实成本：搜索 ≈ 0.44 元（12 元/千次口径）+ 模型按网关实际计费。
 
 ## 4. 跑完之后的判定顺序
 
