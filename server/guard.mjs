@@ -3,7 +3,7 @@
  * 这一份是 Slice 1.1 的主体，与传输/流程分开，便于单独评审。
  * 立场：只降级，不升级；宁可撤回，不误指路。
  */
-import { hasHighRisk } from './evidence.mjs';
+import { claimRisk } from './evidence.mjs';
 
 const RESOURCE_TYPES = ['government', 'institution', 'company', 'service', 'place', 'person',
   'community', 'document', 'dataset', 'open_source', 'software', 'ai_tool', 'product', 'other'];
@@ -16,7 +16,7 @@ function today() { return new Date().toISOString().slice(0, 10); }
  * @param ev  服务端签发的本轮证据表（模型只能引用其中的 id）
  */
 export function guard(c, ev) {
-  const acts = [], dropped = [];
+  const acts = [], dropped = [], downgrades = [];
   const out = JSON.parse(JSON.stringify(c || {}));
 
   if (!Array.isArray(out.questions) && Array.isArray(out.clarifying_questions)) {
@@ -55,10 +55,20 @@ export function guard(c, ev) {
     x.published_at = e.published_at || ''; x.checked_at = today();
     if (!RESOURCE_TYPES.includes(x.type)) x.type = 'other';
     if (!['low', 'medium', 'high'].includes(x.confidence)) x.confidence = 'low';
-    x.high_risk = hasHighRisk(`${x.claim || ''} ${x.why || ''} ${x.name || ''}`);
-    if (x.high_risk && x.source_type === 'unverified') {
-      dropped.push(`${x.name}：证据域名未获授权，高风险结论按未核实处理，已删除`);
+
+    /* F1 admission：风险 × 证据授权。unverified 仍可当线索，但不得支撑高风险事实；
+       量化结论来自 unverified 只降级（低置信 + 强制不确定标注），不静默放行也不全删。 */
+    x.risk = claimRisk(`${x.claim || ''} ${x.why || ''} ${x.name || ''}`);
+    x.high_risk = x.risk === 'high_risk';
+    if (x.source_type === 'unverified' && x.risk === 'high_risk') {
+      dropped.push(`${x.name}：高风险结论的证据未获授权，按 admission 规则删除`);
+      acts.push('resource_rejected_unverified_high_risk');
       return null;
+    }
+    if (x.source_type === 'unverified' && x.risk === 'important') {
+      x.confidence = 'low';
+      downgrades.push(`${x.name}：量化结论的证据未获授权，已降级为低置信线索，行动前请自行核实`);
+      acts.push('resource_downgraded_unverified_important');
     }
     return x;
   }).filter(Boolean);
@@ -70,17 +80,25 @@ export function guard(c, ev) {
     const valid = ids.filter(i => ev.has(i));
     if (ids.length !== valid.length) acts.push(`path_evidence_dropped:${ids.length - valid.length}`);
     p.evidence_ids = valid;
-    if (hasHighRisk(`${p.summary} ${p.why} ${p.first_action}`) && !valid.length && !backed.length) {
+    /* F2：路径与资源同一把 admission 尺。id 存在 ≠ 授权——
+       高风险路径的 backing 必须含非 unverified 证据（引用的证据或保留下来的资源）。 */
+    const authorityBacked = valid.some(i => (ev.get(i) || {}).source_type !== 'unverified') || backed.length > 0;
+    const risk = claimRisk(`${p.summary || ''} ${p.why || ''} ${p.first_action || ''}`);
+    if (risk === 'high_risk' && !authorityBacked) {
       out.recommended_path = null;
-      dropped.push('确定路径含高风险判断却没有有效证据，已撤回');
-      acts.push('path_revoked_no_evidence');
+      dropped.push('确定路径含高风险判断，引用的证据均未获授权，已撤回');
+      acts.push('path_revoked_unverified_backing');
+    } else if (risk !== 'normal' && !authorityBacked) {
+      downgrades.push('这条推荐路径引用的证据未获授权，其中的量化与结论性表述只当线索，行动前请自行核实');
+      acts.push('path_downgraded_unverified_backing');
     }
   }
 
   // safe_next_action 是契约里指定的降级目标：动作本身不是"确定结论"，不能一看到高风险词就删掉。
   // 只做两件事：动作形态的保留并标注需自己核实；不像动作的（更像断言）才中性化。
+  // F1：进入判定的尺子从词表换成三级 claimRisk——量化的断言形态动作也逃不过。
   const ACTION_SHAPED = ['打', '拨', '问', '记', '录', '查', '搜', '写', '列', '数', '约', '联系', '打开', '整理', '提交', '准备', '带', '挂'];
-  if (out.safe_next_action && hasHighRisk(out.safe_next_action)) {
+  if (out.safe_next_action && claimRisk(out.safe_next_action) !== 'normal') {
     if (ACTION_SHAPED.some(v => out.safe_next_action.indexOf(v) !== -1)) {
       out.uncertainties.push('这条立即动作里提到的具体部门或入口，请当作待核实的线索，别当成已经确认的结论；先按它动起来，同时自己核对一次归口。');
       acts.push('safe_action_kept_flagged');
@@ -91,7 +109,7 @@ export function guard(c, ev) {
     }
   }
 
-  out.uncertainties = (Array.isArray(out.uncertainties) ? out.uncertainties : []).concat(dropped);
+  out.uncertainties = (Array.isArray(out.uncertainties) ? out.uncertainties : []).concat(downgrades, dropped);
   if (!out.recommended_path && !out.safe_next_action && !out.questions.length) {
     out.safe_next_action = NEUTRAL_ACTION;   // 撤回之后也不能把人晾在原地
     acts.push('neutral_floor_action_added');

@@ -104,7 +104,15 @@ S1-a..e / S2 / S2-a..c / S3-a..d 共 12 条（全集 37 的溢出部分）已完
 ## 5. 待办（下轮）
 
 1. 日额度重置后补跑剩余 6 条 pilot（S4-a / S4-c / S5 / S5-a / S5-e / S6-e），补全本文件；
-2. Founder 决策：F1 语义化高风险闸门 vs unverified 一律不进答案；
-3. Founder 决策：F4 解析失败单次重试（计入预算）；
-4. F2 路径 backing 与资源层标准统一；F3 是否引入引用可达性降级。
-5. 状态：**PILOT_PARTIAL — 等待预算窗口与上述决策**。未接 UI、未部署、未动 main。
+2. ~~Founder 决策：F1 语义化高风险闸门 vs unverified 一律不进答案~~ **已决策并实施（2026-09-12 晚）**：
+   三级 claimRisk（normal/important/high_risk）× 证据授权的 admission 矩阵——
+   high_risk+unverified 删除、important+unverified 降级、normal+unverified 放行；
+   高风险判定在冻结词表之上加一条结构性规则（健康域语素 × 量化断言 ⇒ high_risk）。
+3. ~~Founder 决策：F4 解析失败单次重试~~ **已实施**：每 LLM 阶段最多 1 次 schema-only 重试，
+   逐次计入预算，meta.llm_retry_count 如实，两次失败 fail closed。
+4. ~~F2 路径 backing 与资源层标准统一~~ **已实施**：路径 backing 必须含非 unverified 证据，
+   id 存在 ≠ backing；important 路径仅引 unverified 时保留但降级标注。
+5. ~~F3 是否引入引用可达性降级~~ **已登记 EVIDENCE_FRESHNESS / LINK_LIVENESS**（PRE_DEPLOY_BLOCKERS §C），暂不施工。
+6. 压测器新增数量安全门（`--max` / Pilot 12 硬上限 12 / `--dry-run`），超限输出
+   PILOT_CASE_LIMIT_EXCEEDED 并拒绝发送任何请求。
+7. 状态：**PARTIAL（修复轮完成）— 等待预算窗口补跑剩余 6 条**。未接 UI、未部署、未动 main。

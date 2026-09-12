@@ -95,7 +95,7 @@ function overCap(s) {
 }
 
 /* ── 本轮调用计量（真实次数与真实成本，分开记）───────────── */
-const usage = { llm_calls: 0, search_calls: 0, request_cost_rmb: 0 };
+const usage = { llm_calls: 0, search_calls: 0, request_cost_rmb: 0, llm_retries: 0 };
 function countCall(s, cost) {
   s.calls += 1;
   s.cost = Math.round((s.cost + cost) * 1e6) / 1e6;
@@ -124,11 +124,22 @@ async function llm(s, system, user) {
   const u = j.usage || {};
   countCall(s, ((u.prompt_tokens || 0) / 1000) * CFG.priceInPer1k + ((u.completion_tokens || 0) / 1000) * CFG.priceOutPer1k);
   usage.llm_calls += 1;
-  const txt = ((j.choices && j.choices[0] && j.choices[0].message) || {}).content || '';
-  try { return parseJsonLoose(txt); }
-  catch (e) {
-    if (CFG.debug) console.log(`[debug] llm_bad_json len=${String(txt).length} head=${JSON.stringify(String(txt).slice(0, 160))} finish=${(j.choices && j.choices[0] || {}).finish_reason}`);
-    throw e;
+  return ((j.choices && j.choices[0] && j.choices[0].message) || {}).content || '';
+}
+
+/* F4：真实 pilot 里 6% 的响应解析失败。同一任务、同一 schema 只重试一次；
+   每次尝试都照常计入预算（llm 内部 countCall），不重搜、不改意图、不新增问题。
+   两次都失败就 fail closed（502），不产出"差不多能用"的答案。 */
+async function llmJson(s, system, user) {
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    const out = await llm(s, system, user);
+    if (out && typeof out === 'object') return out; // 桩模式直接返回对象
+    try { return parseJsonLoose(out); }
+    catch (e) {
+      usage.llm_retries = attempt;
+      if (CFG.debug) console.log(`[debug] llm_bad_json attempt=${attempt}/1 len=${String(out).length} head=${JSON.stringify(String(out).slice(0, 120))}`);
+      if (attempt === 2) throw new Error('llm_bad_json');
+    }
   }
 }
 
@@ -213,7 +224,7 @@ const server = http.createServer(async (req, res) => {
   }
   if (req.method !== 'POST' || req.url !== '/api/world') return json(res, 404, { error: 'only POST /api/world exists' });
 
-  usage.llm_calls = 0; usage.search_calls = 0; usage.request_cost_rmb = 0;
+  usage.llm_calls = 0; usage.search_calls = 0; usage.request_cost_rmb = 0; usage.llm_retries = 0;
   const b = loadBudget();
   if (!b.state) return json(res, 503, {
     error: 'budget_guard_unavailable', reason: b.error,
@@ -236,7 +247,7 @@ const server = http.createServer(async (req, res) => {
   let out;
   const sMeta = {};
   try {
-    const tri = await llm(s, `${SYSTEM}\nSTAGE: triage\n${TRIAGE_OUT}`, `输入：${ctx}`);
+    const tri = await llmJson(s, `${SYSTEM}\nSTAGE: triage\n${TRIAGE_OUT}`, `输入：${ctx}`);
     out = tri.draft || tri;
     let ev = evidenceTable([]);
     const q = minimizeQuery(tri.search_query || '');
@@ -248,7 +259,7 @@ const server = http.createServer(async (req, res) => {
       sMeta.search_skipped_reason = sr.skipped || '';
       sMeta.evidence_fixture = sr.note || '';
       if (ev.size()) {
-        const composed = await llm(s, `${SYSTEM}\nSTAGE: compose\n${COMPOSE_OUT}`,
+        const composed = await llmJson(s, `${SYSTEM}\nSTAGE: compose\n${COMPOSE_OUT}`,
           `输入：${ctx}\n可用证据（只能按 id 引用）：${JSON.stringify(ev.forPrompt())}\n待修订草稿：${JSON.stringify(out)}`);
         out = composed.draft || composed;
       } else {
@@ -260,7 +271,7 @@ const server = http.createServer(async (req, res) => {
     out = guard(out, ev);
     out.meta = Object.assign({}, out.meta, sMeta, {
       searched: ev.size() > 0, evidence_available: ev.size(),
-      llm_calls: usage.llm_calls, search_calls: usage.search_calls,
+      llm_calls: usage.llm_calls, search_calls: usage.search_calls, llm_retry_count: usage.llm_retries,
       request_cost_rmb: usage.request_cost_rmb, month_cost_rmb: s.cost,
       budget_mode: b.mode, model: CFG.llmModel || 'stub',
     });

@@ -17,12 +17,14 @@ curl http://127.0.0.1:8794/healthz
 伪造的官方域名被压测器抓成 P0、每日上限一到就 429 并给出人工降级路径。
 **桩的输出不得当作智能结果汇报。**
 
-每次动过 `server/**` 之后，三个静态/单元 Gate 必须全绿（详见 `SEARCH_PILOT_PREFLIGHT.md` §7）：
+每次动过 `server/**` 之后，五个静态/单元 Gate 必须全绿（详见 `SEARCH_PILOT_PREFLIGHT.md` §7）：
 
 ```bash
 node eval/runtime-isolation-selftest.mjs   # 生产路径对评测数据的引用必须为 0，违规输出 PRODUCTION_RUNTIME_REFERENCES_EVAL_DATA
 node eval/authority-selftest.mjs           # 授权判定的正负控 + 旧白名单残留检查
 node eval/adapter-shape-selftest.mjs       # 搜索适配层响应形状 + Bearer-only 请求形状
+node eval/admission-selftest.mjs           # F1/F2 admission：风险×授权矩阵、S2-d 复放、action/fact 边界
+node eval/retry-selftest.mjs               # F4：坏 JSON 一次重试（本地 mock 网关，0 外网请求）
 ```
 
 ## 2. 接真实智能层还缺两把钥匙（Founder 提供）

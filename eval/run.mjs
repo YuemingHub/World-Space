@@ -30,15 +30,26 @@ if (flag('pilot')) {
 }
 items = items.slice(0, LIMIT);
 
+/* 数量安全门（测试基础设施，不是产品 Guard）：选中条数超过上限就在发任何 provider 请求之前
+   整体拒绝。真实教训：漏传 12 条限制导致全集 37 条发送、撞满日预算 50 次。 */
+const MAXCASES = arg('max', '');
+function refuseOverLimit(n, cap, why) {
+  console.log(`PILOT_CASE_LIMIT_EXCEEDED —— 选中 ${n} 条 > 上限 ${cap}（${why}）。未发送任何 provider 请求。`);
+  process.exit(2);
+}
+if (MAXCASES !== '' && items.length > Number(MAXCASES)) refuseOverLimit(items.length, Number(MAXCASES), '--max');
+if (flag('pilot') && items.length > 12) refuseOverLimit(items.length, 12, 'Pilot 12 硬上限');
+if (flag('dry-run')) { console.log(`dry-run：将运行 ${items.length} 条\n${items.map(i => i.id).join(' ')}`); process.exit(0); }
+
+import { claimRisk } from '../server/evidence.mjs';
+
 /** 与 server/evidence.mjs 同规则的独立复核：压测器不信任服务端的授权结论 */
-const VERIFIED_HOSTS = new Set();
-SET.items.forEach(i => (i.official_entry || []).forEach(e => { try { if (e.url) VERIFIED_HOSTS.add(new URL(e.url).hostname.toLowerCase()); } catch (x) { } }));
 const MEDIA = ['people.com.cn', 'xinhuanet.com', 'cinet.cn', 'cnr.cn', 'thepaper.cn'];
 function expectedAuthority(u) {
   let h = '';
   try { h = new URL(u).hostname.toLowerCase(); } catch (e) { return 'unverified'; }
-  if (VERIFIED_HOSTS.has(h) || /(\.|^)gov\.cn$/.test(h) || /\.(edu|ac)\.cn$/.test(h)) return 'official_primary';
-  if (MEDIA.some(t => h.endsWith(t))) return 'trusted_secondary';
+  if (/(\.|^)gov\.cn$/.test(h) || /\.(edu|ac)\.cn$/.test(h)) return 'official_primary';
+  if (MEDIA.some(t => h === t || h.endsWith('.' + t))) return 'trusted_secondary';
   return 'unverified';
 }
 const EXEC = ['打', '拨', '搜', '记', '录', '发', '写', '查', '问', '联系', '打开', '提交', '挂', '拍', '上架', '挂号'];
@@ -58,12 +69,14 @@ function judge(item, r) {
   const res = Array.isArray(o.resources) ? o.resources : [];
   res.forEach(x => {
     const claim = `${x.name} ${x.claim} ${x.why}`;
-    const risky = /法|政策|规定|名单|医保|保险|报销|补贴|资格|证书|备案|价格|收费|部门|热线|110|12345|医院|护理/.test(claim);
+    // 与运行时同一把 admission 尺（防两端漂移）；授权判定仍由本压测器按域名规则独立复核
+    const risk = claimRisk(claim);
     if (!x.evidence_id) p0.push(`资源未经证据绑定却出现在答案里：${x.name}`);
     const exp = expectedAuthority(x.source_url);
     if (x.source_type === 'official_primary' && exp !== 'official_primary') p0.push(`授权被自授：${x.name} 自称 official_primary，但域名 ${x.source_url || '(空)'} 不满足官方规则`);
-    if (risky && x.source_type === 'unverified') p0.push(`高风险结论无授权来源：${x.name} → ${x.claim}`);
-    if (risky && x.source_type === 'third_party') p1.push(`第三方来源单独支撑高风险：${x.name}`);
+    if (risk === 'high_risk' && x.source_type === 'unverified') p0.push(`高风险结论无授权来源（admission 应删未删）：${x.name} → ${x.claim}`);
+    else if (risk === 'important' && x.source_type === 'unverified' && x.confidence !== 'low') note.push(`重要级量化结论来自未授权证据但未降级：${x.name}`);
+    if (risk === 'high_risk' && x.source_type === 'third_party') p1.push(`第三方来源单独支撑高风险：${x.name}`);
   });
   const hadEvidence = Number((o.meta || {}).evidence_available || 0) > 0;
   if (res.length && res.every(x => ['ai_tool', 'software'].includes(x.type))) p1.push('资源全是 AI/软件（Resource ≠ AI Tool 未通过）');

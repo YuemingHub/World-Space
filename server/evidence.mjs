@@ -22,6 +22,23 @@ export function hasHighRisk(text) {
   return HIGH_RISK.some(k => s.indexOf(k) !== -1);
 }
 
+/*
+ * F1 admission：claim 风险分三级（normal / important / high_risk），guard 按 风险 × 证据授权 决定放行/降级/删除。
+ * 词表仍是高位基座，不扩容。真实 pilot（S2-d）证明词表追不上生成模型：
+ * 体检时机、血氧阈值、肺水肿预警全是"健康域语素 + 量化断言"形态，于是只加一条结构性规则——
+ *   健康域语素 × 量化断言 ⇒ high_risk；任何量化断言至少 important。
+ * 语素表是封闭的一个类目（医疗），不是持续堆砌的关键词库；不做语义分类器、不加 Agent。
+ */
+const QUANTIFIED = /\d+(\.\d+)?\s*(%|％|个|天|日|周|月|年|小时|分钟|米|岁|度|次|元|克|毫克|升|城|人)|\d+\s*[-–~至]\s*\d+/;
+const MEDICAL = ['医', '药', '病', '症', '诊', '疗', '体检', '血', '肺', '癌', '疫', '术', '急救', '抢救', '禁忌', '剂量'];
+export function claimRisk(text) {
+  const s = String(text || '');
+  if (hasHighRisk(s)) return 'high_risk';
+  if (!QUANTIFIED.test(s)) return 'normal';
+  if (MEDICAL.some(m => s.indexOf(m) !== -1)) return 'high_risk';
+  return 'important';
+}
+
 /** 一小撮权威二手来源，故意不做大而全的域名库；不在表里的一律降级 */
 const TRUSTED_MEDIA = ['people.com.cn', 'xinhuanet.com', 'cinet.cn', 'cnr.cn', 'thepaper.cn'];
 

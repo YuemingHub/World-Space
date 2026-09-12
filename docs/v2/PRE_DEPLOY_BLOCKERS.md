@@ -22,3 +22,17 @@
 3. API 暴露方式重新设计（是否直连、是否加一层）。
 
 触发条件：第一次真实部署之前。
+
+## C. EVIDENCE_FRESHNESS / LINK_LIVENESS（登记于 2026-09-12，暂不施工）
+
+真实 Pilot 发现：两条搜索索引里的新浪转载链接在**一小时内**失活（302 → "文章不存在"）。
+Evidence Binding 证明的是"模型不能伪造 URL"，证明不了"真实 URL 永久可达"。
+证据事实上有半衰期，当前系统对引用失活链接没有任何感知。
+
+未来需要考虑（不把 Pilot 变成爬虫项目）：
+
+- evidence 表增加 `created_at` / `checked_at` / `last_verified`；
+- 人工核对流程已含"点得开"检查（`claim_source_role_correct` 的一部分）；
+- 必要时对进入最终答案的 URL 做过期重搜，而不是实时全量 revalidation。
+
+触发条件：引用失活率在后续 Pilot 中成为模式，或任何面向用户的部署之前。
