@@ -1,6 +1,12 @@
 # ARCHITECTURE DECISION — V2 最小架构
 
-> 状态：**待 Founder 拍板**（2026-09-12）。本文件只做比较与推荐，不含施工。
+> 状态：**已被 Founder Review #2 裁定**（2026-09-12）。本文件保留为比较过程记录，
+> 结论以 `NORTH_STAR.md` §4.1–§4.3 为准：
+> - **生产目标架构 = 她现有 ECS + 一个极薄接口 `POST /api/world`**（不再讨论函数计算）；
+> - **D1（扣子 / 百炼智能体）降级为 Prompt / Intelligence Feasibility Experiment**，
+>   即使 S1–S6 一次通过也不得据此自动决定生产架构；
+> - **预算硬上限：每日 50 次、每月 20 元**，由代码强制（见 `server/world.mjs`）；
+> - 本文件 §3 里"倾向 ECS"的表述与"§10 三件待拍板事项"均已由她定案，不再重复提问。
 > 依据：`NORTH_STAR.md`（内核）+ `REALITY_PRESSURE_SET.md`（6 个真实意图的实测压力集）。
 
 ## 0. 架构必须回答的问题

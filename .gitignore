@@ -11,3 +11,7 @@ Thumbs.db
 
 # Scratch / prototypes
 .tmp/
+
+# 本机预算计数与压测产物（只含计数与报告，不进仓库）
+var/
+eval/out/

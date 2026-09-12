@@ -1,0 +1,57 @@
+{
+  "_note": "离线桩。只用于验证契约校验、证据纪律与预算护栏是否真的生效，不代表任何智能水平，也不得用来汇报压测结果。",
+  "ok": {
+    "triage": {
+      "needs_search": false,
+      "search_query": "",
+      "draft": {
+        "understanding": "你想把晚上吵你的这件事真正解决掉，而不是再忍一个礼拜。",
+        "needs_clarification": true,
+        "questions": [{ "ask": "响的是邻里的声音、楼下商户，还是工地/工厂？", "why": "三种情况找的部门完全不同" }],
+        "safe_next_action": "今晚就开始记：日期、时间段、持续多久，手机录一段音。这一步不需要任何前提。",
+        "recommended_path": {
+          "summary": "先固定证据，再走物业或居委会劝阻，无效再要求政务热线派单并索要受理编号。",
+          "why": "没有记录的投诉基本会被推回协商；有编号才有督办。",
+          "first_action": "连续记三个晚上，然后给物业打电话要求留书面记录。"
+        },
+        "resources": [
+          { "name": "全国生态环境投诉举报平台", "type": "government", "why": "施工、工业、交通类噪声可直接线上举报", "claim": "该平台受理噪声类生态环境投诉举报", "source_url": "https://jubao.mee.gov.cn/netreport/netreport/index", "source_title": "全国生态环境投诉举报平台", "source_type": "official_primary", "published_at": "", "confidence": "high" },
+          { "name": "12345 政务服务便民热线", "type": "service", "why": "不知道归哪个部门时的统一入口", "claim": "由热线统一受理并按类型派单", "source_url": "", "source_title": "12345 热线（电话入口）", "source_type": "official_primary", "confidence": "medium" }
+        ],
+        "uncertainties": ["你所在城市的具体分工本轮未核实，以派单结果为准。"],
+        "reality_feedback_prompt": "去做之后告诉我：你拿到受理编号了吗？对方给了什么答复？",
+        "fallback_if_refused": "不愿意把内容交给 AI：自己在浏览器搜『12345 噪声投诉 + 你所在城市』，并打 12345 人工询问。"
+      }
+    },
+    "compose": {}
+  },
+  "bad": {
+    "triage": {
+      "needs_search": false,
+      "search_query": "",
+      "draft": {
+        "understanding": "你想找人照顾老人。",
+        "needs_clarification": true,
+        "questions": [
+          { "ask": "老人多大年纪？" }, { "ask": "会自己吃饭吗？" }, { "ask": "家里几口人？" },
+          { "ask": "预算多少？" }, { "ask": "在哪个区哪个小区？" }
+        ],
+        "safe_next_action": null,
+        "recommended_path": {
+          "summary": "直接用豆包生成一份照护方案。",
+          "why": "AI 快。",
+          "first_action": "打开豆包问它。"
+        },
+        "resources": [
+          { "name": "某全国连锁上门养老平台", "type": "ai_tool", "why": "方便", "claim": "该市已纳入长期护理保险定点，可报销 70%", "source_url": "https://example-not-real.invalid/page", "source_title": "新闻报道", "source_type": "third_party", "confidence": "high" },
+          { "name": "AI 照护助手", "type": "ai_tool", "why": "能陪聊", "claim": "可以指导家属上门换药和护理管道", "source_url": "", "source_title": "", "source_type": "unverified", "confidence": "high" },
+          { "name": "某老年友好照护城市名单", "type": "software", "why": "参考", "claim": "民政部已发布官方老年友好城市名单", "source_url": "https://example-fake-2.invalid", "source_title": "民政部", "source_type": "official_primary", "confidence": "high" }
+        ],
+        "uncertainties": [],
+        "reality_feedback_prompt": "",
+        "fallback_if_refused": ""
+      }
+    },
+    "compose": {}
+  }
+}

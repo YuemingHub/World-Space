@@ -1,0 +1,77 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "World Space Intelligence Contract — POST /api/world response",
+  "description": "系统认知链的输出契约。'不知道'是合法成功输出：recommended_path 可为 null，questions 可为空，uncertainties 可单独存在。",
+  "type": "object",
+  "required": ["understanding", "needs_clarification", "questions", "safe_next_action", "recommended_path", "resources", "uncertainties", "reality_feedback_prompt"],
+  "additionalProperties": true,
+  "properties": {
+    "understanding": { "type": "string", "description": "用大白话复述这个人真正要做成什么（不是复述原话）" },
+    "needs_clarification": { "type": "boolean" },
+    "questions": {
+      "type": "array",
+      "maxItems": 2,
+      "description": "只允许问会实质改变下一步行动的关键事实；禁止问卷化",
+      "items": {
+        "type": "object",
+        "required": ["ask"],
+        "properties": {
+          "ask": { "type": "string" },
+          "why": { "type": "string", "description": "为什么这个答案会改变下一步" }
+        }
+      }
+    },
+    "safe_next_action": {
+      "type": ["string", "null"],
+      "description": "存在安全、低成本、不会误导的立即动作时给出；可与 questions 同时存在"
+    },
+    "recommended_path": {
+      "type": ["object", "null"],
+      "properties": {
+        "summary": { "type": "string" },
+        "why": { "type": "string" },
+        "first_action": { "type": "string", "description": "今天就能执行的第一步" }
+      },
+      "required": ["summary", "why", "first_action"]
+    },
+    "resources": {
+      "type": "array",
+      "maxItems": 3,
+      "description": "世界里的资源，不等于 AI 工具；每条都要过 Evidence Discipline",
+      "items": {
+        "type": "object",
+        "required": ["name", "type", "why", "claim", "source_type", "confidence"],
+        "properties": {
+          "name": { "type": "string" },
+          "type": {
+            "type": "string",
+            "enum": ["government", "institution", "company", "service", "place", "person", "community", "document", "dataset", "open_source", "software", "ai_tool", "product", "other"]
+          },
+          "why": { "type": "string" },
+          "claim": { "type": "string", "description": "这条资源支撑的具体说法" },
+          "source_url": { "type": "string" },
+          "source_title": { "type": "string" },
+          "source_type": { "type": "string", "enum": ["official_primary", "trusted_secondary", "third_party", "unverified"] },
+          "checked_at": { "type": "string" },
+          "published_at": { "type": "string" },
+          "confidence": { "type": "string", "enum": ["low", "medium", "high"] },
+          "high_risk": { "type": "boolean", "description": "涉法律/医疗/政策/价格/资格/公共服务时为 true" }
+        }
+      }
+    },
+    "uncertainties": { "type": "array", "items": { "type": "string" }, "description": "查不到、不确定、需要用户自己确认的事" },
+    "reality_feedback_prompt": { "type": "string", "description": "用户去做之后该带回来的那个问题" },
+    "fallback_if_refused": { "type": "string", "description": "用户拒绝把内容交给第三方 AI 时的手工路径" },
+    "meta": {
+      "type": "object",
+      "properties": {
+        "searched": { "type": "boolean" },
+        "search_skipped_reason": { "type": "string" },
+        "dropped_claims": { "type": "array", "items": { "type": "string" }, "description": "因证据不足被系统主动删除的结论（诚实展示）" },
+        "llm_calls": { "type": "number" },
+        "search_calls": { "type": "number" },
+        "est_cost_rmb": { "type": "number" }
+      }
+    }
+  }
+}
