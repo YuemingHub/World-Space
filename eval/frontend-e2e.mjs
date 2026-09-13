@@ -39,6 +39,7 @@ try {
   const appjs = await js.text();
   ok('页面脚本真的指向 /api/world', appjs.includes("'/api/world'") || appjs.includes('"/api/world"'));
   ok('页面脚本带回执入口与行动回路本机保存（Outcome Loop 的"回来"这一拍）', appjs.includes('receipt') && appjs.includes('localStorage'), '');
+  ok('渲染时真的写入回路保存（防"定义了没接线"回归）', appjs.includes('function saveLoop(') && appjs.includes('saveLoop(lastIntent, j)'), '');
   const codes = ['budget_exceeded', 'rate_limited', 'intelligence_unavailable', 'intelligence_contract_failure', 'network', 'body_too_large'];
   ok('全部失败码都有给人看的文案', codes.every(c => appjs.includes(c)), codes.filter(c => !appjs.includes(c)).join(','));
 

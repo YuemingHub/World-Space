@@ -106,6 +106,8 @@ function render(j, restored) {
   if (restored) {
     head = `<div class="card fine restore">这是你上次进行到的地方（只存在这台设备上）。
       <button class="ghost" id="fresh-start">换个新目标</button></div>`;
+  } else {
+    saveLoop(lastIntent, j); // 真实教训：持久化函数定义了但没接线，刷新后回路就断了
   }
   $('result').innerHTML = head + html;
   document.querySelectorAll('#result [data-copy-slot]').forEach(el => {

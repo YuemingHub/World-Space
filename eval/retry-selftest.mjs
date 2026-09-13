@@ -50,7 +50,18 @@ function startWorld(port, env) {
 }
 async function worldUp(port) {
   for (let i = 0; i < 40; i++) {
-    try { const r = await fetch(`http://127.0.0.1:${port}/healthz`); if (r.ok) return; } catch (e) { }
+    try {
+      const r = await fetch(`http://127.0.0.1:${port}/healthz`);
+      if (r.ok) {
+        // 身份校验：本测试的 world 必须是 mock 模型。真实教训——端口被别的服务占用时，
+        // 子进程绑定失败被静默忽略，轮询会连上"别人的服务"，离线门就悄悄变成了真实 provider 调用。
+        const h = await r.json();
+        if (h.model !== 'mock') throw new Error(`端口 ${port} 上是别的服务（model=${h.model}）——测试未连到自己的 world`);
+        return;
+      }
+    } catch (e) {
+      if (String(e.message || '').indexOf('别的服务') !== -1) throw e;
+    }
     await new Promise(r => setTimeout(r, 150));
   }
   throw new Error('world 没起来');
@@ -68,7 +79,7 @@ const kill = c => { try { c.kill('SIGKILL'); } catch (e) { } };
 {
   rmSync('var/retry-a.json', { force: true });
   const gw = mockGateway(['这不是JSON {{{', null]); // 第 1 次坏、第 2 次合法
-  const worldPort = 8890, gwPort = worldPort + 100; // world 的 WS_LLM_BASE_URL = worldPort+100
+  const worldPort = 8910, gwPort = worldPort + 100; // world 的 WS_LLM_BASE_URL = worldPort+100
   await new Promise(r => gw.listen(gwPort, '127.0.0.1', r));
   const child = startWorld(worldPort, { stateFile: join(ROOT, 'var', 'retry-a.json') });
   await worldUp(worldPort);
@@ -84,7 +95,7 @@ const kill = c => { try { c.kill('SIGKILL'); } catch (e) { } };
 {
   rmSync('var/retry-b.json', { force: true });
   const gw = mockGateway(['bad1 {', 'bad2 {']);
-  const worldPort = 8892, gwPort = worldPort + 100;
+  const worldPort = 8912, gwPort = worldPort + 100;
   await new Promise(r => gw.listen(gwPort, '127.0.0.1', r));
   const child = startWorld(worldPort, { stateFile: join(ROOT, 'var', 'retry-b.json') });
   await worldUp(worldPort);
@@ -108,7 +119,7 @@ const kill = c => { try { c.kill('SIGKILL'); } catch (e) { } };
       res.end(JSON.stringify({ choices: [{ message: { content: GOOD_TRIAGE } }], usage: { prompt_tokens: 10, completion_tokens: 10 } }));
     }, 150));
   });
-  const worldPort = 8894, gwPort = worldPort + 100;
+  const worldPort = 8914, gwPort = worldPort + 100;
   await new Promise(r => gw.listen(gwPort, '127.0.0.1', r));
   const child = spawn(process.execPath, [join(ROOT, 'server', 'world.mjs')], {
     env: Object.assign({}, process.env, {
