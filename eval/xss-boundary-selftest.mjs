@@ -64,11 +64,12 @@ function structuralAudit(html) {
   return { badTags, badAttrs, badHrefs, hrefs };
 }
 {
-  // 每个字段都换成攻击载荷的完整契约
+  // 每个字段都换成攻击载荷的完整契约（next_action 的交棒字段也在攻击面内）
   const adv = {
     understanding: A.imgOnerror, needs_clarification: true,
     questions: [{ ask: A.autofocusOnfocus, why: A.svgOnload }],
     safe_next_action: A.imgOnerror,
+    next_action: { text: A.imgOnerror, done_when: A.autofocusOnfocus, mode: 'handoff', handoff_task: A.svgOnload, handoff_target: A.jsUrl },
     recommended_path: { summary: A.svgOnload, why: A.autofocusOnfocus, first_action: A.quote, evidence_ids: [] },
     resources: [{
       name: A.imgOnerror, type: 'government', why: A.svgOnload, claim: A.autofocusOnfocus,
@@ -86,12 +87,12 @@ function structuralAudit(html) {
   const a = structuralAudit(html);
   ok('无白名单外的元素标签（img/script/svg 注入被转义成文本）', a.badTags.length === 0, a.badTags.join(','));
   ok('无白名单外的属性（onerror/onfocus/autofocus 若逃逸会在此出现）', a.badAttrs.length === 0, a.badAttrs.join(','));
-  ok('全部 href 都是 http(s)', a.badHrefs.length === 0, a.badHrefs.join(' | '));
+  ok('全部 href 都是 http(s)（交棒目标名为 javascript: 时不产生任何 <a>）', a.badHrefs.length === 0 && a.hrefs.length === 0, a.badHrefs.join(' | ') || `href 数=${a.hrefs.length}`);
   ok('javascript:/data: 来源不给 <a>（宁可不给链接）',
     !html.includes(`href="${A.jsUrl}`) && (html.match(/<a /g) || []).length === a.hrefs.length && html.includes('未通过安全校验'),
     `a 数=${(html.match(/<a /g) || []).length} href 数=${a.hrefs.length}`);
   ok('复制原文进 copies（不经 HTML 属性），旧 data-copy=" 形态已消失',
-    copies.length === 1 && copies[0] === A.imgOnerror && !/\bdata-copy="/.test(html),
+    copies.length === 2 && copies[0] === A.svgOnload && copies[1] === A.imgOnerror && !/\bdata-copy="/.test(html),
     JSON.stringify(copies));
   // 正常中文动作（含 & < > ' "）：解码往返 = 原文，且复制原文完整
   const dec = s => s.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&');
@@ -99,6 +100,10 @@ function structuralAudit(html) {
   const { html: h2, copies: c2 } = buildResultHtml({ understanding: 'x', needs_clarification: false, questions: [], safe_next_action: A.normalChinese, recommended_path: null, resources: [], uncertainties: [], reality_feedback_prompt: '', fallback_if_refused: '' });
   const a2 = structuralAudit(h2);
   ok('正常中文动作渲染无注入且复制原文完整', a2.badTags.length === 0 && a2.badAttrs.length === 0 && c2[0] === A.normalChinese, JSON.stringify([a2.badTags, a2.badAttrs, c2]));
+  // 交棒链接白名单正例：目标名 DeepSeek → 唯一 <a> 是前端代码里的官方入口
+  const good = buildResultHtml({ understanding: 'x', needs_clarification: false, questions: [], safe_next_action: null, recommended_path: null, resources: [], uncertainties: [], reality_feedback_prompt: '', fallback_if_refused: '', next_action: { text: '把任务书交给 DeepSeek', done_when: '', mode: 'handoff', handoff_task: '正常任务书全文', handoff_target: 'DeepSeek' } });
+  const ag = structuralAudit(good.html);
+  ok('白名单目标 → 唯一跳转链接是前端代码里的官方入口', ag.badHrefs.length === 0 && ag.hrefs.length === 1 && ag.hrefs[0] === 'https://chat.deepseek.com/' && good.copies.includes('正常任务书全文'), ag.hrefs.join(' | '));
 }
 // ── 4. 服务端不变量：证据表只签发 http(s) ──
 {
@@ -146,7 +151,8 @@ function structuralAudit(html) {
     const a = structuralAudit(html);
     ok('全链路：无白名单外标签/属性', a.badTags.length === 0 && a.badAttrs.length === 0, [...a.badTags, ...a.badAttrs].join(','));
     ok('全链路：全部 href 都是 http(s)，桩里的 javascript:/data: 只以文本出现', a.badHrefs.length === 0, a.badHrefs.join(' | '));
-    ok('全链路：复制原文 = 桩里的立即动作原文', copies[0] === j.safe_next_action && j.safe_next_action.includes('12345'), JSON.stringify(copies[0]));
+    ok('全链路：复制原文 = 桩里主行动与交棒任务书的原文（不经 HTML 属性）',
+      copies.length === 2 && copies[0] === j.next_action.handoff_task && copies[1] === j.next_action.text && j.safe_next_action.includes('12345'), JSON.stringify(copies));
   } finally {
     try { child.kill('SIGKILL'); } catch (e) { }
   }

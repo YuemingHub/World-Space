@@ -17,7 +17,7 @@ curl http://127.0.0.1:8794/healthz
 伪造的官方域名被压测器抓成 P0、每日上限一到就 429 并给出人工降级路径。
 **桩的输出不得当作智能结果汇报。**
 
-每次动过 `server/**` 之后，九个静态/单元 Gate 必须全绿（详见 `SEARCH_PILOT_PREFLIGHT.md` §7）：
+每次动过 `server/**` 之后，十个静态/单元 Gate 必须全绿（详见 `SEARCH_PILOT_PREFLIGHT.md` §7）：
 
 ```bash
 node eval/runtime-isolation-selftest.mjs   # 生产路径对评测数据的引用必须为 0，违规输出 PRODUCTION_RUNTIME_REFERENCES_EVAL_DATA
@@ -29,6 +29,7 @@ node eval/liveness-selftest.mjs            # F3：链接存活（404/410 剔除�
 node eval/xss-boundary-selftest.mjs        # R1：前端属性/URL 安全边界（对抗样本 + 服务端证据不变量）
 node eval/budget-cap-selftest.mjs          # R2：预算硬上限不被并发穿透（预留式准入，本地 mock）
 node eval/date-selftest.mjs                # R3：业务日期单一真源（时区边界 + 残留扫描）
+node eval/outcome-loop-selftest.mjs        # Outcome Loop：回执进模型上下文（差分）、交棒契约、唯一主行动推导（离线桩）
 ```
 
 动过 `eval/runtime-selftest.mjs` 覆盖的运行时边界（CORS/限流/隐私/并发/代理信任）或 `eval/frontend-e2e.mjs` 覆盖的 HTTP 层后，这两个也要全绿：

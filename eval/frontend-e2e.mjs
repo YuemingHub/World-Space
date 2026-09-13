@@ -38,6 +38,7 @@ try {
   ok('render.mjs 可达且是 JS MIME（模块导入的硬前提）', rjs.status === 200 && (rjs.headers.get('content-type') || '').includes('text/javascript'), rjs.headers.get('content-type'));
   const appjs = await js.text();
   ok('页面脚本真的指向 /api/world', appjs.includes("'/api/world'") || appjs.includes('"/api/world"'));
+  ok('页面脚本带回执入口与行动回路本机保存（Outcome Loop 的"回来"这一拍）', appjs.includes('receipt') && appjs.includes('localStorage'), '');
   const codes = ['budget_exceeded', 'rate_limited', 'intelligence_unavailable', 'intelligence_contract_failure', 'network', 'body_too_large'];
   ok('全部失败码都有给人看的文案', codes.every(c => appjs.includes(c)), codes.filter(c => !appjs.includes(c)).join(','));
 
@@ -47,8 +48,9 @@ try {
     body: JSON.stringify({ intent: '小区夜间噪声扰民想投诉', answers: [] }),
   });
   const j = await res.json();
-  const need = ['understanding', 'questions', 'safe_next_action', 'recommended_path', 'resources', 'uncertainties', 'reality_feedback_prompt', 'fallback_if_refused'];
+  const need = ['understanding', 'questions', 'safe_next_action', 'next_action', 'recommended_path', 'resources', 'uncertainties', 'reality_feedback_prompt', 'fallback_if_refused'];
   ok('200 响应包含渲染所需的全部字段', res.status === 200 && need.every(k => j[k] !== undefined), `缺 ${need.filter(k => j[k] === undefined).join(',')}`);
+  ok('唯一主行动已推导（取路径第一步），不给人两个行动块', j.next_action && j.next_action.text === j.recommended_path.first_action, JSON.stringify(j.next_action));
   const resHasFields = (j.resources || []).every(r => ['name', 'claim', 'why', 'source_type', 'source_url'].every(k => r[k] !== undefined));
   ok('资源字段满足资源卡片渲染', resHasFields, JSON.stringify((j.resources || [])[0]));
 

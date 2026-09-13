@@ -103,7 +103,7 @@ function judge(item, r) {
 
   item.forbidden.forEach(f => { const k = norm(f).slice(0, 8); if (k && norm(JSON.stringify(o)).indexOf(k) !== -1) p0.push(`命中禁语（启发式，需人判）：${f}`); });
 
-  const act = (o.recommended_path && o.recommended_path.first_action) || o.safe_next_action || '';
+  const act = (o.next_action && o.next_action.text) || (o.recommended_path && o.recommended_path.first_action) || o.safe_next_action || '';
   if (!act) p0.push('没有任何可执行动作');
   else if (!EXEC.some(v => act.indexOf(v) !== -1)) p1.push(`第一步不像今天能做的动作：${act.slice(0, 40)}`);
   if (!o.reality_feedback_prompt) p1.push('没有把用户送回真实世界（缺反馈问题）');

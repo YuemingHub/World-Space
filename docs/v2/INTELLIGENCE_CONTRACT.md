@@ -16,12 +16,20 @@ Prototype 0 的失败是"看起来理解了"：输入原样回显，资源是写
 | `needs_clarification` | 是否还缺会改变行动的关键事实 | 必填 |
 | `questions[]` | `ask` + `why`（为什么这个答案会改变下一步） | **最多 2 条**；超出由服务端截断 |
 | `safe_next_action` | 安全、低成本、不会误导的立即动作 | 可为 null；与追问**可同时存在** |
+| `next_action` | **本轮唯一主行动**（结果页最重要的一块）：`text` / `done_when`（怎么算做完，必须可验证）/ `mode`（`internal`=这一页就能完成；`handoff`=交给现成外部工具，必须附完整任务书 `handoff_task` 与目标名 `handoff_target`；`human`=本人进入现实世界） | 模型缺省时服务端从护栏结论推导（路径第一步 → 立即动作 → 兜底动作）；宣称 handoff 却没有任务书 → 服务端降级 internal |
 | `recommended_path` | `summary` / `why` / `first_action` | **可为 null——这是合法成功输出** |
 | `resources[]` | 世界里的资源（见 §3） | 最多 3 条，先给默认那一个 |
 | `uncertainties[]` | 查不到、不确定、要用户自己确认的 | 必填数组（可为空） |
 | `reality_feedback_prompt` | 去做之后该带回来的那个问题 | 必填（闭环最后一拍） |
 | `fallback_if_refused` | 用户不愿把内容交给 AI 时的手工路径 | 必须存在 |
-| `meta` | `searched` / `search_skipped_reason` / `dropped_claims` / `llm_calls` / `search_calls` / `est_cost_rmb` | 服务端填，用于成本与诚实展示 |
+| `meta` | `searched` / `search_skipped_reason` / `dropped_claims` / `llm_calls` / `search_calls` / `est_cost_rmb` / `receipt_ingested` / `receipt_status` | 服务端填，用于成本与诚实展示 |
+
+**输入侧（Outcome Loop 回执）**：`POST /api/world` 接受 `receipt: { status: "done"|"stuck"|"info", text }`。
+回执是"世界返回了什么"的入口，原样进入下一轮模型上下文；提示词明确要求：带回执时禁止重答原始意图、
+禁止重复上一轮路径，原路不通必须换下一责任方或换方法。回执只做形状校验与截断（≤2000 字），不做内容审查。
+
+**交棒链接边界**：模型只给 `handoff_target` 目标名字符串；跳转 URL 永远来自前端代码白名单
+（第一版只有 DeepSeek 官方入口）。目标名匹配不上就不给"打开"按钮，只给可复制的任务书。
 
 ## 3. 资源即证据（Evidence Discipline）
 

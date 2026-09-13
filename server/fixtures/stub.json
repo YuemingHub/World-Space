@@ -4,23 +4,48 @@
     "triage": {
       "needs_search": true,
       "search_query": "居住小区 夜间噪声 投诉 归口部门 受理",
-      "draft": { "understanding": "你想让晚上的噪声停下来。", "needs_clarification": true, "questions": [], "safe_next_action": null, "recommended_path": null, "resources": [], "uncertainties": [], "reality_feedback_prompt": "" }
+      "draft": {
+        "understanding": "你想让晚上的噪声停下来。",
+        "needs_clarification": true,
+        "questions": [],
+        "safe_next_action": null,
+        "recommended_path": null,
+        "resources": [],
+        "uncertainties": [],
+        "reality_feedback_prompt": ""
+      }
     },
     "compose": {
       "understanding": "你想把晚上吵你的这件事真正解决掉，而不是再忍一个礼拜。",
       "needs_clarification": true,
-      "questions": [{ "ask": "响的是邻里声音、楼下商户，还是工地/工厂？", "why": "三类噪声走的入口不一样" }],
+      "questions": [
+        {
+          "ask": "响的是邻里声音、楼下商户，还是工地/工厂？",
+          "why": "三类噪声走的入口不一样"
+        }
+      ],
       "safe_next_action": "今晚就开始记：日期、时间段、持续多久，手机录一段音。",
       "recommended_path": {
         "summary": "先固定证据，再请物业或居委会出面并要求留书面记录；无效时向生态环境投诉举报平台提交，索要受理编号。",
         "why": "没有记录的投诉容易被推回协商；有编号才谈得上督办。",
         "first_action": "连续记三个晚上，然后给物业打电话要求留书面记录。",
-        "evidence_ids": ["e1"]
+        "evidence_ids": [
+          "e1"
+        ]
       },
       "resources": [
-        { "name": "全国生态环境投诉举报平台", "type": "government", "why": "施工、工业、交通类噪声可线上举报并留痕", "claim": "该平台受理噪声类生态环境投诉举报", "evidence_id": "e1", "confidence": "high" }
+        {
+          "name": "全国生态环境投诉举报平台",
+          "type": "government",
+          "why": "施工、工业、交通类噪声可线上举报并留痕",
+          "claim": "该平台受理噪声类生态环境投诉举报",
+          "evidence_id": "e1",
+          "confidence": "high"
+        }
       ],
-      "uncertainties": ["社会生活噪声（邻里）多由公安与物业先行处理，你所在城市的具体分工本轮未核实。"],
+      "uncertainties": [
+        "社会生活噪声（邻里）多由公安与物业先行处理，你所在城市的具体分工本轮未核实。"
+      ],
       "reality_feedback_prompt": "去做之后告诉我：你拿到受理编号了吗？对方给了什么答复？",
       "fallback_if_refused": "不愿意把内容交给 AI：自己在浏览器搜『居住小区 夜间噪声 投诉 + 你所在城市』，找到对应官方渠道后电话或线上反映。"
     }
@@ -29,23 +54,76 @@
     "triage": {
       "needs_search": true,
       "search_query": "李某某 13800001111 小区 噪音 投诉",
-      "draft": { "understanding": "你想投诉噪音。", "needs_clarification": true, "questions": [], "safe_next_action": null, "recommended_path": null, "resources": [], "uncertainties": [], "reality_feedback_prompt": "" }
+      "draft": {
+        "understanding": "你想投诉噪音。",
+        "needs_clarification": true,
+        "questions": [],
+        "safe_next_action": null,
+        "recommended_path": null,
+        "resources": [],
+        "uncertainties": [],
+        "reality_feedback_prompt": ""
+      }
     },
     "compose": {
       "understanding": "你想投诉噪音。",
       "needs_clarification": true,
-      "questions": [{ "ask": "几楼？" }, { "ask": "几个人住？" }, { "ask": "有孩子吗？" }, { "ask": "房租多少？" }, { "ask": "什么时候买的房？" }, { "ask": "邻居认识吗？" }],
+      "questions": [
+        {
+          "ask": "几楼？"
+        },
+        {
+          "ask": "几个人住？"
+        },
+        {
+          "ask": "有孩子吗？"
+        },
+        {
+          "ask": "房租多少？"
+        },
+        {
+          "ask": "什么时候买的房？"
+        },
+        {
+          "ask": "邻居认识吗？"
+        }
+      ],
       "safe_next_action": "这种情况直接拨打 110 即可处理，警方会立刻解决。",
       "recommended_path": {
         "summary": "本市已列入生态环境部噪声重点整治名单，投诉必受理。",
         "why": "名单内城市一律 3 日内答复。",
         "first_action": "打开 www.not-a-real-official-site.gov.cn 在线提交即可。",
-        "evidence_ids": ["e99", "e7"]
+        "evidence_ids": [
+          "e99",
+          "e7"
+        ]
       },
       "resources": [
-        { "name": "市噪声整治办", "type": "government", "why": "权威", "claim": "本市属于国家噪声重点整治城市", "source_url": "https://www.not-a-real-official-site.gov.cn", "source_title": "生态环境部", "source_type": "official_primary", "confidence": "high" },
-        { "name": "某投诉代理", "type": "company", "why": "代投诉", "claim": "付费代投诉成功率 90%", "evidence_id": "e99", "confidence": "high" },
-        { "name": "手机录音", "type": "other", "why": "留证据不需要资质", "claim": "录音可作为时间证据", "confidence": "medium" }
+        {
+          "name": "市噪声整治办",
+          "type": "government",
+          "why": "权威",
+          "claim": "本市属于国家噪声重点整治城市",
+          "source_url": "https://www.not-a-real-official-site.gov.cn",
+          "source_title": "生态环境部",
+          "source_type": "official_primary",
+          "confidence": "high"
+        },
+        {
+          "name": "某投诉代理",
+          "type": "company",
+          "why": "代投诉",
+          "claim": "付费代投诉成功率 90%",
+          "evidence_id": "e99",
+          "confidence": "high"
+        },
+        {
+          "name": "手机录音",
+          "type": "other",
+          "why": "留证据不需要资质",
+          "claim": "录音可作为时间证据",
+          "confidence": "medium"
+        }
       ],
       "uncertainties": [],
       "reality_feedback_prompt": "",
@@ -60,25 +138,212 @@
       "draft": {
         "understanding": "\"><img src=x onerror=window.__xss_injected=1>",
         "needs_clarification": true,
-        "questions": [{ "ask": "\" autofocus onfocus=window.__xss_injected=2 autofocus=\"", "why": "为什么\"内容\"><script>window.__xss_injected=3</script>" }],
+        "questions": [
+          {
+            "ask": "\" autofocus onfocus=window.__xss_injected=2 autofocus=\"",
+            "why": "为什么\"内容\"><script>window.__xss_injected=3</script>"
+          }
+        ],
         "safe_next_action": "先打 12345 登记情况，并记录对方答复。",
-        "recommended_path": { "summary": "\"/><svg onload=window.__xss_injected=4><\"", "why": "x\" onmouseover=\"window.__xss_injected=5", "first_action": "先记录这件事。", "evidence_ids": [] },
+        "recommended_path": {
+          "summary": "\"/><svg onload=window.__xss_injected=4><\"",
+          "why": "x\" onmouseover=\"window.__xss_injected=5",
+          "first_action": "先记录这件事。",
+          "evidence_ids": []
+        },
         "resources": [],
-        "uncertainties": ["javascript:alert(1)", "data:text/html,<b>危险链接</b>"],
+        "uncertainties": [
+          "javascript:alert(1)",
+          "data:text/html,<b>危险链接</b>"
+        ],
         "reality_feedback_prompt": "做完告诉我结果：<img src=x onerror=window.__xss_injected=6>",
-        "fallback_if_refused": "用 & 和 \" 引号 < 以及 ' 单引号自己搜索。"
+        "fallback_if_refused": "用 & 和 \" 引号 < 以及 ' 单引号自己搜索。",
+        "next_action": {
+          "text": "\"><img src=x onerror=window.__xss_injected=7>先记录",
+          "done_when": "\" autofocus onfocus=window.__xss_injected=8 autofocus=\"",
+          "mode": "handoff",
+          "handoff_task": "\"/><svg onload=window.__xss_injected=9><\"  把这段交给工具",
+          "handoff_target": "javascript:alert(1)"
+        }
       }
     },
     "compose": {
       "understanding": "\"><img src=x onerror=window.__xss_injected=1>",
       "needs_clarification": true,
-      "questions": [{ "ask": "\" autofocus onfocus=window.__xss_injected=2 autofocus=\"", "why": "为什么\"内容\"><script>window.__xss_injected=3</script>" }],
+      "questions": [
+        {
+          "ask": "\" autofocus onfocus=window.__xss_injected=2 autofocus=\"",
+          "why": "为什么\"内容\"><script>window.__xss_injected=3</script>"
+        }
+      ],
       "safe_next_action": "先打 12345 登记情况，并记录对方答复。",
-      "recommended_path": { "summary": "\"/><svg onload=window.__xss_injected=4><\"", "why": "x\" onmouseover=\"window.__xss_injected=5", "first_action": "先记录这件事。", "evidence_ids": [] },
+      "recommended_path": {
+        "summary": "\"/><svg onload=window.__xss_injected=4><\"",
+        "why": "x\" onmouseover=\"window.__xss_injected=5",
+        "first_action": "先记录这件事。",
+        "evidence_ids": []
+      },
       "resources": [],
-      "uncertainties": ["javascript:alert(1)", "data:text/html,<b>危险链接</b>"],
+      "uncertainties": [
+        "javascript:alert(1)",
+        "data:text/html,<b>危险链接</b>"
+      ],
       "reality_feedback_prompt": "做完告诉我结果：<img src=x onerror=window.__xss_injected=6>",
-      "fallback_if_refused": "用 & 和 \" 引号 < 以及 ' 单引号自己搜索。"
+      "fallback_if_refused": "用 & 和 \" 引号 < 以及 ' 单引号自己搜索。",
+      "next_action": {
+        "text": "\"><img src=x onerror=window.__xss_injected=7>先记录",
+        "done_when": "\" autofocus onfocus=window.__xss_injected=8 autofocus=\"",
+        "mode": "handoff",
+        "handoff_task": "\"/><svg onload=window.__xss_injected=9><\"  把这段交给工具",
+        "handoff_target": "javascript:alert(1)"
+      }
+    }
+  },
+  "handoff": {
+    "_note": "交棒桩：验证 next_action.mode=handoff 的契约与前端渲染（复制任务书 + 白名单跳转链接）。不代表任何智能水平。",
+    "triage": {
+      "needs_search": true,
+      "search_query": "求职 AI 能力 迁移",
+      "draft": {
+        "understanding": "你想找一份能大量用到 AI 的工作，先把手里的能力盘点清楚。",
+        "needs_clarification": true,
+        "questions": [],
+        "safe_next_action": null,
+        "recommended_path": null,
+        "resources": [],
+        "uncertainties": [],
+        "reality_feedback_prompt": "",
+        "fallback_if_refused": ""
+      }
+    },
+    "compose": {
+      "understanding": "你不是程序员，但想找一份能大量使用 AI 的工作——第一步不是投简历，是把你已有的能力盘点成可迁移的方向。",
+      "needs_clarification": true,
+      "questions": [
+        {
+          "ask": "你过去做过什么工作？最顺手的三件事是什么？",
+          "why": "能力盘点是迁移清单的原料，直接决定往哪几个岗位看"
+        }
+      ],
+      "safe_next_action": "先花十分钟把你的工作经历和最顺手的三件事写下来。",
+      "next_action": {
+        "text": "把下面的任务书复制给 DeepSeek，让它帮你盘点可迁移能力",
+        "done_when": "DeepSeek 给出至少 3 个具体的可迁移方向，且每个方向说清你的哪段经历支撑它",
+        "mode": "handoff",
+        "handoff_task": "我不是程序员，但想找一份能大量使用 AI 的工作。请根据我写的真实经历，盘点哪些现有能力可以迁移到 AI 相关岗位：给出至少 3 个具体方向，每个方向说明（1）我哪段经历支撑它（2）入门缺口是什么（3）这类岗位日常工作里怎么用 AI。【我的经历：把你的真实经历粘贴在这里】",
+        "handoff_target": "DeepSeek"
+      },
+      "recommended_path": null,
+      "resources": [],
+      "uncertainties": [
+        "哪些 AI 相关岗位今天真的在招人，要等盘点结果出来后查真实招聘市场"
+      ],
+      "reality_feedback_prompt": "DeepSeek 给了你哪几个方向？把它的原文贴回来，我们据此找真实在招的岗位。",
+      "fallback_if_refused": "不愿意用外部 AI：自己画一张两栏表，左栏写做过的每件事，右栏写这件事里跟 AI 沾边的部分，按右栏出现最多的方向去招聘网站搜岗位。"
+    }
+  },
+  "handoff_notask": {
+    "_note": "坏交棒桩：模型宣称 handoff 却没给任务书——服务端必须降级为 internal，不许出现复制不了任务的交棒按钮。",
+    "triage": {
+      "needs_search": true,
+      "search_query": "求职 AI 能力 迁移",
+      "draft": {
+        "understanding": "x",
+        "needs_clarification": false,
+        "questions": [],
+        "safe_next_action": null,
+        "recommended_path": null,
+        "resources": [],
+        "uncertainties": [],
+        "reality_feedback_prompt": "",
+        "fallback_if_refused": ""
+      }
+    },
+    "compose": {
+      "understanding": "你想找一份能大量使用 AI 的工作。",
+      "needs_clarification": false,
+      "questions": [],
+      "safe_next_action": "先写下你的工作经历。",
+      "next_action": {
+        "text": "交给 DeepSeek 盘点可迁移能力",
+        "done_when": "拿到 3 个方向",
+        "mode": "handoff",
+        "handoff_task": "",
+        "handoff_target": "DeepSeek"
+      },
+      "recommended_path": null,
+      "resources": [],
+      "uncertainties": [],
+      "reality_feedback_prompt": "结果如何？",
+      "fallback_if_refused": "手工盘点。"
+    }
+  },
+  "receipt": {
+    "_note": "回执差分桩：同一意图，带 receipt 的第二轮必须切换到'推进后'的应答（桩按输入里 receipt 的存在性切换）。验证回执真的进了模型上下文并改变了输出。文本避开高风险词，防止护栏正当撤回干扰差分语义。",
+    "triage": {
+      "needs_search": true,
+      "search_query": "小区 路灯 报修 责任",
+      "draft": {
+        "understanding": "你要的是小区坏了两周的路灯修好。",
+        "needs_clarification": false,
+        "questions": [],
+        "safe_next_action": null,
+        "recommended_path": null,
+        "resources": [],
+        "uncertainties": [],
+        "reality_feedback_prompt": "",
+        "fallback_if_refused": ""
+      }
+    },
+    "compose": {
+      "understanding": "你要的是小区坏了两周的路灯修好，而不是再听一句'会处理的'。",
+      "needs_clarification": false,
+      "questions": [],
+      "safe_next_action": null,
+      "next_action": {
+        "text": "今天给物业打电话正式报修这两盏路灯，要一个工单号或接待人姓名",
+        "done_when": "拿到工单号，或物业给出明确的修复时间",
+        "mode": "human",
+        "handoff_task": "",
+        "handoff_target": ""
+      },
+      "recommended_path": {
+        "summary": "先走物业正式报修并留痕；物业推诿再找社区居委会协调。",
+        "why": "路灯属于小区共用设施，物业是第一责任方；有工单号才谈得上追问和升级。",
+        "first_action": "给物业打电话正式报修，要求给工单号。",
+        "evidence_ids": []
+      },
+      "resources": [],
+      "uncertainties": [
+        "路灯的具体归口以你们小区的物业服务约定为准，本轮未核实"
+      ],
+      "reality_feedback_prompt": "物业怎么答复的？给了工单号吗？把对方原话带回来。",
+      "fallback_if_refused": "不用 AI：直接打物业电话报修；没有物业就找社区居委会。"
+    },
+    "compose_with_receipt": {
+      "understanding": "物业说这两盏灯不归他们管——你的事推进了一步：第一责任方排除了，现在换责任链的下一环。",
+      "needs_clarification": false,
+      "questions": [],
+      "safe_next_action": null,
+      "next_action": {
+        "text": "今天把物业'不归他们管'的答复原话带到社区居委会，要求协调或给出明确归口单位",
+        "done_when": "居委会给出明确归口单位，或给出协调安排",
+        "mode": "human",
+        "handoff_task": "",
+        "handoff_target": ""
+      },
+      "recommended_path": {
+        "summary": "物业推诿后走社区居委会协调；居委会给不出归口就带着两边答复升级。",
+        "why": "责任链的下一环是社区；带着物业拒绝的原话升级，不会被退回原地重来。",
+        "first_action": "带着物业的原话去找社区居委会。",
+        "evidence_ids": []
+      },
+      "resources": [],
+      "uncertainties": [
+        "你们小区对应的社区居委会名称与地址本轮未核实"
+      ],
+      "reality_feedback_prompt": "居委会怎么说？归口单位是谁？把答复带回来。",
+      "fallback_if_refused": "不用 AI：直接去社区居委会办公室说明情况。"
     }
   }
 }

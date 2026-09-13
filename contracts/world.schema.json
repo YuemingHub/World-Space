@@ -25,6 +25,22 @@
       "type": ["string", "null"],
       "description": "存在安全、低成本、不会误导的立即动作时给出；可与 questions 同时存在"
     },
+    "next_action": {
+      "type": ["object", "null"],
+      "description": "本轮唯一主行动（Outcome Loop）：结果页最重要的一块。模型缺省时由服务端从 recommended_path.first_action / safe_next_action 推导；无法推导时为 null",
+      "properties": {
+        "text": { "type": "string", "description": "今天要做的这一步，一句话说清做什么" },
+        "done_when": { "type": "string", "description": "怎么算做完：可验证的观察结果（拿到工单号/对方答复/工具的具体产出），不写'了解一下'这类无法验证的" },
+        "mode": {
+          "type": "string",
+          "enum": ["internal", "handoff", "human", ""],
+          "description": "internal=这个页面里就能完成的分析/整理；handoff=交给现成外部工具明显更好（必须附完整任务书）；human=本人进入现实世界（打电话/去窗口/见面）"
+        },
+        "handoff_task": { "type": "string", "description": "mode=handoff 时必给：完整任务书，用户复制→粘贴到目标工具→直接可用" },
+        "handoff_target": { "type": "string", "description": "mode=handoff 时的目标工具名（如 DeepSeek）；只作展示与前端白名单匹配，跳转链接永远来自前端代码，不信模型给的 URL" }
+      },
+      "required": ["text"]
+    },
     "recommended_path": {
       "type": ["object", "null"],
       "properties": {
@@ -76,7 +92,9 @@
         "dropped_claims": { "type": "array", "items": { "type": "string" }, "description": "因证据不足被系统主动删除的结论（诚实展示）" },
         "llm_calls": { "type": "number" },
         "search_calls": { "type": "number" },
-        "est_cost_rmb": { "type": "number" }
+        "est_cost_rmb": { "type": "number" },
+        "receipt_ingested": { "type": "boolean", "description": "本轮输入是否带上一轮行动回执（Outcome Loop 的现实推进信号）" },
+        "receipt_status": { "type": "string", "description": "回执状态：done / stuck / info" }
       }
     }
   }

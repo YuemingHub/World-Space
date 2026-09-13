@@ -148,7 +148,13 @@ async function llm(s, usage, system, user) {
     admit(s, usage, 0);
     usage.llm_calls += 1;
     const fx = JSON.parse(readFileSync(join(HERE, 'fixtures', 'stub.json'), 'utf8'))[CFG.stubCase];
-    return system.indexOf('STAGE: compose') !== -1 ? (fx.compose || fx.triage) : fx.triage;
+    if (system.indexOf('STAGE: compose') !== -1) {
+      // 回执差分证据：回执真的进了模型输入时，桩才切换到"推进后"的应答——
+      // 服务端漏传 receipt 的话，第二轮和第一轮输出一模一样，回归立刻抓住。
+      if (user.indexOf('"receipt":{') !== -1 && fx.compose_with_receipt) return fx.compose_with_receipt;
+      return fx.compose || fx.triage;
+    }
+    return fx.triage;
   }
   admit(s, usage, llmHold()); // 先预占，再发起付费调用；provider 失败由 settle 全额退预留
   let cost = 0, content = '';
@@ -228,6 +234,7 @@ async function runSearch(s, usage, query) {
 /* ── 提示词：只给 id，不给它复制 URL 的机会 ───────────────── */
 const SHAPE = '{"understanding":string,"needs_clarification":boolean,'
   + '"questions":[{"ask":string,"why":string}],"safe_next_action":string|null,'
+  + '"next_action":{"text":string,"done_when":string,"mode":"internal"|"handoff"|"human","handoff_task":string,"handoff_target":string}|null,'
   + '"recommended_path":{"summary":string,"why":string,"first_action":string,"evidence_ids":[string]}|null,'
   + '"resources":[{"name":string,"type":string,"why":string,"claim":string,"evidence_id":string,"confidence":"low"|"medium"|"high"}],'
   + '"uncertainties":[string],"reality_feedback_prompt":string,"fallback_if_refused":string}';
@@ -243,11 +250,43 @@ const SYSTEM = [
   '6. 第一步必须是今天能做的动作（打谁的电话、去哪个页面、记录什么），不是研究报告。',
   '7. 需要查现实信息时才给搜索意图；不需要就留空。',
   '8. 搜索意图只保留解决问题所需的事实，不要带姓名、手机号、身份证号、精确住址等个人标识。',
-  '9. 严格遵守输出结构，不要加这个结构之外的字段，不要用数组代替对象，不要输出解释或思考过程。',
+  '9. next_action 是结果页唯一的"现在只做这一步"（优先提炼自 recommended_path.first_action 或 safe_next_action，不要是另一件事）。'
+  + 'text 一句话说清今天做什么；done_when 写"怎么算做完"，必须可验证（拿到工单号/对方答复/工具给出的具体产出），不写"了解一下"这类没法验证的。'
+  + 'mode 三选一：internal（在这一个页面里就能完成的分析、整理、决定）；handoff（这一步交给现成的外部通用 AI 工具明显更好——只适用于开放式的整理/改写/梳理/生成类工作，'
+  + '此时 handoff_task 必须给完整任务书：用户复制→粘贴到那个工具→直接能用，handoff_target 填工具名）；human（必须本人进入现实世界：打电话、去窗口、见面、实地记录）。'
+  + '查现实信息、联系机构、办事、买东西，永远不是 handoff。',
+  '10. 输入里带 receipt（上一轮行动回执）时：现实已经向前推进了一轮。禁止把原始意图当新问题重新回答，禁止重复上一轮的路径；'
+  + '先确认已经推进到哪一步，再基于回执里的现实新信息给下一步。回执表明原路不通（被拒、没效果、外部工具只给了套话）时，必须换下一个责任方或换方法，不维护原推荐。',
+  '11. 严格遵守输出结构，不要加这个结构之外的字段，不要用数组代替对象，不要输出解释或思考过程。',
   `输出结构（${'questions 里每一项必须是对象'}）：${SHAPE}`,
 ].join('\n');
 const TRIAGE_OUT = '输出 {"needs_search":boolean,"search_query":string,"draft":<上面的结构>}';
 const COMPOSE_OUT = '只能引用给出的证据 id；按上面的结构输出完整契约，不要改变结构。可用证据里与用户下一步真正相关的，应做成 resources（最多 3 条）；确实没有相关的才留空';
+
+/* ── Outcome Loop：全页唯一主行动 ───────────────────────────
+   模型给了 next_action 就规整（截断、模式白名单），没给就从护栏处理后的
+   recommended_path.first_action / safe_next_action 推导——护栏撤回路径或中性化
+   动作之后，主行动自动跟随护栏结论，不会出现"路径被撤了主行动还在"的矛盾。
+   handoff 必须带完整任务书：说了要交棒却给不出任务书，就降级为在这里完成的分析。 */
+function ensureNextAction(out) {
+  const n = (out.next_action && typeof out.next_action === 'object' && !Array.isArray(out.next_action)) ? out.next_action : {};
+  const text = String(n.text || '').trim()
+    || String((out.recommended_path && out.recommended_path.first_action) || '').trim()
+    || String(out.safe_next_action || '').trim();
+  if (!text) { out.next_action = null; return out; }
+  const task = String(n.handoff_task || '').trim();
+  let mode = ['internal', 'handoff', 'human'].includes(n.mode) ? n.mode : '';
+  if (task && mode !== 'handoff') mode = 'handoff';       // 有任务书就是交棒（模式填错的强信号）
+  if (mode === 'handoff' && !task) mode = 'internal';     // 空手交棒不成立
+  out.next_action = {
+    text: text.slice(0, 500),
+    done_when: String(n.done_when || '').trim().slice(0, 300),
+    mode,
+    handoff_task: mode === 'handoff' ? task.slice(0, 2000) : '',
+    handoff_target: mode === 'handoff' ? String(n.handoff_target || '').trim().slice(0, 60) : '',
+  };
+  return out;
+}
 
 /* ── HTTP：同源静态页 + 收费 API 的来源边界 ────────────────── */
 function isLocalOrigin(o) { return /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(o); }
@@ -361,7 +400,15 @@ async function handleWorld(req, res, corsH, t0) {
   const intent = String(body.intent || '').trim();
   if (intent.length < 2) return json(res, 400, { error: 'intent_too_short' }, corsH);
   if (intent.length > 500) return json(res, 400, { error: 'intent_too_long' }, corsH);
-  const ctx = JSON.stringify({ intent, answers: Array.isArray(body.answers) ? body.answers.slice(0, 4) : [], today: localDate() });
+  /* Outcome Loop 的回执：用户带着现实结果回来（做成了/卡住了 + 可选粘贴的原文）。
+     只做形状校验和截断，内容原样进模型上下文——这是"世界返回了什么"的入口，不是装饰。 */
+  let receipt = null;
+  if (body.receipt && typeof body.receipt === 'object' && !Array.isArray(body.receipt)) {
+    const st = ['done', 'stuck', 'info'].includes(body.receipt.status) ? body.receipt.status : 'info';
+    const txt = String(body.receipt.text || '').trim().slice(0, 2000);
+    if (st !== 'info' || txt) receipt = { status: st, text: txt };
+  }
+  const ctx = JSON.stringify({ intent, answers: Array.isArray(body.answers) ? body.answers.slice(0, 4) : [], receipt, today: localDate() });
 
   let out;
   const sMeta = {};
@@ -388,11 +435,13 @@ async function handleWorld(req, res, corsH, t0) {
       sMeta.search_skipped_reason = tri.needs_search ? 'empty_query' : 'not_needed';
     }
     out = guard(out, ev);
+    out = ensureNextAction(out);
     out.meta = Object.assign({}, out.meta, sMeta, {
       searched: ev.size() > 0, evidence_available: ev.size(),
       llm_calls: usage.llm_calls, search_calls: usage.search_calls, llm_retry_count: usage.llm_retries,
       request_cost_rmb: usage.request_cost_rmb, month_cost_rmb: s.cost,
       budget_mode: b.mode, model: CFG.llmModel || 'stub',
+      receipt_ingested: !!receipt, receipt_status: receipt ? receipt.status : '',
     });
     const errs = validate(SCHEMA, out);
     if (errs.length) return json(res, 502, {

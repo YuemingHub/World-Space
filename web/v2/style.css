@@ -24,6 +24,18 @@ button.ghost { background: #fff; border-color: #c6cdd6; color: #1c2430; padding:
   padding: 14px 16px; margin: 10px 0; font-size: 17px;
 }
 .action .copy { margin-top: 10px; }
+.action .fine { margin-top: 8px; }
+.handoff { margin-top: 12px; border-top: 1px dashed #bcd0f7; padding-top: 10px; }
+.handoff .task {
+  background: #fff; border: 1px dashed #c6cdd6; border-radius: 8px;
+  padding: 10px 12px; margin: 8px 0; font-size: 14px; line-height: 1.6; white-space: pre-wrap; word-break: break-word;
+}
+.handoff .copy, .handoff .openlink { margin-right: 8px; }
+a.openlink {
+  display: inline-block; min-height: 46px; line-height: 44px; padding: 0 16px; margin-top: 8px;
+  background: #fff; border: 1px solid #c6cdd6; border-radius: 10px; color: #1c2430; text-decoration: none;
+}
+.restore button { margin-left: 10px; min-height: 34px; padding: 0 12px; }
 ul { margin: 6px 0; padding-left: 20px; }
 li { margin: 6px 0; }
 .src { font-size: 13px; color: #5b6675; margin-top: 6px; word-break: break-all; }
