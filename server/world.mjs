@@ -18,6 +18,7 @@
  * 硬边界见仓库文档区的"北极星"文件 §4.3。唯一写盘的是预算计数（次数与金额，不含用户正文）。
  */
 import http from 'node:http';
+import { isIP } from 'node:net';
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { dirname, join, normalize, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -25,6 +26,7 @@ import { evidenceTable, minimizeQuery, filterLive } from './evidence.mjs';
 import { PROVIDERS, KNOWN } from './search.mjs';
 import { guard } from './guard.mjs';
 import { validate } from './validate.mjs';
+import { localDate, localMonth } from './date.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const SCHEMA = JSON.parse(readFileSync(join(HERE, '..', 'contracts', 'world.schema.json'), 'utf8'));
@@ -59,28 +61,27 @@ const CFG = {
   liveness: process.env.WS_LIVENESS !== '0',
   rateLimitPerMin: Number(process.env.WS_RATE_LIMIT || 20),
   allowedOrigins: (process.env.WS_ALLOWED_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean),
+  // 反向代理边界：默认只认 socket 对端地址；显式开启信任后，且对端正是配置里的受信代理时，
+  // 才读代理追加的 X-Forwarded-For。只支持单层受信代理（Nginx → Node）。
+  trustProxy: process.env.WS_TRUST_PROXY === '1',
+  trustedProxies: (process.env.WS_TRUSTED_PROXIES || '127.0.0.1,::1').split(',').map(s => s.trim()).filter(Boolean),
   webDir: join(HERE, '..', 'web', 'v2'),
 };
 
 /* ── 预算：读不到就停，不静默放行 ─────────────────────────── */
-let MEM = { day: today(), calls: 0, month: thisMonth(), cost: 0 };
-function today() { // 本地日期。此前用 UTC：每天有 8 小时模型会拿到"昨天"的日期，日额度也在早上 8 点才重置
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
-function thisMonth() { return today().slice(0, 7); }
+let MEM = { day: localDate(), calls: 0, month: localMonth(), cost: 0 };
 function roll(s) {
-  if (s.day !== today()) { s.day = today(); s.calls = 0; }
-  if (s.month !== thisMonth()) { s.month = thisMonth(); s.cost = 0; }
+  if (s.day !== localDate()) { s.day = localDate(); s.calls = 0; }
+  if (s.month !== localMonth()) { s.month = localMonth(); s.cost = 0; }
   return s;
 }
 function loadBudget() {
   try {
     const raw = existsSync(CFG.stateFile) ? JSON.parse(readFileSync(CFG.stateFile, 'utf8')) : {};
-    return { state: roll(Object.assign({ day: today(), calls: 0, month: thisMonth(), cost: 0 }, raw)), mode: 'file' };
+    return { state: roll(Object.assign({ day: localDate(), calls: 0, month: localMonth(), cost: 0 }, raw)), mode: 'file' };
   } catch (e) {
     if (CFG.failClosed) return { state: null, mode: 'unreadable', error: String(e.message || e).slice(0, 60) };
-    if (MEM.day !== today()) MEM = { day: today(), calls: 0, month: thisMonth(), cost: 0 };
+    if (MEM.day !== localDate()) MEM = { day: localDate(), calls: 0, month: localMonth(), cost: 0 };
     return { state: MEM, mode: 'memory' };
   }
 }
@@ -102,42 +103,75 @@ function overCap(s) {
   return null;
 }
 
-/* ── 本轮调用计量：request-local，绝不在请求间共享（并发回归盯住这一点）──
-   计数本身每次从磁盘重读再累加：请求各自的副本会过期——真实模式下两条并发请求
-   跨 await 各自回写就会丢计数（反方攻击发现，延迟网关并发回归盯住）。 */
-function countCall(s, usage, cost) {
+/* ── 预留式准入：硬上限的语义在这里，不在事后的记账里 ─────────────
+   计数本身每次从磁盘重读再累加（请求各自的副本会过期：真实模式下两条并发请求
+   跨 await 各自回写就会丢计数，延迟网关并发回归盯住这一点）。
+   admit = 检查 + 预占 + 落盘，是同步的一段代码，中间没有 await——事件循环保证
+   并发请求不可能同时穿过同一次检查，所以上限 50 就是 50，临界并发穿透不了。
+   调用返回后 settle 按实际用量多退少补；provider 失败全额退预留（未消费）。 */
+function budgetExceeded(limit) { const e = new Error('budget_exceeded'); e.limit = limit; return e; }
+
+/* 单次 LLM 调用的预留额：输出按 max_tokens 硬上限、输入按 1 万 token 上限估算
+   （系统提示词 + 最多 8 条证据摘要的量级）。预留只可能多算，不可能少算。 */
+const RESERVE_IN_TOKENS = 10000;
+function llmHold() {
+  return CFG.priceOutPer1k * CFG.maxTokens / 1000 + CFG.priceInPer1k * RESERVE_IN_TOKENS / 1000;
+}
+
+function admit(s, usage, hold) {
+  const fresh = loadBudget();
+  if (!fresh.state) throw new Error('budget_guard_unavailable');
+  const st = roll(fresh.state);
+  if (st.calls >= CFG.dailyCap) throw budgetExceeded('daily_calls');
+  if (st.cost >= CFG.monthlyCapRmb) throw budgetExceeded('monthly_budget');
+  st.calls += 1;
+  st.cost = Math.round((st.cost + hold) * 1e6) / 1e6;
+  if (!persist(st)) throw new Error('budget_guard_unavailable');
+  s.calls = st.calls; s.cost = st.cost;
+  usage.hold = hold;
+}
+function settle(s, usage, actual) {
+  const hold = usage.hold || 0;
+  usage.hold = 0;
+  usage.request_cost_rmb = Math.round((usage.request_cost_rmb + actual) * 1e6) / 1e6;
+  if (Math.abs(hold - actual) < 1e-9) return; // 预留即实价（搜索按次、桩零成本），无需回写
   const fresh = loadBudget();
   if (!fresh.state) throw new Error('budget_guard_unavailable');
   const st = fresh.state;
-  st.calls += 1;
-  st.cost = Math.round((st.cost + cost) * 1e6) / 1e6;
+  st.cost = Math.round((st.cost - hold + actual) * 1e6) / 1e6;
   if (!persist(st)) throw new Error('budget_guard_unavailable');
-  s.calls = st.calls; s.cost = st.cost;
-  usage.request_cost_rmb = Math.round((usage.request_cost_rmb + cost) * 1e6) / 1e6;
+  s.cost = st.cost;
 }
 
 async function llm(s, usage, system, user) {
   if (CFG.provider === 'stub') {
-    countCall(s, usage, 0);
+    admit(s, usage, 0);
     usage.llm_calls += 1;
     const fx = JSON.parse(readFileSync(join(HERE, 'fixtures', 'stub.json'), 'utf8'))[CFG.stubCase];
     return system.indexOf('STAGE: compose') !== -1 ? (fx.compose || fx.triage) : fx.triage;
   }
-  const res = await fetch(`${CFG.llmBase}/chat/completions`, {
-    method: 'POST',
-    headers: Object.assign({ 'content-type': 'application/json', authorization: `Bearer ${CFG.llmKey}` }, CFG.extraHeaders),
-    body: JSON.stringify(Object.assign({
-      model: CFG.llmModel, temperature: 0.2, max_tokens: CFG.maxTokens,
-      messages: [{ role: 'system', content: system }, { role: 'user', content: user }],
-    }, CFG.jsonMode ? { response_format: { type: 'json_object' } } : {})),
-    signal: AbortSignal.timeout(CFG.timeoutMs),
-  });
-  if (!res.ok) throw new Error(`llm_http_${res.status}`);
-  const j = await res.json();
-  const u = j.usage || {};
-  countCall(s, usage, ((u.prompt_tokens || 0) / 1000) * CFG.priceInPer1k + ((u.completion_tokens || 0) / 1000) * CFG.priceOutPer1k);
+  admit(s, usage, llmHold()); // 先预占，再发起付费调用；provider 失败由 settle 全额退预留
+  let cost = 0, content = '';
+  try {
+    const res = await fetch(`${CFG.llmBase}/chat/completions`, {
+      method: 'POST',
+      headers: Object.assign({ 'content-type': 'application/json', authorization: `Bearer ${CFG.llmKey}` }, CFG.extraHeaders),
+      body: JSON.stringify(Object.assign({
+        model: CFG.llmModel, temperature: 0.2, max_tokens: CFG.maxTokens,
+        messages: [{ role: 'system', content: system }, { role: 'user', content: user }],
+      }, CFG.jsonMode ? { response_format: { type: 'json_object' } } : {})),
+      signal: AbortSignal.timeout(CFG.timeoutMs),
+    });
+    if (!res.ok) throw new Error(`llm_http_${res.status}`);
+    const j = await res.json();
+    const u = j.usage || {};
+    cost = ((u.prompt_tokens || 0) / 1000) * CFG.priceInPer1k + ((u.completion_tokens || 0) / 1000) * CFG.priceOutPer1k;
+    content = ((j.choices && j.choices[0] && j.choices[0].message) || {}).content || '';
+  } finally {
+    settle(s, usage, cost);
+  }
   usage.llm_calls += 1;
-  return ((j.choices && j.choices[0] && j.choices[0].message) || {}).content || '';
+  return content;
 }
 
 /* F4：真实 pilot 里 6% 的响应解析失败。同一任务、同一 schema 只重试一次；
@@ -168,15 +202,20 @@ function parseJsonLoose(txt) {
 async function runSearch(s, usage, query) {
   if (CFG.search === 'none') return { skipped: 'no_search_provider', items: [] };
   if (CFG.search === 'fixture') {
-    countCall(s, usage, 0);
+    admit(s, usage, 0);
     usage.search_calls += 1;
     return { items: JSON.parse(readFileSync(join(HERE, 'fixtures', 'search.json'), 'utf8')).items, note: 'fixture_search', liveness_dropped: 0 };
   }
   if (!CFG.searchKey) return { skipped: 'no_search_key', items: [] };
   if (!KNOWN.includes(CFG.search)) return { skipped: 'unknown_provider', items: [] };
-  countCall(s, usage, CFG.priceSearch);
+  admit(s, usage, CFG.priceSearch); // 搜索按次计价，预留即实价；provider 失败也照计（调用已发生）
   usage.search_calls += 1;
-  let items = await PROVIDERS[CFG.search](CFG, query);
+  let items;
+  try {
+    items = await PROVIDERS[CFG.search](CFG, query);
+  } finally {
+    settle(s, usage, CFG.priceSearch);
+  }
   let liveness_dropped = 0;
   if (CFG.liveness && items.length) {
     const lr = await filterLive(items);
@@ -221,10 +260,24 @@ function corsFor(req) {
   } : {};
   return { allowed, headers };
 }
+/* 反向代理边界：限流的"客户端 IP"从哪来。
+   默认（未开信任）：只认 socket 对端地址，客户端发来的 X-Forwarded-For 一律不看——
+   否则任何访问者换个假头就能绕开限流。
+   显式 WS_TRUST_PROXY=1 且对端在受信代理名单里（默认 127.0.0.1/::1，即 Nginx 反代本机）：
+   取 X-Forwarded-For 最右一个合法 IP——受信代理把"它看见的地址"追加在最右，客户端
+   伪造的头会被代理追加的真实地址顶掉。只支持单层受信代理。 */
+function clientIp(req) {
+  const peer = req.socket.remoteAddress || '?';
+  if (CFG.trustProxy && CFG.trustedProxies.includes(peer)) {
+    const parts = String(req.headers['x-forwarded-for'] || '').split(',').map(x => x.trim());
+    for (let i = parts.length - 1; i >= 0; i--) if (isIP(parts[i])) return parts[i];
+  }
+  return peer;
+}
 /* 极薄滥用防护：每 IP 每分钟计数（内存，非预算账本；预算账本永远走文件 fail closed） */
 const hits = new Map();
 function rateLimited(req) {
-  const ip = req.socket.remoteAddress || '?';
+  const ip = clientIp(req);
   const now = Date.now();
   if (hits.size > 10000) hits.clear();
   const h = hits.get(ip);
@@ -232,7 +285,7 @@ function rateLimited(req) {
   h.n += 1;
   return h.n > CFG.rateLimitPerMin;
 }
-const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml' };
+const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml' };
 function serveStatic(req, res, corsH) {
   let p = req.url === '/' ? '/index.html' : req.url.split('?')[0];
   const file = join(CFG.webDir, normalize(p).replace(/^([.][.][/\\])+/, ''));
@@ -271,7 +324,7 @@ const server = http.createServer(async (req, res) => {
       // 只报告"配没配"，绝不回显 key
       search_configured: CFG.search === 'fixture' ? true : (CFG.search !== 'none' && !!CFG.searchKey),
       origins_configured: CFG.allowedOrigins.length > 0, rate_limit_per_min: CFG.rateLimitPerMin,
-      liveness: CFG.liveness,
+      liveness: CFG.liveness, trusted_proxy: CFG.trustProxy,
       budget_mode: b.mode, today_calls: b.state ? b.state.calls : null,
       month_cost_rmb: b.state ? b.state.cost : null,
       daily_cap: CFG.dailyCap, monthly_cap_rmb: CFG.monthlyCapRmb, fail_closed: CFG.failClosed,
@@ -308,7 +361,7 @@ async function handleWorld(req, res, corsH, t0) {
   const intent = String(body.intent || '').trim();
   if (intent.length < 2) return json(res, 400, { error: 'intent_too_short' }, corsH);
   if (intent.length > 500) return json(res, 400, { error: 'intent_too_long' }, corsH);
-  const ctx = JSON.stringify({ intent, answers: Array.isArray(body.answers) ? body.answers.slice(0, 4) : [], today: today() });
+  const ctx = JSON.stringify({ intent, answers: Array.isArray(body.answers) ? body.answers.slice(0, 4) : [], today: localDate() });
 
   let out;
   const sMeta = {};
@@ -319,7 +372,6 @@ async function handleWorld(req, res, corsH, t0) {
     const q = minimizeQuery(tri.search_query || '');
     sMeta.search_query_used = q;
     if (tri.needs_search && q) {
-      if (overCap(s)) return json(res, 429, { error: 'budget_exceeded', limit: overCap(s) }, corsH);
       const sr = await runSearch(s, usage, q);
       ev = evidenceTable(sr.items);
       sMeta.search_skipped_reason = sr.skipped || '';
@@ -350,6 +402,12 @@ async function handleWorld(req, res, corsH, t0) {
     json(res, 200, out, corsH);
   } catch (e) {
     const code = String(e.message || e);
+    if (e.limit) {
+      return json(res, 429, {
+        error: 'budget_exceeded', limit: e.limit, daily_cap: CFG.dailyCap, month_cost_rmb: s.cost,
+        fallback_if_refused: '今天额度用完：把这件事改写成几个关键词，优先查对应的官方机构、实际服务提供方或真实平台；仍无法判断时，再找这个领域的人工客服、专业人员或现实中的人确认。',
+      }, corsH);
+    }
     if (code.indexOf('budget_guard_unavailable') === 0) {
       return json(res, 503, { error: 'budget_guard_unavailable', fallback_if_refused: '预算状态写不进去就不继续产生付费调用；请走手工路径或稍后再试。' }, corsH);
     }
@@ -358,4 +416,4 @@ async function handleWorld(req, res, corsH, t0) {
     console.log(`${new Date().toISOString()} ${req.method} ${res.statusCode} ${Date.now() - t0}ms llm=${usage.llm_calls} search=${usage.search_calls} retry=${usage.llm_retries} req_cost=${usage.request_cost_rmb} month=${s.cost} calls=${s.calls}`);
   }
 }
-server.listen(CFG.port, CFG.host, () => console.log(`world api http://${CFG.host}:${CFG.port} provider=${CFG.provider} search=${CFG.search} caps=${CFG.dailyCap}/day ${CFG.monthlyCapRmb}RMB/month fail_closed=${CFG.failClosed} origins=${CFG.allowedOrigins.length ? 'configured' : 'local-only'} rate=${CFG.rateLimitPerMin}/min liveness=${CFG.liveness}`));
+server.listen(CFG.port, CFG.host, () => console.log(`world api http://${CFG.host}:${CFG.port} provider=${CFG.provider} search=${CFG.search} caps=${CFG.dailyCap}/day ${CFG.monthlyCapRmb}RMB/month fail_closed=${CFG.failClosed} origins=${CFG.allowedOrigins.length ? 'configured' : 'local-only'} rate=${CFG.rateLimitPerMin}/min liveness=${CFG.liveness} trusted_proxy=${CFG.trustProxy ? 'on(' + CFG.trustedProxies.join('|') + ')' : 'off'}`));

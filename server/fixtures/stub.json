@@ -51,5 +51,34 @@
       "reality_feedback_prompt": "",
       "fallback_if_refused": ""
     }
+  },
+  "xss": {
+    "_note": "对抗样本桩：模拟模型/搜索返回带 HTML 属性逃逸与危险 scheme 的内容，验证前端只显示文本、不给危险链接。不代表任何智能水平。",
+    "triage": {
+      "needs_search": false,
+      "search_query": "",
+      "draft": {
+        "understanding": "\"><img src=x onerror=window.__xss_injected=1>",
+        "needs_clarification": true,
+        "questions": [{ "ask": "\" autofocus onfocus=window.__xss_injected=2 autofocus=\"", "why": "为什么\"内容\"><script>window.__xss_injected=3</script>" }],
+        "safe_next_action": "先打 12345 登记情况，并记录对方答复。",
+        "recommended_path": { "summary": "\"/><svg onload=window.__xss_injected=4><\"", "why": "x\" onmouseover=\"window.__xss_injected=5", "first_action": "先记录这件事。", "evidence_ids": [] },
+        "resources": [],
+        "uncertainties": ["javascript:alert(1)", "data:text/html,<b>危险链接</b>"],
+        "reality_feedback_prompt": "做完告诉我结果：<img src=x onerror=window.__xss_injected=6>",
+        "fallback_if_refused": "用 & 和 \" 引号 < 以及 ' 单引号自己搜索。"
+      }
+    },
+    "compose": {
+      "understanding": "\"><img src=x onerror=window.__xss_injected=1>",
+      "needs_clarification": true,
+      "questions": [{ "ask": "\" autofocus onfocus=window.__xss_injected=2 autofocus=\"", "why": "为什么\"内容\"><script>window.__xss_injected=3</script>" }],
+      "safe_next_action": "先打 12345 登记情况，并记录对方答复。",
+      "recommended_path": { "summary": "\"/><svg onload=window.__xss_injected=4><\"", "why": "x\" onmouseover=\"window.__xss_injected=5", "first_action": "先记录这件事。", "evidence_ids": [] },
+      "resources": [],
+      "uncertainties": ["javascript:alert(1)", "data:text/html,<b>危险链接</b>"],
+      "reality_feedback_prompt": "做完告诉我结果：<img src=x onerror=window.__xss_injected=6>",
+      "fallback_if_refused": "用 & 和 \" 引号 < 以及 ' 单引号自己搜索。"
+    }
   }
 }

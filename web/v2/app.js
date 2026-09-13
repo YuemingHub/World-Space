@@ -1,14 +1,11 @@
 /* World Space v2 前端：唯一职责是把一句真实的话交给 /api/world，把契约结果如实给人看。
- * 没有状态库、没有路由、没有占位数据；失败时说实话，并始终给一个不依赖本服务的现实下一步。 */
+ * 没有状态库、没有路由、没有占位数据；失败时说实话，并始终给一个不依赖本服务的现实下一步。
+ * 渲染与安全边界（转义 / URL 白名单 / 复制槽位）在 ./render.mjs，本文件只做 DOM 接线。 */
+import { esc, buildResultHtml } from './render.mjs';
+
 const API = new URLSearchParams(location.search).get('api') || '/api/world';
 const $ = id => document.getElementById(id);
 let lastIntent = '', busy = false, timer = null, t0 = 0;
-
-const AUTH = {
-  official_primary: ['官方来源', 'official'],
-  trusted_secondary: ['权威媒体', 'trusted'],
-  unverified: ['未核实来源', 'unverified'],
-};
 
 const ERR_TEXT = {
   budget_exceeded: ['今天的用量到上限了。', true],
@@ -22,8 +19,6 @@ const ERR_TEXT = {
   intent_too_long: ['内容超过 500 字了，先说最核心的那件事。', true],
   network: ['连不上服务。检查网络后可以重试。', false],
 };
-
-function esc(s) { const d = document.createElement('div'); d.textContent = String(s == null ? '' : s); return d.innerHTML; }
 
 async function ask(intent, answers) {
   if (busy) return;
@@ -69,13 +64,12 @@ function showError(code, status, j) {
   if (b) b.onclick = () => { $('error').hidden = true; ask(lastIntent); };
 }
 
-function copyBtn(text) {
-  return `<button class="ghost copy" data-copy="${esc(text)}">复制这句话</button>`;
-}
+/* 复制：点击的是渲染时留下的槽位按钮，原文在渲染后经 dataset 赋值（DOM property，
+ * 不经过 HTML 解析），这里读到的就是原文，不再有任何手工反转义。 */
 document.addEventListener('click', async e => {
   const t = e.target.closest('[data-copy]');
   if (!t) return;
-  const raw = t.getAttribute('data-copy').replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+  const raw = t.dataset.copy || '';
   let done = false;
   try { await navigator.clipboard.writeText(raw); done = true; } catch (x) { }
   if (!done) {
@@ -87,59 +81,12 @@ document.addEventListener('click', async e => {
   t.textContent = done ? '已复制 ✓' : '复制失败——长按文字手动复制';
 });
 
-function resourceHtml(r) {
-  const [label, cls] = AUTH[r.source_type] || AUTH.unverified;
-  const fresh = (r.checked_at ? `核实于 ${esc(r.checked_at)}` : '');
-  const conf = r.confidence === 'low' ? ' · 把它当线索' : '';
-  return `<div class="card">
-    <strong>${esc(r.name)}</strong> <span class="badge ${cls}">${label}</span>${conf ? `<span class="badge">${'低置信'}</span>` : ''}
-    <div>${esc(r.claim)}</div>
-    <div class="fine">为什么它有用：${esc(r.why)}</div>
-    ${r.source_url ? `<div class="src"><a href="${esc(r.source_url)}" target="_blank" rel="noopener noreferrer">打开来源</a>（${esc(r.source_title || '来源页')}）${fresh ? ' · ' + fresh : ''}</div>` : ''}
-  </div>`;
-}
-
 function render(j) {
-  let h = '';
-  h += `<h2>我们理解你现在想做的是</h2><div class="card">${esc(j.understanding)}</div>`;
-  if (j.understanding) h += `<p class="fine">我理解得不对？回到上面改一改再发一次。</p>`;
-
-  if (j.questions && j.questions.length) {
-    h += `<h2>先回答这两个问题，答案会直接改变下一步</h2><div class="card qa">`;
-    j.questions.forEach((q, i) => {
-      h += `<div><strong>${i + 1}. ${esc(q.ask)}</strong><div class="fine">${esc(q.why || '')}</div></div>`;
-    });
-    h += `</div><button class="ghost" id="answer">我要回答（打开输入框）</button><div id="ansbox" hidden></div>`;
-  }
-
-  if (j.recommended_path && j.recommended_path.summary) {
-    h += `<h2>默认我建议你先走这条</h2><div class="card">
-      <div>${esc(j.recommended_path.summary)}</div>
-      <div class="fine">为什么：${esc(j.recommended_path.why)}</div></div>`;
-  } else {
-    h += `<h2>默认我建议你先走这条</h2><div class="card fine">这一步还没法给你确定路径——先看下面要弄清的事和现在能做的一步。</div>`;
-  }
-
-  if (j.resources && j.resources.length) {
-    h += `<h2>世界上已经有什么</h2>` + j.resources.map(resourceHtml).join('');
-  } else {
-    h += `<h2>世界上已经有什么</h2><div class="card fine">这一步没有找到足够可信的现实资源，所以不硬塞。下面的动作不依赖它们。</div>`;
-  }
-
-  if (j.uncertainties && j.uncertainties.length) {
-    h += `<h2>这些事我还没把握，别当成结论</h2><div class="notice"><ul>`
-      + j.uncertainties.map(u => `<li>${esc(u)}</li>`).join('') + `</ul></div>`;
-  }
-
-  if (j.safe_next_action) {
-    h += `<h2>现在只做这一步</h2><div class="action">${esc(j.safe_next_action)}${copyBtn(j.safe_next_action)}</div>`;
-  }
-  if (j.reality_feedback_prompt) {
-    h += `<div class="feedback">
-      <button class="ghost" id="fb-done">做成了 ✓</button>
-      <button class="ghost" id="fb-stuck">卡住了</button></div><div id="stuckbox" hidden></div>`;
-  }
-  $('result').innerHTML = h;
+  const { html, copies } = buildResultHtml(j);
+  $('result').innerHTML = html;
+  document.querySelectorAll('#result [data-copy-slot]').forEach(el => {
+    el.dataset.copy = copies[Number(el.dataset.copySlot)] || '';
+  });
   $('result').hidden = false;
   bindAfterRender(j);
   window.scrollTo({ top: 0, behavior: 'smooth' });

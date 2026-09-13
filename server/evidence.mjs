@@ -53,15 +53,29 @@ export function authority(url) {
   return { source_type: 'unverified', host: h };
 }
 
+/** 可点击 URL 的服务端不变量：证据只能是 http(s) 链接。
+ *  javascript: / data: / 协议相对路径 / 解析失败的"URL"没有出处资格——
+ *  从源头不签发，而不是到了前端再拦。前端另有最后一道同规则边界（双保险）。 */
+export function httpUrl(u) {
+  try {
+    const x = new URL(String(u || ''));
+    return (x.protocol === 'http:' || x.protocol === 'https:') ? x.href : '';
+  } catch (e) { return ''; }
+}
+
 /** 本轮搜索结果的证据表：id 由服务端编号，模型看不到也造不了别人的 id */
 export function evidenceTable(items) {
   const map = new Map();
-  (items || []).slice(0, 8).forEach((x, i) => {
+  const valid = (items || [])
+    .map(x => ({ x, url: httpUrl(x && x.url) }))
+    .filter(e => e.url)          // 非法 scheme 的"结果"不是证据：不编号、不给模型引用的机会
+    .slice(0, 8);
+  valid.forEach((e, i) => {
     const id = 'e' + (i + 1);
     map.set(id, {
-      id, title: String(x.title || '').slice(0, 200), url: String(x.url || ''),
-      snippet: String(x.snippet || '').slice(0, 400), published_at: String(x.published_at || ''),
-      ...authority(x.url),
+      id, title: String(e.x.title || '').slice(0, 200), url: e.url,
+      snippet: String(e.x.snippet || '').slice(0, 400), published_at: String(e.x.published_at || ''),
+      ...authority(e.url),
     });
   });
   return {

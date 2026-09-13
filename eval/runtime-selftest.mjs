@@ -83,5 +83,52 @@ const kill = c => { try { c.kill('SIGKILL'); } catch (e) { } };
   kill(inst.child);
 }
 
+/* ── 实例 3（R4）：未开信任 —— 伪造 X-Forwarded-For 不能绕开限流 ── */
+{
+  rmSync(join(ROOT, 'var', 'rt-8881.json'), { force: true });
+  const inst = start(8881, { WS_RATE_LIMIT: '3' });
+  await up(8881);
+  const B = 'http://127.0.0.1:8881/api/world';
+  const codes = [];
+  for (let i = 0; i < 5; i++) {
+    const r = await fetch(B, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-forwarded-for': `9.9.9.${i}` },
+      body: JSON.stringify({ intent: '伪造XFF直连测试 ' + i }),
+    });
+    codes.push(r.status);
+    if (r.status === 429) { const j = await r.json(); ok('伪造 XFF 被拒时给出 rate_limited 文案', j.error === 'rate_limited', JSON.stringify(j)); }
+  }
+  ok('未开信任：每条都换伪造 XFF 仍在同一桶（第 4 条起 429，不是换个头就绕过）',
+    codes.slice(0, 3).every(c => c === 200) && codes[3] === 429 && codes[4] === 429, JSON.stringify(codes));
+  kill(inst.child);
+}
+
+/* ── 实例 4（R4）：显式开启信任 —— 只有受信代理转发的客户端 IP 被采信 ── */
+{
+  rmSync(join(ROOT, 'var', 'rt-8883.json'), { force: true });
+  const inst = start(8883, { WS_RATE_LIMIT: '3', WS_TRUST_PROXY: '1' });
+  await up(8883);
+  const B = 'http://127.0.0.1:8883/api/world';
+  const hz = await (await fetch('http://127.0.0.1:8883/healthz')).json();
+  ok('healthz 报告代理信任已开启', hz.trusted_proxy === true, JSON.stringify(hz));
+  const send = xff => fetch(B, {
+    method: 'POST',
+    headers: Object.assign({ 'content-type': 'application/json' }, xff ? { 'x-forwarded-for': xff } : {}),
+    body: JSON.stringify({ intent: '受信代理限流测试' }),
+  }).then(r => r.status);
+  const same = [await send('203.0.113.7'), await send('203.0.113.7'), await send('203.0.113.7')];
+  const sameOver = await send('203.0.113.7');
+  const other = await send('203.0.113.8');
+  const noXff = await send('');
+  const badXff = await send('not-an-ip');
+  ok('受信代理：同一客户端（同 XFF）第 4 条 429（按转发 IP 限流生效）',
+    same.every(c => c === 200) && sameOver === 429, JSON.stringify([...same, sameOver]));
+  ok('受信代理：另一客户端（不同 XFF）是独立桶 → 不受牵连 200', other === 200, String(other));
+  ok('受信代理：无 XFF / 非 IP 的 XFF → 回落 socket 对端桶（各自计入且未超限）',
+    noXff === 200 && badXff === 200, `${noXff}/${badXff}`);
+  kill(inst.child);
+}
+
 console.log(failures ? `\n失败 ${failures} 项` : '\n运行时边界全部通过');
 process.exitCode = failures ? 1 : 0;

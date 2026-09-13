@@ -31,8 +31,11 @@ try {
   const page = await (await fetch(B + '/')).text();
   ok('页面可达', page.includes('你现在想做成什么') && page.includes('第三方 AI 与搜索服务'));
   ok('没有占位假话（不再说"还在接入"）', !page.includes('还在接入真正的智能层'));
+  ok('app.js 以 ES module 加载（渲染函数来自 render.mjs）', page.includes('<script type="module" src="/app.js">'), page.split('\n').filter(l => l.includes('script')).join(' | '));
   const css = await fetch(B + '/style.css'); const js = await fetch(B + '/app.js');
   ok('样式与脚本可达', css.status === 200 && js.status === 200);
+  const rjs = await fetch(B + '/render.mjs');
+  ok('render.mjs 可达且是 JS MIME（模块导入的硬前提）', rjs.status === 200 && (rjs.headers.get('content-type') || '').includes('text/javascript'), rjs.headers.get('content-type'));
   const appjs = await js.text();
   ok('页面脚本真的指向 /api/world', appjs.includes("'/api/world'") || appjs.includes('"/api/world"'));
   const codes = ['budget_exceeded', 'rate_limited', 'intelligence_unavailable', 'intelligence_contract_failure', 'network', 'body_too_large'];

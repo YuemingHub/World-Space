@@ -17,7 +17,7 @@ curl http://127.0.0.1:8794/healthz
 伪造的官方域名被压测器抓成 P0、每日上限一到就 429 并给出人工降级路径。
 **桩的输出不得当作智能结果汇报。**
 
-每次动过 `server/**` 之后，五个静态/单元 Gate 必须全绿（详见 `SEARCH_PILOT_PREFLIGHT.md` §7）：
+每次动过 `server/**` 之后，九个静态/单元 Gate 必须全绿（详见 `SEARCH_PILOT_PREFLIGHT.md` §7）：
 
 ```bash
 node eval/runtime-isolation-selftest.mjs   # 生产路径对评测数据的引用必须为 0，违规输出 PRODUCTION_RUNTIME_REFERENCES_EVAL_DATA
@@ -25,6 +25,17 @@ node eval/authority-selftest.mjs           # 授权判定的正负控 + 旧白�
 node eval/adapter-shape-selftest.mjs       # 搜索适配层响应形状 + Bearer-only 请求形状
 node eval/admission-selftest.mjs           # F1/F2 admission：风险×授权矩阵、S2-d 复放、action/fact 边界
 node eval/retry-selftest.mjs               # F4：坏 JSON 一次重试（本地 mock 网关，0 外网请求）
+node eval/liveness-selftest.mjs            # F3：链接存活（404/410 剔除、超时保守保留）
+node eval/xss-boundary-selftest.mjs        # R1：前端属性/URL 安全边界（对抗样本 + 服务端证据不变量）
+node eval/budget-cap-selftest.mjs          # R2：预算硬上限不被并发穿透（预留式准入，本地 mock）
+node eval/date-selftest.mjs                # R3：业务日期单一真源（时区边界 + 残留扫描）
+```
+
+动过 `eval/runtime-selftest.mjs` 覆盖的运行时边界（CORS/限流/隐私/并发/代理信任）或 `eval/frontend-e2e.mjs` 覆盖的 HTTP 层后，这两个也要全绿：
+
+```bash
+node eval/runtime-selftest.mjs             # 运行时边界 + R4 代理信任（直连伪造 XFF / 受信代理 / 无信任三情形）
+node eval/frontend-e2e.mjs                 # 前端 HTTP 层：页面可达、module MIME、失败码文案、全链路往返
 ```
 
 ## 2. 接真实智能层还缺两把钥匙（Founder 提供）

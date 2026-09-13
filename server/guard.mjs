@@ -4,12 +4,11 @@
  * 立场：只降级，不升级；宁可撤回，不误指路。
  */
 import { claimRisk } from './evidence.mjs';
+import { localDate } from './date.mjs';
 
 const RESOURCE_TYPES = ['government', 'institution', 'company', 'service', 'place', 'person',
   'community', 'document', 'dataset', 'open_source', 'software', 'ai_tool', 'product', 'other'];
 const NEUTRAL_ACTION = '今天先把这件事的三个要素写下来：发生时间、地点或对象、你已经做过什么。';
-
-function today() { return new Date().toISOString().slice(0, 10); }
 
 /**
  * @param c   模型产出的契约草稿
@@ -52,7 +51,7 @@ export function guard(c, ev) {
 
     const e = ev.get(id);
     x.source_url = e.url; x.source_title = e.title; x.source_type = e.source_type;
-    x.published_at = e.published_at || ''; x.checked_at = today();
+    x.published_at = e.published_at || ''; x.checked_at = localDate();
     if (!RESOURCE_TYPES.includes(x.type)) x.type = 'other';
     if (!['low', 'medium', 'high'].includes(x.confidence)) x.confidence = 'low';
 

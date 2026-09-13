@@ -122,3 +122,47 @@
 - 最小修复：runner 硬门（--max / pilot 12 上限 / --dry-run），超限发请求前拒绝（PILOT_CASE_LIMIT_EXCEEDED）
 - 回归：dry-run 三情形
 - commit：`9194bb1`
+
+## L14 · 属性逃逸与危险 scheme 可成点击链接（2026-09-13，GPT Review R1）
+
+- 输入/输出：GPT 独立审核 R1 指出；`eval/xss-boundary-selftest.mjs` 全套对抗样本
+- 等级：P0｜类型：frontend security failure
+- 危害：`esc()` 按 text→innerHTML 设计不转义引号，`data-copy="${esc(...)}"`、`href="${esc(...)}"` 中一个 `"` 即逃出属性注入 `onerror`/`onfocus` 等新属性；服务端证据表对 `javascript:`/`data:` URL 不设防，可经搜索结果变成可点击链接
+- 根因：把文本节点转义默认当成 attribute encoder；"可点击 URL 必须是 http(s)"没有形成不变量
+- 最小修复：①渲染纯函数拆到 `web/v2/render.mjs`：esc 同时转义 `& < > " '`（文本/属性两用）；复制文本不进 HTML——渲染只留槽位序号，原文经 dataset（DOM property）赋值，点击读原文，废除手工反转义链；②`httpUrl()` 白名单：只放行 http(s)，其余一律不给 `<a>`（前端最后一道 + 服务端证据表入口同规则双保险，非 http(s) 的"搜索结果"从源头不签发证据 id）；③新增 xss 桩用例供回归与浏览器旅程
+- 回归：`eval/xss-boundary-selftest.mjs`（`"`、`"><img src=x onerror=…>`、`" autofocus onfocus=…`、`javascript:`、`data:text/html`、含 `& < > ' "` 的正常中文动作；标签/属性白名单审计 + href 全 http(s) + 复制原文往返 + 全链路 HTTP）；真实 DOM：xss 桩旅程零脚本执行、零注入标签、零事件属性、零链接
+- 剩余边界：富文本场景不存在（全部纯文本渲染）；若未来引入 markdown/HTML 内容需另立消毒层
+- commit：本轮
+
+## L15 · 日/月上限可被临界并发穿透（2026-09-13，GPT Review R2）
+
+- 输入/输出：GPT 独立审核 R2 指出；`eval/budget-cap-selftest.mjs` D1/D2
+- 等级：P0（部署前）｜类型：runtime/accounting failure
+- 危害：已证明的"4 并发 → 账本 4"只说明计数准确，不说明上限硬。账本 49/50 时 4 条并发各自通过"事后"检查再调用，付费调用可达 53 次；月预算同理
+- 根因：countCall 是"调完记账"，检查与调用之间存在并发窗口；准入语义缺失
+- 最小修复：预留式准入 admit/settle——检查+预占+落盘是同步一段代码（无 await，事件循环保证原子），调用前先占名额与最坏成本（LLM 按 max_tokens+1 万输入 token 估算，搜索按次实价）；返回后按实际用量多退少补，provider 失败全额退预留；被拒请求 429 budget_exceeded（daily_calls/monthly_budget）带人工降级
+- 回归：budget-cap-selftest D1（49/50 六并发：恰好 1 条 200、5 条 429、网关只收到 1 个请求、账本=50）+ D2（月预算临界四并发：1 条 200、3 条 monthly_budget、结算后 ≤ 上限）；retry-selftest C（4 并发计数不丢）与 runtime-selftest 16 路并发（48 次总账）不回归
+- 剩余边界：单实例语义（多进程部署需共享锁/集中配额，当前架构明确不做）；实际用量超出预留估算的极端情况由 max_tokens 与输入上限兜住
+- commit：本轮
+
+## L16 · 仓库里有两个"今天"（2026-09-13，GPT Review R3）
+
+- 输入/输出：GPT 独立审核 R3 指出；`eval/date-selftest.mjs`
+- 等级：P0｜类型：factual failure + runtime failure
+- 危害：L7 修了运行时预算的 UTC 日期，但 `server/guard.mjs` 的 checked_at 仍用 `toISOString().slice(0,10)`——同一份资源卡片上"核实于"与预算日切分叉；上海时区 00:30–08:00 之间证据核实日期是"昨天"
+- 根因：修 L7 时只改了 world.mjs 一处，日期逻辑没有单一真源
+- 最小修复：新建 `server/date.mjs`（localDate/localMonth）为唯一业务日期真源，world.mjs 与 guard.mjs 一律从它取；业务日界 = 主机时区日界，单一语义
+- 回归：date-selftest（TZ=Asia/Shanghai 注入 00:30/07:59:59/08:00:01/23:59:59 四个边界时刻，业务日期均为当天，UTC 负控证明非恒等断言；TZ=UTC 主机语义一致；guard checked_at 与 localDate 同源；server/** 静态残留=0）
+- 剩余边界：部署在非目标用户时区的主机时，"今天"跟主机走（部署约定，不是代码问题）
+- commit：本轮
+
+## L17 · 反代后面全员同 IP，限流形同虚设（2026-09-13，GPT Review R4）
+
+- 输入/输出：GPT 独立审核 R4 指出；`eval/runtime-selftest.mjs` 实例 3/4
+- 等级：P1（pre-deploy）｜类型：runtime/abuse failure
+- 危害：limiter 只读 `req.socket.remoteAddress`——Nginx → Node 部署后所有访问者都是 127.0.0.1，共享一个桶，一个重度用户可对所有人触发 429；反过来若无条件信任 X-Forwarded-For，任何客户端换个假头就能绕开限流
+- 根因：限流键没有代理边界语义
+- 最小修复：默认只认 socket 对端地址（互联网客户端伪造的 XFF 完全不起作用）；显式 `WS_TRUST_PROXY=1` 且对端在受信代理名单（默认 127.0.0.1/::1）时才读 X-Forwarded-For，取最右一个合法 IP（受信代理把"它看见的地址"追加在最右，客户端伪造头被顶掉）；无/坏 XFF 回落对端地址；只支持单层受信代理；Node 继续默认只监听 loopback
+- 回归：runtime-selftest 实例 3（未开信任：每条换伪造 XFF 仍同桶，第 4 条起 429）+ 实例 4（开信任：同 XFF 第 4 条 429、不同 XFF 独立桶、无/坏 XFF 回落对端桶；healthz 如实报告 trusted_proxy）
+- 剩余边界：多级代理链（CDN→Nginx→Node）需按真实拓扑配置 trustedProxies，当前只声明单层
+- commit：本轮
