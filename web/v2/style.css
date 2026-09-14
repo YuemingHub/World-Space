@@ -5,6 +5,12 @@ body {
   font: 16px/1.65 -apple-system, "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
 }
 main { max-width: 680px; margin: 0 auto; padding: 24px 16px 64px; }
+header {
+  max-width: 680px; margin: 0 auto; padding: 14px 16px 0;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.brand { font-weight: 600; letter-spacing: 0.02em; }
+header button { min-height: 36px; padding: 0 14px; font-size: 14px; }
 h1 { font-size: 26px; line-height: 1.3; margin: 8px 0 4px; }
 h2 { font-size: 17px; margin: 26px 0 8px; }
 .sub { color: #5b6675; margin: 0 0 18px; }

@@ -5,27 +5,38 @@
 import { esc, buildResultHtml } from './render.mjs';
 
 const API = new URLSearchParams(location.search).get('api') || '/api/world';
+const AUTH_BASE = API.startsWith('/') ? '/api/auth' : new URL('/api/auth', API).href;
 const $ = id => document.getElementById(id);
 let lastIntent = '', busy = false, timer = null, t0 = 0;
 
-/* 行动回路只存让"回来"这一拍成立的最小数据：意图、上一份契约、更新时间。
- * 只放本机 localStorage，不上传、不做账号、不做历史工作台。 */
-const LOOP_KEY = 'ws.loop.v1';
+/* 身份：只信服务端验证过的 session（/api/auth/me），浏览器自己说了不算。
+ * 行动回路按用户命名空间隔离：A 登录只见 A，B 登录只见 B，A 回来还能恢复 A。 */
+let USER = 'local';
+const loopKey = () => 'ws.loop.v1:' + USER;
+function migrateLegacyLoop() {
+  /* 登录功能加入前的本机回路没有账号归属；迁入当前登录用户的名下（第一版就一台机器一个人）。 */
+  try {
+    const legacy = localStorage.getItem('ws.loop.v1');
+    if (legacy && !localStorage.getItem(loopKey())) localStorage.setItem(loopKey(), legacy);
+    localStorage.removeItem('ws.loop.v1');
+  } catch (e) { }
+}
 function saveLoop(intent, j) {
-  try { localStorage.setItem(LOOP_KEY, JSON.stringify({ intent, result: j, updated_at: Date.now() })); } catch (e) { }
+  try { localStorage.setItem(loopKey(), JSON.stringify({ intent, result: j, updated_at: Date.now() })); } catch (e) { }
 }
 function loadLoop() {
   try {
-    const x = JSON.parse(localStorage.getItem(LOOP_KEY));
+    const x = JSON.parse(localStorage.getItem(loopKey()));
     return (x && x.intent && x.result && x.result.understanding !== undefined) ? x : null;
   } catch (e) { return null; }
 }
-function clearLoop() { try { localStorage.removeItem(LOOP_KEY); } catch (e) { } }
+function clearLoop() { try { localStorage.removeItem(loopKey()); } catch (e) { } }
 
 const ERR_TEXT = {
   budget_exceeded: ['今天的用量到上限了。', true],
   rate_limited: ['这一分钟请求太密了，等一分钟再试。', true],
   budget_guard_unavailable: ['服务暂时不可用（安全保护触发了）。稍后再试。', true],
+  auth_unavailable: ['服务暂时没有开放（访问门没有配置好）。请联系维护者，或走手工路径。', true],
   intelligence_unavailable: ['这一轮没有得出可靠结果（服务或网络波动）。可以重试一次；在这之前，别按不完整的答案行动。', false],
   intelligence_contract_failure: ['这一轮的结果没通过质量检查，已经整份作废。可以重试一次。', false],
   body_too_large: ['你写的内容太长了，试着把最核心的一两句发过来。', true],
@@ -66,6 +77,7 @@ async function ask(intent, answers, receipt) {
   $('loading').hidden = true;
   $('go') && ($('go').disabled = false);
   if (netErr) return showError('network', 0);
+  if (res.status === 401) return location.replace('/login?expired=1'); // 登录过期：去门口重新进来
   if (res.status === 200 && j && j.understanding !== undefined) return render(j);
   showError((j && j.error) || 'network', res.status, j);
 }
@@ -173,8 +185,18 @@ $('go').onclick = () => {
   ask(v);
 };
 
+/* 退出：服务端吊销会话 → 本页不再显示任何用户内容 → 回到门口。
+ * 各用户的本机行动回路保留（同一个人下次登录还能继续），别人看不到。 */
+$('logout').onclick = async () => {
+  const btn = $('logout');
+  btn.disabled = true;
+  try { await fetch(AUTH_BASE + '/logout', { method: 'POST' }); } catch (e) { }
+  document.body.textContent = '';
+  location.replace('/login');
+};
+
 /* 刷新/回来后接着上次的继续：恢复上一份契约与回执入口，不要求用户重讲一遍。 */
-{
+function restoreLoop() {
   const saved = loadLoop();
   if (saved && Date.now() - saved.updated_at < 7 * 24 * 3600 * 1000) {
     lastIntent = saved.intent;
@@ -184,3 +206,21 @@ $('go').onclick = () => {
     clearLoop();
   }
 }
+
+/* 先过门，再恢复回路：身份来自服务端验证的会话，不是浏览器说了算。 */
+(async () => {
+  let me;
+  try { me = await fetch(AUTH_BASE + '/me'); } catch (e) {
+    $('ask-sec').hidden = true;
+    return showError('network', 0);
+  }
+  if (me.status === 401) return location.replace('/login');
+  const mj = await me.json().catch(() => ({}));
+  if (me.status === 503 || mj.error === 'auth_unavailable') {
+    $('ask-sec').hidden = true;
+    return showError('auth_unavailable', 503);
+  }
+  USER = String(mj.user_id || 'local').replace(/[^a-zA-Z0-9_-]/g, '') || 'local';
+  migrateLegacyLoop();
+  restoreLoop();
+})();
