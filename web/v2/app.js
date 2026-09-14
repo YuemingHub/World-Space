@@ -121,7 +121,8 @@ function render(j, restored) {
   } else {
     saveLoop(lastIntent, j); // 真实教训：持久化函数定义了但没接线，刷新后回路就断了
   }
-  $('result').innerHTML = head + html;
+  $('result').innerHTML = head + html
+    + (restored ? '' : `<p class="fresh-wrap"><button class="ghost" id="fresh-start">换个新目标</button></p>`);
   document.querySelectorAll('#result [data-copy-slot]').forEach(el => {
     el.dataset.copy = copies[Number(el.dataset.copySlot)] || '';
   });
