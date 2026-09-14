@@ -52,7 +52,7 @@ const A = {
   ok('http 保留', httpUrl('http://example.gov.cn/a').startsWith('http://'));
 }
 // ── 3. buildResultHtml 对抗渲染：标签/属性白名单 + href 白名单 + 复制原文往返 ──
-const ALLOWED_TAGS = ['div', 'strong', 'span', 'h2', 'p', 'button', 'a', 'ul', 'li'];
+const ALLOWED_TAGS = ['div', 'strong', 'span', 'h2', 'p', 'button', 'a', 'ul', 'li', 'details', 'summary'];
 const ALLOWED_ATTRS = ['class', 'href', 'target', 'rel', 'id', 'data-copy-slot', 'hidden', 'rows'];
 function structuralAudit(html) {
   const tags = [...html.matchAll(/<([a-zA-Z][a-zA-Z0-9]*)/g)].map(m => m[1]);

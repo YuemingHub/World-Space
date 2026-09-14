@@ -7,6 +7,10 @@
  *          绝不采用模型给的 URL；目标名匹配不上就不给"打开"按钮，宁可只给任务书。
  * 复制按钮不把文本拼进 HTML：这里只留槽位序号，真实文本由 app.js 在渲染后
  * 经 dataset（DOM property，不经过 HTML 解析）赋值，点击时读到的就是原文。
+ *
+ * 结果页信息架构（§23）：用户要做成什么 → 现在只做这一步 → 怎么算做完 → 去做 →
+ * 做成了/卡住了/把结果带回来 → 其余复杂信息收进第二层（details，想看再展开）。
+ * 唯一例外（§27）：真正重要的不确定性不藏——折叠摘要里就露出第一条。
  */
 export function esc(s) {
   return String(s == null ? '' : s)
@@ -71,8 +75,8 @@ function actionHtml(j, copies) {
   const na = nextActionOf(j);
   if (!na) return '';
   const copyBtn = text => `<button class="ghost copy" data-copy-slot="${copies.push(String(text == null ? '' : text)) - 1}">复制这句话</button>`;
-  let h = `<h2>现在只做这一步</h2><div class="action"><div>${esc(na.text)}</div>`;
-  if (na.done_when) h += `<div class="fine">怎么算做完：${esc(na.done_when)}</div>`;
+  let h = `<h2 class="act-head">现在只做这一步</h2><div class="action"><div class="act-text">${esc(na.text)}</div>`;
+  if (na.done_when) h += `<div class="done-when">怎么算做完：${esc(na.done_when)}</div>`;
   if (MODE_LABEL[na.mode]) h += `<div class="fine">这一步${esc(MODE_LABEL[na.mode])}。</div>`;
   if (na.mode === 'handoff' && na.handoff_task) {
     h += `<div class="handoff"><div class="fine">任务书：复制 → 粘贴到${esc(na.handoff_target || '那个工具')} → 直接发送</div>`
@@ -86,47 +90,55 @@ function actionHtml(j, copies) {
   return h;
 }
 
+/** 第二层信息：默认收起，想看再展开（复杂留给系统，选择留给人）。 */
+function detailsHtml(summary, inner, open) {
+  return `<details class="more"${open ? ' open' : ''}><summary>${summary}</summary><div class="more-body">${inner}</div></details>`;
+}
+
 /** 契约 → 结果页 HTML。copies 与输出里 data-copy-slot 的顺序一一对应，装载原文。 */
 export function buildResultHtml(j) {
   const copies = [];
   let h = '';
-  h += `<h2>我们理解你现在想做的是</h2><div class="card">${esc(j.understanding)}</div>`;
-  if (j.understanding) h += `<p class="fine">我理解得不对？回到上面改一改再发一次。</p>`;
-
-  if (j.questions && j.questions.length) {
-    h += `<h2>先回答这些问题，答案会直接改变下一步</h2><div class="card qa">`;
-    j.questions.forEach((q, i) => {
-      h += `<div><strong>${i + 1}. ${esc(q.ask)}</strong><div class="fine">${esc(q.why || '')}</div></div>`;
-    });
-    h += `</div><button class="ghost" id="answer">我要回答（打开输入框）</button><div id="ansbox" hidden></div>`;
-  }
+  if (j.understanding) h += `<h2 class="want-head">你要做成</h2><div class="card want">${esc(j.understanding)}</div>`;
 
   h += actionHtml(j, copies);
 
-  if (j.recommended_path && j.recommended_path.summary) {
-    h += `<h2>这条路的整体走法</h2><div class="card">
-      <div>${esc(j.recommended_path.summary)}</div>
-      <div class="fine">为什么：${esc(j.recommended_path.why)}</div></div>`;
-  }
-
-  if (j.resources && j.resources.length) {
-    h += `<h2>世界上已经有什么</h2>` + j.resources.map(resourceHtml).join('');
-  } else {
-    h += `<h2>世界上已经有什么</h2><div class="card fine">这一步没有找到足够可信的现实资源，所以不硬塞。上面的动作不依赖它们。</div>`;
-  }
-
-  if (j.uncertainties && j.uncertainties.length) {
-    h += `<h2>这些事我还没把握，别当成结论</h2><div class="notice"><ul>`
-      + j.uncertainties.map(u => `<li>${esc(u)}</li>`).join('') + `</ul></div>`;
-  }
-
+  /* 回执紧贴主行动：用户做完抬眼就是"回来"的路，不用在长页里找。 */
   if (j.reality_feedback_prompt) {
-    h += `<h2>去做，然后把结果带回来</h2><div class="card fine">${esc(j.reality_feedback_prompt)}</div>
+    h += `<div class="bring-back"><div class="fine">去做，然后把结果带回来。${esc(j.reality_feedback_prompt)}</div>
       <div class="feedback">
         <button class="ghost" id="fb-done">做成了 ✓</button>
         <button class="ghost" id="fb-stuck">卡住了</button>
-        <button class="ghost" id="fb-paste">粘贴结果</button>
-      </div><div id="stuckbox" hidden></div>`;
+        <button class="ghost" id="fb-paste">把结果带回来</button>
+      </div><div id="stuckbox" hidden></div></div>`;
   }
+
+  if (j.questions && j.questions.length) {
+    const inner = `<div class="qa">` + j.questions.map((q, i) =>
+      `<div class="card"><strong>${i + 1}. ${esc(q.ask)}</strong><div class="fine">${esc(q.why || '')}</div></div>`).join('')
+      + `</div><button class="ghost" id="answer">我要回答（打开输入框）</button><div id="ansbox" hidden></div>`;
+    h += detailsHtml(`有 ${j.questions.length} 个情况，弄清后下一步会更准`, inner);
+  }
+
+  if (j.recommended_path && j.recommended_path.summary) {
+    h += detailsHtml('为什么是这一步', `<div class="card">
+      <div>${esc(j.recommended_path.summary)}</div>
+      <div class="fine">为什么：${esc(j.recommended_path.why)}</div></div>`);
+  }
+
+  if (j.resources && j.resources.length) {
+    h += detailsHtml(`世界上已经有什么（${j.resources.length}）`, j.resources.map(resourceHtml).join(''));
+  } else {
+    h += detailsHtml('世界上已经有什么', `<div class="card fine">这一步没有找到足够可信的现实资源，所以不硬塞。上面的动作不依赖它们。</div>`);
+  }
+
+  if (j.uncertainties && j.uncertainties.length) {
+    /* §27 例外：重要的不确定不能藏进折叠里没人看见——摘要行直接露出第一条 */
+    const first = String(j.uncertainties[0] || '');
+    const preview = first.length > 44 ? first.slice(0, 44) + '…' : first;
+    h += detailsHtml(`还有什么没有确定（${j.uncertainties.length}）——${esc(preview)}`,
+      `<div class="notice"><ul>` + j.uncertainties.map(u => `<li>${esc(u)}</li>`).join('') + `</ul></div>`);
+  }
+
   return { html: h, copies };
 }

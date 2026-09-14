@@ -42,7 +42,7 @@ const ask = (port, body) => fetch(`http://127.0.0.1:${port}/api/world`, {
 });
 const kill = c => { try { c.kill('SIGKILL'); } catch (e) { } };
 function audit(html) {
-  const TAGS = ['div', 'strong', 'span', 'h2', 'p', 'button', 'a', 'ul', 'li'];
+  const TAGS = ['div', 'strong', 'span', 'h2', 'p', 'button', 'a', 'ul', 'li', 'details', 'summary'];
   const ATTRS = ['class', 'href', 'target', 'rel', 'id', 'data-copy-slot', 'hidden', 'rows'];
   const tags = [...html.matchAll(/<([a-zA-Z][a-zA-Z0-9]*)/g)].map(m => m[1]).filter(t => !TAGS.includes(t));
   const attrs = [...html.matchAll(/\s([a-zA-Z-]+)="[^"]*"/g)].map(m => m[1]).filter(t => !ATTRS.includes(t));

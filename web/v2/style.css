@@ -47,10 +47,30 @@ button.ghost { background: var(--surface); border-color: var(--border); color: v
 .card { background: var(--surface); border: 1px solid var(--border-soft); border-radius: 12px; padding: 14px 16px; margin: 10px 0; }
 .action {
   background: var(--accent-soft); border: 1px solid var(--accent-border); border-radius: 12px;
-  padding: 16px; margin: 10px 0; font-size: 17px;
+  padding: 18px; margin: 10px 0 6px; font-size: 18px; line-height: 1.6;
 }
-.action .copy { margin-top: 10px; }
+.action .act-text { word-break: break-word; }
+.action .done-when {
+  margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--accent-border);
+  font-size: 15px; color: var(--muted);
+}
+.action .copy { margin-top: 12px; margin-right: 8px; }
 .action .fine { margin-top: 8px; }
+.want { font-size: 15px; color: var(--muted); }
+.bring-back { margin-top: 14px; }
+.bring-back .fine { margin-bottom: 4px; }
+
+/* 第二层信息：默认收起，安静可展开 */
+details.more { margin: 12px 0; border: 1px solid var(--border-soft); border-radius: 12px; background: var(--surface); }
+details.more summary {
+  cursor: pointer; padding: 12px 16px; font-size: 14px; color: var(--muted);
+  list-style: none; min-height: 44px; display: flex; align-items: center;
+}
+details.more summary::-webkit-details-marker { display: none; }
+details.more summary::before { content: '▸'; margin-right: 8px; color: var(--faint); }
+details.more[open] summary::before { content: '▾'; }
+details.more[open] summary { border-bottom: 1px solid var(--border-soft); }
+details.more .more-body { padding: 4px 12px 12px; }
 .handoff { margin-top: 12px; border-top: 1px dashed var(--accent-border); padding-top: 10px; }
 .handoff .task {
   background: var(--surface); border: 1px dashed var(--border); border-radius: 8px;
