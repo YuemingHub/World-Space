@@ -80,6 +80,17 @@ li { margin: 6px 0; }
 .thinking { font-size: 18px; }
 .qa { display: flex; flex-direction: column; gap: 8px; }
 
+/* ── 首页：一个问题就是整个页面 ── */
+.hero { padding-top: 12vh; }
+.hero h1 { font-size: 28px; margin: 0 0 6px; letter-spacing: 0.01em; }
+.hero .sub { font-size: 15px; margin-bottom: 22px; }
+.hero textarea { min-height: 120px; font-size: 17px; }
+.hero .fine { margin-top: 14px; max-width: 34em; }
+@media (min-width: 768px) {
+  .hero { padding-top: 18vh; }
+  .hero h1 { font-size: 32px; }
+}
+
 /* ── 登录页：门就是门 ── */
 body.login-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
 body.login-page main { width: 100%; max-width: 340px; padding: 24px 20px 40px; margin: 0; }
