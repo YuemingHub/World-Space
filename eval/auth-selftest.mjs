@@ -30,10 +30,12 @@ writeUsers([
 
 function start(port, extra, captureLogs) {
   const chunks = [];
+  rmSync(join(VAR, `auth-${port}.json`), { force: true }); // 预算 fixture 不跨运行累计（真实教训：累计到日上限会假绿）
   const child = spawn(process.execPath, [join(ROOT, 'server', 'world.mjs')], {
     env: Object.assign({}, process.env, {
       WS_PROVIDER: 'stub', WS_STUB_CASE: 'ok', WS_SEARCH: 'fixture', WS_LIVENESS: '0',
       WS_PORT: String(port), WS_HOST: '127.0.0.1', WS_STATE_FILE: join(VAR, `auth-${port}.json`),
+      WS_DAILY_CAP: '500',
       WS_AUTH_USERS_FILE: usersFile, WS_SESSION_SECRET_FILE: secretFile, WS_RATE_LIMIT: '1000',
     }, extra),
     stdio: captureLogs ? ['ignore', 'pipe', 'pipe'] : 'ignore',
@@ -102,6 +104,8 @@ try {
     && !sc.includes('alice') && !sc.includes(PW_A) && !sc.includes('password'), JSON.stringify(payload));
   const me1 = await get(8951, '/api/auth/me', `ws_sess=${token}`);
   ok('已登录 me → user_id 来自服务端验证', me1.status === 200 && (await me1.json()).user_id === 'u-a', String(me1.status));
+  const pageIn = await get(8951, '/', `ws_sess=${token}`);
+  ok('已登录首页 no-store（后退/共用电脑不泄露上一个人的页面）', pageIn.status === 200 && /no-store/i.test(pageIn.headers.get('cache-control') || ''), String(pageIn.headers.get('cache-control')));
   const w1 = await world(8951, `ws_sess=${token}`);
   const j1 = await w1.json();
   ok('已登录 POST /api/world → 正常契约', w1.status === 200 && j1.understanding !== undefined, String(w1.status));
