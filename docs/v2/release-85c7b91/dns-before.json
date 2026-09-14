@@ -1,0 +1,100 @@
+{
+	"DomainRecords": {
+		"Record": [
+			{
+				"CreateTimestamp": 1788034440183,
+				"DomainName": "ymai.fun",
+				"LbaStatus": false,
+				"Line": "default",
+				"Locked": false,
+				"RR": "api",
+				"RecordId": "2093794315175848960",
+				"Status": "ENABLE",
+				"TTL": 600,
+				"Type": "A",
+				"UpdateTimestamp": 1788034440183,
+				"Value": "39.107.228.76",
+				"Weight": 1
+			},
+			{
+				"CreateTimestamp": 1780835328757,
+				"DomainName": "ymai.fun",
+				"LbaStatus": true,
+				"Line": "default",
+				"Locked": false,
+				"RR": "www",
+				"RecordId": "2063599053363240960",
+				"Status": "ENABLE",
+				"TTL": 600,
+				"Type": "CNAME",
+				"UpdateTimestamp": 1780835328757,
+				"Value": "yueminghub.github.io",
+				"Weight": 1
+			},
+			{
+				"CreateTimestamp": 1780834944857,
+				"DomainName": "ymai.fun",
+				"LbaStatus": true,
+				"Line": "default",
+				"Locked": false,
+				"RR": "@",
+				"RecordId": "2063597443132248066",
+				"Status": "ENABLE",
+				"TTL": 600,
+				"Type": "A",
+				"UpdateTimestamp": 1780834944857,
+				"Value": "185.199.111.153",
+				"Weight": 1
+			},
+			{
+				"CreateTimestamp": 1780834944857,
+				"DomainName": "ymai.fun",
+				"LbaStatus": true,
+				"Line": "default",
+				"Locked": false,
+				"RR": "@",
+				"RecordId": "2063597443132248065",
+				"Status": "ENABLE",
+				"TTL": 600,
+				"Type": "A",
+				"UpdateTimestamp": 1780834944857,
+				"Value": "185.199.110.153",
+				"Weight": 1
+			},
+			{
+				"CreateTimestamp": 1780834944857,
+				"DomainName": "ymai.fun",
+				"LbaStatus": true,
+				"Line": "default",
+				"Locked": false,
+				"RR": "@",
+				"RecordId": "2063597443132248064",
+				"Status": "ENABLE",
+				"TTL": 600,
+				"Type": "A",
+				"UpdateTimestamp": 1780834944857,
+				"Value": "185.199.109.153",
+				"Weight": 1
+			},
+			{
+				"CreateTimestamp": 1780825324083,
+				"DomainName": "ymai.fun",
+				"LbaStatus": true,
+				"Line": "default",
+				"Locked": false,
+				"RR": "@",
+				"RecordId": "2063557090689779712",
+				"Status": "ENABLE",
+				"TTL": 600,
+				"Type": "A",
+				"UpdateTimestamp": 1780834858556,
+				"Value": "185.199.108.153",
+				"Weight": 1
+			}
+		]
+	},
+	"PageNumber": 1,
+	"PageSize": 20,
+	"RequestId": "01A09FBF-880B-50C8-AD74-0D426838709A",
+	"TotalCount": 6
+}
