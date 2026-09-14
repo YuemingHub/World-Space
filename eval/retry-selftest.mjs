@@ -44,6 +44,7 @@ function startWorld(port, env) {
       WS_PROVIDER: 'openai_compatible', WS_LLM_BASE_URL: `http://127.0.0.1:${port + 100}`,
       WS_LLM_MODEL: 'mock', WS_SEARCH: 'none', WS_PORT: String(port), WS_HOST: '127.0.0.1',
       WS_STATE_FILE: env.stateFile, WS_DAILY_CAP: '50', WS_TIMEOUT_MS: '5000',
+      WS_AUTH_ENABLED: '0', // 本门测业务边界，不测访问门（auth-selftest 专测）
     }), stdio: 'ignore',
   });
   return child;
@@ -126,6 +127,7 @@ const kill = c => { try { c.kill('SIGKILL'); } catch (e) { } };
       WS_PROVIDER: 'openai_compatible', WS_LLM_BASE_URL: `http://127.0.0.1:${gwPort}`,
       WS_LLM_MODEL: 'mock', WS_SEARCH: 'none', WS_PORT: String(worldPort), WS_HOST: '127.0.0.1',
       WS_STATE_FILE: join(ROOT, 'var', 'retry-c.json'), WS_DAILY_CAP: '50', WS_TIMEOUT_MS: '5000',
+      WS_AUTH_ENABLED: '0', // 同上：本门不测访问门
     }), stdio: 'ignore',
   });
   await worldUp(worldPort);

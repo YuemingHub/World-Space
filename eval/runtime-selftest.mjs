@@ -17,7 +17,7 @@ function start(port, extraEnv, captureLogs) {
     env: Object.assign({}, process.env, {
       WS_PROVIDER: 'stub', WS_STUB_CASE: 'ok', WS_SEARCH: 'fixture', WS_LIVENESS: '0',
       WS_PORT: String(port), WS_HOST: '127.0.0.1', WS_STATE_FILE: join(ROOT, 'var', `rt-${port}.json`),
-      WS_DAILY_CAP: '500',
+      WS_DAILY_CAP: '500', WS_AUTH_ENABLED: '0', // 本门测运行时边界，不测访问门（auth-selftest 专测）
     }, extraEnv),
     stdio: captureLogs ? ['ignore', 'pipe', 'pipe'] : 'ignore',
   });

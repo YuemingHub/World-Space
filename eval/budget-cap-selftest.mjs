@@ -54,6 +54,7 @@ function startWorld(port, gwPort, stateFile, extraEnv = {}) {
       WS_STATE_FILE: stateFile, WS_DAILY_CAP: '50', WS_MONTHLY_CAP_RMB: '20',
       WS_RMB_PER_1K_IN: '0.002', WS_RMB_PER_1K_OUT: '0.008', WS_MAX_TOKENS: '1500',
       WS_RATE_LIMIT: '1000', WS_TIMEOUT_MS: '5000',
+      WS_AUTH_ENABLED: '0', // 本门测业务边界，不测访问门（auth-selftest 专测）
     }, extraEnv), stdio: 'ignore',
   });
 }

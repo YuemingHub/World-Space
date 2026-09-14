@@ -26,6 +26,7 @@ function startWorld(port, stubCase, extra) {
       // compose 阶段只在拿到证据时发生：统一用 fixture 搜索让桩的 compose / compose_with_receipt 被触发
       WS_PROVIDER: 'stub', WS_STUB_CASE: stubCase, WS_SEARCH: 'fixture', WS_LIVENESS: '0',
       WS_PORT: String(port), WS_HOST: '127.0.0.1', WS_STATE_FILE: join(ROOT, 'var', `loop-${port}.json`), WS_RATE_LIMIT: '100',
+      WS_AUTH_ENABLED: '0', // 本门测行动回路，不测访问门（auth-selftest 专测）
     }, extra || {}), stdio: 'ignore',
   });
 }

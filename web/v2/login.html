@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>World Space · 进入</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body class="login-page">
+<main class="login">
+  <h1>World Space</h1>
+  <p class="sub">进入你的空间</p>
+  <form id="f">
+    <label for="username">账号</label>
+    <input id="username" name="username" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required>
+    <label for="password">密码</label>
+    <input id="password" name="password" type="password" autocomplete="current-password" required>
+    <div id="msg" class="err" role="alert" hidden></div>
+    <button id="go" class="primary" type="submit">进入</button>
+  </form>
+</main>
+<script src="/login.js"></script>
+</body>
+</html>

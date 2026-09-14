@@ -27,6 +27,7 @@ import { PROVIDERS, KNOWN } from './search.mjs';
 import { guard } from './guard.mjs';
 import { validate } from './validate.mjs';
 import { localDate, localMonth } from './date.mjs';
+import { createAuth, sessionTokenFrom } from './auth.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const SCHEMA = JSON.parse(readFileSync(join(HERE, '..', 'contracts', 'world.schema.json'), 'utf8'));
@@ -67,6 +68,9 @@ const CFG = {
   trustedProxies: (process.env.WS_TRUSTED_PROXIES || '127.0.0.1,::1').split(',').map(s => s.trim()).filter(Boolean),
   webDir: join(HERE, '..', 'web', 'v2'),
 };
+
+/* ── 访问门：谁能进入（缺省开启；显式 WS_AUTH_ENABLED=0 才关闭，且启动日志大声声明）── */
+const AUTH = createAuth(process.env);
 
 /* ── 预算：读不到就停，不静默放行 ─────────────────────────── */
 let MEM = { day: localDate(), calls: 0, month: localMonth(), cost: 0 };
@@ -327,11 +331,14 @@ function rateLimited(req) {
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml' };
 function serveStatic(req, res, corsH) {
   let p = req.url === '/' ? '/index.html' : req.url.split('?')[0];
+  if (p === '/login') p = '/login.html'; // 干净路径给用户，磁盘上带扩展名
   const file = join(CFG.webDir, normalize(p).replace(/^([.][.][/\\])+/, ''));
   if (!file.startsWith(CFG.webDir)) return false;
   let data;
   try { data = readFileSync(file); } catch (e) { return false; }
-  res.writeHead(200, Object.assign({ 'content-type': MIME[extname(file)] || 'application/octet-stream', 'cache-control': 'no-cache' }, corsH));
+  /* HTML 页面 no-store：退出/换账号后浏览器后退不能显示上一个人的内容 */
+  const cc = extname(file) === '.html' ? 'no-store' : 'no-cache';
+  res.writeHead(200, Object.assign({ 'content-type': MIME[extname(file)] || 'application/octet-stream', 'cache-control': cc }, corsH));
   res.end(req.method === 'HEAD' ? undefined : data);
   return true;
 }
@@ -358,27 +365,109 @@ const server = http.createServer(async (req, res) => {
   }
   if (req.url === '/healthz') {
     const b = loadBudget();
+    const a = AUTH.status();
     return json(res, 200, {
       ok: true, provider: CFG.provider, search: CFG.search, model: CFG.llmModel || 'stub',
       // 只报告"配没配"，绝不回显 key
       search_configured: CFG.search === 'fixture' ? true : (CFG.search !== 'none' && !!CFG.searchKey),
       origins_configured: CFG.allowedOrigins.length > 0, rate_limit_per_min: CFG.rateLimitPerMin,
       liveness: CFG.liveness, trusted_proxy: CFG.trustProxy,
+      auth: a.enabled ? (a.ready ? 'ready' : `broken:${a.reason}`) : 'off',
       budget_mode: b.mode, today_calls: b.state ? b.state.calls : null,
       month_cost_rmb: b.state ? b.state.cost : null,
       daily_cap: CFG.dailyCap, monthly_cap_rmb: CFG.monthlyCapRmb, fail_closed: CFG.failClosed,
     }, corsH);
   }
+  /* 认证是明码标价的门，不是暗桩：X-Forwarded-Proto 只在对面是受信代理时才看 */
+  const protoHttps = CFG.trustProxy && CFG.trustedProxies.includes(req.socket.remoteAddress || '')
+    && String(req.headers['x-forwarded-proto'] || '') === 'https';
+  if (req.method === 'POST' && req.url === '/api/auth/login') return handleLogin(req, res, corsH, protoHttps);
+  if (req.method === 'GET' && req.url === '/api/auth/me') return handleMe(req, res, corsH);
+  if (req.method === 'POST' && req.url === '/api/auth/logout') return handleLogout(req, res, corsH);
   if (req.method === 'POST' && req.url === '/api/world') {
     if (!allowed) return json(res, 403, { error: 'origin_not_allowed' });
     if (rateLimited(req)) return json(res, 429, {
       error: 'rate_limited', fallback_if_refused: '这一分钟请求太密了。等一分钟再试；期间可以先把要做的事写下来。',
     }, corsH);
+    /* FAIL CLOSED：配置坏了 → 503 明确不可用（绝不放行）；没登录 → 401 */
+    const sess = sessionState(req);
+    if (sess.mode === 'broken') return json(res, 503, {
+      error: 'auth_unavailable', reason: sess.reason,
+      fallback_if_refused: '认证配置损坏时服务不开放。请运维检查用户文件与 session 密钥后重试；期间请走手工路径完成这件事。',
+    }, corsH);
+    if (sess.mode === 'out') return json(res, 401, { error: 'auth_required' }, corsH);
     return handleWorld(req, res, corsH, t0);
   }
-  if (req.method === 'GET' && serveStatic(req, res, corsH)) return;
+  if (req.method === 'GET' || req.method === 'HEAD') {
+    const p = req.url === '/' ? '/' : req.url.split('?')[0];
+    const sess = sessionState(req);
+    if (p === '/' || p === '/index.html') {
+      /* 产品首页是受保护页面：没登录/门坏了都去登录页，登录页会如实说明状态 */
+      if (sess.mode === 'out' || sess.mode === 'broken') return redirect(res, '/login');
+    } else if (p === '/login' || p === '/login.html') {
+      if (sess.mode === 'in' || sess.mode === 'off') return redirect(res, '/');
+    }
+    if (serveStatic(req, res, corsH)) return;
+  }
   return json(res, 404, { error: 'only POST /api/world exists' });
 });
+
+/* ── 访问门的三个动作：进（login）、看（me）、出（logout）────────── */
+function sessionState(req) {
+  const st = AUTH.status();
+  if (!st.enabled) return { mode: 'off' };
+  if (!st.ready) return { mode: 'broken', reason: st.reason };
+  const s = AUTH.sessionOf(sessionTokenFrom(req.headers.cookie, AUTH.cookieName));
+  return s.ok ? { mode: 'in', uid: s.uid } : { mode: 'out' };
+}
+function redirect(res, loc) { res.writeHead(302, { location: loc, 'cache-control': 'no-store' }); res.end(); }
+
+const LOGIN_FAIL_MSG = '账号或密码不正确。'; // 统一口径：不泄露账号是否存在
+async function handleLogin(req, res, corsH, protoHttps) {
+  const st = AUTH.status();
+  if (!st.enabled) return json(res, 200, { ok: true, auth: 'off' }, corsH);
+  if (!st.ready) return json(res, 503, { error: 'auth_unavailable', reason: st.reason, message: '服务没有配置好，暂时无法登录。' }, corsH);
+  let body;
+  try { body = await readBody(req); } catch (e) { return json(res, 400, { error: 'bad_request' }, corsH); }
+  const username = typeof body.username === 'string' ? body.username.trim() : '';
+  const password = typeof body.password === 'string' ? body.password : '';
+  if (!username || !password || username.length > 64 || password.length > 200) return json(res, 400, { error: 'bad_request' }, corsH);
+  const ip = clientIp(req);
+  const g = AUTH.loginGuard(ip);
+  if (g.locked) {
+    res.setHeader('retry-after', String(g.retryAfterSec));
+    console.log(`${new Date().toISOString()} auth login locked ip=${ip}`);
+    return json(res, 429, { error: 'login_rate_limited', message: '尝试次数太多，请等几分钟再试。' }, corsH);
+  }
+  const r = AUTH.login(username, password);
+  if (!r.ok) {
+    AUTH.loginFail(ip);
+    // 只记事件与来源：用户名、密码、hash 永远不进日志
+    console.log(`${new Date().toISOString()} auth login fail ip=${ip}`);
+    return json(res, 401, { error: 'bad_credentials', message: LOGIN_FAIL_MSG }, corsH);
+  }
+  AUTH.loginPass(ip);
+  res.setHeader('set-cookie', AUTH.cookieFor(r.token, protoHttps));
+  console.log(`${new Date().toISOString()} auth login ok ip=${ip}`);
+  return json(res, 200, { ok: true }, corsH);
+}
+function handleMe(req, res, corsH) {
+  const st = AUTH.status();
+  if (!st.enabled) return json(res, 200, { auth: 'off', user_id: 'local' }, corsH);
+  if (!st.ready) return json(res, 503, { error: 'auth_unavailable', reason: st.reason }, corsH);
+  const s = AUTH.sessionOf(sessionTokenFrom(req.headers.cookie, AUTH.cookieName));
+  if (!s.ok) return json(res, 401, { error: 'auth_required' }, corsH);
+  return json(res, 200, { user_id: s.uid }, corsH);
+}
+function handleLogout(req, res, corsH) {
+  const st = AUTH.status();
+  if (st.enabled && st.ready) {
+    const s = AUTH.sessionOf(sessionTokenFrom(req.headers.cookie, AUTH.cookieName));
+    if (s.ok) AUTH.revoke(s); // 服务端吊销：旧 cookie 重放也进不来
+  }
+  res.setHeader('set-cookie', AUTH.clearCookie());
+  return json(res, 200, { ok: true }, corsH);
+}
 
 async function handleWorld(req, res, corsH, t0) {
   // 每个请求一份计数器；并发请求互不可见（并发回归自测盯住这一点）
@@ -465,4 +554,8 @@ async function handleWorld(req, res, corsH, t0) {
     console.log(`${new Date().toISOString()} ${req.method} ${res.statusCode} ${Date.now() - t0}ms llm=${usage.llm_calls} search=${usage.search_calls} retry=${usage.llm_retries} req_cost=${usage.request_cost_rmb} month=${s.cost} calls=${s.calls}`);
   }
 }
-server.listen(CFG.port, CFG.host, () => console.log(`world api http://${CFG.host}:${CFG.port} provider=${CFG.provider} search=${CFG.search} caps=${CFG.dailyCap}/day ${CFG.monthlyCapRmb}RMB/month fail_closed=${CFG.failClosed} origins=${CFG.allowedOrigins.length ? 'configured' : 'local-only'} rate=${CFG.rateLimitPerMin}/min liveness=${CFG.liveness} trusted_proxy=${CFG.trustProxy ? 'on(' + CFG.trustedProxies.join('|') + ')' : 'off'}`));
+server.listen(CFG.port, CFG.host, () => {
+  const a = AUTH.status();
+  const authState = a.enabled ? (a.ready ? 'ready' : `FAIL_CLOSED(${a.reason})`) : 'OFF(公开访问，只用于本地离线开发)';
+  console.log(`world api http://${CFG.host}:${CFG.port} provider=${CFG.provider} search=${CFG.search} caps=${CFG.dailyCap}/day ${CFG.monthlyCapRmb}RMB/month fail_closed=${CFG.failClosed} origins=${CFG.allowedOrigins.length ? 'configured' : 'local-only'} rate=${CFG.rateLimitPerMin}/min liveness=${CFG.liveness} trusted_proxy=${CFG.trustProxy ? 'on(' + CFG.trustedProxies.join('|') + ')' : 'off'} auth=${authState}`);
+});
