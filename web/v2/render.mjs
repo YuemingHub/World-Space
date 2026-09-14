@@ -74,13 +74,13 @@ function nextActionOf(j) {
 function actionHtml(j, copies) {
   const na = nextActionOf(j);
   if (!na) return '';
-  const copyBtn = text => `<button class="ghost copy" data-copy-slot="${copies.push(String(text == null ? '' : text)) - 1}">复制这句话</button>`;
+  const copyBtn = (text, label = '复制这句话') => `<button class="ghost copy" data-copy-slot="${copies.push(String(text == null ? '' : text)) - 1}">${label}</button>`;
   let h = `<h2 class="act-head">现在只做这一步</h2><div class="action"><div class="act-text">${esc(na.text)}</div>`;
   if (na.done_when) h += `<div class="done-when">怎么算做完：${esc(na.done_when)}</div>`;
   if (MODE_LABEL[na.mode]) h += `<div class="fine">这一步${esc(MODE_LABEL[na.mode])}。</div>`;
   if (na.mode === 'handoff' && na.handoff_task) {
     h += `<div class="handoff"><div class="fine">任务书：复制 → 粘贴到${esc(na.handoff_target || '那个工具')} → 直接发送</div>`
-      + `<div class="task">${esc(na.handoff_task)}</div>${copyBtn(na.handoff_task)}`;
+      + `<div class="task">${esc(na.handoff_task)}</div>${copyBtn(na.handoff_task, '复制任务书')}`;
     const link = handoffLink(na.handoff_target);
     if (link) h += ` <a class="ghost openlink" href="${attr(link.url)}" target="_blank" rel="noopener noreferrer">打开 ${esc(link.name)} ↗</a>`;
     else if (na.handoff_target) h += `<div class="fine">这里没有预置 ${esc(na.handoff_target)} 的入口链接——复制任务书，自己去打开它。</div>`;
