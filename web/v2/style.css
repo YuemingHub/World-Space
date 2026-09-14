@@ -1,7 +1,24 @@
-:root { color-scheme: light; }
+/* ── 视觉基调：安静、克制、可靠。一层主强调，不多色。 ── */
+:root {
+  color-scheme: light;
+  --background: #f6f7f9;
+  --surface: #ffffff;
+  --text: #1c2430;
+  --muted: #5b6675;
+  --faint: #7a8494;
+  --border: #c9d0d9;
+  --border-soft: #e3e7ec;
+  --accent: #2f6fae;
+  --accent-soft: #eef4fb;
+  --accent-border: #b9d0e8;
+  --warning-bg: #fff8e6;
+  --warning-border: #eedc9a;
+  --danger-bg: #fdecec;
+  --danger-border: #f2b8b5;
+}
 * { box-sizing: border-box; }
 body {
-  margin: 0; background: #f6f7f9; color: #1c2430;
+  margin: 0; background: var(--background); color: var(--text);
   font: 16px/1.65 -apple-system, "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
 }
 main { max-width: 680px; margin: 0 auto; padding: 24px 16px 64px; }
@@ -13,52 +30,66 @@ header {
 header button { min-height: 36px; padding: 0 14px; font-size: 14px; }
 h1 { font-size: 26px; line-height: 1.3; margin: 8px 0 4px; }
 h2 { font-size: 17px; margin: 26px 0 8px; }
-.sub { color: #5b6675; margin: 0 0 18px; }
-.fine { color: #7a8494; font-size: 13px; line-height: 1.6; }
-textarea {
-  width: 100%; min-height: 96px; padding: 12px; font: inherit;
-  border: 1px solid #c6cdd6; border-radius: 10px; background: #fff; resize: vertical;
+.sub { color: var(--muted); margin: 0 0 18px; }
+.fine { color: var(--faint); font-size: 13px; line-height: 1.6; }
+textarea, input[type="text"], input[type="password"] {
+  width: 100%; min-height: 48px; padding: 12px; font: inherit;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--surface); resize: vertical;
 }
-textarea:focus { outline: 2px solid #2563eb; border-color: transparent; }
+textarea:focus, input[type="text"]:focus, input[type="password"]:focus {
+  outline: 2px solid var(--accent); border-color: transparent;
+}
 button { font: inherit; min-height: 46px; border-radius: 10px; border: 1px solid transparent; cursor: pointer; }
-button.primary { background: #2563eb; color: #fff; padding: 0 22px; width: 100%; margin-top: 10px; }
+button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button.primary { background: var(--accent); color: #fff; padding: 0 22px; width: 100%; margin-top: 10px; }
 button.primary:disabled { background: #9db4e8; cursor: default; }
-button.ghost { background: #fff; border-color: #c6cdd6; color: #1c2430; padding: 0 16px; }
-.card { background: #fff; border: 1px solid #e3e7ec; border-radius: 12px; padding: 14px 16px; margin: 10px 0; }
+button.ghost { background: var(--surface); border-color: var(--border); color: var(--text); padding: 0 16px; }
+.card { background: var(--surface); border: 1px solid var(--border-soft); border-radius: 12px; padding: 14px 16px; margin: 10px 0; }
 .action {
-  background: #eef4ff; border: 1px solid #bcd0f7; border-radius: 12px;
-  padding: 14px 16px; margin: 10px 0; font-size: 17px;
+  background: var(--accent-soft); border: 1px solid var(--accent-border); border-radius: 12px;
+  padding: 16px; margin: 10px 0; font-size: 17px;
 }
 .action .copy { margin-top: 10px; }
 .action .fine { margin-top: 8px; }
-.handoff { margin-top: 12px; border-top: 1px dashed #bcd0f7; padding-top: 10px; }
+.handoff { margin-top: 12px; border-top: 1px dashed var(--accent-border); padding-top: 10px; }
 .handoff .task {
-  background: #fff; border: 1px dashed #c6cdd6; border-radius: 8px;
+  background: var(--surface); border: 1px dashed var(--border); border-radius: 8px;
   padding: 10px 12px; margin: 8px 0; font-size: 14px; line-height: 1.6; white-space: pre-wrap; word-break: break-word;
 }
 .handoff .copy, .handoff .openlink { margin-right: 8px; }
 a.openlink {
   display: inline-block; min-height: 46px; line-height: 44px; padding: 0 16px; margin-top: 8px;
-  background: #fff; border: 1px solid #c6cdd6; border-radius: 10px; color: #1c2430; text-decoration: none;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 10px; color: var(--text); text-decoration: none;
 }
 .restore button { margin-left: 10px; min-height: 34px; padding: 0 12px; }
 ul { margin: 6px 0; padding-left: 20px; }
 li { margin: 6px 0; }
-.src { font-size: 13px; color: #5b6675; margin-top: 6px; word-break: break-all; }
+.src { font-size: 13px; color: var(--muted); margin-top: 6px; word-break: break-all; }
 .badge {
   display: inline-block; font-size: 12px; padding: 1px 8px; border-radius: 999px;
-  border: 1px solid #c6cdd6; color: #5b6675; margin-right: 6px; vertical-align: 1px;
+  border: 1px solid var(--border); color: var(--muted); margin-right: 6px; vertical-align: 1px;
 }
 .badge.official { border-color: #166534; color: #166534; }
 .badge.trusted { border-color: #92400e; color: #92400e; }
 .badge.unverified { border-color: #b91c1c; color: #b91c1c; }
-.notice { background: #fff8e6; border: 1px solid #eedc9a; border-radius: 12px; padding: 12px 14px; margin: 10px 0; font-size: 14px; }
-.err { background: #fdecec; border: 1px solid #f2b8b5; border-radius: 12px; padding: 14px 16px; margin: 10px 0; }
+.notice { background: var(--warning-bg); border: 1px solid var(--warning-border); border-radius: 12px; padding: 12px 14px; margin: 10px 0; font-size: 14px; }
+.err { background: var(--danger-bg); border: 1px solid var(--danger-border); border-radius: 12px; padding: 14px 16px; margin: 10px 0; }
 .err button { margin-top: 10px; }
 .feedback { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
 .feedback button { flex: 1; min-width: 140px; }
 .thinking { font-size: 18px; }
 .qa { display: flex; flex-direction: column; gap: 8px; }
+
+/* ── 登录页：门就是门 ── */
+body.login-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+body.login-page main { width: 100%; max-width: 340px; padding: 24px 20px 40px; margin: 0; }
+body.login-page h1 { font-size: 22px; text-align: center; margin: 0 0 2px; letter-spacing: 0.02em; }
+body.login-page .sub { text-align: center; margin-bottom: 26px; }
+body.login-page label { display: block; font-size: 14px; color: var(--muted); margin: 14px 0 6px; }
+body.login-page input { min-height: 48px; }
+body.login-page button.primary { margin-top: 22px; min-height: 48px; }
+body.login-page .err, body.login-page .notice { margin-top: 18px; }
 @media (min-width: 480px) {
-  button.primary { width: auto; }
+  main button.primary { width: auto; }
+  body.login-page button.primary { width: 100%; }
 }
