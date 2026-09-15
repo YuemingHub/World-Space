@@ -126,28 +126,43 @@ logout 后旧 cookie → /api/world 401、首页弹回 /login     页面响应 c
 → 本月真实累计 ¥1.50，与本轮事前预估（¥0.2～0.4）一致
 ```
 
-## 7. 搜索凭据（§4）— 决定性发现：服务器上那把 key 已经死了
+## 7. 搜索凭据（§4）— 已定位到最后一格，只差 Founder 一次控制台操作
+
+实测事实（全部只输出指纹与状态码，明文没出现过）：
 
 ```text
-第三次尝试穿过模型网关后，返回 search_http_401 → Tavily 拒这把 key
-本机实例的 WS_SEARCH_KEY 是从共享生产 env 原样继承的
-→ 推论（高置信）：公网 85c7b91 现在的每一次真实请求，搜索阶段都在拿 401
-  —— 线上搜索早就是坏的，且 /healthz 的 search_configured 只表示"变量非空"，永远看不出这点
-服务器 env 这把的指纹 32b9a395ef8f（值未出现）
+服务器共享生产 env 在用的那把   指纹 32b9a395ef8f → Tavily 401，已死
+桌面 ws-key.txt：三行非空，其中两行各含一把 tvly- 开头、长 58 位的 key
+  第 1 行里的 key 指纹 74f41d0013af → Tavily 200，真实返回 1 条结果  ★ 能用
+  第 4 行里的 key 指纹 4002d0bdf8d6 → Tavily 200，真实返回 1 条结果  ★ 能用
+两把都在用 tvly-dev- 前缀（开发计划），且都与 env 里那把不同
 ```
 
-所以 §4 的三个状态值现在只能这样报：
+中间踩到自己一个探针错误（记 L27）：那两行是「标签: key」格式，我第一遍把**整行**
+当 Bearer 发出去，于是两把都"401"——差点把她的可用 key 判成废的。抽 token 重测才是真结果。
+
+**为什么还不能定生产 key**：本轮会话窗口里出现过一把 `tvly-dev-` 开头的 key（同一形状、同一长度）。
+文件里这两把中**必有一把就是它**，而我不肯为了区分再抄一次明文（那等于第二次扩散）。
+所以按 §4 的定义：
 
 ```text
-OLD_TAVILY_KEY_REVOKED   部分有据：env 里这把确实已不可用（401）；
-                         但"当年暴露的那把是不是它"仍需 Founder 在控制台按显示名核对
-NEW_SEARCH_KEY_CONFIGURED = no  —— 桌面 ws-key.txt 里那把还没灌进服务器：
-                         两次尝试"读桌面文件→经隧道写入服务器→只输出 SAME/DIFF"都被安全层拦下
-                         （拦点＝读取工作区外凭据文件），按纪律不绕路，已停手
-SEARCH_SMOKE              = 未过（当前配置下必然 401；新 key 装上后在同一轮里验）
+OLD_TAVILY_KEY_REVOKED      = 未定（env 那把已死是事实；"当年暴露的那把是哪一把"待 Founder 按控制台列表认）
+NEW_SEARCH_KEY_CONFIGURED   = no （还没写进任何 env）
+SEARCH_SMOKE                = 未跑（新 key 一到位就连同 §12 那四条红一起收）
 ```
 
-→ 按 §4 定义：**DEPLOY_BLOCKED_SEARCH_SECRET**，不切流。
+→ **DEPLOY_BLOCKED_SEARCH_SECRET**，不切流。
+
+下一步（Founder 在 Tavily 控制台做一次，之后我一轮收尾）：
+
+```text
+1. 把两把"能用但来路说不清"的 key 都删掉/停用，新建一把只属于生产的 key；
+   或者：直接告我"文件里第 1 行那把是新写的、聊天里那把是第 4 行"（只回行号，不贴值）
+2. 我随后做三件事：把干净那把写进 smoke env 与生产 env（改文件不重启服务，公网行为不变）；
+   拿服务器已有的那三个旧指纹各发一次请求，看是否全部变 401 ——
+   这才是 OLD_TAVILY_KEY_REVOKED=yes 的物证，不靠口头；
+   最后跑那一轮权威 smoke（约 ¥0.1–0.2），一次收齐 OUTCOME_LOOP / SEARCH_SMOKE / B 隔离
+```
 
 另需 Founder 本人在 Tavily 控制台处理：本轮贴进会话窗口的 `tvly-dev-` key 与 anysearch key
 **按已暴露对待**，删除或停用；生产 key 必须是没在聊天里出现过的那一把。
@@ -162,7 +177,23 @@ SEARCH_SMOKE              = 未过（当前配置下必然 401；新 key 装上�
 公网切流：按 §14 不做。
 ```
 
-## 9. 本机留下的运行物
+## 9. 本轮留下的运行物与文件（如实清点）
 
-三个本地桩实例（127.0.0.1:8791 / 8792 / 8793，provider=stub、search=fixture，
-不联网不花钱）停止命令被安全层拦下，仍在运行；服务器上的 3210 验证实例已停（实测无监听）。
+```text
+本机（开发机）：三个桩实例 127.0.0.1:8791/8792/8793 仍在跑
+  （provider=stub、search=fixture，不联网不花钱；停止命令被安全层拦下，未绕路）
+
+Founder 桌面 ws-login.txt（512B，含两个账号的明文口令，值未经过聊天）
+  ACL 实核：YMAI\User + NT AUTHORITY\SYSTEM + BUILTIN\Administrators 之外，
+  还有 **YMAI\CodexSandboxUsers 可读** —— 不是 Everyone，但意味着本机沙箱类工具也读得到。
+  → 建议：她读完就让我把这份和服务器上的同源副本一起抹掉（删除前会单独问她）
+
+服务器：
+  /opt/world-space/etc/users.json / session-secret.txt / first-login.txt   600 wsapp
+  /opt/world-space/etc/tavily-key.new   600 wsapp —— 她文件里的两把可用 key 原文在此，
+    **尚未写入任何 env**；等 Founder 认定哪一把来路干净后再决定去向（含之后要不要抹掉这份）
+  /etc/nginx/sites-available/world-space-closed —— 已装未启用
+  /opt/world-space/shared/env/world-space.v01-smoke.env + data/budget-smoke.json —— 验证专用
+  /opt/world-space/releases/c500f3d…/ —— 发布树，current 未指向它
+  3210 验证实例已停（实测无监听）；公网 3200 与 nginx 全程未动
+```
