@@ -15,7 +15,11 @@
 set -uo pipefail
 
 ROOT=/opt/world-space
-REL=$ROOT/releases/c500f3d76601abb263511cb622efd38379e8b959
+# 发布树跟着"当前批准点"走，不写死：批准点换人时写死的脚本会悄悄去验旧代码，
+# 还照样报告成一整轮绿灯（本轮批准点已从 c500f3d 前进到 e8284c4）。
+APPROVED=$(cat "$ROOT/state/approved-sha" 2>/dev/null || true)
+REL=$ROOT/releases/${APPROVED:-e8284c4ef24c8fd8ddde715300d022b527132933}
+[ -d "$REL" ] || { echo "FAIL: 发布树不存在 $REL（先跑 ws-prep.sh fetch）" >&2; exit 1; }
 SMOKE_ENV=$ROOT/shared/env/world-space.v01-smoke.env
 PRIV=$ROOT/etc
 OUT=$ROOT/state/smoke
@@ -48,6 +52,7 @@ _t=$pass; (exit 3); ckz "（自检）退出码非 0 应记 ✗" $? "" >/dev/null
 [ "$pass" = "$_t" ] || { echo "FATAL: 判定器把失败记成了通过"; exit 9; }
 pass=$_sp; fail=$_sf
 echo "判定器自检通过（4 项，含"绝不把失败记成通过"）"
+echo "本轮验的发布树：$REL（批准点 ${APPROVED:-未记录，用默认值}）"
 
 # ---- --rejudge：只重判已抓到的响应，不再发任何真实请求（省一次付费）----
 # 拿旧文件冒充本轮结果是最容易犯的错，所以先卡三道：新鲜度、不是错误响应、两轮都有 next_action。
@@ -142,10 +147,10 @@ echo "$ME" | grep -q 'u-owner'; ckz "/api/auth/me 认到 u-owner" $? "$ME"
 PAGE=$(curl -s --max-time 8 -H "Cookie: $TOKA" "$H/")
 echo "$PAGE" | grep -q '你现在想做成什么'; ckz "登录后首页出现「你现在想做成什么？」" $? "页面里没这句话"
 
-# ---------- 真实 Outcome Loop 两轮（上游 429 时按 45s 间隔重试，最多 3 次）----------
+# ---------- 真实 Outcome Loop 两轮（上游 429 时按 45s 间隔重试，最多 4 次）----------
 post_round() { # post_round <载荷文件> <输出文件>  → 回写 HTTP 码到全局 RD_CODE
   local payload="$1" outj="$2" n=0 code
-  while [ "$n" -lt 3 ]; do
+  while [ "$n" -lt 4 ]; do
     n=$((n+1))
     code=$(curl -s --max-time 150 -H "Cookie: $TOKA" -H 'content-type: application/json' \
            --data-binary @"$payload" "$H/api/world" -o "$outj" -w '%{http_code}')
@@ -153,7 +158,7 @@ post_round() { # post_round <载荷文件> <输出文件>  → 回写 HTTP 码�
     if [ "$code" = "200" ]; then RD_CODE=$code; return 0; fi
     echo "    第 $n 次 HTTP $code：$(head -c 90 "$outj")"
     [ "$code" = "502" ] || { RD_CODE=$code; return 1; }
-    sleep 40
+    sleep 45
   done
   RD_CODE=$code; return 1
 }
@@ -192,9 +197,11 @@ node -e '
 const r1=require("/opt/world-space/state/smoke/round1.json"), r2=require("/opt/world-space/state/smoke/round2.json");
 const m=r2.meta||{}, t1=(r1.next_action||{}).text||"", t2=(r2.next_action||{}).text||"";
 console.log("  receipt_ingested =", m.receipt_ingested, "| receipt_status =", m.receipt_status);
-console.log("  第二轮行动:", JSON.stringify(t2).slice(0,100));
-console.log("  与第一轮不同:", t2 && t1 !== t2);
-require("fs").writeFileSync("/opt/world-space/state/smoke/.r2ok", (m.receipt_ingested===true && t2 && t1!==t2)?"1":"0");
+console.log("  第一轮行动长度:", t1.length, "| 第二轮行动长度:", t2.length);
+if(!t1){ console.log("  第一轮没拿到行动 → 这一项不判通过（拿空串比"不同"是假绿）"); }
+const changed = !!t1 && !!t2 && t1 !== t2;
+console.log("  两轮都是真行动且确实不同:", changed);
+require("fs").writeFileSync("/opt/world-space/state/smoke/.r2ok", (m.receipt_ingested===true && changed)?"1":"0");
 ' 2>/dev/null
 ck "第二轮 receipt_ingested=true 且行动真的改变（没重答第一轮）" \
    "$([ -f "$OUT/.r2ok" ] && [ "$(cat "$OUT/.r2ok")" = 1 ] && echo 1 || echo 0)" "见 $OUT/round2.json"

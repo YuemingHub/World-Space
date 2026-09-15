@@ -20,7 +20,10 @@
 #   ws-prep.sh report             # 8. 汇总只读事实（不含任何密钥值）
 set -euo pipefail
 
-REF="${WS_REF:-c500f3d76601abb263511cb622efd38379e8b959}"
+# 批准点：2026-09-15 Founder 明示重开（并入"主钥匙被拒自动换备用钥匙"后 c500f3d → e8284c4）。
+# 改这一行只能因为 Founder 批准了新候选，不能为了部署方便顺手挪——
+# 否则"HEAD = origin/v2 = 批准 SHA"这句话当场变假话。
+REF="${WS_REF:-e8284c4ef24c8fd8ddde715300d022b527132933}"
 REPO=https://github.com/YuemingHub/World-Space
 BRANCH=v2
 ROOT=/opt/world-space
@@ -91,6 +94,8 @@ cmd_verify() {
     [ "$want" = "$have" ] || { echo "  内容不一致: $path"; bad=$((bad+1)); }
   done <<< "$exp"
   [ "$bad" = 0 ] || die "PREDEPLOY_ABORT_GIT_DRIFT $bad 个文件内容与 $REF 不一致"
+  echo "$REF" > "$STATE/approved-sha"     # 下游脚本都从这里读批准点，不再各自写死
+  echo "  批准点已登记：$STATE/approved-sha = $REF"
   echo "GIT=PASS  发布树 $n 个文件逐内容与 $REF 相同，无缺失、无多余（只读比对，未写发布树）"
   echo "  树清单留档：$(cat "$STATE/tree-manifest-$REF.sha256" 2>/dev/null || echo 无)"
   echo "  current 仍指向：$(readlink "$ROOT/current" || echo 未设置)（本脚本从不改它）"
@@ -192,8 +197,9 @@ cmd_failclosed() {
 cmd_gates() {
   [ -d "$REL" ] || die "先 fetch"
   local out="$LOGDIR/gates-$(date +%Y%m%d-%H%M).txt"; : > "$out"
+  # 清单与仓库 eval/ 保持同步；换候选后先数一下项数，漏跑一项就等于没跑那一轮（13 → 14）
   for g in runtime-isolation authority adapter-shape admission retry liveness xss-boundary \
-           budget-cap date outcome-loop frontend-e2e runtime auth; do
+           budget-cap date outcome-loop frontend-e2e runtime auth search-key-failover; do
     f="$REL/eval/${g}-selftest.mjs"; [ -f "$f" ] || f="$REL/eval/${g}.mjs"
     st=$(date +%s)
     if ( cd "$REL" && node "$f" > "$LOGDIR/gate-$g.log" 2>&1 ); then r=PASS; else r=FAIL; fi
