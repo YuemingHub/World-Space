@@ -61,29 +61,33 @@ cmd_fetch() {
   echo "   树清单：$(cat "$STATE/tree-manifest-$REF.sha256")"
 }
 
-# ---------- 2. 证明部署树就是批准 SHA ----------
+# ---------- 2. 证明部署树就是批准 SHA（只读比对，不往发布树写任何东西） ----------
+# 反面教训（本轮真的踩过）：不要对刚 git init、HEAD 还不存在的临时仓库跑 status --porcelain，
+# 那会把每个文件都报成 "A"，制造 100% 误报的 GIT_DRIFT；checkout -- . 还会顺手改写发布树。
 cmd_verify() {
   need_root
   [ -d "$REL" ] || die "先跑 fetch"
-  local want have
-  want=$(git -C "$CACHE" ls-tree -r --full-name "$REF" | sha256sum | awk '{print $1}')
-  have=$(cd "$REL" && find . -type f ! -path './.git/*' -printf '%P\n' | sort \
-          | xargs -r sha256sum | sha256sum | awk '{print $1}')
-  # 两边的算法不同（一个是 git blob 列表，一个是内容列表），这里只作留档；真判定用下面的 git 比对
-  echo "  git tree sha256 : $want"
-  echo "  files sha256    : $have"
-  echo "  files           : $(cd "$REL" && find . -type f | wc -l)"
-  # 用 git 自己重放一遍：把发布树接回一个临时仓库，看是否与该 SHA 完全一致
-  local tmp; tmp=$(mktemp -d)
-  git init -q "$tmp" && git -C "$tmp" --work-tree="$REL" fetch -q "$CACHE" "$REF" 2>/dev/null
-  git -C "$tmp" --work-tree="$REL" checkout -q FETCH_HEAD -- . 2>/dev/null || true
-  if [ -z "$(git -C "$tmp" --work-tree="$REL" status --porcelain 2>/dev/null)" ]; then
-    echo "GIT=PASS  部署树逐文件 = $REF，无差异、无多余、工作树干净"
-  else
-    git -C "$tmp" --work-tree="$REL" status --porcelain | head -20
-    die "PREDEPLOY_ABORT_GIT_DRIFT 发布树与该 SHA 不一致"
-  fi
-  rm -rf "$tmp"
+  local exp act missing extra
+  exp=$(git -C "$CACHE" ls-tree -r --name-only "$REF" | sort)
+  act=$(cd "$REL" && find . -type f | sed 's|^\./||' | sort)
+  missing=$(comm -23 <(echo "$exp") <(echo "$act"))
+  extra=$(comm -13 <(echo "$exp") <(echo "$act"))
+  if [ -n "$missing" ]; then echo "  缺文件:"; echo "$missing" | head -20
+    die "PREDEPLOY_ABORT_GIT_DRIFT 发布树缺该 SHA 的文件"; fi
+  if [ -n "$extra" ]; then echo "  多出的文件:"; echo "$extra" | head -20
+    die "PREDEPLOY_ABORT_GIT_DRIFT 发布树有该 SHA 之外的文件"; fi
+
+  local bad=0 n=0 path sha want have
+  while IFS= read -r path; do
+    n=$((n+1))
+    sha=$(git -C "$CACHE" rev-parse "$REF:$path" 2>/dev/null) || { echo "  取不到 blob: $path"; bad=$((bad+1)); continue; }
+    want=$(git -C "$CACHE" cat-file blob "$sha" | sha256sum | awk '{print $1}')
+    have=$(sha256sum "$REL/$path" | awk '{print $1}')
+    [ "$want" = "$have" ] || { echo "  内容不一致: $path"; bad=$((bad+1)); }
+  done <<< "$exp"
+  [ "$bad" = 0 ] || die "PREDEPLOY_ABORT_GIT_DRIFT $bad 个文件内容与 $REF 不一致"
+  echo "GIT=PASS  发布树 $n 个文件逐内容与 $REF 相同，无缺失、无多余（只读比对，未写发布树）"
+  echo "  树清单留档：$(cat "$STATE/tree-manifest-$REF.sha256" 2>/dev/null || echo 无)"
   echo "  current 仍指向：$(readlink "$ROOT/current" || echo 未设置)（本脚本从不改它）"
 }
 
@@ -103,10 +107,10 @@ cmd_smokeenv() {
   need_root
   [ -f "$PROD_ENV" ] || die "读不到 $PROD_ENV"
   [ -f "$SMOKE_ENV" ] && cp -f "$SMOKE_ENV" "$SMOKE_ENV.bak-$(date +%Y%m%d-%H%M%S)"
-  install -d -m 700 "$PRIV"
+  install -d -m 750 -o root -g wsapp "$PRIV"   # 不能写 700：那会让 wsapp 进不了目录读用户文件，直接 auth broken
   # 只改这几项；env 里其它生产值（provider / 模型 / token 上限）原样继承
   {
-    grep -vE '^(WS_PORT|WS_HOST|WS_AUTH_USERS_FILE|WS_SESSION_SECRET_FILE|WS_COOKIE_SECURE|WS_TRUST_PROXY|WS_ALLOWED_ORIGINS|WS_DAILY_CAP|WS_MONTHLY_CAP_RMB)=' "$PROD_ENV"
+    grep -vE '^(WS_PORT|WS_HOST|WS_AUTH_USERS_FILE|WS_SESSION_SECRET_FILE|WS_COOKIE_SECURE|WS_TRUST_PROXY|WS_ALLOWED_ORIGINS|WS_DAILY_CAP|WS_MONTHLY_CAP_RMB|WS_STATE_FILE)=' "$PROD_ENV"
     echo "WS_PORT=$SMOKE_PORT"
     echo "WS_HOST=$SMOKE_HOST"
     echo "WS_AUTH_USERS_FILE=$PRIV/users.json"
@@ -116,11 +120,15 @@ cmd_smokeenv() {
     echo "WS_ALLOWED_ORIGINS=$OUTCOME_URL"
     echo "WS_DAILY_CAP=50"
     echo "WS_MONTHLY_CAP_RMB=20"
+    # 预算账本单独一份：公网实例正在读写 shared/data/budget.json，
+    # 第二个实例并发写同一文件有覆盖风险——预算是钱，宁可分账也不能写坏生产账本。
+    echo "WS_STATE_FILE=$ROOT/shared/data/budget-smoke.json"
   } > "$SMOKE_ENV"
   chmod 600 "$SMOKE_ENV"; chown wsapp:wsapp "$SMOKE_ENV" 2>/dev/null || true
   echo "OK $SMOKE_ENV（600，wsapp 可读；生产 env 未改动）"
+  echo "   ⚠️ 本机实例用独立账本 budget-smoke.json；真实月度花费 = 生产账本 + 这份账本"
   # 认证相关配置逐项回读（不打印任何密钥值）
-  for k in WS_AUTH_ENABLED WS_COOKIE_SECURE WS_TRUST_PROXY WS_HOST WS_PORT WS_ALLOWED_ORIGINS WS_DAILY_CAP WS_MONTHLY_CAP_RMB WS_SEARCH; do
+  for k in WS_AUTH_ENABLED WS_COOKIE_SECURE WS_TRUST_PROXY WS_HOST WS_PORT WS_ALLOWED_ORIGINS WS_DAILY_CAP WS_MONTHLY_CAP_RMB WS_SEARCH WS_STATE_FILE; do
     v=$(grep -E "^$k=" "$SMOKE_ENV" | head -1 | cut -d= -f2- || true)
     [ "$k" = "WS_SEARCH_KEY" ] && continue
     printf '  %-22s = %s\n' "$k" "${v:-<未设置>}"
@@ -136,32 +144,25 @@ ensure_priv() {
   chmod 600 "$PRIV/session-secret.txt"; chown wsapp:wsapp "$PRIV/session-secret.txt" 2>/dev/null || true
 }
 
-cmd_adduser() {  # ws-prep.sh adduser <user_id> <username>   —— 密码从 stdin 读，不进参数/历史
-  need_root
-  local uid="${1:-}" un="${2:-}"; [ -n "$uid" ] && [ -n "$un" ] || die "用法: adduser <user_id> <username>，随后按提示输入密码"
-  [ -d "$REL" ] || die "先 fetch"
-  ensure_priv
-  echo "请粘贴/输入该用户的密码后回车（不会显示、不进 shell 历史）："
-  local line; line=$(node "$REL/scripts/hash-password.mjs" "$uid" "$un")   # 自己提示读 stdin
-  local users="$PRIV/users.json"
-  [ -f "$users" ] || echo '{"users":[]}' > "$users"
-  TMPHASH="$line" node -e '
-    const fs=require("fs"); const f=process.env.WSU||process.argv[1];
-    const j=JSON.parse(fs.readFileSync(f,"utf8")); const h=JSON.parse(process.env.TMPHASH);
-    j.users=j.users.filter(u=>u.user_id!==h.user_id); j.users.push(h);
-    fs.writeFileSync(f, JSON.stringify(j,null,2)+"\n");
-    console.log("  已写入 user_id="+h.user_id+"（仅 user_id/username/scrypt hash，无明文）");
-  ' "$users"
-  chmod 600 "$users"; chown wsapp:wsapp "$users" 2>/dev/null || true
+cmd_adduser() {
+  echo "账号与口令由 make-priv-files.sh 统一生成（口令只在服务器上一个 600 的文件里，不进屏幕）。"
+  echo "跑：bash /usr/local/bin/make-priv-files.sh"
+  echo "要手工单独加一个人：把明文口令放进程标准输入喂给 hash-password.mjs，"
+  echo "  不要在命令行参数里写口令（会留在 shell 历史），也不要在非 tty 的 SSH 里等交互输入（会挂住）。"
 }
 
 # ---------- 5. fail closed 验证 ----------
+# 移开用户文件这一步必须保证"无论成败都放回去"：本轮就因为我调了个不存在的
+# stop_instance，脚本半路死掉，users.json 一直留在 .hold 名字上没人恢复。
+hold_users() { mv "$PRIV/users.json" "$PRIV/users.json.hold"; }
+restore_users() { [ -f "$PRIV/users.json.hold" ] && mv -f "$PRIV/users.json.hold" "$PRIV/users.json" && echo "  users.json 已放回原位"; return 0; }
+
 cmd_failclosed() {
   need_root
   ensure_priv
-  [ -f "$PRIV/users.json" ] || die "先 adduser（fail closed 需要 secret 在位、用户文件缺失这一组合）"
-  local log="$LOGDIR/failclosed-$(date +%H%M%S).log"
-  mv "$PRIV/users.json" "$PRIV/users.json.hold"           # 移开，不删
+  [ -f "$PRIV/users.json" ] || die "先跑 make-priv-files.sh 生成 users.json"
+  trap 'stop_instance >/dev/null 2>&1 || true; restore_users' EXIT
+  hold_users                                           # 移开，不删
   start_instance; sleep 2
   echo "--- 缺用户配置时的行为（必须全是"关门"）---"
   curl -s --max-time 8 "http://$SMOKE_HOST:$SMOKE_PORT/healthz" | tr -d '\n'; echo
@@ -173,7 +174,8 @@ cmd_failclosed() {
   echo "  GET /            -> $code ${loc:+(redirect: $loc)}"
   echo "  POST /api/world  -> $api $(head -c 120 "$STATE/failclosed-api.json")"
   stop_instance
-  mv "$PRIV/users.json.hold" "$PRIV/users.json"
+  restore_users
+  trap - EXIT
   if [ "$api" = "503" ] && echo "$code" | grep -qE '302|401'; then
     echo "AUTH_FAIL_CLOSED=PASS —— 认证配置坏了仍然关着门，业务接口没有 200"
   else
@@ -205,11 +207,17 @@ start_instance() {
   nohup node server/world.mjs > "$LOGDIR/smoke.out" 2>&1 &
   echo $! > "$STATE/smoke.pid"
 }
+stop_instance() {
+  if [ -f "$STATE/smoke.pid" ]; then
+    kill "$(cat "$STATE/smoke.pid")" 2>/dev/null || true
+    rm -f "$STATE/smoke.pid"
+  fi
+  echo "本机验证实例已停（公网从未指向它）"
+}
 cmd_start() { need_root; start_instance; sleep 2
   echo "PID=$(cat "$STATE/smoke.pid") 监听：$(ss -ltnp 2>/dev/null | grep ":$SMOKE_PORT" | head -1)"
   echo "healthz: $(curl -s --max-time 8 http://$SMOKE_HOST:$SMOKE_PORT/healthz)"; }
-cmd_stop() { [ -f "$STATE/smoke.pid" ] && kill "$(cat "$STATE/smoke.pid")" 2>/dev/null || true
-  rm -f "$STATE/smoke.pid"; echo "本机验证实例已停（公网从未指向它）"; }
+cmd_stop() { need_root; stop_instance; }
 
 # ---------- 8. 只读汇总 ----------
 cmd_report() {
