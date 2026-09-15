@@ -125,6 +125,12 @@ echo "=== 真实模型 + 真实搜索：两轮回路（会产生真实花费）=
 cat > "$OUT/intent1.json" <<'JSON'
 {"intent":"我们小区门口的路灯坏了两个星期，晚上老人小孩走路不安全，我想让相关部门来修"}
 JSON
+SKIPPED=0
+if [ "${1:-}" = "--no-loop" ]; then
+  echo "  ⏭  SKIPPED ×3：第一轮行动 / search_calls / 第二轮回执改变"
+  echo "       （--no-loop 只验认证与边界，不花钱；这三项必须由完整那一轮判，记绿无效）"
+  SKIPPED=3
+else
 T0=$(date +%s); post_round "$OUT/intent1.json" "$OUT/round1.json"; R1=$?
 echo "  第一轮 HTTP=${RD_CODE:-?} 尝试 $RD_ATTEMPTS 次 耗时 $(( $(date +%s) - T0 ))s"
 node -e '
@@ -152,8 +158,10 @@ console.log("  第二轮行动:", JSON.stringify(t2).slice(0,100));
 console.log("  与第一轮不同:", t2 && t1 !== t2);
 require("fs").writeFileSync("/opt/world-space/state/smoke/.r2ok", (m.receipt_ingested===true && t2 && t1!==t2)?"1":"0");
 ' 2>/dev/null
+rm -f "$OUT/.r2ok"   # 先清掉上一轮的判定标记，避免拿旧结果当本轮结论
 ck "第二轮 receipt_ingested=true 且行动真的改变（没重答第一轮）" \
    "$([ -f "$OUT/.r2ok" ] && [ "$(cat "$OUT/.r2ok")" = 1 ] && echo 1 || echo 0)" "见 $OUT/round2.json"
+fi
 
 # ---------- 退出与吊销 ----------
 echo "=== logout 与旧 cookie 吊销 ==="
@@ -207,5 +215,11 @@ done
 
 cleanup; PID=""
 echo "=== 汇总 ==="
-echo "PASS=$pass FAIL=$fail"
-[ "$fail" = 0 ] && echo "LOCAL_SMOKE=PASS（服务器本机正式配置实例）" || echo "LOCAL_SMOKE=FAIL（见上面 ✗ 行，不许把 ✗ 当历史噪音）"
+echo "PASS=$pass FAIL=$fail SKIPPED=$SKIPPED"
+if [ "$SKIPPED" != 0 ]; then
+  echo "LOCAL_SMOKE=PARTIAL（跳过 $SKIPPED 项真实回路检查）—— 这一轮**不能**当验收，只证明认证与边界没坏"
+elif [ "$fail" = 0 ]; then
+  echo "LOCAL_SMOKE=PASS（服务器本机正式配置实例，含真实两轮回路与搜索）"
+else
+  echo "LOCAL_SMOKE=FAIL（见上面 ✗ 行，不许把 ✗ 当历史噪音）"
+fi
