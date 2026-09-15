@@ -34,6 +34,8 @@ ckz() { ck "$1" "$([ "$2" = 0 ] && echo 1 || echo 0)" "$3"; }
 cleanup() { [ -n "$PID" ] && kill "$PID" 2>/dev/null; }
 trap cleanup EXIT
 
+# 注：--rejudge 分支放在"判定器自检"之后——重判也必须先用自测过的尺子，不能绕过自检。
+
 # ---- 判定器自检：反了就整轮作废，不许继续产出任何 PASS/FAIL ----
 _sp=$pass; _sf=$fail
 _t=$pass; ck "（自检）真通过应记 ✓" 1 "" >/dev/null
@@ -46,6 +48,41 @@ _t=$pass; (exit 3); ckz "（自检）退出码非 0 应记 ✗" $? "" >/dev/null
 [ "$pass" = "$_t" ] || { echo "FATAL: 判定器把失败记成了通过"; exit 9; }
 pass=$_sp; fail=$_sf
 echo "判定器自检通过（4 项，含"绝不把失败记成通过"）"
+
+# ---- --rejudge：只重判已抓到的响应，不再发任何真实请求（省一次付费）----
+# 拿旧文件冒充本轮结果是最容易犯的错，所以先卡三道：新鲜度、不是错误响应、两轮都有 next_action。
+if [ "${1:-}" = "--rejudge" ]; then
+  echo "=== 只重判已抓到的两轮回路（不起实例、不发请求、不花钱）==="
+  for f in round1 round2; do
+    [ -s "$OUT/$f.json" ] || { echo "FAIL: 缺 $OUT/$f.json，无法重判"; exit 1; }
+    age=$(( $(date +%s) - $(stat -c %Y "$OUT/$f.json") ))
+    [ "$age" -lt 10800 ] || { echo "FAIL: $f.json 是 $((age/60)) 分钟前抓的，拒绝当本轮结果"; exit 1; }
+    echo "  $f.json：$age 秒前抓取，$(wc -c < "$OUT/$f.json") 字节"
+  done
+  node -e '
+    const p="/opt/world-space/state/smoke/";
+    const r1=require(p+"round1.json"), r2=require(p+"round2.json");
+    const t1=(r1.next_action||{}).text||"", t2=(r2.next_action||{}).text||"";
+    const m=r2.meta||{};
+    if(r1.error||r2.error){console.log("  ✗ 有一轮是错误响应: "+JSON.stringify(r1.error||r2.error));process.exit(1);}
+    if(!t1||!t2){console.log("  ✗ 某一轮没有 next_action，不能判通过");process.exit(1);}
+    console.log("  第一轮:",JSON.stringify(t1).slice(0,70));
+    console.log("  第二轮:",JSON.stringify(t2).slice(0,70));
+    console.log("  receipt_ingested =",m.receipt_ingested,"| receipt_status =",m.receipt_status,"| search_calls =",m.search_calls);
+    const ok = m.receipt_ingested===true && !!t2 && t1!==t2;
+    require("fs").writeFileSync(p+".r2ok", ok?"1":"0");
+    console.log(ok ? "  ✓ 第二轮吸收了回执、且没有重答第一轮" : "  ✗ 判定不通过");
+    process.exit(ok?0:1);
+  '
+  RC=$?
+  ck "（重判）第二轮 receipt_ingested=true 且行动真的改变" "$([ "$RC" = 0 ] && echo 1 || echo 0)" "见 $OUT/round2.json"
+  node -e 'const j=require("/opt/world-space/state/smoke/round1.json");process.exit((j.meta||{}).search_calls>0?0:1)' 2>/dev/null
+  ckz "（重判）第一轮真的发生了搜索调用（新 key 走通）" $? "round1.meta.search_calls 不大于 0"
+  echo "PASS=$pass FAIL=$fail"
+  [ "$fail" = 0 ] && echo "REJUDGE=PASS（判的是本轮已抓到的真实响应字节，未再产生任何调用）" \
+                  || echo "REJUDGE=FAIL"
+  exit $((fail>0?1:0))
+fi
 
 # ---------- 起实例 ----------
 set -a; . "$SMOKE_ENV"; set +a
@@ -122,6 +159,7 @@ post_round() { # post_round <载荷文件> <输出文件>  → 回写 HTTP 码�
 }
 
 echo "=== 真实模型 + 真实搜索：两轮回路（会产生真实花费）==="
+rm -f "$OUT/.r2ok"   # 开跑前清一次：既不拿旧结果当本轮结论，也不会误删本轮刚写的标记
 cat > "$OUT/intent1.json" <<'JSON'
 {"intent":"我们小区门口的路灯坏了两个星期，晚上老人小孩走路不安全，我想让相关部门来修"}
 JSON
@@ -158,7 +196,6 @@ console.log("  第二轮行动:", JSON.stringify(t2).slice(0,100));
 console.log("  与第一轮不同:", t2 && t1 !== t2);
 require("fs").writeFileSync("/opt/world-space/state/smoke/.r2ok", (m.receipt_ingested===true && t2 && t1!==t2)?"1":"0");
 ' 2>/dev/null
-rm -f "$OUT/.r2ok"   # 先清掉上一轮的判定标记，避免拿旧结果当本轮结论
 ck "第二轮 receipt_ingested=true 且行动真的改变（没重答第一轮）" \
    "$([ -f "$OUT/.r2ok" ] && [ "$(cat "$OUT/.r2ok")" = 1 ] && echo 1 || echo 0)" "见 $OUT/round2.json"
 fi
