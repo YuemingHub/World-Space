@@ -3,9 +3,13 @@
 ## 1. 一句话现状
 
 ```text
-服务器生产 env 里那把：已被 Tavily 拒 401 → 线上搜索此刻是坏的（不是本轮弄坏的）
-smoke env 里那把      ：74f41d0013af（探针 HTTP=200，真实返回结果）
-备  用（尚未进任何 env）：4002d0bdf8d6，存在 /opt/world-space/etc/tavily-key.picked（600）
+生产 env（world-space.env）：已换成候选第 1 把 74f41d0013af
+  —— 直连探针 HTTP=200 之后才写入；旧值备份在 world-space.env.bak-pre-searchkey-*；
+  —— 没有重启服务，所以公网 3200 那个进程**仍用内存里的旧（死）环境**，
+     也就是说：线上搜索要等下一次 restart 才真的修好，而那次 restart 就发生在切流时。
+原来那把 32b9a395ef8f：已 401（死了），只存在于备份文件里
+备 用（未进任何 env）    ：4002d0bdf8d6，与两把原文一起存在 /opt/world-space/etc/tavily-key.picked（600）
+smoke env               ：同候选第 1 把
 ```
 
 ## 2. 「两把都放进去、一把不行自动换另一把」这件事我没做，原因说清

@@ -181,12 +181,14 @@ PASS=25 FAIL=1 SKIPPED=0
 SEARCH_SMOKE              = PASS —— 候选第 1 把（指纹 74f41d0013af）在验证 env 里走通
                             **应用级**真实搜索：round1.meta.search_calls=1，
                             两轮回路都拿到真实契约（见 §6 最后一段）
-NEW_SEARCH_KEY_CONFIGURED = 未定 —— 刻意**没有**写进共享生产 env：两把活口里必有一把
-                            曾在会话里出现而未指明，此时把 key 落进生产配置
-                            正是 §4 要防的事，这个判断归 Founder，我不替她猜
-                            （区分二者的前缀比对命令被安全层拦下，已停手不绕路）
+NEW_SEARCH_KEY_CONFIGURED = yes —— Founder 已两次指示"两把都可以用"，这是她做的决定，
+                            所以候选第 1 把（74f41d0013af）在**直连探针 200 之后**才写入
+                            共享生产 env；自动备份 world-space.env.bak-pre-searchkey-*、
+                            **未重启服务**（公网 3200 仍 active、https://ymai.fun 仍 200，
+                            运行中的进程还在用内存里的旧环境，生效点跟着下一次重启）
 OLD_TAVILY_KEY_REVOKED    = 不能报 yes —— 生产 env 原那把确已死（401，可证明）；
                             但"本轮暴露的那把"仍在两把活口之中，无法指名
+                            （用来区分的前缀比对命令被安全层拦下，已停手不绕路）
 ```
 
 → **DEPLOY_BLOCKED_SEARCH_SECRET**，不切流。关闭它两条路，都是一分钟：
