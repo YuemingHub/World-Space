@@ -67,9 +67,14 @@ cmd_fetch() {
 cmd_verify() {
   need_root
   [ -d "$REL" ] || die "先跑 fetch"
-  local exp act missing extra
+  local exp act missing extra scratch
+  # 被 gitignore 的运行期暂存：Gate 在发布树里跑自测时会生成 var/、eval/out/ 下的文件
+  # （本轮实测多出 var/auth-8951.json）。把它们算进"该 SHA 之外的文件"会让逐文件校验
+  # 永远红，校验本身就变成假的——所以显式排除，并报告排除了几个。
   exp=$(git -C "$CACHE" ls-tree -r --name-only "$REF" | sort)
-  act=$(cd "$REL" && find . -type f | sed 's|^\./||' | sort)
+  act=$(cd "$REL" && find . -type f | sed 's|^\./||' | grep -vE '^(var|eval/out)/' | sort)
+  scratch=$(cd "$REL" && find . -type f | sed 's|^\./||' | grep -cE '^(var|eval/out)/' || true)
+  echo "  运行期暂存（自测生成，不计入比对）：$scratch 个，位于 var/ 与 eval/out/"
   missing=$(comm -23 <(echo "$exp") <(echo "$act"))
   extra=$(comm -13 <(echo "$exp") <(echo "$act"))
   if [ -n "$missing" ]; then echo "  缺文件:"; echo "$missing" | head -20

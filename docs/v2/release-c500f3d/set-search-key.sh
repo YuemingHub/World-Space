@@ -44,6 +44,7 @@ BK="$ENVF.bak-pre-searchkey-$(date +%Y%m%d-%H%M%S)"
 cp -p "$ENVF" "$BK"
 if [ -n "$OLD" ]; then echo "  原值指纹 $(FP "$OLD")（备份：$BK）"; else echo "  原值不存在，将追加（备份：$BK）"; fi
 
+OLDOWN=$(stat -c '%U:%G' "$ENVF")
 if grep -qE '^WS_SEARCH_KEY=' "$ENVF"; then
   NEWKEY="$KEY" node -e '
     const fs=require("fs"), f=process.argv[1];
@@ -54,8 +55,10 @@ else
   printf 'WS_SEARCH_KEY=%s\n' "$KEY" >> "$ENVF"
 fi
 
-chmod 600 "$ENVF"; chown wsapp:wsapp "$ENVF" 2>/dev/null || true
+chmod 600 "$ENVF"
+chown "$OLDOWN" "$ENVF" 2>/dev/null || echo "  注意：属主还原失败，保持现状"
 NOW=$(grep -E '^WS_SEARCH_KEY=' "$ENVF" | head -1 | cut -d= -f2-)
+echo "权限实核：$(stat -c '%a %U:%G' "$ENVF")（写入前是 $OLDOWN，已还原；systemd 以 root 读 EnvironmentFile，服务账户不需要拥有它）"
 echo "写入完成：$ENVF 现在用的是第 $IDX 把（指纹 $(FP "$NOW")）"
 [ "$(FP "$NOW")" = "$(FP "$KEY")" ] && echo "回读一致 ✓" || { echo "回读不一致，检查 env 是否有重复行" >&2; exit 4; }
 echo "注意：没有重启任何服务；公网那个进程仍用内存里的旧 key。"

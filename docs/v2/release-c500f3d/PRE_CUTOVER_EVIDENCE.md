@@ -229,6 +229,24 @@ OLD_TAVILY_KEY_REVOKED    = 不能报 yes —— 生产 env 原那把确已死�
 公网切流：按 §14 不做。
 ```
 
+## 8.5 收尾自查发现三处（都是我自己的账，逐条处置）
+
+```text
+1) 权限漂移：set-search-key.sh 结尾无条件 chown wsapp:wsapp，把生产 env 从原来的
+   root:root 600 改成了 wsapp 拥有 —— 等于让服务账户能自己改自己的凭据文件
+   （systemd 以 root 读 EnvironmentFile，服务账户根本不需要拥有它）。
+   已还原 root:root 600；脚本改为"写入前记录原属主、写完还原"并打印实核结果。
+
+2) 校验本身会误报：Gate 在发布树里跑自测会生成 var/ 与 eval/out/ 下的文件（实测 19 个），
+   被逐文件校验当成"该 SHA 之外的文件"→ GIT_DRIFT 假红。修成显式排除这两类运行期暂存，
+   并把"排除了几个"打印出来（不偷偷略过），重跑回到 GIT=PASS 117 文件。
+
+3) 泄露面复查：仓库工作树 + 全部历史里搜 20 位以上的真实 tvly key 明文 → 0 命中
+   （文档里只有 "tvly-" 这种格式描述）；服务器侧 state 日志、nginx 日志、发布树里
+   grep "tvly-" → 0 命中。key 原文只存在于三个 600 文件：生产 env、smoke env、
+   /opt/world-space/etc/tavily-key.picked（含 Founder 给的两把原文，备用那把在这里）。
+```
+
 ## 9. 本轮留下的运行物与文件（如实清点）
 
 ```text
