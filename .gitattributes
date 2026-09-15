@@ -1,0 +1,4 @@
+# 服务器上直接执行的文件必须是 LF：CRLF 会让 bash 在  上报 syntax error
+*.sh text eol=lf
+*.conf text eol=lf
+maintenance.html text eol=lf
