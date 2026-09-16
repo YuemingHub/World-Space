@@ -1,9 +1,11 @@
-# 代码同步配置：CNB 侧推送后自动回流到 GitHub
+# 代码同步配置：CNB 侧任意分支推送后自动回流到 GitHub
 #
 # 需要在 CNB 密钥仓库中准备 github.yml，包含：
 #   GITHUB_USERNAME: GitHub 用户名
-#   GITHUB_TOKEN:    GitHub 访问令牌（需 repo 写权限）
+#   GITHUB_TOKEN:    GitHub 访问令牌（需 repo + workflow 写权限）
 # 密钥仓库路径见下方 imports，若改名请同步修改。
+#
+# main 走显式配置，其余分支走 $ 兜底，二者不会重复触发。
 
 main:
   push:
@@ -16,7 +18,25 @@ main:
         - name: mirror push
           script: |
             set -e
+            BRANCH="${CNB_BRANCH:-$(git rev-parse --abbrev-ref HEAD)}"
             git fetch --unshallow 2>/dev/null || true
             git push --force \
               "https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/YuemingHub/World-Space.git" \
-              "HEAD:refs/heads/main"
+              "HEAD:refs/heads/${BRANCH}"
+
+$:
+  push:
+    - name: sync-to-github
+      runner:
+        cpus: 1
+      imports:
+        - https://cnb.cool/Ming-OS/secrets/-/blob/main/github.yml
+      stages:
+        - name: mirror push
+          script: |
+            set -e
+            BRANCH="${CNB_BRANCH:-$(git rev-parse --abbrev-ref HEAD)}"
+            git fetch --unshallow 2>/dev/null || true
+            git push --force \
+              "https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/YuemingHub/World-Space.git" \
+              "HEAD:refs/heads/${BRANCH}"
