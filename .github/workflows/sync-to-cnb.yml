@@ -18,6 +18,7 @@ on:
 jobs:
   sync:
     runs-on: ubuntu-latest
+    if: ${{ !github.event.deleted }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
