@@ -3,13 +3,16 @@
 # 需要在 GitHub 仓库 Secrets 中配置：
 #   CNB_TOKEN: CNB 访问令牌（https://cnb.cool/profile/token）
 # 目标仓库路径见下方 push 地址，若改名请同步修改。
+#
+# 注意：GitHub Actions 的 push 事件只读取被推送分支自身的 workflow 文件，
+# 从 main 切出的新分支会自动带上本文件；已存在但缺少本文件的分支，其推送不会触发同步。
 
 name: sync-to-cnb
 
 on:
   push:
     branches:
-      - main
+      - '**'
   workflow_dispatch:
 
 jobs:

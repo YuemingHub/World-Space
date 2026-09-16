@@ -5,26 +5,11 @@
 #   GITHUB_TOKEN:    GitHub 访问令牌（需 repo + workflow 写权限）
 # 密钥仓库路径见下方 imports，若改名请同步修改。
 #
-# main 走显式配置，其余分支走 $ 兜底，二者不会重复触发。
+# 注意：CNB 的分支配置不跨分支继承，构建时只读取被推送分支自身的 .cnb.yml。
+# 从 main 切出的新分支会自动带上本文件；已存在但缺少本文件的分支，其推送不会触发同步。
+# 使用 "**" 匹配全部分支（含多级斜杠）；不要与 main 等其他 glob 同时使用，否则会重复触发。
 
-main:
-  push:
-    - name: sync-to-github
-      runner:
-        cpus: 1
-      imports:
-        - https://cnb.cool/Ming-OS/secrets/-/blob/main/github.yml
-      stages:
-        - name: mirror push
-          script: |
-            set -e
-            BRANCH="${CNB_BRANCH:-$(git rev-parse --abbrev-ref HEAD)}"
-            git fetch --unshallow 2>/dev/null || true
-            git push --force \
-              "https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/YuemingHub/World-Space.git" \
-              "HEAD:refs/heads/${BRANCH}"
-
-$:
+"**":
   push:
     - name: sync-to-github
       runner:
