@@ -76,12 +76,31 @@ world-space-emergency.sh restore    # 确认修好了再开门
 失败请求也在计费这件事本轮看清了：深夜网关限流那几次 502 各扣了几分钱
 （`llm=1 search=1 req_cost≈0.029` 而 HTTP 仍是 502）——已记入台账。
 
-## 6. 本轮欠的收尾（等 Founder 一句话）
+## 6. 登录口令：已由 Founder 换成她自己指定的那条
 
 ```text
-抹掉口令副本        桌面 ws-login.txt + 服务器 etc/first-login.txt（登录已验证可用之后）
-处置 key 原文文件   服务器 etc/tavily-key.new 与 .picked（含两把可用 key 的原文）
-停掉本机桩实例      127.0.0.1:8791/8792/8793（stub 模式，不联网不花钱；停止命令被安全层拦过）
-www.ymai.fun        仍 CNAME 到 github.io，未收敛；WS_ALLOWED_ORIGINS 里只有 https://ymai.fun
-                   → 用 www 打进来会被 CORS 拒，要不要一并收敛归她定
+u-owner（用户名 ymai）口令已更新，并且**装完立刻用一次真实登录验证过 → HTTP 200**
+屏幕上只出现过它的 sha256 前 12 位（f75e3b43b1ea）；口令本身、长度、内容都没进日志或聊天
+→ 因此桌面 ws-login.txt 与服务器 etc/first-login.txt 里"A 账号"那一行已经作废，
+   那两处现在留着只会误导，等 Founder 确认能用之后一起抹掉
+u-guest（用户名 test）保持原样，仍是我做隔离验证用的
+```
+
+一个值得记下的行为：`set-password.sh` 每次都是"先备份 → 装候选 → 真登录验证"，
+**验不过就把用户文件原样退回**。这次因为读不到口令内容，它连续 6 次自动退回，
+所以线上从来没暴露在一个"改坏了但没人能进门"的状态里。留下的 `users.json.bak-pw-*`
+共 6 份，一个都没删（未下令不删是这台机器的规矩）。
+
+以后走这条通道请记住两件事：口令文件用**英文文件名**（中文名在这台机器上会被
+GBK/UTF-8 与 `while read` 的坑反复绊倒），以及放好之后**别删**，我读完会主动抹掉。
+
+## 7. 本轮欠的收尾（等 Founder 一句话）
+
+```text
+抹掉口令与钥匙的明文副本   桌面 ws-key.txt（含两把钥匙 + 新口令）、ws-login.txt（已过期）、
+                          服务器 etc/first-login.txt（A 行已作废）与 etc/tavily-key.* 两份
+处理 users.json 的 6 份口令备份   确认新口令可用后可一起抹掉
+停掉本机桩实例             127.0.0.1:8791/8792/8793（stub 模式，不联网不花钱）
+www.ymai.fun              仍 CNAME 到 github.io，未收敛；WS_ALLOWED_ORIGINS 里只有
+                          https://ymai.fun → 用 www 打进来会被 CORS 拒，要不要收敛归她定
 ```
