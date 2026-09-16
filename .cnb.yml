@@ -1,0 +1,22 @@
+# 代码同步配置：CNB 侧推送后自动回流到 GitHub
+#
+# 需要在 CNB 密钥仓库中准备 github.yml，包含：
+#   GITHUB_USERNAME: GitHub 用户名
+#   GITHUB_TOKEN:    GitHub 访问令牌（需 repo 写权限）
+# 密钥仓库路径见下方 imports，若改名请同步修改。
+
+main:
+  push:
+    - name: sync-to-github
+      runner:
+        cpus: 1
+      imports:
+        - https://cnb.cool/Ming-OS/secrets/-/blob/main/github.yml
+      stages:
+        - name: mirror push
+          script: |
+            set -e
+            git fetch --unshallow 2>/dev/null || true
+            git push --force \
+              "https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/YuemingHub/World-Space.git" \
+              "HEAD:refs/heads/main"
