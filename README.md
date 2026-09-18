@@ -30,6 +30,7 @@
 | 正在进行的真人研究怎么做 | [`docs/CAPABILITY_REACH_LAB.md`](docs/CAPABILITY_REACH_LAB.md) |
 | 真人 Case 编号、模板、台账、数据边界 | [`research/capability-reach/`](research/capability-reach/) |
 | 2026-09 能力供应侧基线（**无真人证据**） | [`docs/CAPABILITY_SUPPLY_BASELINE_20260919.md`](docs/CAPABILITY_SUPPLY_BASELINE_20260919.md) |
+| 本轮长跑的统一报告（进真人之前的清单） | [`research/capability-reach/LONGRUN-REPORT-20260919.md`](research/capability-reach/LONGRUN-REPORT-20260919.md) |
 | 历史 V2 版本内核（只约束 `v2` 那条实验线） | [`docs/v2/NORTH_STAR.md`](docs/v2/NORTH_STAR.md) |
 | V1 静态站设计真源（已不是线上形态） | [`docs/design/CURRENT_DESIGN.md`](docs/design/CURRENT_DESIGN.md) |
 | V0.1 上线与切流的可核对事实 | [`docs/v2/release-c500f3d/CUTOVER-RECORD.md`](docs/v2/release-c500f3d/CUTOVER-RECORD.md) |

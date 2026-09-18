@@ -65,6 +65,7 @@ V0.2 开发         NOT AUTHORIZED
 | 实验手册 | `docs/CAPABILITY_REACH_LAB.md`（v0.1，Founder 定稿 2026-09-19） |
 | 真人 Case 骨架 | `research/capability-reach/`（编号规则 + 模板 + 数据边界），模板全空 |
 | 真人 Case 数 | **0** |
+| 本轮长跑统一报告 | `research/capability-reach/LONGRUN-REPORT-20260919.md`（A–H 八节，含 15 条停止条件自查） |
 | 供应侧基线 | `docs/CAPABILITY_SUPPLY_BASELINE_20260919.md`（**Machine/Operator 层，无真人证据**） |
 | 供应侧审判进度 | 8 条种子**全部完成**：4 条判 `EXIT_CANDIDATE`（截图转表 / 月报 / 个人页面 / 重复回复），4 条判 `HUMAN_TEST_CANDIDATE`（Excel / 录音 / 手写 / 照片）。浮出障碍是 VERIFICATION、TRUST、INTEGRATION；**DISCOVERY/SELECTION 一条都没成为主障碍** |
 | 本地 fixture | `research/capability-reach/fixtures/`（4 份自生成虚构表 + 脚本 + 结果）：实测出"总额对、明细错"这种**任何核总数都抓不到**的失败形态 |
