@@ -1,5 +1,12 @@
 # Reality Pilot 12 — 真实 provider 首次运行记录
 
+> **⚠️ 2026-09-19 证据分级（只加导航，下文一字不改）**
+> 本文件是 **Machine Evidence**：模型跑 `eval/pilot12.json` 那 12 条**由 Founder 拟出的测试意图**，
+> "真实"指的是真实 provider 调用，**全程 0 个真人**。
+> 因此它不构成"普通人需要 World Space"的证据，也**不得**被引用为
+> `docs/CAPABILITY_REACH_LAB.md` 的 H1 / H2 结论。真人侧证据只认 `research/capability-reach/`
+> （当前 `REAL HUMAN CASES = 0`）。
+
 > 2026-09-12。配置：`WS_PROVIDER=openai_compatible`（她给的第一个网关 tokenrhythm，
 > 模型 `deepseek-flash`）、**`WS_SEARCH=none`（她未提供搜索 provider）**、
 > 上限保持默认 50 次/天、20 元/月，未调高。

@@ -1,5 +1,9 @@
 # SEARCH EVIDENCE PILOT 12 — 首轮记录（PARTIAL）
 
+> **⚠️ 2026-09-19 证据分级（只加导航，下文裁决原样保留）**
+> 本文件的"人工 URL 核对"核的是**模型给出的证据链接是否真实存在**，属于 Machine Evidence 的质检；
+> 样本仍是 12 条拟出意图，**0 个真人**。它不回答"普通人能不能拿到能力"这个问题（那是 Lab 的事）。
+
 > 2026-09-12 晚。配置：`WS_PROVIDER=openai_compatible`（deepseek-flash）+ `WS_SEARCH=tavily`（Bearer-only）。
 > 上限未调高：50 次/天、20 元/月。人工 URL 核对与本文件为最终裁决；自动判据只出候选。
 

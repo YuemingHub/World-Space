@@ -1,5 +1,11 @@
 # PILOT 12 REPLAY + S7 压力批 — 人工复核（2026-09-13 凌晨）
 
+> **⚠️ 2026-09-19 证据分级（只加导航，下文结论原样保留）**
+> 本文件的 **Gate 1（World Reality Gate）结论属于 Machine Evidence**：
+> 通过与否判的是"模型在 12 条拟出意图上有没有踩 P0"，**0 个真人参与**。
+> `Gate 1 达成 ≠ H1/H2 成立`。真人研究见 `docs/CAPABILITY_REACH_LAB.md`，
+> 目前 `REAL HUMAN CASES = 0`。
+
 > 配置：deepseek-flash + Tavily 真实搜索 + 本轮全部护栏（admission / 授权 / 存活检查 / 预算 fail closed）。
 > 本轮真实调用合计：12 条 replay（23 LLM + 9 搜索，0.6442 元）+ 5 条 S7 压力批（10 LLM + 4 搜索，0.2912 元）。
 > Key 纪律：key 只在本机 env；旧 key 已进过聊天记录，生产部署前必须由 Founder 轮换。

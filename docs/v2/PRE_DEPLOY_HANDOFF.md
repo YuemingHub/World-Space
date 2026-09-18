@@ -1,5 +1,12 @@
 # PRE-DEPLOY HANDOFF — World Space v2 智能层
 
+> **⚠️ 2026-09-19 证据分级（只加导航，下文部署事实与 Gate 状态原样保留）**
+> 本文件里两处措辞很容易被后来的 agent 读成"已经做过用户验证"，此处澄清口径：
+> **§2 Product 的"真实用户旅程"** 指运维者/研究者按用户动线手工走一遍，不是真人参与者；
+> **§2 Product 的"已验证场景（真实 model + Tavily，0 P0）"** 指把拟出的意图打给模型跑通，属 **Machine Evidence**。
+> 这两者都**不构成** `docs/CAPABILITY_REACH_LAB.md` 的 H1 / H2 证据。真人侧截至目前
+> `REAL HUMAN CASES = 0`。
+
 > 2026-09-13。交给本地主运维的唯一未竟动作：**真实部署 + 生产 smoke**。
 > 本文是部署前最后一份文档；所有 Gate 状态见 §9。
 
