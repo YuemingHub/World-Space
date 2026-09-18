@@ -1,5 +1,7 @@
 # PRODUCT.md — World Space 产品契约
 
+> **接手仓库请先读 [`CONSTITUTION.md`](CONSTITUTION.md)（最高产品合同）。** 本文件在它之下，是落地细则层。
+>
 > 本文件是 World Space 的唯一产品定义。
 > 最后更新：2026-09-06
 > 方向修正：从"自建 Reality Project 产品闭环"转向"Resource First——发现、筛选、带着普通人使用世界已有优秀能力"

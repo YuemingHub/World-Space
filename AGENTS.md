@@ -2,12 +2,16 @@
 
 > 本文件定义 World Space 仓库的工作规则。
 > 最后更新：2026-09-06
+>
+> **阅读顺序：先读 [`CONSTITUTION.md`](CONSTITUTION.md)（最高产品合同：该不该做）→ 再读 [`PRODUCT.md`](PRODUCT.md)（产品细则）→ 本文件（工作规则）。版本层约束见 `docs/v2/NORTH_STAR.md`。冲突时以 CONSTITUTION.md 为准。**
 
 ## 产品方向
 
 World Space 是：**一个帮助普通人找到并使用世界现有优秀能力，把一个想法真正开始做起来的行动入口。**
 
 World Space 不是：AI 基础设施公司、Agent Framework、Workflow Builder、Coding Agent、Research Agent、Browser Agent、MCP Host 重造、SaaS 大平台、AI 工具大全、教程网站、社区。
+
+北极星一句话：**让普通人拥有这个时代正在产生的能力。** 任何改动前先过 `CONSTITUTION.md` 的开发前五问。
 
 ## 复用优先级
 

@@ -1,5 +1,7 @@
 # NORTH STAR — V2 产品内核（冻结）
 
+> **接手仓库请先读仓库根目录 [`CONSTITUTION.md`](../../CONSTITUTION.md)（最高产品合同）。** 本文件在它之下，是 V2 版本层。
+>
 > 状态：**已冻结**（2026-09-12 Founder Review #1）。
 > 本文件是 V2 的唯一产品内核定义。`docs/design/CURRENT_DESIGN.md` 描述的是线上现行版本（V1），
 > `docs/loop/MINIMAL_LOOP.md` 描述的是 Prototype 0，两者均**不构成本文件的约束**。
