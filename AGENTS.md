@@ -1,9 +1,50 @@
 # AGENTS.md
 
 > 本文件定义 World Space 仓库的工作规则。
-> 最后更新：2026-09-06
+> 最后更新：2026-09-19
 >
-> **阅读顺序：先读 [`CONSTITUTION.md`](CONSTITUTION.md)（最高产品合同：该不该做）→ 再读 [`PRODUCT.md`](PRODUCT.md)（产品细则）→ 本文件（工作规则）。版本层约束见 `docs/v2/NORTH_STAR.md`。冲突时以 CONSTITUTION.md 为准。**
+> ## 开工前必读顺序（冲突时上位赢）
+>
+> ```text
+> 1. CONSTITUTION.md      最高产品合同：这件事该不该做（使命 / 绝对禁令 / 开发前五问）
+> 2. PRODUCT.md           产品细则：是什么、不是什么、复用优先级
+> 3. CURRENT_STATE.md     当前真实状态：线上跑的是什么、什么还没做
+> 4. 当前任务对应的实验或版本文件
+>      · 正在进行的真人研究 → docs/CAPABILITY_REACH_LAB.md + research/capability-reach/
+>      · 历史 V2 版本内核    → docs/v2/NORTH_STAR.md（只约束 v2 那条实验线，不得推翻 1）
+> 5. 代码
+> ```
+>
+> **不存在的文件不要假设它存在；存在的结论不要跨层引用。** 读完 1–4 之前不许开始改任何东西。
+
+## 现行研究阶段纪律（2026-09-19 写死）
+
+> **Capability Reach Lab 期间，不允许自主进入 V0.2 产品开发。**
+
+具体地：
+
+1. 任何"为了以后可能需要"的代码、目录、依赖、schema、UI，一律不做；发现该改的代码只写进
+   `research/capability-reach/NEXT_CANDIDATES.md`，**不施工**。
+2. Lab §16 那份「禁止施工清单」在这里是硬约束，不是建议。
+3. 生产（`ymai.fun`）保持原样：**Lab 期间不部署、不切流、不改 `/api/world`、不改认证、不改搜索与模型配置。**
+4. 真人 Case 数在没有真人的时候必须继续写 `REAL HUMAN CASES = 0`，
+   禁止用模型生成的假 Case、演示 Case、合成用户填满模板。
+5. 机器侧证据与真人侧证据永久隔离：`eval/`、`docs/v2/PILOT12_*` 里的任何 P0/P1、"Gate 1 达成"
+   都**不得**被引用为 H1 / H2 的证据。那些是 Machine Evidence，不是 Human Adoption Evidence。
+
+## 分支现实（2026-09-19 实测，不要凭印象）
+
+| 分支 | HEAD | 它是什么 | 它是权威吗 |
+|---|---|---|---|
+| `main` | `1516515` | GitHub **默认分支**；旧静态站（无 `server/`、无 `web/v2/`、**没有 CONSTITUTION.md**）+ 双端同步配置 | 内容上过期，只是页面入口 |
+| `v2` | `e8284c4` | **生产正在跑的批准点**（带访问门），按纪律冻结、不追加提交 | 代码权威，产品理念上位仍让给 CONSTITUTION |
+| `release/v0-85c7b91` | `2e37b84` | V0 发布记录留档分支 | 归档 |
+| `release/v01-c500f3d` | `7911239` | V0.1 发布准备 + 首个 `CONSTITUTION.md` 与 Lab 落地处 | 合同的上一级来源 |
+| `research/capability-reach-20260919` | 见 `CURRENT_STATE.md` | 本轮研究与真源收敛所在分支 | 本轮工作分支 |
+
+⚠️ 已知且未修的事实：**GitHub 默认分支 `main` 上读不到 `CONSTITUTION.md`、读不到 Lab、也读不到线上那套后端代码。**
+把研究分支收敛进 `main` 属于 Founder 决定（与 `v2 → main` 收敛、Pages 退役是同一件事），
+本轮**不合并、不动 `main`**，只在 `NEXT_CANDIDATES.md` 里留方案与命令。
 
 ## 产品方向
 
@@ -41,7 +82,9 @@ World Space 不是：AI 基础设施公司、Agent Framework、Workflow Builder�
    如果最好的工具就在外面，直接带用户过去。成功指标是"用户 5 分钟后知道该去哪并已经开始动手"，不是"用户在 World Space 停留 40 分钟"。
 
 5. **设计资产保护**
-   `archive/design/` 中的历史资产不得修改或删除。当前设计真源为 `docs/design/CURRENT_DESIGN.md`。
+   `archive/design/` 中的历史资产不得修改或删除。设计真源按版本分层：
+   V1 = `docs/design/CURRENT_DESIGN.md`（2026-09-19 起已从"当前线上"降级为 V1 真源）；
+   V0.1 线上形态的事实 = `CURRENT_STATE.md` §1。**不存在一份"当前唯一设计真源"，别再制造这个错觉。**
 
 6. **提交规范**
    commit message 描述产品变更和理由，不提及工具/流程名称。

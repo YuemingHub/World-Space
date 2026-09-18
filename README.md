@@ -1,53 +1,88 @@
 # World Space
 
 > **让普通人拥有这个时代正在产生的能力。**
->
-> 产品定位、十条原则与绝对禁令的真源是 [`CONSTITUTION.md`](CONSTITUTION.md)（最高产品合同）。
-> 一句话概括现在的做法：**一件事只给你一条最低阻力的路，并带你真的走出第一步。**
 
 **公开入口：https://ymai.fun**
 
+> ⚠️ 2026-09-16 起该入口**带访问门**：未登录访问首页会被 302 到 `/login`，未登录调用
+> `/api/world` 返回 401（本轮公网实测复核过）。线上跑的是 **V0.1**，不是下面那份 V1 文案描述的东西。
+> 线上真实状态一律以 [`CURRENT_STATE.md`](CURRENT_STATE.md) 为准。
+
 ---
 
-## 怎么用
+## 这个仓库的读法（权威链，冲突时上位赢）
 
-打开首页，按你想做的事直达：
+```text
+1  CONSTITUTION.md      最高产品合同：这件事该不该做
+2  PRODUCT.md           产品细则：是什么 / 不是什么 / 复用优先级
+3  CURRENT_STATE.md     当前真实状态：线上是什么、什么还没做
+4  当前任务的实验或版本文件
+5  代码
+```
+
+## 索引
+
+| 我要找 | 去哪里 |
+|---|---|
+| 产品最高合同、绝对禁令、开发前五问 | [`CONSTITUTION.md`](CONSTITUTION.md) |
+| 当前产品定义与废止方向 | [`PRODUCT.md`](PRODUCT.md) |
+| 当前真实状态（生产 / 冻结 / 研究） | [`CURRENT_STATE.md`](CURRENT_STATE.md) |
+| 正在进行的真人研究怎么做 | [`docs/CAPABILITY_REACH_LAB.md`](docs/CAPABILITY_REACH_LAB.md) |
+| 真人 Case 编号、模板、台账、数据边界 | [`research/capability-reach/`](research/capability-reach/) |
+| 2026-09 能力供应侧基线（**无真人证据**） | [`docs/CAPABILITY_SUPPLY_BASELINE_20260919.md`](docs/CAPABILITY_SUPPLY_BASELINE_20260919.md) |
+| 历史 V2 版本内核（只约束 `v2` 那条实验线） | [`docs/v2/NORTH_STAR.md`](docs/v2/NORTH_STAR.md) |
+| V1 静态站设计真源（已不是线上形态） | [`docs/design/CURRENT_DESIGN.md`](docs/design/CURRENT_DESIGN.md) |
+| V0.1 上线与切流的可核对事实 | [`docs/v2/release-c500f3d/CUTOVER-RECORD.md`](docs/v2/release-c500f3d/CUTOVER-RECORD.md) |
+| 机器评测集与评测结论（**不是真人证据**） | [`eval/`](eval/)、[`docs/v2/PILOT12_RESULTS.md`](docs/v2/PILOT12_RESULTS.md) |
+| 归档设计资产（只读，不得修改或删除） | `archive/design/` |
+
+## 一条不可跨界的纪律
+
+```text
+Machine Evidence  ≠  Human Adoption Evidence
+```
+
+`eval/` 与 `docs/v2/PILOT12_*` 里那 12 条是**模型跑的测试意图，全程 0 个真人**。
+其中任何 "P0=0"、"Gate 1 达成" 都不构成"普通人已经需要 World Space"的证据。
+真人 Case 现在数量是 **`REAL HUMAN CASES = 0`**。
+
+## 仓库结构
+
+```text
+CONSTITUTION.md         最高产品合同（先读这个）
+PRODUCT.md              产品定义
+CURRENT_STATE.md        当前真实状态
+AGENTS.md               仓库规则（含开工必读顺序）
+
+docs/
+  CAPABILITY_REACH_LAB.md            真人实验操作手册（进行中）
+  CAPABILITY_SUPPLY_BASELINE_*.md    供应侧基线（无真人证据）
+  design/CURRENT_DESIGN.md           V1 设计真源
+  v2/                                V2 实验线文档（含发布与切流记录）
+  loop/MINIMAL_LOOP.md               Prototype 0（不再是产品契约）
+research/capability-reach/           真人 Case 台账、模板、数据边界
+eval/                                机器评测集与评测输出
+catalog/resources.json               资源目录
+paths/                               V1 兜底路径
+web/                                 前端（v2/ 为线上那套；index.html 为旧 V1）
+server/                              后端（单接口 /api/world + 认证 + 预算闸）
+archive/                             历史资产，只读
+```
+
+---
+
+## 附：V1 静态站（`web/index.html` + `paths/`）当年给普通人的路径
+
+以下内容描述的是**仓库里仍存在的 V1 静态页**，不是现在公网首页会打开的东西（现在首页在门后，
+形态是一个自由输入框「你现在想做成什么？」）。保留是为可追溯；要改线上文案请走 `CURRENT_STATE.md`。
 
 | 你想做的事 | 会发生什么 |
 |---|---|
 | ✍️ 写点东西 / 🛠️ 做个网页 / 🔍 查明一件事 / 🗂️ 整理资料·处理 PDF | 按需展开面板：一个默认工具 + 可复制的第一步 + 如实限制（做网页的进阶选项：v0 发布上线） |
-| 🖼️ 做一张海报 | 按需展开：要放准确信息→稿定设计模板改字；个人用→豆包 AI 直接画 |
+| 🖼️ 做一张海报 | 要放准确信息→稿定设计模板改字；个人用→豆包 AI 直接画 |
 | 📷 整理手机照片 | 去重（手机自带）、备份、印刷相册、修图，每件一个默认做法 |
 | 🔤 提取图片文字 | 微信长按、手机相册自带识别、纸质用微信扫一扫 |
-| 🌱 不知道从哪开始 | 跟着三步走，每步做成一件真事： |
+| 🌱 不知道从哪开始 | 三步兜底：让 AI 写一段自己的话 → 学会提要求改到满意 → 查一件真事并核实来源（豆包 / 豆包 / DeepSeek，约 10 分钟） |
 
-三步兜底（第一次用 AI 的最小上手回路，约 10 分钟）：
-
-| 步 | 做什么 | 用什么 |
-|---|---|---|
-| 1 | 让 AI 帮你做一件小事（写一段自己的话） | 豆包 |
-| 2 | 让它改成你满意的样子（学会提要求） | 豆包 |
-| 3 | 查一件你真想知道的事，并核实来源 | DeepSeek |
-
-全部免费开始、国内直接打开、手机可用、不用 API Key。
-走完三步，回首页选一件你真正想做的事——每个目标按钮都替你备好了第一步。
-
----
-
-## 仓库结构
-
-```
-CONSTITUTION.md         最高产品合同（先读这个）
-PRODUCT.md              产品定义
-CURRENT_STATE.md        当前状态
-AGENTS.md               仓库规则
-
-catalog/resources.json  资源目录
-paths/                  兜底路径（3 步，与网页一致）
-web/index.html          公开入口
-index.html              根跳转页
-docs/design/CURRENT_DESIGN.md  当前设计真源
-docs/goal-coverage.md  目标覆盖判断（为什么是这 7 个）
-
-archive/                历史资产
-```
+V1 的选择标准：国内可直接打开、免费开始、中文、手机可用、不用 API Key。
+**这些标准在 2026-09-19 的供应侧基线里被重新核过一遍，部分主张需要更新（见供应侧基线与目录审计记录）。**

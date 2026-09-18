@@ -15,3 +15,20 @@ Thumbs.db
 # 本机预算计数与压测产物（只含计数与报告，不进仓库）
 var/
 eval/out/
+
+# 真人研究原始资料：默认不进 Git（见 research/capability-reach/DATA_BOUNDARY.md）
+# 只约束研究目录，不全局屏蔽音频/图片，以免影响仓库其他资产
+research/capability-reach/raw/
+research/capability-reach/**/*.m4a
+research/capability-reach/**/*.mp3
+research/capability-reach/**/*.wav
+research/capability-reach/**/*.amr
+research/capability-reach/**/*.heic
+research/capability-reach/**/*.jpg
+research/capability-reach/**/*.jpeg
+research/capability-reach/**/*.png
+research/capability-reach/**/*.pdf
+research/capability-reach/**/*.xlsx
+research/capability-reach/**/*.docx
+# 例外：自生成虚构样本允许进（fixtures/ 下由 DATA_BOUNDARY §4 约束内容）
+!research/capability-reach/fixtures/**
