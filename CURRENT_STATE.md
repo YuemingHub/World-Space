@@ -66,6 +66,8 @@ V0.2 开发         NOT AUTHORIZED
 | 真人 Case 骨架 | `research/capability-reach/`（编号规则 + 模板 + 数据边界），模板全空 |
 | 真人 Case 数 | **0** |
 | 供应侧基线 | `docs/CAPABILITY_SUPPLY_BASELINE_20260919.md`（**Machine/Operator 层，无真人证据**） |
+| 供应侧审判进度 | 8 条种子**全部完成**：4 条判 `EXIT_CANDIDATE`（截图转表 / 月报 / 个人页面 / 重复回复），4 条判 `HUMAN_TEST_CANDIDATE`（Excel / 录音 / 手写 / 照片）。浮出障碍是 VERIFICATION、TRUST、INTEGRATION；**DISCOVERY/SELECTION 一条都没成为主障碍** |
+| 本地 fixture | `research/capability-reach/fixtures/`（4 份自生成虚构表 + 脚本 + 结果）：实测出"总额对、明细错"这种**任何核总数都抓不到**的失败形态 |
 | Path A（真人自己直接问通用 AI 的固定基线） | `PROPOSED`，等 Founder / 总审查批准后才冻结 |
 | Path B（Concierge Method） | 方法已写死，未跑真人 |
 | H1 / H2 / H3 | 全部 `UNRESOLVED` / `NOT YET TESTED`——没有任何真人数据之前不可能有结论 |
@@ -77,3 +79,8 @@ V0.2 开发         NOT AUTHORIZED
 3. 真人从哪来、谁做研究者、录音与原始文件谁持有：本轮只立边界（`research/capability-reach/DATA_BOUNDARY.md`）。
 4. 实验期预算是否追加：现行为 50 次/日、¥20/月，实账 ¥1.494026/月，**本轮 0 次消耗**。
 5. 曾在会话窗口出现过的 key 与明文口令残留的清理：仍按"未下令不删除"原样保留，清单见 CUTOVER-RECORD §6–§7。
+6. **对外推荐里有 4 条主张已过期**（稿定"免费模板够用"、豆包无保留"免费"、醒图"免费修图"、
+   DeepSeek 旧按钮名），其中两条属"误指路"级；本轮**未修改** `catalog/resources.json` 与任何文案，
+   修复顺序与判据见 `research/capability-reach/NEXT_CANDIDATES.md` NC-08。
+   已实测：带这些旧文案的页面目前公网打不开（www 与 Pages 均 302 到 `/login`），**是潜在风险不是正在发生的误导**。
+   真正的问题不是哪句话写错，而是这批主张被记作 2026-09-07"free tiers confirmed"——**核对的保质期只有 8–12 天**。
