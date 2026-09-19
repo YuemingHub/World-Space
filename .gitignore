@@ -11,3 +11,7 @@ Thumbs.db
 
 # Scratch / prototypes
 .tmp/
+
+# Local working notes (never part of the product)
+.workbuddy/
+.workbuddy-ai/
