@@ -229,7 +229,10 @@ Path A 真机走一遍，要么拿到登录态做受控交互——两者都不�
 ## D. Path A Candidate Protocol（完整冻结文本）
 
 > 完整版已写进 `docs/CAPABILITY_REACH_LAB.md` §21，此处全文复述以便审查者不必跳文件。
-> **状态：`PROTOCOL CANDIDATE`。冻结 ≠ 批准。**
+>
+> **状态更新（2026-09-19 总审查后）：`PATH_A_PROTOCOL = APPROVED_FOR_WAVE1`。**
+> 即：Path A 口径已批，**但只授权到 Wave 1**；Wave 1 执行本身仍未批，所以真人仍为 0。
+> 下文 D1–D5 的口径不变；D4 第 4 格按证据分层修正（见附 2）。
 
 ### D1 第一原则
 
@@ -274,8 +277,9 @@ Path A 测的是：一个普通人在现实条件下，把自己那句原话直�
 ```text
 产品 / 版本 / 页面状态（含是否登录、哪个模式）
 是否付费（免费版 / 会员 / 按次 / 试用）
-用户的原话（逐字）
-AI 的实际回复（原文保留，不摘要）
+用户的原话（逐字；完整原文归 Private，Git 只留 ≤25 字必要摘录）
+AI 的实际回复（**原文只在 Private Session Evidence 保留**；
+              Git Case 只记脱敏摘要或必要短摘录）
 用户的真实动作（做了什么，或明确地没做什么）
 卡点（哪一步停住，停了多久，他说了什么）
 第一次结果（有没有产生外部可观察的东西）
@@ -295,14 +299,17 @@ Global（境外）通用 AI 只作为 Supply Baseline。
 
 ### D6 仍然没批
 
+**2026-09-19 总审查后的更新**：
+
 ```text
-2 · 真人从哪来          STILL FOUNDER-DECISION
-3 · 是否录音/谁持原件     PROPOSED（Wave 1 先不录音，见 F 节）
-4 · 研究者是谁           STILL FOUNDER-DECISION
-5 · 预算与停线           PROPOSED（沿用 50 次/日、¥20/月）
+2 · 真人从哪来         Wave 1 画像与场景已冻结（WAVE1-PACK §9.3/§9.4）；
+                      但"这两个人是谁"仍由 Founder 落实，本轮不代找、不代联系
+3 · 是否录音/谁持原件    Wave 1 先不录音；完整对话归 Private Session Evidence（Lab §21.7）
+4 · 研究者是谁          已定：Founder 本人，只执行协议、不做最终裁决
+5 · 预算与停线          沿用 50 次/日、¥20/月，不自动放宽
 ```
 
-**在总审查确认 candidate 树之前，即使本节被批准，也不开始第一个真人 Case。**
+**Wave 1 执行本身仍未批准，因此本节生效 ≠ 可以开始找人。**
 
 ---
 
@@ -360,19 +367,26 @@ Global（境外）通用 AI 只作为 Supply Baseline。
 目标      不是得结论，是验证 Case 协议本身能不能跑
 ```
 
-**开场一句**（不提 AI）：
+**开场一句**（研究者口头问，不提 AI）：
 
 > 最近有什么事情，你已经觉得麻烦很久，但一直就这么做？
 
-**数据方式（Mission 6：第一轮不录音）**：
+**数据方式（第一轮不录音；2026-09-19 修正）**：
 
 ```text
-让参与者在自己的手机备忘录 / 输入框里，亲手写一句上面那句话。
-他自己写的那一句就是 Raw Reality。
-原件留在他设备上，不传、不存、不截图进仓库；仓库只进脱敏后的必要摘录。
+参与者想到那件事之后，研究者只说一句：
+   "请用你自己的话，在你的手机上写一句刚才想到的那件事。怎么说都行，不用整理。"
+参与者写下的答案 = Raw Reality。
+研究者的问题不是 Raw Reality——旧版把这两件事混成了一个，已改正。
+
+研究者不得：改写 / 总结 / 补背景 / 提供示例答案 / 建议怎么表达。
+原件留在他设备上，不传、不存、不截图进仓库；仓库只进脱敏后的必要摘录（≤25 字）。
 ```
 
 这样同时解决：不录音、隐私面最小、**研究者没有转写机会所以不可能改写原话**、Path A/B 输入一致。
+
+**证据分层**：完整对话与原始文件归 Private Session Evidence；Git Case 只留脱敏摘要与短摘录
+（详见本报告附 2）。
 
 **Case 操作顺序**：开场 → 写 Raw Reality → 问现状 → Path A（八条纪律）→ 记九格 →
 Path B（六件事/六禁止）→ 记九格 + 标注代做 → Verification → Before/After → "以后再遇到类似事情你会怎么做"。
@@ -493,6 +507,22 @@ recheck trigger        什么情况下必须立刻重查（改版、改名、涨
 旧 V1 catalog 作为历史资产保留，**不得直接重新发布**。
 
 ---
+
+### 附 2 · Wave 1 Gate Fix（2026-09-19 总审查后补）
+
+总审查结论：`Canonical Candidate = APPROVED AS CANDIDATE`、`Path A direction = APPROVED`、
+`Wave 1 execution = NOT YET APPROVED`。据此只修协议，不推进执行。
+
+| 修的点 | 改了什么 |
+|---|---|
+| **Raw Reality 采集** | 旧写法让参与者亲手打研究者那句问题——那是**研究者的问题**，不是 Raw Reality。改为：研究者口头问，参与者想到后自己写下那件事，**他写的答案**才是 Raw Reality。研究者不得改写/总结/补背景/给示例/建议表达 |
+| **Private / Public 证据分层** | 解决"Path A 要原文保留" vs "DATA_BOUNDARY 禁原始内容进 Git"的矛盾。完整对话/原始文件归 Private Session Evidence（禁 commit/push/进镜像）；Git Case 只允许脱敏摘要与 ≤25 字摘录。不保留也允许，注明 `RAW_AI_RESPONSE_RETAINED = NO` |
+| **A→B 实验语义** | 明确不是随机 A/B test，而是 `Direct AI Baseline → 观察 → 识别 remainder → Rescue → 看能否拆掉`。禁止" B 战胜 A""比某模型强"，只允许 remainder 句式 |
+| **Facilitator 与参与者** | Facilitator = Founder 本人，只执行协议、不做最终裁决。Wave 1 = 2 人 × 1 事；画像与优先场景已冻结；照片/录音第一轮不主动选（避免 TRUST 与 VERIFICATION 混在一起） |
+| **Path A 状态** | `PROTOCOL CANDIDATE` → `PATH_A_PROTOCOL = APPROVED_FOR_WAVE1`（只授权到 Wave 1，不是永久冻结） |
+
+同步修改的文件：`WAVE1-PACK.md`（§3/§4/§5/§9/§10）、`docs/CAPABILITY_REACH_LAB.md`（§2 H2、§9、§10 Raw Reality、§21 状态/§21.4/§21.6/§21.7）、
+`TEMPLATE.md`（Raw Reality、Path A 记录、裁决输入与留存声明）、`DATA_BOUNDARY.md`（新增 §3 证据分层）。
 
 **本轮到此停止。**
 不进入 Wave 1，不修改生产，不切默认分支，不合入 main。等总审查。

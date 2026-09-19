@@ -22,9 +22,16 @@
 
 ### Raw Reality
 
-> 用户原话，**不优化、不加工、不总结**。一个字都替他改，Path A 就失效了。
+> **采集方式**（Lab §10）：研究者口头问「最近有什么事情，你已经觉得麻烦很久，但一直就这么做？」；
+> 参与者想到之后，研究者只说「请用你自己的话，在你的手机上写一句刚才想到的那件事，怎么说都行，不用整理」。
+> **参与者写下的答案**才是 Raw Reality。研究者的问题不是。
+>
+> 研究者不得改写、总结、补背景、提供示例答案、建议怎么表达。
+> 一个字都替他改，Path A 就失效了。
+>
+> **完整原文属于 Private Session Evidence；本格只写脱敏后的必要摘录（≤25 字）。**
 
-「……」
+「……（≤25 字必要摘录，不含可识别信息）」
 
 ### Current Method
 
@@ -54,7 +61,7 @@ exists: YES / NO / UNKNOWN
 
 - 用的哪个产品（按冻结口径，见 `docs/CAPABILITY_REACH_LAB.md` §19-1）：
 - 输入是否为**原话逐字**：YES / NO（NO 则本 Case 的 A 臂作废）
-- 它给了什么路径：
+- 它给了什么路径（**只写脱敏摘要；完整回复留在 Private Session Evidence，不进 Git**）：
 - 用户是否看懂：
 - 用户是否开始：
 - 是否完成：
@@ -108,10 +115,25 @@ DISCOVERY / RELEVANCE / SELECTION / TRANSLATION / ACCESS / TRUST / VERIFICATION 
 
 > 这一格区分"用了一次 AI"与"获得了能力"。
 
+### 证据留存声明
+
+```text
+RAW_AI_RESPONSE_RETAINED: YES / NO
+Private Session Evidence 持有人: 参与者本人设备 / Founder 私有本地空间 / 未保留
+```
+
+> 若未保留，只写 NO 即可，**不需要为了研究去补建一份**。
+
 ### 裁决输入（供 Lab §15 汇总用）
+
+> **这不是 A/B 对照**（Lab §9）。只能写 remainder 句式，不许写谁赢。
 
 ```text
 WORLD_SPACE_REMAINDER: NONE / <具体哪道门>
+Path A 停在: <X>            （若 remainder = NONE 则写"已自然解决"）
+Path B 是否消除了 X: 消除 / 未消除 / 未进入 B
 Reach state（Lab §13，缺真人证据一律 UNCONFIRMED）:
 一句话结论:
 ```
+
+禁止出现：「B 战胜 A」「World Space 比某模型强」之类的表述。

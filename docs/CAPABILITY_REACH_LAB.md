@@ -90,6 +90,13 @@ World Space 的使命：
 
 > World Space 应退出该场景。
 
+**H2 的准确问法（2026-09-19 定稿）**：
+
+> **Direct AI 之后是否仍存在稳定的 remainder，
+> 以及 World Space Method 能否在不重造执行能力的情况下消除它。**
+
+不是"我们比通用 AI 强吗"。见 §9 开头的实验性质说明。
+
 ---
 
 ## H3 · 是否需要独立产品
@@ -320,6 +327,41 @@ NONE
 
 # 9. 每个 Case 必须走两条路径
 
+> **这不是标准随机 A/B test（2026-09-19 澄清）。**
+> 真实设计是一条链，不是两个对照臂：
+>
+> ```text
+> Direct AI Baseline
+>       ↓
+> 观察这个普通人自然能走多远
+>       ↓
+> 识别 WORLD_SPACE_REMAINDER
+>       ↓
+> 如果 remainder ≠ NONE
+>       ↓
+> World Space Rescue / Adoption Method
+>       ↓
+> 看这道剩余门槛能否被拆掉
+> ```
+>
+> 因此禁止输出：
+>
+> ```text
+> ✗ "B 战胜 A"
+> ✗ "World Space 比某模型强"
+> ```
+>
+> 只允许这两种句式：
+>
+> ```text
+> Path A 已自然解决 → WORLD_SPACE_REMAINDER = NONE
+>
+> 或
+>
+> Path A 停在 X
+> Path B 消除了 / 没消除 X
+> ```
+
 ## Path A · Direct AI
 
 把用户自己的原话，不优化、不加工，直接交给当前最强通用 AI。
@@ -383,7 +425,20 @@ NONE
 
 ### Raw Reality
 
-用户原话：
+> **采集方式（2026-09-19 修正）**：研究者口头问的是一句问题，
+> **参与者自己写下的那件事**才是 Raw Reality。研究者的问题不是 Raw Reality。
+>
+> ```text
+> 研究者口头问：最近有什么事情，你已经觉得麻烦很久，但一直就这么做？
+> 参与者想到之后，研究者只说：请用你自己的话，在你的手机上写一句刚才
+>                        想到的那件事。怎么说都行，不用整理。
+> 参与者写出的答案 = Raw Reality
+> ```
+>
+> 研究者不得改写、总结、补背景、提供示例答案、建议怎么表达。
+> 完整原文属于 Private Session Evidence；本文件这一格只写脱敏后的必要摘录（≤25 字）。
+
+参与者写下的原话（脱敏摘录，≤25 字）：
 
 > "……"
 
@@ -764,10 +819,10 @@ World Space 不应该站在那里。
 
 | §19 项 | 状态 | 本轮给出的东西 | 还缺谁 |
 |---|---|---|---|
-| 1 · Path A 冻结口径 | **PROPOSED** | 推荐 China 基线 = 手机上免费版的国民通用 AI App（默认对话模式，参与者自己的手机、原话逐字、≤3 轮追问、跑前截首页记录模型名与额度）；Global 基线 = 境外免费版同类，仅用于回答"这能力今天到底存不存在"，**两条分母不同，禁止合并比较**。落选理由：最强的那几款要么中国区不可用、要么产品语言本身就是 Agent 集群，正是 §7 要排除的人 | Founder 批准产品与是否拆两条 |
+| 1 · Path A 冻结口径 | **PROPOSED → `APPROVED_FOR_WAVE1`**（2026-09-19 总审查；只授权到 Wave 1，见 §21） | 推荐 China 基线 = 手机上免费版的国民通用 AI App（默认对话模式，参与者自己的手机、原话逐字、≤3 轮追问、跑前截首页记录模型名与额度）；Global 基线 = 境外免费版同类，仅用于回答"这能力今天到底存不存在"，**两条分母不同，禁止合并比较**。落选理由：最强的那几款要么中国区不可用、要么产品语言本身就是 Agent 集群，正是 §7 要排除的人 | Founder 批准产品与是否拆两条 |
 | 2 · 真人从哪来 | **STILL FOUNDER-DECISION** | 未动。本轮不接触任何人，也不代她约人 | Founder |
 | 3 · 原始资料与隐私 | **PROPOSED** | `research/capability-reach/DATA_BOUNDARY.md`：原件由 Founder/参与者持有；仓库只收必要、脱敏、经允许的摘录；`.gitignore` 已对研究目录加拦截；fixture 必须自生成虚构 | Founder 定"是否录音""谁持有原件""要不要参与者说明" |
-| 4 · 研究者是谁 | **STILL FOUNDER-DECISION** | 本轮把 Path B 写成**不依赖具体人**的操作定义（见下），但诚实说：不同人做的 Path B 不是同一条路径，可比性最终取决于 §4 定下来是谁 | Founder |
+| 4 · 研究者是谁 | **已定（2026-09-19）：Founder 本人** | Wave 1 的 Facilitator = Founder，只执行协议、**不做最终研究裁决**（裁决归后续总审查）。Path B 仍写成不依赖具体人的操作定义（见下），可比性靠 §22 的六件事/六禁止保证 | 已定 |
 | 5 · 预算与停线 | **PROPOSED** | 沿用 `NORTH_STAR.md` §4.3 的 50 次/日、¥20/月不自动放宽；本轮实测公网账本 `month_cost_rmb=1.494026`（另有一份本机验证实例账本，真实月花费要相加）；**本轮真人研究消耗 = 0 次** | Founder 决定是否追加 |
 
 ## Path B 的操作定义（Mission 13，写死以便跨 Case 可比）
@@ -805,11 +860,14 @@ Path B **不是**"World Space 自研 Agent"。它是 **Concierge Method**：研�
 
 # 21. Path A Candidate Protocol（2026-09-19 冻结）
 
-> **状态：`PROTOCOL CANDIDATE`。**
-> 本节替代 §20 表格第 1 项的 `PROPOSED` 措辞，措辞本身已冻结。
-> 但**冻结 ≠ 批准**：本节仍然等 Founder / 上层总审查点头。
-> 额外前置条件：本节被批准**之后**，还要等总审查确认 candidate 树
-> （`candidate/world-space-canonical-20260919`），才允许开第一个真人 Case。
+> **状态：`PATH_A_PROTOCOL = APPROVED_FOR_WAVE1`（2026-09-19 总审查）。**
+> 本节替代 §20 表格第 1 项的 `PROPOSED` 措辞。
+>
+> 范围限定：**只授权到 Wave 1**，不是全项目永久冻结。
+> Wave 1 跑完之后，可以根据真实暴露出来的问题修改本节的口径。
+>
+> 仍然没拿到的那一道：Wave 1 **执行**本身的批准（`WAVE1 EXECUTION = NOT YET APPROVED`）。
+> 所以本节生效 ≠ 可以开始找人。
 
 ## 21.1 第一原则
 
@@ -871,8 +929,9 @@ Path A 测的是：一个普通人在现实条件下，把自己那句原话直�
 ```text
 产品                名字 + 版本 / 页面状态（是否登录、哪个模式）
 是否付费            免费版 / 会员 / 按次 / 试用
-用户的原话          逐字，不加工
-AI 的实际回复        原文保留，不摘要、不美化
+用户的原话          逐字，不加工（完整原文归 Private；Git 里只留 ≤25 字必要摘录）
+AI 的实际回复        原文只在 Private Session Evidence 保留；
+                    Git Case 只记录脱敏摘要或必要短摘录（见 §21.7）
 用户的真实动作       他接下来做了什么，或者明确地没做什么
 卡点                在哪一步停住，停了多久，他说了什么
 第一次结果          有没有产生一个外部可观察的东西（不是"他理解了"）
@@ -901,13 +960,47 @@ Global 与中国 Path A 不得合并统计，不得互相折算，不得互相"�
 
 ## 21.6 本节批准之后仍然空着的三项
 
-§19 的第 2、3、4、5 项本节不代批：
+§19 的第 2、3、4、5 项：
 
 ```text
-2 · 真人从哪来              STILL FOUNDER-DECISION
-3 · 是否录音 / 谁持原件       PROPOSED（见 §23 与 DATA_BOUNDARY.md：Wave 1 先不录音）
-4 · 研究者是谁               STILL FOUNDER-DECISION
-5 · 预算与停线               PROPOSED（沿用 50 次/日、¥20/月，不自动放宽）
+2 · 真人从哪来        Wave 1 的画像与场景已冻结（WAVE1-PACK §9），
+                     但"这两个人具体是谁"仍要 Founder 去落实——本轮不代找、不代联系
+3 · 是否录音 / 谁持原件  PROPOSED（见 §21.7 与 DATA_BOUNDARY.md：Wave 1 先不录音；
+                     完整对话归 Private Session Evidence）
+4 · 研究者是谁        已定：Founder 本人。只执行协议，不做最终研究裁决
+5 · 预算与停线        PROPOSED（沿用 50 次/日、¥20/月，不自动放宽）
+```
+
+## 21.7 证据分两层（Private / Public）
+
+旧写法里有一处自相矛盾：本节要求"AI 回复原文保留"，
+而 `research/capability-reach/DATA_BOUNDARY.md` 禁止真人原始内容进公开 Git。
+按下面分层即可两全。
+
+### Private Session Evidence
+
+由**参与者本人设备**或 **Founder 的私有本地空间**持有。
+
+```text
+允许：完整 AI 对话 / 原始文件 / 完整 Raw Reality / 操作截图 / 必要的结果文件
+禁止：commit、push、进入 Git 历史、进入 CNB 镜像
+```
+
+不需要就删掉。**不要因为研究需要去造一个新的私人数据仓库。**
+
+### Public Research Record（Git 里的 Case）
+
+```text
+允许：最低人物信息 / 脱敏后任务描述 / 必要原话摘录 ≤25 字 / 耗时 / 行为 /
+     Barrier / 结果是否成功 / Verification 事实 / Before-After 与 Next Time 的必要摘录
+禁止：完整 AI 回复、完整聊天、真实 Excel、照片、录音、手稿、公司资料、
+     任何可识别个人的信息
+```
+
+若 Founder 选择不保留 Private Evidence，允许，只需在 Case 中注明：
+
+```text
+RAW_AI_RESPONSE_RETAINED = NO
 ```
 
 ---
