@@ -866,8 +866,9 @@ Path B **不是**"World Space 自研 Agent"。它是 **Concierge Method**：研�
 > 范围限定：**只授权到 Wave 1**，不是全项目永久冻结。
 > Wave 1 跑完之后，可以根据真实暴露出来的问题修改本节的口径。
 >
-> 仍然没拿到的那一道：Wave 1 **执行**本身的批准（`WAVE1 EXECUTION = NOT YET APPROVED`）。
-> 所以本节生效 ≠ 可以开始找人。
+> Wave 1 **执行**也已批准：`WAVE1 EXECUTION = APPROVED`（2026-09-19 Final Gate）。
+> **但授权范围只有 2 人 × 1 件事，不得扩大**；且"已批准 ≠ 已经开始"——真人目前仍是 0，
+> 下一步由 Founder 去现实里找两个人（见 `research/capability-reach/WAVE1-PACK.md` §9、§10.1）。
 
 ## 21.1 第一原则
 
@@ -1002,6 +1003,23 @@ Global 与中国 Path A 不得合并统计，不得互相折算，不得互相"�
 ```text
 RAW_AI_RESPONSE_RETAINED = NO
 ```
+
+### Wave 1 默认：最小留存
+
+```text
+持有人 = 参与者本人设备
+Founder 默认不复制完整 AI 对话
+Founder 默认不保存真实原始文件
+录音 = NO
+```
+
+只有"确实需要某份完整内容才能复核"且"参与者明确同意"时，Founder 才可临时留存在私有本地空间。
+`NO Git` / `NO CNB` / `NO cloud research archive` 三条不变。
+
+### 参与者说明
+
+参加前必须给参与者看 [`PARTICIPANT-NOTICE.md`](../research/capability-reach/PARTICIPANT-NOTICE.md)——
+普通话写的，讲清可随时停、不录音、东西留他自己设备上、公开记录不记姓名单位手机号。
 
 ---
 

@@ -5,6 +5,18 @@
 >
 > 用法：复制本文件为 `cases/C01-A.md`，逐节填写。**没有真人就不要复制它。**
 
+> ## ⚠️ 本文件是 Public Research Record（会进公开 Git）
+>
+> ```text
+> 真人原话摘录 ≤ 25 字
+> 不得含姓名 / 单位 / 手机号 / 微信号 / 住址
+> 不得含真实文件名 / 私人 URL / 账号标识
+> 不得上传真人原始文件
+> ```
+>
+> 完整 AI 对话、原始文件、完整原话 → 只归 Private Session Evidence（见 `DATA_BOUNDARY.md` §3）。
+> 违反以上任何一条，**这个 Case 不得 commit**。
+
 ---
 
 ## CASE ID
@@ -59,7 +71,7 @@ exists: YES / NO / UNKNOWN
 
 ### Direct AI Result（Path A）
 
-- 用的哪个产品（按冻结口径，见 `docs/CAPABILITY_REACH_LAB.md` §19-1）：
+- 用的哪个产品（按 Wave 1 已批准口径，见 `docs/CAPABILITY_REACH_LAB.md` §21）：
 - 输入是否为**原话逐字**：YES / NO（NO 则本 Case 的 A 臂作废）
 - 它给了什么路径（**只写脱敏摘要；完整回复留在 Private Session Evidence，不进 Git**）：
 - 用户是否看懂：
@@ -94,9 +106,12 @@ DISCOVERY / RELEVANCE / SELECTION / TRANSLATION / ACCESS / TRUST / VERIFICATION 
 
 > 必须外部可观察。写"用户了解了自动化"= 本节不合格。
 
-- 结果物（文件名 / 链接 / 照片 / 打印件）：
+- 结果物（**只写结果类型**，例如：`生成 1 个合并后的 xlsx` / `生成 1 份转录文本` / `生成 1 个可打开页面`）：
 - 达成时间（真实耗时）：
 - 是不是他自己做成的：
+
+> ⚠️ **不得写**：真实文件名、私人链接、私人照片路径、账号标识、私人 URL。
+> 如确有私人结果文件，**只留在参与者设备 / Private Session Evidence**。
 
 ### Verification
 
@@ -104,14 +119,19 @@ DISCOVERY / RELEVANCE / SELECTION / TRANSLATION / ACCESS / TRUST / VERIFICATION 
 
 ### Before / After
 
-- Before（他原来的能力认知，原话）：
-- After（用后变化）：
+> **只放必要脱敏摘录，每段 ≤25 字。**
+> 完整原话如需保留，只能存在 Private Session Evidence，不进 Git。
+
+- Before（他原来的能力认知，脱敏摘录 ≤25 字）：
+- After（用后变化，脱敏摘录 ≤25 字）：
 - 是否出现「原来这个我也可以」：**记录原话或写"未出现"**。禁止诱导他说这句。
 
 ### Next Time
 
+> **只放必要脱敏摘录 ≤25 字。**
+
 - 问：「以后再遇到类似事情，你会怎么做？」
-- 答（原话）：
+- 答（脱敏摘录 ≤25 字）：
 
 > 这一格区分"用了一次 AI"与"获得了能力"。
 

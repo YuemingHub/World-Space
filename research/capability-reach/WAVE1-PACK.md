@@ -1,20 +1,21 @@
 # Wave 1 Pack — 只准备，未执行
 
-> **状态：`PREPARED — NOT EXECUTED`。**
-> 本文件是给"第一个真人 Case"用的操作包。它**不是**已经开始的研究。
-> 开跑需要三道批准，缺一不动：
+> **状态：`READY — WAVE1 EXECUTION = APPROVED`（范围严格限定：2 人 × 1 件事）。**
+>
+> 本文件是给"第一个真人 Case"用的操作包。**批准不等于已经开始**——
+> 现在仍然 `REAL HUMAN CASES = 0`，下一步由 **Founder 去现实里找两个人**。
+>
+> 三道门都已通过：
 >
 > ```text
-> 1  Path A 口径 —— 已批：PATH_A_PROTOCOL = APPROVED_FOR_WAVE1（§10）
-> 2  candidate 树（candidate/world-space-canonical-20260919）—— 已批：APPROVED AS CANDIDATE
-> 3  Wave 1 执行本身 —— 仍未批：WAVE1 EXECUTION = NOT YET APPROVED
+> 1  Path A 口径      PATH_A_PROTOCOL = APPROVED_FOR_WAVE1（§10）
+> 2  candidate 树     CANONICAL CANDIDATE = APPROVED
+> 3  Wave 1 执行      WAVE1 EXECUTION = APPROVED（仅 2 人 × 1 件事，不得扩大）
 > ```
 >
-> 前两道已经拿到，**第三道还没有**。所以本文件的内容仍然停在纸上：
-> 协议已就绪（readiness），但**一个真人都没接触**。
->
-> 2026-09-19 总审查后本文件修过三处协议污染点：Raw Reality 采集（§3）、
-> 私有/公开证据分层（§4）、A→B 的实验语义（§5）。
+> 2026-09-19 先后修过五处协议问题：
+> Raw Reality 采集（§3）、私有/公开证据分层（§4）、A→B 的实验语义（§5）、
+> 参与者说明（§9.0）、公开 Case 隐私红线（`TEMPLATE.md` 与 `DATA_BOUNDARY.md` §3）。
 
 ---
 
@@ -303,12 +304,45 @@ Founder 只执行协议，不做最终研究裁决。
 2 个真人 × 每人 1 件真实事情
 ```
 
-### 9.3 参与者要求
+### 9.0 先给参与者看这份说明
 
 ```text
-非 World Space 项目协作者
+research/capability-reach/PARTICIPANT-NOTICE.md
+```
+
+用普通话写的，讲清楚：可以随时停、不录音、东西留在他自己设备上、
+公开记录里不会记姓名单位手机号。**参加前给他看，不要替他总结。**
+
+### 9.3 参与者要求与招募边界
+
+**只要**：
+
+```text
+2 名成年人
+每人 1 件真实事情
+自愿参加
+```
+
+**优先**：
+
+```text
+与 Founder 没有上下级关系
+不是当前付费服务对象 / 咨询个案
+不是 World Space 项目协作者
 非 AI 重度用户
-优先：不存在上下级 / 咨询服务等明显压力关系
+```
+
+**第一轮不找**：
+
+```text
+未成年人
+当前客户 / 个案
+明显因为关系压力不好意思拒绝的人
+```
+
+另外每条 Case 本身还必须满足：
+
+```text
 真实存在一件 Verification 型任务
 不涉及公司机密 / 客户资料 / 医疗法律等高风险信息
 ```
@@ -335,6 +369,12 @@ Wave 1 **暂不主动选择**：
 ```text
 家庭照片
 会议录音
+医疗
+法律
+投资
+心理危机
+客户资料
+公司机密
 ```
 
 理由：第一轮不要把 `TRUST` 和 `VERIFICATION` 混在一起——
@@ -360,16 +400,81 @@ PATH_A_PROTOCOL = APPROVED_FOR_WAVE1
 **这不是全项目永久冻结**——它只授权到 Wave 1。
 Wave 1 跑完可以根据真实暴露出来的问题修改协议。
 
----
-
-## 11. 本轮的边界（不许省略）
+### 10.1 执行授权与范围
 
 ```text
-REAL HUMAN CASES = 0          （本文件是纸面准备，没有接触任何人）
-WAVE 1 EXECUTED = NO
+WAVE1 EXECUTION = APPROVED
+
+授权范围只有：2 人 × 1 件事。
+不得扩大。
+Founder 本人作为 facilitator。
+```
+
+执行链条（**不是 A/B Benchmark**）：
+
+```text
+Direct AI Baseline
+      ↓
+观察自然做到哪里
+      ↓
+识别 WORLD_SPACE_REMAINDER
+      ↓
+如 remainder ≠ NONE
+      ↓
+World Space Rescue / Adoption Method
+      ↓
+观察 remainder 是否被消除
+```
+
+---
+
+## 11. 状态与边界（不许省略）
+
+### 11.1 本轮结束状态
+
+```text
+RAW_REALITY_FIX = DONE
+PRIVATE/PUBLIC_EVIDENCE_SPLIT = DONE
+PARTICIPANT_NOTICE = DONE
+PUBLIC_CASE_PRIVACY = DONE
+PATH_A_PROTOCOL = APPROVED_FOR_WAVE1
+FACILITATOR = FOUNDER
+WAVE1 EXECUTION = APPROVED      ← 范围只有 2 人 × 1 件事
+REAL HUMAN CASES = 0
+PRODUCTION CHANGE = 0
+DEPLOYMENT = NO
+```
+
+### 11.2 跑完两个人之后的强制停线
+
+两个人结束**立即停止**。不要：
+
+```text
+✗ 再找第三个人
+✗ 改产品 / 开发 V0.2 / 修改首页
+✗ 根据两个 Case 宣布产品定位
+✗ 宣布 Verification / Trust / Integration 是核心
+```
+
+只做这五件：
+
+```text
+1  生成两个脱敏 Case（按 TEMPLATE.md，只进 Public Research Record）
+2  更新 REAL HUMAN CASES = 2
+3  写一份 Wave 1 protocol review
+4  commit + push
+5  停止，交总审查
+```
+
+### 11.3 现在的边界
+
+```text
+REAL HUMAN CASES = 0        （协议已批准，但一个真人都还没接触）
 录音 = 无
 已招募的人 = 0
 已发出的邀请 = 0
-FACILITATOR = FOUNDER（本人，未开始）
+FACILITATOR = FOUNDER（本人，尚未开始）
 RAW_AI_RESPONSE_RETAINED = N/A（还没有任何 Case）
 ```
+
+下一步不在仓库里：**由 Founder 去现实里找两个人。**

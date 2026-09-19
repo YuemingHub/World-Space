@@ -231,7 +231,8 @@ Path A 真机走一遍，要么拿到登录态做受控交互——两者都不�
 > 完整版已写进 `docs/CAPABILITY_REACH_LAB.md` §21，此处全文复述以便审查者不必跳文件。
 >
 > **状态更新（2026-09-19 总审查后）：`PATH_A_PROTOCOL = APPROVED_FOR_WAVE1`。**
-> 即：Path A 口径已批，**但只授权到 Wave 1**；Wave 1 执行本身仍未批，所以真人仍为 0。
+> 即：Path A 口径已批，**但只授权到 Wave 1**。
+> （2026-09-19 Final Gate 后 Wave 1 执行也已批准，见附 3；**但批准 ≠ 开始**，真人仍为 0。）
 > 下文 D1–D5 的口径不变；D4 第 4 格按证据分层修正（见附 2）。
 
 ### D1 第一原则
@@ -309,7 +310,7 @@ Global（境外）通用 AI 只作为 Supply Baseline。
 5 · 预算与停线          沿用 50 次/日、¥20/月，不自动放宽
 ```
 
-**Wave 1 执行本身仍未批准，因此本节生效 ≠ 可以开始找人。**
+**Wave 1 执行现已批准（`WAVE1 EXECUTION = APPROVED`），但范围只有 2 人 × 1 件事，不得扩大。**
 
 ---
 
@@ -360,7 +361,8 @@ Global（境外）通用 AI 只作为 Supply Baseline。
 
 ## F. Human Wave 1 Pack
 
-> 完整版见 `research/capability-reach/WAVE1-PACK.md`。状态：**PREPARED — NOT EXECUTED**。
+> 完整版见 `research/capability-reach/WAVE1-PACK.md`。
+> 状态：**READY — `WAVE1 EXECUTION = APPROVED`**（范围 2 人 × 1 件事；尚未开始，真人仍为 0）。
 
 ```text
 规模      2 人 × 1 件事，只挑 VERIFICATION 型
@@ -524,5 +526,38 @@ recheck trigger        什么情况下必须立刻重查（改版、改名、涨
 同步修改的文件：`WAVE1-PACK.md`（§3/§4/§5/§9/§10）、`docs/CAPABILITY_REACH_LAB.md`（§2 H2、§9、§10 Raw Reality、§21 状态/§21.4/§21.6/§21.7）、
 `TEMPLATE.md`（Raw Reality、Path A 记录、裁决输入与留存声明）、`DATA_BOUNDARY.md`（新增 §3 证据分层）。
 
-**本轮到此停止。**
-不进入 Wave 1，不修改生产，不切默认分支，不合入 main。等总审查。
+### 附 3 · Wave 1 Final Gate（2026-09-19 最后一轮机器修补）
+
+总审查：`CANONICAL CANDIDATE = APPROVED`、`PATH_A_PROTOCOL = APPROVED_FOR_WAVE1`、
+`FACILITATOR = FOUNDER`、`WAVE1 EXECUTION = CONDITIONAL APPROVAL`。
+本轮完成条件中的三项修补，push 后 `WAVE1 EXECUTION = APPROVED`。
+
+| 修的点 | 改了什么 |
+|---|---|
+| **模板引用漂移** | `TEMPLATE.md` 里"按冻结口径见 §19-1" → "按 Wave 1 已批准口径见 §21"。顺带修了 `DATA_BOUNDARY.md`、`CAPABILITY_SUPPLY_BASELINE_20260919.md` 两处把 §19 当现行协议位置的引用（§19 是未决项清单，不是协议） |
+| **Public Case 再收紧** | 字段级红线：原话 ≤25 字、无姓名/单位/手机号/微信号、无真实文件名/私人 URL/账号标识、不上传原始文件。`Before/After`、`Next Time` 各段 ≤25 字；`First Real Result` 只写结果类型（如"生成 1 个合并后的 xlsx"） |
+| **参与者说明** | 新增 `PARTICIPANT-NOTICE.md`，普通话写，讲清可随时停、不录音、文件留在他自己设备、公开记录不记可识别信息，并明说"不是为了证明 World Space 有用" |
+
+另外写入：Private Evidence 默认最小留存（持有人 = 参与者设备，Founder 默认不复制对话、不存原始文件，录音 = NO）；
+招募边界（2 名成年人、非客户/个案/协作者、无压力关系、自愿）；Wave 1 场景优先级与不主动选择的清单。
+
+```text
+RAW_REALITY_FIX = DONE
+PRIVATE/PUBLIC_EVIDENCE_SPLIT = DONE
+PARTICIPANT_NOTICE = DONE
+PUBLIC_CASE_PRIVACY = DONE
+PATH_A_PROTOCOL = APPROVED_FOR_WAVE1
+FACILITATOR = FOUNDER
+WAVE1 EXECUTION = APPROVED   （范围：2 人 × 1 件事，不得扩大）
+REAL HUMAN CASES = 0
+PRODUCTION CHANGE = 0
+DEPLOYMENT = NO
+```
+
+---
+
+**机器施工到此停止。**
+
+Wave 1 已批准，但**授权不等于已经开始**：真人仍是 0。
+下一步不在仓库里——**由 Founder 去现实里找两个人**。
+跑完两人立即停线：只做两个脱敏 Case、`REAL HUMAN CASES = 2`、一份 protocol review、commit + push，然后交总审查。
