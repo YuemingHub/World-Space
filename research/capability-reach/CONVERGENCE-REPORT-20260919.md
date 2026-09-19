@@ -13,7 +13,8 @@
 
 ```text
 candidate branch : candidate/world-space-canonical-20260919
-final SHA        : （本报告提交后填入，见 A7）
+final SHA        : 8be9f92（本轮主体提交；分支 HEAD 可能比它多一个"补记 SHA"的小提交，
+                   以分支 HEAD 为准）
 来源关系          : research @ c6a3486（底）
                     ├─ merge --no-ff v2   @ e8284c4   （生产代码）
                     └─ merge --no-ff main @ 205df01   （仓库基础设施）
@@ -89,6 +90,9 @@ git diff 205df01 HEAD -- .cnb.yml .github/
 本分支是"候选"，不是既成事实。
 切默认分支 / 合入 main，都属 Founder 决定（NC-01），本轮一条都没做。
 ```
+
+本报告 A1 的 `8be9f92` 是本轮主体提交。为了让报告自身能记下 SHA，
+提交后会有一个只改这一行的补记提交——**因此以分支 HEAD 为准**，不要以 8be9f92 为准。
 
 ---
 
