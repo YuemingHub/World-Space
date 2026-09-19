@@ -5,7 +5,7 @@
 <script>document.documentElement.className='js';</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="dark">
-<meta name="theme-color" content="#0E1211">
+<meta name="theme-color" content="#12100C">
 <!-- 与 ymai.love / mingos.cn 同一份承诺：不加载任何外部资源，不发起任何请求。
      页面上所有 http(s) 链接都是「走出去」的出口，不是资源加载。 -->
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:; font-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
@@ -47,14 +47,14 @@
 
 /* ---- 每站主题：只改这一块（MING_VISUAL_LANGUAGE.md §1.4） ---- */
 :root{
-  --bg:#0E1211;         /* 中性偏绿灰：门外天光照进来的工作台 */
-  --bg-1:#111614;
-  --bg-2:#151B19;
-  --bg-deep:#0A0E0C;
+  --bg:#12100C;         /* 房间底色：四站共用 ymai.love 的暖墨 */
+  --bg-1:#15120D;
+  --bg-2:#191510;
+  --bg-deep:#0E0C09;
   --life:#9DB8A5;       /* 门外天光——是出路，不是屋里的灯 */
   --life-soft:rgba(157,184,165,.07);
   --life-line:rgba(157,184,165,.30);
-  --hairline-rgb:224,231,224;
+  --hairline-rgb:235,220,196;
 }
 
 :root{
@@ -117,9 +117,9 @@ ul,ol{margin:0;padding:0;list-style:none}
   gap:12px;padding:calc(12px + env(safe-area-inset-top)) var(--gut) 12px;
   transition:background var(--t-2) var(--ease),border-color var(--t-2) var(--ease);
   border-bottom:1px solid transparent}
-.head.is-stuck{background:rgba(14,18,17,.94);border-bottom-color:var(--hair-2)}
+.head.is-stuck{background:rgba(18,16,12,.94);border-bottom-color:var(--hair-2)}
 @supports (backdrop-filter:blur(1px)){
-  @media (min-width:901px){.head.is-stuck{background:rgba(14,18,17,.78);backdrop-filter:blur(12px) saturate(1.08)}}
+  @media (min-width:901px){.head.is-stuck{background:rgba(18,16,12,.78);backdrop-filter:blur(12px) saturate(1.08)}}
 }
 .brand{position:relative;display:flex;align-items:center;gap:10px;font-family:var(--serif);
   font-size:18px;letter-spacing:.16em}
@@ -156,9 +156,9 @@ ul,ol{margin:0;padding:0;list-style:none}
 .hero-art{position:absolute;inset:0;z-index:0}
 .hero-art svg{width:100%;height:100%}
 .hero-scrim{position:absolute;inset:0;z-index:1;pointer-events:none;
-  background:radial-gradient(ellipse 74% 54% at 50% 46%,rgba(14,18,17,.96) 0%,rgba(14,18,17,.86) 34%,rgba(14,18,17,.46) 64%,rgba(14,18,17,.1) 100%)}
+  background:radial-gradient(ellipse 74% 54% at 50% 46%,rgba(18,16,12,.96) 0%,rgba(18,16,12,.86) 34%,rgba(18,16,12,.46) 64%,rgba(18,16,12,.1) 100%)}
 @media (max-width:900px){
-  .hero-scrim{background:radial-gradient(ellipse 94% 52% at 50% 44%,rgba(14,18,17,.96) 0%,rgba(14,18,17,.84) 42%,rgba(14,18,17,.46) 72%,rgba(14,18,17,.12) 100%)}
+  .hero-scrim{background:radial-gradient(ellipse 94% 52% at 50% 44%,rgba(18,16,12,.96) 0%,rgba(18,16,12,.84) 42%,rgba(18,16,12,.46) 72%,rgba(18,16,12,.12) 100%)}
 }
 .hero-stage{position:relative;z-index:2;width:100%}
 .hero-copy{margin-inline:auto;max-width:37em;text-align:center}
@@ -442,7 +442,7 @@ ul,ol{margin:0;padding:0;list-style:none}
         </linearGradient>
       </defs>
 
-      <rect x="-3000" width="7600" height="900" fill="#0E1211"/>
+      <rect x="-3000" width="7600" height="900" fill="#12100C"/>
 
       <!-- 门外的天光：整个画面唯一亮着的地方 -->
       <g class="js-doorlight">
@@ -514,7 +514,7 @@ ul,ol{margin:0;padding:0;list-style:none}
           <stop offset="100%" stop-color="#9DB8A5" stop-opacity="0"/>
         </radialGradient>
       </defs>
-      <rect x="-2000" width="4520" height="1100" fill="#0E1211"/>
+      <rect x="-2000" width="4520" height="1100" fill="#12100C"/>
       <g class="js-doorlight">
         <ellipse cx="260" cy="330" rx="210" ry="280" fill="url(#doorGlowS)"/>
       </g>

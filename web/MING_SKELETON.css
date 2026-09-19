@@ -9,20 +9,22 @@
 
 /* ============ 每站主题：只改这一块 ============ */
 :root{
-  /* Family Space 基准值。四站各自的替换值见 MING_VISUAL_LANGUAGE.md §1.4 */
-  --bg:#12100C;         /* 底色：本站空间的温度 */
+  /* 房间底色：四站是同一间屋子，一律取 ymai.love 基准值。
+     不逐站另调一种黑——墙色不同，四个站就不是一家人了。 */
+  --bg:#12100C;
   --bg-1:#15120D;
   --bg-2:#191510;
   --bg-deep:#0E0C09;
-  --life:#D9A26A;       /* 生命色：本站唯一强调色 */
+  --hairline-rgb:235,220,196;   /* 随 --bg 共享，不微调 */
+
+  /* 生命色：本站唯一强调色，四站各不同，站点差异只放在这里和画面内容上 */
+  --life:#D9A26A;       /* Family Space 基准：灯下那点暖 */
   --life-soft:rgba(217,162,106,.08);
   --life-line:rgba(217,162,106,.34);
-  --hairline-rgb:235,220,196;  /* hair 的 RGB 三元组，随底色温度微调 */
 }
-/* MingOS:   --bg #0B1016 / --life #C9A96E / --hairline-rgb 232,228,218
-   Self:     --bg #0B0E12 / --life #B7C2C0 / --hairline-rgb 226,230,228
-   World:    --bg #0E1211 / --life #9DB8A5 / --hairline-rgb 224,231,224
-   Family:   保持上方基准，不改 */
+/* 各站只替换 --life 那三行：
+   MingOS #C9A96E 晨光金 / Self #B7C2C0 月白 / World #9DB8A5 门外天光
+   Family 保持基准，不改 */
 /* ============================================= */
 
 :root{
