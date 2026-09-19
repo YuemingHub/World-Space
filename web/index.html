@@ -281,6 +281,11 @@ ul,ol{margin:0;padding:0;list-style:none}
 .foot-bottom{margin-top:clamp(40px,7vh,72px);padding-top:22px;border-top:1px solid var(--hair-2);
   display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
   font-size:13.5px;color:var(--text-3);letter-spacing:.05em}
+/* 备案号：颜色继承这一行的 --text-3，热区用 padding/margin 撑到 ≥44px。 */
+.foot-icp{color:inherit;text-decoration:none;border-bottom:1px solid transparent;
+  padding-block:11px;margin-block:-11px;
+  transition:color var(--t-1) var(--ease),border-color var(--t-1) var(--ease)}
+.foot-icp:hover,.foot-icp:focus-visible{color:var(--text);border-bottom-color:var(--hair)}
 .foot-motto{display:flex;align-items:center;gap:9px;font-family:var(--serif);
   font-size:clamp(15px,1.4vw,17px);letter-spacing:.1em;color:var(--life)}
 .foot-motto .open-mark{width:13px;height:13px;opacity:.8}
@@ -986,6 +991,10 @@ ul,ol{margin:0;padding:0;list-style:none}
 
   <div class="wrap foot-bottom">
     <span>© 2026 World Space</span>
+    <!-- ICP 备案号。同一主体下四个站尾号不同，本站 ymai.fun = -4：
+         ymai.love=-1 / ymai.me=-2 / mingos.cn=-3 / ymai.fun=-4，别改错。
+         按规范链到工信部备案系统。 -->
+    <a class="foot-icp" href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">陕ICP备2026014869号-4</a>
     <span class="foot-motto">
       <svg class="open-mark" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8"/></svg>
       先做出来。
