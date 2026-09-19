@@ -36,3 +36,6 @@ research/capability-reach/**/*.xlsx
 research/capability-reach/**/*.docx
 # 例外：自生成虚构样本允许进（fixtures/ 下由 DATA_BOUNDARY §4 约束内容）
 !research/capability-reach/fixtures/**
+# 例外里的例外：音频二进制仍不进库（脚本可随时重新生成，且"录音默认不进 Git"这条不因 fixture 而放宽）
+research/capability-reach/fixtures/**/*.mp3
+research/capability-reach/fixtures/**/*.wav

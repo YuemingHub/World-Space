@@ -114,6 +114,21 @@ Lab §16 与本轮代码边界都禁止在施工；②真正要修的不是那�
 3. **大陆网络侧可达性 0 实测**：本轮出口在境外（美国西雅图），所有"境外域名/站点在微信里能不能打开"
    都只有商店目录与官方文档作依据。要补一次在中国大陆网络里的浏览器实测。
 
+### NC-09 第二轮（2026-09-19）处置状态
+
+```text
+2 · 三个 fixture        A 数字截图 OCR  → 已跑（三档画质），见 fixtures/RESULTS-ocr-tables.md
+                        C 手写页 OCR    → 已跑（两档画质），见 fixtures/RESULTS-ocr-handwriting.md
+                        B 公开音频转写  → 见统一报告 B 节（结果如实记录，不美化）
+                        三条全部只用本地/免费能力，未消耗任何生产预算与凭据
+
+3 · 大陆网络侧可达性     DONE —— 本机出口实测为中国电信陕西西安（代理与直连出口一致）。
+                        claude.ai 返回 "App unavailable in region"；
+                        chatgpt.com / gemini.google.com 连接失败。
+                        微信内置浏览器一格仍为 UNVERIFIED（本机无微信客户端可自动化，
+                        只用 UA 模拟不构成真机证据，故不填）。
+```
+
 ---
 
 ## NC-10 · `research → main` 之外还有一个镜像面

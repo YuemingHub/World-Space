@@ -85,3 +85,17 @@ V0.2 开发         NOT AUTHORIZED
    修复顺序与判据见 `research/capability-reach/NEXT_CANDIDATES.md` NC-08。
    已实测：带这些旧文案的页面目前公网打不开（www 与 Pages 均 302 到 `/login`），**是潜在风险不是正在发生的误导**。
    真正的问题不是哪句话写错，而是这批主张被记作 2026-09-07"free tiers confirmed"——**核对的保质期只有 8–12 天**。
+
+## 6. 2026-09-19 第二轮追加的事实（收敛 + fixture + 大陆实测）
+
+| 项 | 事实 |
+|---|---|
+| Canonical candidate 分支 | `candidate/world-space-canonical-20260919` 已生成，**等总审查**。来源：以 `research @ c6a3486` 为底，`--no-ff` 并入 `v2 @ e8284c4`（生产代码）与 `main @ 205df01`（cnb 同步基础设施）。**未改默认分支、未合入 main、未部署** |
+| 树级审计 | 三项零差异：`server/ web/v2/ eval/` 与 `e8284c4` 逐字节一致；`research/ docs/ CONSTITUTION.md CURRENT_STATE.md` 与 `c6a3486` 一致；`.cnb.yml` 与 `.github/workflows/` 与 `main` 一致 |
+| 历史 release 可追溯性 | `release/v01-c500f3d` 在 candidate 历史内；`release/v0-85c7b91` 是独立归档分支（不在任何主链历史里），保留在远程，未强行并入以免污染树 |
+| Fixture A（数字截图 OCR） | 已跑，三档画质。结论 `TECHNICAL_FEASIBILITY` + `OPERATOR_OBSERVATION`。见 `fixtures/RESULTS-ocr-tables.md` |
+| Fixture C（手写页 OCR） | 已跑，两档画质。发现"画质越差、错误越干净"（`103.50 → 10350`）。见 `fixtures/RESULTS-ocr-handwriting.md` |
+| Fixture B（音频转写） | 见统一报告 B 节（本轮结果如实记录，不美化） |
+| 大陆网络可达性 | **DONE**（本机出口 = 中国电信陕西西安，代理与直连出口一致）。`claude.ai` 返回 `App unavailable in region`；`chatgpt.com`、`gemini.google.com` 连接失败 |
+| 生产环境 | 本轮**未登录、未部署、未使用任何凭据、未改 env/nginx/预算** |
+| 真人 | 仍为 **0**。Wave 1（2 人 × 1 事）已写成纸面包 `research/capability-reach/WAVE1-PACK.md`，**未执行、未招募** |
