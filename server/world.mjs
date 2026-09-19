@@ -23,7 +23,7 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { dirname, join, normalize, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { evidenceTable, minimizeQuery, filterLive } from './evidence.mjs';
-import { PROVIDERS, KNOWN } from './search.mjs';
+import { PROVIDERS, KNOWN, searchKeys } from './search.mjs';
 import { guard } from './guard.mjs';
 import { validate } from './validate.mjs';
 import { localDate, localMonth } from './date.mjs';
@@ -46,6 +46,7 @@ const CFG = {
   debug: process.env.WS_DEBUG_LLM === '1',
   search: process.env.WS_SEARCH || 'none', // none | fixture | tavily | bocha | aliyun
   searchKey: process.env.WS_SEARCH_KEY || '',
+  searchKey2: process.env.WS_SEARCH_KEY_2 || '', // 备用钥匙：主钥匙被拒（401/403/429）时自动换它
   searchUrl: process.env.WS_SEARCH_URL || '',
   dailyCap: Number(process.env.WS_DAILY_CAP || 50),
   monthlyCapRmb: Number(process.env.WS_MONTHLY_CAP_RMB || 20),
@@ -216,7 +217,7 @@ async function runSearch(s, usage, query) {
     usage.search_calls += 1;
     return { items: JSON.parse(readFileSync(join(HERE, 'fixtures', 'search.json'), 'utf8')).items, note: 'fixture_search', liveness_dropped: 0 };
   }
-  if (!CFG.searchKey) return { skipped: 'no_search_key', items: [] };
+  if (!searchKeys(CFG).length) return { skipped: 'no_search_key', items: [] };
   if (!KNOWN.includes(CFG.search)) return { skipped: 'unknown_provider', items: [] };
   admit(s, usage, CFG.priceSearch); // 搜索按次计价，预留即实价；provider 失败也照计（调用已发生）
   usage.search_calls += 1;
@@ -368,8 +369,11 @@ const server = http.createServer(async (req, res) => {
     const a = AUTH.status();
     return json(res, 200, {
       ok: true, provider: CFG.provider, search: CFG.search, model: CFG.llmModel || 'stub',
-      // 只报告"配没配"，绝不回显 key
-      search_configured: CFG.search === 'fixture' ? true : (CFG.search !== 'none' && !!CFG.searchKey),
+      // 只报告"配没配、配了几把"，绝不回显 key。
+      // ⚠️ 注意（L25）：这里为 true 也**不代表钥匙还能用**——钥匙被撤销时 healthz 看不出来，
+      //    真要靠一次真实搜索才验得出来。
+      search_configured: CFG.search === 'fixture' ? true : (CFG.search !== 'none' && searchKeys(CFG).length > 0),
+      search_keys: searchKeys(CFG).length,
       origins_configured: CFG.allowedOrigins.length > 0, rate_limit_per_min: CFG.rateLimitPerMin,
       liveness: CFG.liveness, trusted_proxy: CFG.trustProxy,
       auth: a.enabled ? (a.ready ? 'ready' : `broken:${a.reason}`) : 'off',
