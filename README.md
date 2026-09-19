@@ -31,6 +31,9 @@
 | 真人 Case 编号、模板、台账、数据边界 | [`research/capability-reach/`](research/capability-reach/) |
 | 2026-09 能力供应侧基线（**无真人证据**） | [`docs/CAPABILITY_SUPPLY_BASELINE_20260919.md`](docs/CAPABILITY_SUPPLY_BASELINE_20260919.md) |
 | 本轮长跑的统一报告（进真人之前的清单） | [`research/capability-reach/LONGRUN-REPORT-20260919.md`](research/capability-reach/LONGRUN-REPORT-20260919.md) |
+| **收敛候选树 + 三个 fixture + 大陆实测（A–H 八节）** | [`research/capability-reach/CONVERGENCE-REPORT-20260919.md`](research/capability-reach/CONVERGENCE-REPORT-20260919.md) |
+| Wave 1 操作包（**只准备，未执行**） | [`research/capability-reach/WAVE1-PACK.md`](research/capability-reach/WAVE1-PACK.md) |
+| 资源目录为什么冻结 + 保鲜四字段 | [`catalog/README.md`](catalog/README.md) |
 | 历史 V2 版本内核（只约束 `v2` 那条实验线） | [`docs/v2/NORTH_STAR.md`](docs/v2/NORTH_STAR.md) |
 | V1 静态站设计真源（已不是线上形态） | [`docs/design/CURRENT_DESIGN.md`](docs/design/CURRENT_DESIGN.md) |
 | V0.1 上线与切流的可核对事实 | [`docs/v2/release-c500f3d/CUTOVER-RECORD.md`](docs/v2/release-c500f3d/CUTOVER-RECORD.md) |
