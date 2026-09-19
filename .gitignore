@@ -16,6 +16,10 @@ Thumbs.db
 var/
 eval/out/
 
+# Local working notes (never part of the product)
+.workbuddy/
+.workbuddy-ai/
+
 # 真人研究原始资料：默认不进 Git（见 research/capability-reach/DATA_BOUNDARY.md）
 # 只约束研究目录，不全局屏蔽音频/图片，以免影响仓库其他资产
 research/capability-reach/raw/
