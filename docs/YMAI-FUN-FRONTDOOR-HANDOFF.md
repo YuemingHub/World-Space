@@ -18,7 +18,7 @@
 | 公网 `GET /` | **302 → `/login`**（`world.mjs:408-410`：未登录或门坏了就去登录页） |
 | 公网 `GET /web/index.html` | **404**（因为静态根是 `web/v2`，它会去找 `web/v2/web/index.html`） |
 | `v2` 分支的 `web/v2/index.html` | 1335 字节，是个带 `app.js` / `render.mjs` 的应用外壳，不是静态门面页 |
-| `main` 这条线的 `web/index.html` | 201 KB，就是统一设计轮做的那张静态门面页（`design/ming-language-20260919`，HEAD `24cb33c`） |
+| `main` 这条线的 `web/index.html` | 201 KB，就是统一设计轮做的那张静态门面页（分支 `design/ming-language-20260919`） |
 | 两条线的关系 | `git merge-base --is-ancestor origin/v2 HEAD` 不成立 —— 互不包含 |
 
 ## 要谁决定什么
