@@ -1,7 +1,7 @@
 {
   "version": "3.0.0",
-  "last_reviewed_at": "2026-09-07",
-  "reviewer_note": "Macro 7 pruning (2026-09-07): removed bolt_new, replit (covered by v0 simpler / cursor deeper), gamma, perplexity (china-restricted alternatives with working domestic defaults), gpt_academic (maintenance unclear + API key), browser_use (requires API key + setup, no UI goal) — §23 rules: stale / not best for audience / tech-circle fashion. All 11 entries re-verified reachable on 2026-09-07 (chat.deepseek.com 429 and gaoding.com 405 on curl are bot-shield artifacts, real fetches confirmed); doubao/deepseek/gaoding/xingtu/yike_album free tiers confirmed; prices NOT hardcoded — use cost_category. used_in 反映当前产品（web 首页入口/4 步路径/目标面板）实际使用位置。2026-09-11: v0 pricing re-verified (free plan $0, $5 monthly credits, 7 msg/day) and v0 now surfaced in goal-web-panel as the publish-online alternative; doubao/deepseek/stirling used_in updated for the four new goal panels (facts unchanged from 09-06/07 verification). 2026-09-11 Mission 2: fallback path shrunk to 3 steps (step-2-make-it-better replaces step-2-make-something-real; step-4-let-tools-work removed — organize/PDF judgment lives in goal-organize-panel). 2026-09-11 Mission 6: removed 4 product-unused bench entries (n8n, notion, excalidraw, cursor — none referenced by web/paths; recommendation needed periodic re-verification with zero user value). If a future goal needs them, re-research then — the world will have changed anyway. 7 entries remain, all product-surfaced.",
+  "last_reviewed_at": "2026-09-11",
+  "reviewer_note": "Macro 7 pruning (2026-09-07): removed bolt_new, replit (covered by v0 simpler / cursor deeper), gamma, perplexity (china-restricted alternatives with working domestic defaults), gpt_academic (maintenance unclear + API key), browser_use (requires API key + setup, no UI goal) — §23 rules: stale / not best for audience / tech-circle fashion. All 11 entries re-verified reachable on 2026-09-07 (chat.deepseek.com 429 and gaoding.com 405 on curl are bot-shield artifacts, real fetches confirmed); doubao/deepseek/gaoding/xingtu/yike_album free tiers confirmed; prices NOT hardcoded — use cost_category. used_in 反映当前产品（web 首页入口/4 步路径/目标面板）实际使用位置。2026-09-11: v0 pricing re-verified (free plan $0, $5 monthly credits, 7 msg/day) and v0 now surfaced in goal-web-panel as the publish-online alternative; doubao/deepseek/stirling used_in updated for the four new goal panels (facts unchanged from 09-06/07 verification). 2026-09-11 Mission 2: fallback path shrunk to 3 steps (step-2-make-it-better replaces step-2-make-something-real; step-4-let-tools-work removed — organize/PDF judgment lives in goal-organize-panel). 2026-09-11 Mission 6: removed 4 product-unused bench entries (n8n, notion, excalidraw, cursor — none referenced by web/paths; recommendation needed periodic re-verification with zero user value). If a future goal needs them, re-research then — the world will have changed anyway. 2026-09-11 Reality Batch 1: added tingwu (通义听悟) — 会议录音场景压力测试发现缺口，官方计费文档核证新用户免费 90 天、上传文件转写每天免费 2 小时，进入 goal-organize-panel 一个 choice；如实标注要登录、90 天后收费。8 entries, all product-surfaced. 2026-09-12: 豆包付费计划（2026-05 上线，新京报报道）经免费策略监控触发核实——免费版同一套模型、转每日积分额度制，「免费开始」仍成立；doubao 条目如实更新并给海报面板补「每天免费次数有限」标注。2026-09-12 复核预分诊（约 2026-10 中旬全量复核时按此顺序）：① yike_album（丢照片投诉+官网 SSL 异常史，声誉风险最高）② gaoding（水印/商用授权/免费额度易漂移）③ tingwu（90 天试用条款在走钟）④ stirling_pdf（桌面版下载页状态）⑤ v0（额度）⑥ xingtu ⑦ doubao（2026-09-12 刚核）⑧ deepseek（2026-09-12 刚核）。2026-09-12 Reality Batch 7: added jianying（剪映）——「把照片做成视频」场景压测发现缺口，官网核证「一键成片」在售、基础免费，以一个 choice 进入 goal-photo-panel；如实标注部分模板/音色要会员。9 entries, all product-surfaced.",
   "resources": [
     {
       "id": "doubao",
@@ -16,9 +16,9 @@
       "license": "Proprietary (hosted service)",
       "maintenance_status": "active",
       "difficulty": "very_easy",
-      "cost_category": "免费",
-      "pricing_checked_at": "2026-09-06",
-      "pricing_source": "https://www.doubao.com",
+      "cost_category": "免费开始（2026-05 上线付费计划 68/200/500 元月，免费版转每日额度制，文字与图片生成仍可免费开始）",
+      "pricing_checked_at": "2026-09-12",
+      "pricing_source": "https://www.bjnews.com.cn/detail/1778131853129431.html",
       "requires_api_key": false,
       "china_accessibility": "direct",
       "recommendation_level": "default",
@@ -27,12 +27,13 @@
         "step-2-make-it-better",
         "goal-write-panel",
         "goal-web-panel",
-        "goal-organize-panel"
+        "goal-organize-panel",
+        "goal-poster-panel"
       ],
       "best_for": "第一次用 AI：聊天、写文案、写文章、做简单网页，全中文，手机电脑都能用",
-      "not_for": "需要核查信息来源的严肃查证（用 DeepSeek 更合适）",
-      "why_selected": "对中国普通用户门槛最低：国内直接打开、全中文、免费、手机号/微信即可登录，对话里能直接生成网页并显示预览。",
-      "last_reviewed_at": "2026-09-07"
+      "not_for": "需要核查信息来源的严肃查证（用 DeepSeek 更合适）；每天大量生成图片/视频的重度创作（免费额度按日积分限制）",
+      "why_selected": "对中国普通用户门槛最低：国内直接打开、全中文、免费、手机号/微信即可登录，对话里能直接生成网页并显示预览。2026-09-12 如实更新：豆包 2026-05 上线付费计划（新京报等公开报道），免费版同一套模型、每日积分额度制，免费开始仍然成立；海报面板已加「每天免费次数有限，用完等明天」。",
+      "last_reviewed_at": "2026-09-12"
     },
     {
       "id": "v0",
@@ -56,7 +57,7 @@
       "recommendation_level": "default",
       "best_for": "完全不会编程，但想快速做出一个能看的网页或小应用",
       "not_for": "需要复杂后端逻辑或私有数据的项目",
-      "why_selected": "门槛最低：打开网页，打字，出结果。Vercel 出品，部署一体化。对普通人是目前最省事的起点。",
+      "why_selected": "门槛最低：打开网页，打字，出结果。Vercel 出品，部署一体化。对普通人是目前最省事的起点。2026-09-12 链路实测：国内网络打开可能偏慢（浏览器两次 10s 超时；服务器端可达），页面上「发布上线」处已如实加提示；它只是豆包之后的自愿进阶，不是第一步。",
       "used_in": [
         "goal-web-panel"
       ],
@@ -144,8 +145,8 @@
       ],
       "best_for": "要把准确信息（价格、时间、地址、电话）放进海报/招生图/促销图的人",
       "not_for": "追求专业设计精度和完全商用授权保障的场景",
-      "why_selected": "模板改字是普通人把准确信息放上图的最低门槛路径。与创客贴、图怪兽同类（三方同质，选一家即可，2026-09-07 核对）。如实标注：免费模板够用，但部分模板导出带水印、商用要看授权。",
-      "last_reviewed_at": "2026-09-07"
+      "why_selected": "模板改字是普通人把准确信息放上图的最低门槛路径。与创客贴、图怪兽同类（三方同质，选一家即可，2026-09-07 核对）。如实标注：免费模板够用，但部分模板导出带水印、商用要看授权。2026-09-12 复查：官方会员页确认「高清无水印下载、商用授权」为会员权益——现有标注仍准确，无恶化。",
+      "last_reviewed_at": "2026-09-12"
     },
     {
       "id": "yike_album",
@@ -171,7 +172,7 @@
       ],
       "best_for": "手机照片多、想要大空间备份的人",
       "not_for": "只有少量照片的人（手机自带云相册就够）；把唯一副本只存在它这里的人",
-      "why_selected": "百度网盘团队出品、官方宣传免费无限空间、带相似图清理。如实标注：部分功能要开会员；黑猫投诉平台有丢照片投诉，重要照片建议存两个地方。官网域名 yike.com 于 2026-09-07 出现 SSL 异常，故以 App Store 官方页为来源。",
+      "why_selected": "百度网盘团队出品、官方宣传免费无限空间、带相似图清理。如实标注：部分功能要开会员；黑猫投诉平台有丢照片投诉，重要照片建议存两个地方。官网域名 yike.com 于 2026-09-07 出现 SSL 异常，故以 App Store 官方页为来源。2026-09-12 复查：apex 偶通 200 但 www 仍失败、TLS 仍有错误信号——异常未完全恢复，继续以 App Store 页为准，维持「重要照片存两处」警示。",
       "last_reviewed_at": "2026-09-07"
     },
     {
@@ -197,10 +198,65 @@
       "used_in": [
         "goal-photo-panel"
       ],
-      "best_for": "手机上修图、调色、把照片变好看",
+      "best_for": "手机上修图、调色、把照片变好看；老照片翻新变清晰",
       "not_for": "专业摄影后期精修",
-      "why_selected": "字节出品、免费、中文、手机端门槛最低；与剪映同系配合顺滑。2026-09-07 核对官网与 App Store 在架状态。",
+      "why_selected": "字节出品、免费、中文、手机端门槛最低；与剪映同系配合顺滑。2026-09-07 核对官网与 App Store 在架状态。2026-09-12 补核：自带「照片修复/老照片翻新」（公开评测一致），修图面板文案已加「老照片翻新变清晰」。",
       "last_reviewed_at": "2026-09-07"
+    },
+    {
+      "id": "tingwu",
+      "name": "通义听悟",
+      "goal": "D_automate",
+      "one_line": "上传录音自动转成文字、还能总结重点，阿里出品。",
+      "github": null,
+      "official_url": "https://tingwu.aliyun.com",
+      "source_urls": [
+        "https://tingwu.aliyun.com",
+        "https://help.aliyun.com/zh/tingwu/pricing-and-billing-rules"
+      ],
+      "license": "Proprietary (hosted service)",
+      "maintenance_status": "active",
+      "difficulty": "easy",
+      "cost_category": "可以免费开始（新用户免费 90 天）",
+      "pricing_checked_at": "2026-09-11",
+      "pricing_source": "https://help.aliyun.com/zh/tingwu/pricing-and-billing-rules",
+      "requires_api_key": false,
+      "china_accessibility": "direct",
+      "recommendation_level": "default",
+      "used_in": [
+        "goal-organize-panel"
+      ],
+      "best_for": "会议、访谈、课堂的录音要变成文字纪要的人",
+      "not_for": "每天要转大量录音的人（文件转写免费额度每天 2 小时，90 天后收费）",
+      "why_selected": "官方计费文档核证（2026-09-11）：新用户免费试用 90 天，上传音视频文件转写每天免费 2 小时、实时记录每天 48 小时；转文字+总结一体化，国内直连。如实标注：要登录，90 天后收费。豆包「录音转写」登录态未核证，未采用。",
+      "last_reviewed_at": "2026-09-11"
+    },
+    {
+      "id": "jianying",
+      "name": "剪映",
+      "goal": "F_organize_photos",
+      "one_line": "字节出品的视频剪辑 App，「一键成片」把照片自动配乐做成视频。",
+      "github": null,
+      "official_url": "https://www.jianying.com",
+      "source_urls": [
+        "https://www.jianying.com"
+      ],
+      "license": "Proprietary",
+      "maintenance_status": "active",
+      "difficulty": "very_easy",
+      "cost_category": "免费（部分模板/AI 音色要会员）",
+      "pricing_checked_at": "2026-09-12",
+      "pricing_source": "https://www.jianying.com",
+      "requires_api_key": false,
+      "china_accessibility": "direct",
+      "recommendation_level": "default",
+      "used_in": [
+        "goal-photo-panel"
+      ],
+      "best_for": "把手机里的照片做成能发朋友圈/群的音乐相册、展示视频",
+      "not_for": "精细专业剪辑；需要完全免费无任何会员提示的重度使用",
+      "why_selected": "国民级剪辑工具，官网主推「一键成片/图文成片」零门槛（2026-09-12 官网核证功能在售；基础功能免费、部分高级模板与 AI 配音音色需会员，如实标注）。仅以「一键成片」进照片面板，不推荐复杂剪辑。",
+      "last_reviewed_at": "2026-09-12"
     }
   ]
 }
