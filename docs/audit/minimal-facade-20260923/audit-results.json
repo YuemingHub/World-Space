@@ -1,0 +1,926 @@
+{
+  "page": "D:\\服务器\\repos\\World-Space\\web\\index.html",
+  "checks": [
+    {
+      "name": "zero_nonlocal_requests",
+      "expected": 0,
+      "actual": 0,
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "name": "zero_page_errors",
+      "expected": 0,
+      "actual": 0,
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "name": "single_h1",
+      "expected": 1,
+      "actual": 1,
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "no_dead_controls",
+      "expected": 0,
+      "actual": 0,
+      "pass": true,
+      "detail": "empty-href=0 broken-aria=0"
+    },
+    {
+      "name": "structure_matches_this_rounds_shape",
+      "expected": "9 rows / 22 subs / 31 details / 8 copy buttons",
+      "actual": "9 rows / 22 subs / 31 details / 8 copy",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "accordion_row-write",
+      "expected": "only row-write open",
+      "actual": "1 open: ['row-write']",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "accordion_row-web",
+      "expected": "only row-web open",
+      "actual": "1 open: ['row-web']",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "accordion_row-find",
+      "expected": "only row-find open",
+      "actual": "1 open: ['row-find']",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "accordion_row-organize",
+      "expected": "only row-organize open",
+      "actual": "1 open: ['row-organize']",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "accordion_row-poster",
+      "expected": "only row-poster open",
+      "actual": "1 open: ['row-poster']",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "accordion_row-photo",
+      "expected": "only row-photo open",
+      "actual": "1 open: ['row-photo']",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "accordion_row-ocr",
+      "expected": "only row-ocr open",
+      "actual": "1 open: ['row-ocr']",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "accordion_row-start",
+      "expected": "only row-start open",
+      "actual": "1 open: ['row-start']",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "accordion_row-what",
+      "expected": "only row-what open",
+      "actual": "1 open: ['row-what']",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "goal_rows_have_a_layer2_block",
+      "expected": ">=1 labelled block; photo/ocr carry >=3 sub-choices",
+      "actual": {
+        "row-write": [
+          2,
+          2
+        ],
+        "row-web": [
+          2,
+          2
+        ],
+        "row-find": [
+          2,
+          2
+        ],
+        "row-organize": [
+          2,
+          2
+        ],
+        "row-poster": [
+          2,
+          2
+        ],
+        "row-photo": [
+          1,
+          5
+        ],
+        "row-ocr": [
+          1,
+          4
+        ]
+      },
+      "pass": true,
+      "detail": "report §3 wording '每行都有 现在最简单的做法' is literal-false for row-poster ('先选一条路')"
+    },
+    {
+      "name": "layer3_substantive_after_open",
+      "expected": "every sub body >20 chars",
+      "actual": {
+        "row-write": [
+          156,
+          63
+        ],
+        "row-web": [
+          59,
+          147
+        ],
+        "row-find": [
+          60,
+          126
+        ],
+        "row-organize": [
+          24,
+          102
+        ],
+        "row-poster": [
+          46,
+          93
+        ],
+        "row-photo": [
+          77,
+          41,
+          71,
+          31,
+          117
+        ],
+        "row-ocr": [
+          62,
+          66,
+          29,
+          68
+        ],
+        "row-start": [
+          153,
+          168,
+          185
+        ],
+        "row-what": []
+      },
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "sub_details_per_goal_row_2_to_5",
+      "expected": "2..5 subs in each of the 7 goal rows",
+      "actual": {
+        "row-write": 2,
+        "row-web": 2,
+        "row-find": 2,
+        "row-organize": 2,
+        "row-poster": 2,
+        "row-photo": 5,
+        "row-ocr": 4
+      },
+      "pass": true,
+      "detail": "report §3 claims '每行 2-5 枚 <details class=\"sub\">'"
+    },
+    {
+      "name": "rows_with_copy_box",
+      "expected": "6 rows (write/web/find/organize/poster/start)",
+      "actual": 6,
+      "pass": true,
+      "detail": "total copy buttons = 8"
+    },
+    {
+      "name": "rows_with_tool_link",
+      "expected": "7 rows",
+      "actual": 7,
+      "pass": true,
+      "detail": "total tool links = 11"
+    },
+    {
+      "name": "deeplink_web_opens_only_row_web",
+      "expected": "['row-web']",
+      "actual": {
+        "open": [
+          "row-web"
+        ],
+        "hash": "#web"
+      },
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "copy_button_feedback",
+      "expected": "已复制",
+      "actual": "已复制",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "zero_horizontal_overflow_all_widths",
+      "expected": "0px",
+      "actual": {
+        "320": 0,
+        "375": 0,
+        "390": 0,
+        "414": 0,
+        "768": 0,
+        "1440": 0
+      },
+      "pass": true,
+      "detail": "{320: 'rect.[object SVGAnimatedString]', 375: 'rect.[object SVGAnimatedString]', 390: 'rect.[object SVGAnimatedString]', 414: 'rect.[object SVGAnimatedString]', 768: 'rect.[object SVGAnimatedString]', 1440: 'rect.[object SVGAnimatedString]'}"
+    },
+    {
+      "name": "contrast_no_failures_4_states",
+      "expected": 0,
+      "actual": 0,
+      "pass": true,
+      "detail": "{'closed_1440': '206 el / min 5.41', 'closed_375': '206 el / min 5.41', 'open_1440': '206 el / min 5.41', 'open_375': '206 el / min 5.41'}"
+    },
+    {
+      "name": "contrast_allopen_actually_rendered_more",
+      "expected": "all-open text > closed text",
+      "actual": [
+        454,
+        812
+      ],
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "icp_number_on_page",
+      "expected": "陕ICP备2026014869号-4",
+      "actual": true,
+      "pass": true,
+      "detail": "陕ICP备2026014869号-4"
+    },
+    {
+      "name": "external_blank_links_use_noopener",
+      "expected": 0,
+      "actual": 0,
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "name": "tab_focus_lands_on_real_control",
+      "expected": true,
+      "actual": "SUMMARY#.row__t",
+      "pass": true,
+      "detail": "SUMMARY#.row__t"
+    },
+    {
+      "name": "nojs_details_still_toggle",
+      "expected": "no <details> needs JS",
+      "actual": {
+        "details": 31,
+        "open": 0,
+        "visible": 510,
+        "deadAria": 0,
+        "scriptDependent": 0,
+        "firstText": "你想做什么事？"
+      },
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "nojs_deeplink_behavior",
+      "expected": "[] (no JS, nothing auto-opens) or ['row-web']",
+      "actual": [],
+      "pass": true,
+      "detail": "recorded as-is"
+    }
+  ],
+  "notes": [
+    {
+      "dom_counts": {
+        "details": 31,
+        "openByDefault": 0,
+        "subDetails": 22,
+        "rows": 9,
+        "namedSubGroups": {
+          "ws-goal": 9,
+          "ws-goal-more": 19,
+          "ws-steps": 3
+        },
+        "h1": 1,
+        "copies": 8,
+        "links": 17,
+        "inputs": 0,
+        "ariaControlsWithoutTarget": 0,
+        "hrefEmptyButtons": 0,
+        "docHeight": 1902
+      }
+    },
+    {
+      "rows": [
+        {
+          "openCount": 1,
+          "openIds": [
+            "row-write"
+          ],
+          "labels": [
+            "现在最简单的做法",
+            "第一步"
+          ],
+          "has_layer2": true,
+          "has_step1": true,
+          "subCount": 2,
+          "subTextLens": [
+            156,
+            63
+          ],
+          "copyBtns": 1,
+          "toolLinks": 1,
+          "visibleChars": 138,
+          "row": "row-write"
+        },
+        {
+          "openCount": 1,
+          "openIds": [
+            "row-web"
+          ],
+          "labels": [
+            "现在最简单的做法",
+            "第一步"
+          ],
+          "has_layer2": true,
+          "has_step1": true,
+          "subCount": 2,
+          "subTextLens": [
+            59,
+            147
+          ],
+          "copyBtns": 1,
+          "toolLinks": 2,
+          "visibleChars": 166,
+          "row": "row-web"
+        },
+        {
+          "openCount": 1,
+          "openIds": [
+            "row-find"
+          ],
+          "labels": [
+            "现在最简单的做法",
+            "第一步"
+          ],
+          "has_layer2": true,
+          "has_step1": true,
+          "subCount": 2,
+          "subTextLens": [
+            60,
+            126
+          ],
+          "copyBtns": 1,
+          "toolLinks": 1,
+          "visibleChars": 192,
+          "row": "row-find"
+        },
+        {
+          "openCount": 1,
+          "openIds": [
+            "row-organize"
+          ],
+          "labels": [
+            "现在最简单的做法",
+            "第一步"
+          ],
+          "has_layer2": true,
+          "has_step1": true,
+          "subCount": 2,
+          "subTextLens": [
+            24,
+            102
+          ],
+          "copyBtns": 1,
+          "toolLinks": 2,
+          "visibleChars": 220,
+          "row": "row-organize"
+        },
+        {
+          "openCount": 1,
+          "openIds": [
+            "row-poster"
+          ],
+          "labels": [
+            "先选一条路",
+            "第一步"
+          ],
+          "has_layer2": false,
+          "has_step1": true,
+          "subCount": 2,
+          "subTextLens": [
+            46,
+            93
+          ],
+          "copyBtns": 1,
+          "toolLinks": 2,
+          "visibleChars": 264,
+          "row": "row-poster"
+        },
+        {
+          "openCount": 1,
+          "openIds": [
+            "row-photo"
+          ],
+          "labels": [
+            "现在最简单的做法"
+          ],
+          "has_layer2": true,
+          "has_step1": false,
+          "subCount": 5,
+          "subTextLens": [
+            77,
+            41,
+            71,
+            31,
+            117
+          ],
+          "copyBtns": 0,
+          "toolLinks": 0,
+          "visibleChars": 89,
+          "row": "row-photo"
+        },
+        {
+          "openCount": 1,
+          "openIds": [
+            "row-ocr"
+          ],
+          "labels": [
+            "现在最简单的做法"
+          ],
+          "has_layer2": true,
+          "has_step1": false,
+          "subCount": 4,
+          "subTextLens": [
+            62,
+            66,
+            29,
+            68
+          ],
+          "copyBtns": 0,
+          "toolLinks": 0,
+          "visibleChars": 69,
+          "row": "row-ocr"
+        },
+        {
+          "openCount": 1,
+          "openIds": [
+            "row-start"
+          ],
+          "labels": [
+            "先一句",
+            "做到这里",
+            "说清楚一点"
+          ],
+          "has_layer2": false,
+          "has_step1": true,
+          "subCount": 3,
+          "subTextLens": [
+            153,
+            168,
+            185
+          ],
+          "copyBtns": 3,
+          "toolLinks": 2,
+          "visibleChars": 219,
+          "row": "row-start"
+        },
+        {
+          "openCount": 1,
+          "openIds": [
+            "row-what"
+          ],
+          "labels": [],
+          "has_layer2": false,
+          "has_step1": true,
+          "subCount": 0,
+          "subTextLens": [],
+          "copyBtns": 0,
+          "toolLinks": 1,
+          "visibleChars": 377,
+          "row": "row-what"
+        }
+      ]
+    },
+    {
+      "same_row_sub_exclusivity": {
+        "subsInRow": 2,
+        "openTogether": 1,
+        "names": [
+          "ws-goal-more",
+          "ws-goal-more"
+        ]
+      }
+    },
+    {
+      "overflow": {
+        "320": {
+          "docOverflow": 0,
+          "worstPx": 839,
+          "worstEl": "rect.[object SVGAnimatedString]",
+          "scrollHeight": 2600
+        },
+        "375": {
+          "docOverflow": 0,
+          "worstPx": 811,
+          "worstEl": "rect.[object SVGAnimatedString]",
+          "scrollHeight": 2479
+        },
+        "390": {
+          "docOverflow": 0,
+          "worstPx": 804,
+          "worstEl": "rect.[object SVGAnimatedString]",
+          "scrollHeight": 2479
+        },
+        "414": {
+          "docOverflow": 0,
+          "worstPx": 792,
+          "worstEl": "rect.[object SVGAnimatedString]",
+          "scrollHeight": 2479
+        },
+        "768": {
+          "docOverflow": 0,
+          "worstPx": 615,
+          "worstEl": "rect.[object SVGAnimatedString]",
+          "scrollHeight": 1807
+        },
+        "1440": {
+          "docOverflow": 0,
+          "worstPx": 1332,
+          "worstEl": "rect.[object SVGAnimatedString]",
+          "scrollHeight": 1902
+        }
+      },
+      "doc_height_by_width": {
+        "320": 2600,
+        "375": 2479,
+        "390": 2479,
+        "414": 2479,
+        "768": 1807,
+        "1440": 1902
+      }
+    },
+    {
+      "contrast": {
+        "closed_1440": {
+          "measured": 206,
+          "failures": 0,
+          "min_ratio": 5.41,
+          "rendered_text_chars": 454,
+          "doc_height": 1902,
+          "worst": [
+            {
+              "tag": "SPAN",
+              "cls": "label",
+              "px": 13,
+              "text": "我和世界",
+              "ratio": 5.41,
+              "need": 4.5
+            },
+            {
+              "tag": "I",
+              "cls": "row__go",
+              "px": 12,
+              "text": "→",
+              "ratio": 5.41,
+              "need": 4.5
+            },
+            {
+              "tag": "SPAN",
+              "cls": "k",
+              "px": 12,
+              "text": "现在最简单的做法",
+              "ratio": 5.41,
+              "need": 4.5
+            },
+            {
+              "tag": "SPAN",
+              "cls": "k",
+              "px": 12,
+              "text": "第一步",
+              "ratio": 5.41,
+              "need": 4.5
+            },
+            {
+              "tag": "I",
+              "cls": "",
+              "px": 12,
+              "text": "↗",
+              "ratio": 5.41,
+              "need": 4.5
+            }
+          ],
+          "bad_items": []
+        },
+        "closed_375": {
+          "measured": 206,
+          "failures": 0,
+          "min_ratio": 5.41,
+          "rendered_text_chars": 454,
+          "doc_height": 2479,
+          "worst": [
+            {
+              "tag": "SPAN",
+              "cls": "label",
+              "px": 12,
+              "text": "我和世界",
+              "ratio": 5.41,
+              "need": 4.5
+            },
+            {
+              "tag": "I",
+              "cls": "row__go",
+              "px": 12,
+              "text": "→",
+              "ratio": 5.41,
+              "need": 4.5
+            },
+            {
+              "tag": "SPAN",
+              "cls": "k",
+              "px": 12,
+              "text": "现在最简单的做法",
+              "ratio": 5.41,
+              "need": 4.5
+            },
+            {
+              "tag": "SPAN",
+              "cls": "k",
+              "px": 12,
+              "text": "第一步",
+              "ratio": 5.41,
+              "need": 4.5
+            },
+            {
+              "tag": "I",
+              "cls": "",
+              "px": 12,
+              "text": "↗",
+              "ratio": 5.41,
+              "need": 4.5
+            }
+          ],
+          "bad_items": []
+        },
+        "open_1440": {
+          "measured": 206,
+          "failures": 0,
+          "min_ratio": 5.41,
+          "rendered_text_chars": 812,
+          "doc_height": 2745,
+          "worst": [
+            {
+              "tag": "SPAN",
+              "cls": "label",
+              "px": 13,
+              "text": "我和世界",
+              "ratio": 5.41,
+              "need": 4.5
+            },
+            {
+              "tag": "I",
+              "cls": "row__go",
+              "px": 12,
+              "text": "→",
+              "ratio": 5.41,
+              "need": 4.5
+            },
+            {
+              "tag": "SPAN",
+              "cls": "k",
+              "px": 12,
+              "text": "现在最简单的做法",
+              "ratio": 5.41,
+              "need": 4.5
+            },
+            {
+              "tag": "SPAN",
+              "cls": "k",
+              "px": 12,
+              "text": "第一步",
+              "ratio": 5.41,
+              "need": 4.5
+            },
+            {
+              "tag": "I",
+              "cls": "",
+              "px": 12,
+              "text": "↗",
+              "ratio": 5.41,
+              "need": 4.5
+            }
+          ],
+          "bad_items": []
+        },
+        "open_375": {
+          "measured": 206,
+          "failures": 0,
+          "min_ratio": 5.41,
+          "rendered_text_chars": 826,
+          "doc_height": 3668,
+          "worst": [
+            {
+              "tag": "SPAN",
+              "cls": "label",
+              "px": 12,
+              "text": "我和世界",
+              "ratio": 5.41,
+              "need": 4.5
+            },
+            {
+              "tag": "I",
+              "cls": "row__go",
+              "px": 12,
+              "text": "→",
+              "ratio": 5.41,
+              "need": 4.5
+            },
+            {
+              "tag": "SPAN",
+              "cls": "k",
+              "px": 12,
+              "text": "现在最简单的做法",
+              "ratio": 5.41,
+              "need": 4.5
+            },
+            {
+              "tag": "SPAN",
+              "cls": "k",
+              "px": 12,
+              "text": "第一步",
+              "ratio": 5.41,
+              "need": 4.5
+            },
+            {
+              "tag": "I",
+              "cls": "",
+              "px": 12,
+              "text": "↗",
+              "ratio": 5.41,
+              "need": 4.5
+            }
+          ],
+          "bad_items": []
+        }
+      }
+    },
+    {
+      "content_stats": {
+        "closed_chars": 454,
+        "icp_present": true,
+        "icp_line": "陕ICP备2026014869号-4",
+        "links": [
+          {
+            "href": "https://www.doubao.com/",
+            "text": "",
+            "target": "_blank",
+            "rel": "noopener",
+            "inRow": true
+          },
+          {
+            "href": "https://www.doubao.com/",
+            "text": "",
+            "target": "_blank",
+            "rel": "noopener",
+            "inRow": true
+          },
+          {
+            "href": "https://v0.dev/",
+            "text": "",
+            "target": "_blank",
+            "rel": "noopener",
+            "inRow": true
+          },
+          {
+            "href": "https://chat.deepseek.com/",
+            "text": "",
+            "target": "_blank",
+            "rel": "noopener",
+            "inRow": true
+          },
+          {
+            "href": "https://www.doubao.com/",
+            "text": "",
+            "target": "_blank",
+            "rel": "noopener",
+            "inRow": true
+          },
+          {
+            "href": "https://stirling.com/",
+            "text": "",
+            "target": "_blank",
+            "rel": "noopener",
+            "inRow": true
+          },
+          {
+            "href": "https://www.gaoding.com/",
+            "text": "",
+            "target": "_blank",
+            "rel": "noopener",
+            "inRow": true
+          },
+          {
+            "href": "https://www.doubao.com/chat/create-image",
+            "text": "",
+            "target": "_blank",
+            "rel": "noopener",
+            "inRow": true
+          },
+          {
+            "href": "https://www.doubao.com/",
+            "text": "",
+            "target": "_blank",
+            "rel": "noopener",
+            "inRow": true
+          },
+          {
+            "href": "https://chat.deepseek.com/",
+            "text": "",
+            "target": "_blank",
+            "rel": "noopener",
+            "inRow": true
+          },
+          {
+            "href": "https://mingos.cn/",
+            "text": "",
+            "target": "",
+            "rel": "noopener",
+            "inRow": true
+          },
+          {
+            "href": "https://mingos.cn/",
+            "text": "我们为什么做这些MINGOS.CN",
+            "target": "",
+            "rel": "noopener",
+            "inRow": false
+          },
+          {
+            "href": "https://ymai.me/",
+            "text": "我和自己YMAI.ME",
+            "target": "",
+            "rel": "noopener",
+            "inRow": false
+          },
+          {
+            "href": "https://ymai.love/",
+            "text": "我和我家YMAI.LOVE",
+            "target": "",
+            "rel": "noopener",
+            "inRow": false
+          },
+          {
+            "href": "https://beian.miit.gov.cn/",
+            "text": "陕ICP备2026014869号-4",
+            "target": "_blank",
+            "rel": "noopener noreferrer",
+            "inRow": false
+          }
+        ]
+      }
+    },
+    {
+      "outbound_hosts": [
+        "beian.miit.gov.cn",
+        "chat.deepseek.com",
+        "mingos.cn",
+        "stirling.com",
+        "v0.dev",
+        "www.doubao.com",
+        "www.gaoding.com",
+        "ymai.love",
+        "ymai.me"
+      ]
+    },
+    {
+      "keyboard": {
+        "focusables": 56,
+        "native": 56
+      }
+    },
+    {
+      "no_js": {
+        "details": 31,
+        "open": 0,
+        "visible": 510,
+        "deadAria": 0,
+        "scriptDependent": 0,
+        "firstText": "你想做什么事？"
+      }
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "mutants": [
+    {
+      "mutant": "M1_copy_button_removed",
+      "edit_applied": true,
+      "failing_checks": [
+        "structure_matches_this_rounds_shape",
+        "rows_with_copy_box",
+        "copy_button_feedback"
+      ]
+    },
+    {
+      "mutant": "M2_external_script_added",
+      "edit_applied": true,
+      "failing_checks": [
+        "zero_nonlocal_requests"
+      ]
+    },
+    {
+      "mutant": "M3_h1_removed",
+      "edit_applied": true,
+      "failing_checks": [
+        "single_h1"
+      ]
+    },
+    {
+      "mutant": "M4_layer3_emptied",
+      "edit_applied": true,
+      "failing_checks": [
+        "layer3_substantive_after_open"
+      ]
+    },
+    {
+      "mutant": "M5_icp_removed",
+      "edit_applied": true,
+      "failing_checks": [
+        "icp_number_on_page"
+      ]
+    },
+    {
+      "mutant": "M6_fixed_width_overflow",
+      "edit_applied": true,
+      "failing_checks": [
+        "zero_horizontal_overflow_all_widths"
+      ]
+    },
+    {
+      "mutant": "M7_one_sub_layer_deleted",
+      "edit_applied": true,
+      "failing_checks": [
+        "structure_matches_this_rounds_shape",
+        "sub_details_per_goal_row_2_to_5"
+      ]
+    }
+  ],
+  "baseline_failures": [],
+  "undetected": []
+}

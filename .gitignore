@@ -11,3 +11,8 @@ Thumbs.db
 
 # Scratch / prototypes
 .tmp/
+
+# 运行期数据里有真凭据（本机仓库是 public，一次 git add -A 就会把钥匙推上 GitHub）
+var/
+eval/out/
+docs/audit/*/.mutants/

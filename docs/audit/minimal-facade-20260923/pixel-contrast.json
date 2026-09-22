@@ -1,0 +1,848 @@
+{
+  "method": "two-shot pixel diff; core-ink mean vs the pixels behind it; p10 of per-pixel ratios",
+  "boxes": [
+    {
+      "width": 1440,
+      "sel": ".hero-h",
+      "text": "你想做什么事？",
+      "computed_ratio": 15.1,
+      "color": "rgb(233, 229, 218)",
+      "ink_px": 4530,
+      "core_ratio": 14.74,
+      "p10_ratio": 1.35,
+      "core_fg": [
+        230,
+        226,
+        215
+      ],
+      "core_bg": [
+        17,
+        15,
+        11
+      ]
+    },
+    {
+      "width": 1440,
+      "sel": ".hero__one",
+      "text": "选一件，先做第一步。",
+      "computed_ratio": 8.74,
+      "color": "rgb(169, 178, 173)",
+      "ink_px": 1249,
+      "core_ratio": 7.12,
+      "p10_ratio": 1.39,
+      "core_fg": [
+        152,
+        160,
+        155
+      ],
+      "core_bg": [
+        17,
+        16,
+        12
+      ]
+    },
+    {
+      "width": 1440,
+      "sel": ".hero-kicker",
+      "text": "World Space\n  ",
+      "computed_ratio": 15.1,
+      "color": "rgb(233, 229, 218)",
+      "ink_px": 1263,
+      "core_ratio": 14.37,
+      "p10_ratio": 1.89,
+      "core_fg": [
+        227,
+        223,
+        212
+      ],
+      "core_bg": [
+        17,
+        15,
+        11
+      ]
+    },
+    {
+      "width": 1440,
+      "sel": ".label",
+      "text": "我和世界",
+      "computed_ratio": 5.41,
+      "color": "rgb(130, 139, 133)",
+      "ink_px": 197,
+      "core_ratio": 5.38,
+      "p10_ratio": 4.78,
+      "core_fg": [
+        129,
+        138,
+        132
+      ],
+      "core_bg": [
+        17,
+        15,
+        11
+      ]
+    },
+    {
+      "width": 1440,
+      "sel": "details.row > summary .nm",
+      "text": "写点东西",
+      "computed_ratio": 15.1,
+      "color": "rgb(233, 229, 218)",
+      "ink_px": 563,
+      "core_ratio": 14.4,
+      "p10_ratio": 1.23,
+      "core_fg": [
+        228,
+        224,
+        213
+      ],
+      "core_bg": [
+        18,
+        16,
+        12
+      ]
+    },
+    {
+      "width": 1440,
+      "sel": "details.row > summary .nm",
+      "text": "做个网页",
+      "computed_ratio": 15.1,
+      "color": "rgb(233, 229, 218)",
+      "ink_px": 591,
+      "core_ratio": 13.98,
+      "p10_ratio": 1.39,
+      "core_fg": [
+        225,
+        221,
+        210
+      ],
+      "core_bg": [
+        18,
+        16,
+        12
+      ]
+    },
+    {
+      "width": 1440,
+      "sel": "details.row > summary .nm",
+      "text": "查明一件事",
+      "computed_ratio": 15.1,
+      "color": "rgb(233, 229, 218)",
+      "ink_px": 699,
+      "core_ratio": 13.98,
+      "p10_ratio": 1.26,
+      "core_fg": [
+        225,
+        221,
+        210
+      ],
+      "core_bg": [
+        18,
+        16,
+        12
+      ]
+    },
+    {
+      "width": 1440,
+      "sel": "details.row > summary .nm",
+      "text": "整理资料 · 处理 PDF",
+      "computed_ratio": 15.1,
+      "color": "rgb(233, 229, 218)",
+      "ink_px": 1367,
+      "core_ratio": 14.16,
+      "p10_ratio": 1.29,
+      "core_fg": [
+        226,
+        222,
+        211
+      ],
+      "core_bg": [
+        18,
+        16,
+        12
+      ]
+    },
+    {
+      "width": 1440,
+      "sel": "details.row > summary .nm",
+      "text": "做一张海报",
+      "computed_ratio": 15.1,
+      "color": "rgb(233, 229, 218)",
+      "ink_px": 794,
+      "core_ratio": 13.88,
+      "p10_ratio": 1.29,
+      "core_fg": [
+        224,
+        220,
+        209
+      ],
+      "core_bg": [
+        18,
+        16,
+        12
+      ]
+    },
+    {
+      "width": 1440,
+      "sel": "details.row > summary .nm",
+      "text": "整理手机照片",
+      "computed_ratio": 15.1,
+      "color": "rgb(233, 229, 218)",
+      "ink_px": 969,
+      "core_ratio": 14.23,
+      "p10_ratio": 1.29,
+      "core_fg": [
+        227,
+        223,
+        212
+      ],
+      "core_bg": [
+        18,
+        16,
+        12
+      ]
+    },
+    {
+      "width": 1440,
+      "sel": "details.row > summary .nm",
+      "text": "提取图片文字",
+      "computed_ratio": 15.1,
+      "color": "rgb(233, 229, 218)",
+      "ink_px": 924,
+      "core_ratio": 14.29,
+      "p10_ratio": 1.29,
+      "core_fg": [
+        227,
+        223,
+        212
+      ],
+      "core_bg": [
+        18,
+        16,
+        12
+      ]
+    },
+    {
+      "width": 1440,
+      "sel": "details.row > summary .nm",
+      "text": "不知道从哪开始？",
+      "computed_ratio": 15.1,
+      "color": "rgb(233, 229, 218)",
+      "ink_px": 725,
+      "core_ratio": 14.7,
+      "p10_ratio": 1.6,
+      "core_fg": [
+        226,
+        228,
+        210
+      ],
+      "core_bg": [
+        18,
+        16,
+        12
+      ]
+    },
+    {
+      "width": 1440,
+      "sel": "details.row > summary .nm",
+      "text": "这里是做什么的？",
+      "computed_ratio": 15.1,
+      "color": "rgb(233, 229, 218)",
+      "ink_px": 727,
+      "core_ratio": 14.74,
+      "p10_ratio": 1.6,
+      "core_fg": [
+        224,
+        229,
+        212
+      ],
+      "core_bg": [
+        18,
+        16,
+        12
+      ]
+    },
+    {
+      "width": 1440,
+      "sel": "details.row > summary .ds",
+      "text": "把要说的事说清楚，几秒拿到一",
+      "computed_ratio": 8.74,
+      "color": "rgb(169, 178, 173)",
+      "ink_px": 1777,
+      "core_ratio": 7.61,
+      "p10_ratio": 1.17,
+      "core_fg": [
+        158,
+        166,
+        161
+      ],
+      "core_bg": [
+        18,
+        16,
+        12
+      ]
+    },
+    {
+      "width": 1440,
+      "sel": "details.row > summary .ds",
+      "text": "不用学编程：说清楚要什么，它",
+      "computed_ratio": 8.74,
+      "color": "rgb(169, 178, 173)",
+      "ink_px": 1744,
+      "core_ratio": 7.73,
+      "p10_ratio": 1.2,
+      "core_fg": [
+        159,
+        167,
+        162
+      ],
+      "core_bg": [
+        18,
+        16,
+        12
+      ]
+    },
+    {
+      "width": 1440,
+      "sel": "details.row > summary .ds",
+      "text": "要查就查得可靠：找真实信息、",
+      "computed_ratio": 8.74,
+      "color": "rgb(169, 178, 173)",
+      "ink_px": 1873,
+      "core_ratio": 7.8,
+      "p10_ratio": 1.19,
+      "core_fg": [
+        160,
+        168,
+        163
+      ],
+      "core_bg": [
+        18,
+        16,
+        12
+      ]
+    },
+    {
+      "width": 1440,
+      "sel": "details.row > summary .ds",
+      "text": "乱文字让 AI 归类；PDF",
+      "computed_ratio": 8.74,
+      "color": "rgb(169, 178, 173)",
+      "ink_px": 1550,
+      "core_ratio": 7.61,
+      "p10_ratio": 1.2,
+      "core_fg": [
+        158,
+        166,
+        161
+      ],
+      "core_bg": [
+        18,
+        16,
+        12
+      ]
+    },
+    {
+      "width": 1440,
+      "sel": "details.row > summary .ds",
+      "text": "先分一件事：图上要不要放准确",
+      "computed_ratio": 8.74,
+      "color": "rgb(169, 178, 173)",
+      "ink_px": 1597,
+      "core_ratio": 7.75,
+      "p10_ratio": 1.2,
+      "core_fg": [
+        159,
+        167,
+        162
+      ],
+      "core_bg": [
+        18,
+        16,
+        12
+      ]
+    },
+    {
+      "width": 1440,
+      "sel": "details.row > summary .ds",
+      "text": "去重、备份、印成一本相册、把",
+      "computed_ratio": 8.74,
+      "color": "rgb(169, 178, 173)",
+      "ink_px": 1745,
+      "core_ratio": 7.51,
+      "p10_ratio": 1.19,
+      "core_fg": [
+        157,
+        165,
+        160
+      ],
+      "core_bg": [
+        18,
+        16,
+        12
+      ]
+    },
+    {
+      "width": 1440,
+      "sel": "details.row > summary .ds",
+      "text": "不用装任何 App：微信和手",
+      "computed_ratio": 8.74,
+      "color": "rgb(169, 178, 173)",
+      "ink_px": 1865,
+      "core_ratio": 7.68,
+      "p10_ratio": 1.18,
+      "core_fg": [
+        159,
+        167,
+        162
+      ],
+      "core_bg": [
+        18,
+        16,
+        12
+      ]
+    },
+    {
+      "width": 1440,
+      "sel": "details.row > summary .ds",
+      "text": "跟着三步走。约 10 分钟，",
+      "computed_ratio": 8.74,
+      "color": "rgb(169, 178, 173)",
+      "ink_px": 1126,
+      "core_ratio": 8.74,
+      "p10_ratio": 1.35,
+      "core_fg": [
+        169,
+        178,
+        173
+      ],
+      "core_bg": [
+        18,
+        16,
+        12
+      ]
+    },
+    {
+      "width": 375,
+      "sel": ".hero-h",
+      "text": "你想做什么事？",
+      "computed_ratio": 15.1,
+      "color": "rgb(233, 229, 218)",
+      "ink_px": 2390,
+      "core_ratio": 14.18,
+      "p10_ratio": 1.33,
+      "core_fg": [
+        226,
+        222,
+        211
+      ],
+      "core_bg": [
+        18,
+        16,
+        11
+      ]
+    },
+    {
+      "width": 375,
+      "sel": ".hero__one",
+      "text": "选一件，先做第一步。",
+      "computed_ratio": 8.74,
+      "color": "rgb(169, 178, 173)",
+      "ink_px": 1065,
+      "core_ratio": 6.96,
+      "p10_ratio": 1.39,
+      "core_fg": [
+        151,
+        158,
+        153
+      ],
+      "core_bg": [
+        18,
+        16,
+        11
+      ]
+    },
+    {
+      "width": 375,
+      "sel": ".hero-kicker",
+      "text": "World Space\n  ",
+      "computed_ratio": 15.1,
+      "color": "rgb(233, 229, 218)",
+      "ink_px": 1010,
+      "core_ratio": 13.63,
+      "p10_ratio": 1.99,
+      "core_fg": [
+        223,
+        219,
+        208
+      ],
+      "core_bg": [
+        19,
+        17,
+        13
+      ]
+    },
+    {
+      "width": 375,
+      "sel": ".label",
+      "text": "我和世界",
+      "computed_ratio": 5.41,
+      "color": "rgb(130, 139, 133)",
+      "ink_px": 197,
+      "core_ratio": 5.35,
+      "p10_ratio": 4.79,
+      "core_fg": [
+        129,
+        138,
+        132
+      ],
+      "core_bg": [
+        17,
+        16,
+        11
+      ]
+    },
+    {
+      "width": 375,
+      "sel": "details.row > summary .nm",
+      "text": "写点东西",
+      "computed_ratio": 15.1,
+      "color": "rgb(233, 229, 218)",
+      "ink_px": 435,
+      "core_ratio": 12.03,
+      "p10_ratio": 1.29,
+      "core_fg": [
+        209,
+        206,
+        195
+      ],
+      "core_bg": [
+        18,
+        16,
+        12
+      ]
+    },
+    {
+      "width": 375,
+      "sel": "details.row > summary .nm",
+      "text": "做个网页",
+      "computed_ratio": 15.1,
+      "color": "rgb(233, 229, 218)",
+      "ink_px": 428,
+      "core_ratio": 13.05,
+      "p10_ratio": 1.29,
+      "core_fg": [
+        218,
+        214,
+        202
+      ],
+      "core_bg": [
+        18,
+        16,
+        12
+      ]
+    },
+    {
+      "width": 375,
+      "sel": "details.row > summary .nm",
+      "text": "查明一件事",
+      "computed_ratio": 15.1,
+      "color": "rgb(233, 229, 218)",
+      "ink_px": 482,
+      "core_ratio": 13.29,
+      "p10_ratio": 1.42,
+      "core_fg": [
+        220,
+        216,
+        204
+      ],
+      "core_bg": [
+        18,
+        16,
+        12
+      ]
+    },
+    {
+      "width": 375,
+      "sel": "details.row > summary .nm",
+      "text": "整理资料 · 处理 PDF",
+      "computed_ratio": 15.1,
+      "color": "rgb(233, 229, 218)",
+      "ink_px": 951,
+      "core_ratio": 13.09,
+      "p10_ratio": 1.33,
+      "core_fg": [
+        218,
+        214,
+        203
+      ],
+      "core_bg": [
+        18,
+        16,
+        12
+      ]
+    },
+    {
+      "width": 375,
+      "sel": "details.row > summary .nm",
+      "text": "做一张海报",
+      "computed_ratio": 15.1,
+      "color": "rgb(233, 229, 218)",
+      "ink_px": 552,
+      "core_ratio": 12.9,
+      "p10_ratio": 1.33,
+      "core_fg": [
+        216,
+        213,
+        201
+      ],
+      "core_bg": [
+        18,
+        16,
+        12
+      ]
+    },
+    {
+      "width": 375,
+      "sel": "details.row > summary .nm",
+      "text": "整理手机照片",
+      "computed_ratio": 15.1,
+      "color": "rgb(233, 229, 218)",
+      "ink_px": 708,
+      "core_ratio": 12.6,
+      "p10_ratio": 1.34,
+      "core_fg": [
+        214,
+        210,
+        199
+      ],
+      "core_bg": [
+        18,
+        16,
+        12
+      ]
+    },
+    {
+      "width": 375,
+      "sel": "details.row > summary .nm",
+      "text": "提取图片文字",
+      "computed_ratio": 15.1,
+      "color": "rgb(233, 229, 218)",
+      "ink_px": 640,
+      "core_ratio": 12.9,
+      "p10_ratio": 1.29,
+      "core_fg": [
+        216,
+        213,
+        201
+      ],
+      "core_bg": [
+        18,
+        16,
+        12
+      ]
+    },
+    {
+      "width": 375,
+      "sel": "details.row > summary .nm",
+      "text": "不知道从哪开始？",
+      "computed_ratio": 15.1,
+      "color": "rgb(233, 229, 218)",
+      "ink_px": 622,
+      "core_ratio": 13.15,
+      "p10_ratio": 1.79,
+      "core_fg": [
+        218,
+        215,
+        204
+      ],
+      "core_bg": [
+        18,
+        16,
+        12
+      ]
+    },
+    {
+      "width": 375,
+      "sel": "details.row > summary .nm",
+      "text": "这里是做什么的？",
+      "computed_ratio": 15.1,
+      "color": "rgb(233, 229, 218)",
+      "ink_px": 580,
+      "core_ratio": 13.61,
+      "p10_ratio": 1.86,
+      "core_fg": [
+        222,
+        218,
+        207
+      ],
+      "core_bg": [
+        18,
+        16,
+        12
+      ]
+    },
+    {
+      "width": 375,
+      "sel": "details.row > summary .ds",
+      "text": "把要说的事说清楚，几秒拿到一",
+      "computed_ratio": 8.74,
+      "color": "rgb(169, 178, 173)",
+      "ink_px": 1757,
+      "core_ratio": 7.54,
+      "p10_ratio": 1.29,
+      "core_fg": [
+        157,
+        165,
+        160
+      ],
+      "core_bg": [
+        18,
+        16,
+        12
+      ]
+    },
+    {
+      "width": 375,
+      "sel": "details.row > summary .ds",
+      "text": "不用学编程：说清楚要什么，它",
+      "computed_ratio": 8.74,
+      "color": "rgb(169, 178, 173)",
+      "ink_px": 1777,
+      "core_ratio": 7.61,
+      "p10_ratio": 1.28,
+      "core_fg": [
+        158,
+        166,
+        161
+      ],
+      "core_bg": [
+        18,
+        16,
+        12
+      ]
+    },
+    {
+      "width": 375,
+      "sel": "details.row > summary .ds",
+      "text": "要查就查得可靠：找真实信息、",
+      "computed_ratio": 8.74,
+      "color": "rgb(169, 178, 173)",
+      "ink_px": 1925,
+      "core_ratio": 7.36,
+      "p10_ratio": 1.24,
+      "core_fg": [
+        155,
+        163,
+        158
+      ],
+      "core_bg": [
+        18,
+        16,
+        12
+      ]
+    },
+    {
+      "width": 375,
+      "sel": "details.row > summary .ds",
+      "text": "乱文字让 AI 归类；PDF",
+      "computed_ratio": 8.74,
+      "color": "rgb(169, 178, 173)",
+      "ink_px": 1580,
+      "core_ratio": 7.62,
+      "p10_ratio": 1.28,
+      "core_fg": [
+        158,
+        166,
+        161
+      ],
+      "core_bg": [
+        18,
+        16,
+        12
+      ]
+    },
+    {
+      "width": 375,
+      "sel": "details.row > summary .ds",
+      "text": "先分一件事：图上要不要放准确",
+      "computed_ratio": 8.74,
+      "color": "rgb(169, 178, 173)",
+      "ink_px": 1642,
+      "core_ratio": 7.66,
+      "p10_ratio": 1.28,
+      "core_fg": [
+        158,
+        166,
+        162
+      ],
+      "core_bg": [
+        18,
+        16,
+        12
+      ]
+    },
+    {
+      "width": 375,
+      "sel": "details.row > summary .ds",
+      "text": "去重、备份、印成一本相册、把",
+      "computed_ratio": 8.74,
+      "color": "rgb(169, 178, 173)",
+      "ink_px": 1802,
+      "core_ratio": 7.35,
+      "p10_ratio": 1.28,
+      "core_fg": [
+        155,
+        163,
+        158
+      ],
+      "core_bg": [
+        18,
+        16,
+        12
+      ]
+    },
+    {
+      "width": 375,
+      "sel": "details.row > summary .ds",
+      "text": "不用装任何 App：微信和手",
+      "computed_ratio": 8.74,
+      "color": "rgb(169, 178, 173)",
+      "ink_px": 1894,
+      "core_ratio": 7.48,
+      "p10_ratio": 1.24,
+      "core_fg": [
+        157,
+        164,
+        160
+      ],
+      "core_bg": [
+        18,
+        16,
+        12
+      ]
+    },
+    {
+      "width": 375,
+      "sel": "details.row > summary .ds",
+      "text": "跟着三步走。约 10 分钟，",
+      "computed_ratio": 8.74,
+      "color": "rgb(169, 178, 173)",
+      "ink_px": 1224,
+      "core_ratio": 8.74,
+      "p10_ratio": 1.41,
+      "core_fg": [
+        169,
+        178,
+        173
+      ],
+      "core_bg": [
+        18,
+        16,
+        12
+      ]
+    }
+  ],
+  "min_core": 5.35,
+  "min_p10": 1.17,
+  "below_3": []
+}
