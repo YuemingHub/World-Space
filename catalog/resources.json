@@ -40,9 +40,9 @@
       "goal": "A_make_something",
       "one_line": "用一句话描述你想要的网页或应用，AI 直接帮你生成。",
       "github": null,
-      "official_url": "https://v0.dev",
+      "official_url": "https://v0.app",
       "source_urls": [
-        "https://v0.dev",
+        "https://v0.app",
         "https://v0.app/pricing"
       ],
       "license": "Proprietary (hosted service)",
