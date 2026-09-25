@@ -1,7 +1,7 @@
 {
-  "version": "3.0.0",
+  "version": "3.1.0",
   "last_reviewed_at": "2026-09-25",
-  "reviewer_note": "Macro 7 pruning (2026-09-07): removed bolt_new, replit (covered by v0 simpler / cursor deeper), gamma, perplexity (china-restricted alternatives with working domestic defaults), gpt_academic (maintenance unclear + API key), browser_use (requires API key + setup, no UI goal) — §23 rules: stale / not best for audience / tech-circle fashion. All 11 entries re-verified reachable on 2026-09-07 (chat.deepseek.com 429 and gaoding.com 405 on curl are bot-shield artifacts, real fetches confirmed); doubao/deepseek/gaoding/xingtu/yike_album free tiers confirmed; prices NOT hardcoded — use cost_category. used_in 反映当前产品（web 首页入口/4 步路径/目标面板）实际使用位置。2026-09-11: v0 pricing re-verified (free plan $0, $5 monthly credits, 7 msg/day) and v0 now surfaced in goal-web-panel as the publish-online alternative; doubao/deepseek/stirling used_in updated for the four new goal panels (facts unchanged from 09-06/07 verification). 2026-09-11 Mission 2: fallback path shrunk to 3 steps (step-2-make-it-better replaces step-2-make-something-real; step-4-let-tools-work removed — organize/PDF judgment lives in goal-organize-panel). 2026-09-11 Mission 6: removed 4 product-unused bench entries (n8n, notion, excalidraw, cursor — none referenced by web/paths; recommendation needed periodic re-verification with zero user value). If a future goal needs them, re-research then — the world will have changed anyway. 7 entries remain, all product-surfaced. 2026-09-25 全量复核（8 个入口逐项实测）：所有外链从大陆网络直连可达；两处过期事实已修——醒图「消除路人」已划入会员（页面改为基础免费清单）、Photobook China 站点已迁移为 Photobook Worldwide（照片书现价 128 元起，页面已同步）；豆包 2026-05 起有付费订阅但免费基础动作不受影响；v0 Free 档、DeepSeek 免费、Stirling 免费个人使用、一刻相册免费无限空间宣传、稿定免费档均复核成立。",
+  "reviewer_note": "Macro 7 pruning (2026-09-07): removed bolt_new, replit (covered by v0 simpler / cursor deeper), gamma, perplexity (china-restricted alternatives with working domestic defaults), gpt_academic (maintenance unclear + API key), browser_use (requires API key + setup, no UI goal) — §23 rules: stale / not best for audience / tech-circle fashion. All 11 entries re-verified reachable on 2026-09-07 (chat.deepseek.com 429 and gaoding.com 405 on curl are bot-shield artifacts, real fetches confirmed); doubao/deepseek/gaoding/xingtu/yike_album free tiers confirmed; prices NOT hardcoded — use cost_category. used_in 反映当前产品（web 首页入口/4 步路径/目标面板）实际使用位置。2026-09-11: v0 pricing re-verified (free plan $0, $5 monthly credits, 7 msg/day) and v0 now surfaced in goal-web-panel as the publish-online alternative; doubao/deepseek/stirling used_in updated for the four new goal panels (facts unchanged from 09-06/07 verification). 2026-09-11 Mission 2: fallback path shrunk to 3 steps (step-2-make-it-better replaces step-2-make-something-real; step-4-let-tools-work removed — organize/PDF judgment lives in goal-organize-panel). 2026-09-11 Mission 6: removed 4 product-unused bench entries (n8n, notion, excalidraw, cursor — none referenced by web/paths; recommendation needed periodic re-verification with zero user value). If a future goal needs them, re-research then — the world will have changed anyway. 7 entries remain, all product-surfaced. 2026-09-25 全量复核（8 个入口逐项实测）：所有外链从大陆网络直连可达；两处过期事实已修——醒图「消除路人」已划入会员（页面改为基础免费清单）、Photobook China 站点已迁移为 Photobook Worldwide（照片书现价 128 元起，页面已同步）；豆包 2026-05 起有付费订阅但免费基础动作不受影响；v0 Free 档、DeepSeek 免费、Stirling 免费个人使用、一刻相册免费无限空间宣传、稿定免费档均复核成立。 2026-09-25 行动-现实回路（Issue #26）：新增两个字段——known_failure（用户可见的主要失败模式，与面板「如实说」同源）与 review_expiry（复核有效期）。统一策略：所有 catalog 资源设 review_expiry、复核有效期 90 天（本次复核 2026-09-25 → 2026-12-24）；到期前必须重新核查价格/免费档/可访问性/政策，更新 last_reviewed_at 并顺延。面板内提到的非 catalog 选项（手机自带能力、照片书等）不建条目，随 8 入口全量复核一起核查（见 docs/reality-return.md）。刻意不加 expected_first_action / observable_result：第一步与现实结果按目标而非按工具承载（目标面板 + docs/reality-return.md），同一句话只维护一处。",
   "resources": [
     {
       "id": "doubao",
@@ -32,6 +32,8 @@
       "best_for": "第一次用 AI：聊天、写文案、写文章、做简单网页，全中文，手机电脑都能用",
       "not_for": "需要核查信息来源的严肃查证（用 DeepSeek 更合适）",
       "why_selected": "对中国普通用户门槛最低：国内直接打开、全中文、免费、手机号/微信即可登录，对话里能直接生成网页并显示预览。2026-09-25 复核：2026-05 起推出付费订阅（68/200/500 元/月），官方明确聊天、短文写作、简单图片生成等基础功能免费且不受影响——本页推荐动作全部落在免费范围内；网页版未登录可看界面，发送时提示登录。",
+      "known_failure": "初稿里的具体事实（时间、名字、数字）可能是它编的，发出前自己过一遍；登录、支付、存数据这类复杂功能一句话做不出来",
+      "review_expiry": "2026-12-24",
       "last_reviewed_at": "2026-09-25"
     },
     {
@@ -57,6 +59,8 @@
       "best_for": "完全不会编程，但想快速做出一个能看的网页或小应用",
       "not_for": "需要复杂后端逻辑或私有数据的项目",
       "why_selected": "门槛最低：打开网页，打字，出结果。Vercel 出品，部署一体化。对普通人是目前最省事的起点。2026-09-25 复核：Free 档仍在（$0，含每月 $5 额度、每天 7 条消息）；v0.dev 已 301 到 v0.app，大陆网络直连可达（首屏加载约 3-6 秒）。",
+      "known_failure": "免费档有每日消息数/额度限制，用量大了要付费；复杂逻辑（登录、支付、存数据）做不出来，先做最简单的第一版",
+      "review_expiry": "2026-12-24",
       "used_in": [
         "goal-web-panel"
       ],
@@ -88,6 +92,8 @@
       "best_for": "想问问题、查资料、理解一个概念、写东西，希望免费且中文友好",
       "not_for": "需要访问被墙资源的场景",
       "why_selected": "对中文用户来说是最省事的 AI 入口：免费、中文好、有深度思考模式、国内可直接访问。无需翻墙，无需 API Key。2026-09-25 复核：个人聊天仍完全免费、无会员计划；网页版直连可达，未登录直接进登录页（手机号/验证码、密码、微信扫码、Apple）。",
+      "known_failure": "会一本正经地说错话，具体数据尤其可疑；涉及钱、政策、法律的结论必须去官方渠道复核",
+      "review_expiry": "2026-12-24",
       "last_reviewed_at": "2026-09-25"
     },
     {
@@ -117,6 +123,8 @@
       "best_for": "需要处理 PDF 文件（合并、拆分、压缩、转换）",
       "not_for": "需要在线 API 集成的自动化场景（用 n8n 配合）",
       "why_selected": "强大的 PDF 工具箱，桌面版免费下载（Windows/macOS/Linux），也可以自己部署。活跃维护。2026-09-25 复核：官网 stirling.com 在线（stirlingpdf.com 也指向该域），首页主打「免费个人使用、文件留在本机」，主张不变。",
+      "known_failure": "需要电脑：桌面版要自己下载安装；只有手机时，只能把 PDF 里的文字复制给 AI 处理",
+      "review_expiry": "2026-12-24",
       "last_reviewed_at": "2026-09-25"
     },
     {
@@ -145,6 +153,8 @@
       "best_for": "要把准确信息（价格、时间、地址、电话）放进海报/招生图/促销图的人",
       "not_for": "追求专业设计精度和完全商用授权保障的场景",
       "why_selected": "模板改字是普通人把准确信息放上图的最低门槛路径。与创客贴、图怪兽同类（三方同质，选一家即可，2026-09-07 核对）。如实标注：免费模板够用，但部分模板导出带水印、商用要看授权。2026-09-25 复核：直连可达，未发现免费档政策变化，水印/授权的如实标注仍成立。",
+      "known_failure": "部分模板导出带水印；商用授权要自己确认",
+      "review_expiry": "2026-12-24",
       "last_reviewed_at": "2026-09-25"
     },
     {
@@ -172,6 +182,8 @@
       "best_for": "手机照片多、想要大空间备份的人",
       "not_for": "只有少量照片的人（手机自带云相册就够）；把唯一副本只存在它这里的人",
       "why_selected": "百度网盘团队出品、官方宣传免费无限空间、带相似图清理。如实标注：部分功能要开会员；黑猫投诉平台有丢照片投诉，重要照片建议存两个地方。官网域名 yike.com 于 2026-09-07 出现 SSL 异常，故以 App Store 官方页为来源。2026-09-25 复核：仍在运营，官方渠道仍宣传无限量原画质备份，官方回复称原画质备份/无限空间/下载不限速保持免费。",
+      "known_failure": "部分功能要会员；有丢照片投诉记录——重要照片存两处",
+      "review_expiry": "2026-12-24",
       "last_reviewed_at": "2026-09-25"
     },
     {
@@ -200,6 +212,8 @@
       "best_for": "手机上修图、调色、把照片变好看",
       "not_for": "专业摄影后期精修",
       "why_selected": "字节出品、免费、中文、手机端门槛最低；与剪映同系配合顺滑。2026-09-07 核对官网与 App Store 在架状态。2026-09-25 复核：「消除路人（魔法消除）」已划入会员权益，免费档滤镜/调色/裁剪不受影响，页面口径已同步。",
+      "known_failure": "「消除路人」等 AI 修图功能要会员；免费档只有滤镜、调色、裁剪",
+      "review_expiry": "2026-12-24",
       "last_reviewed_at": "2026-09-25"
     }
   ]
