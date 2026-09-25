@@ -19,6 +19,8 @@ let failures = 0;
 const ok = (n, c, d) => { console.log(`${c ? '✓' : '✗'} ${n}${c || !d ? '' : ' —— ' + d}`); if (!c) failures++; };
 
 const PW_A = 'correct-horse-2026', PW_B = 'bob-secret-2026';
+/* 门面页与应用页各自独有的标记串：用来断言 `/` 到底给的是哪一张页面 */
+const FRONTDOOR_MARK = '你想做什么事', APP_MARK = '你现在想做成什么';
 const usersFile = join(VAR, 'auth-users.json');
 const secretFile = join(VAR, 'auth-secret.txt');
 writeFileSync(secretFile, randomBytes(48).toString('base64') + '\n');
@@ -69,11 +71,16 @@ try {
   const hz = await (await fetch(B(8951) + '/healthz')).json();
   ok('healthz：auth=ready（不泄露任何 secret）', hz.auth === 'ready', JSON.stringify(hz));
 
-  // 未登录：页面去登录页，API 一律 401，静态资源（纯代码）可达
+  // 未登录：首页给公开门面页，API 一律 401，静态资源（纯代码）可达
   const root = await get(8951, '/');
-  ok('未登录 GET / → 302 /login', root.status === 302 && root.headers.get('location') === '/login', `${root.status} ${root.headers.get('location')}`);
+  const rootText = await root.text();
+  ok('未登录 GET / → 200 公开门面页', root.status === 200 && rootText.includes(FRONTDOOR_MARK), `${root.status} ${rootText.slice(0, 80)}`);
+  ok('门面页 no-store（与登录后页面同一缓存纪律）', /no-store/i.test(root.headers.get('cache-control') || ''), String(root.headers.get('cache-control')));
+  ok('门面页不是登录后的应用页（不引用 app.js）', !rootText.includes('/app.js'), '');
+  ok('门面页有登录入口（链接去 /login）', rootText.includes('href="/login"'), '');
   const root2 = await get(8951, '/index.html');
-  ok('未登录 GET /index.html → 302 /login（首页没有旁路）', root2.status === 302, String(root2.status));
+  const root2Text = await root2.text();
+  ok('未登录 GET /index.html → 同一张门面页（首页没有旁路）', root2.status === 200 && root2Text.includes(FRONTDOOR_MARK), String(root2.status));
   const lp = await get(8951, '/login');
   ok('登录页公开可达', lp.status === 200 && (await lp.text()).includes('账号'), String(lp.status));
   const css = await get(8951, '/style.css');
@@ -105,6 +112,8 @@ try {
   const me1 = await get(8951, '/api/auth/me', `ws_sess=${token}`);
   ok('已登录 me → user_id 来自服务端验证', me1.status === 200 && (await me1.json()).user_id === 'u-a', String(me1.status));
   const pageIn = await get(8951, '/', `ws_sess=${token}`);
+  const pageInText = await pageIn.text();
+  ok('已登录首页是应用页（不是门面页）', pageIn.status === 200 && pageInText.includes(APP_MARK) && !pageInText.includes(FRONTDOOR_MARK), pageInText.slice(0, 80));
   ok('已登录首页 no-store（后退/共用电脑不泄露上一个人的页面）', pageIn.status === 200 && /no-store/i.test(pageIn.headers.get('cache-control') || ''), String(pageIn.headers.get('cache-control')));
   const w1 = await world(8951, `ws_sess=${token}`);
   const j1 = await w1.json();
@@ -119,6 +128,8 @@ try {
   const out = await fetch(B(8951) + '/api/auth/logout', { method: 'POST', headers: { cookie: `ws_sess=${token}` } });
   ok('退出 → 200 且 cookie 被清', out.status === 200 && /max-age=0/i.test(cookieOf(out)), cookieOf(out));
   ok('退出后旧 cookie 重放 → 401（服务端吊销，不是只删浏览器 cookie）', (await world(8951, `ws_sess=${token}`)).status === 401, '');
+  const rootOut = await get(8951, '/', `ws_sess=${token}`);
+  ok('退出后 GET / → 公开门面页（回到产品门面，不是应用也不是裸登录页）', rootOut.status === 200 && (await rootOut.text()).includes(FRONTDOOR_MARK), String(rootOut.status));
 
   // 多账号：bob 登录拿到的是 bob 的身份
   const gb = await login(8951, 'bob', PW_B);
@@ -159,7 +170,8 @@ try {
     const hz = await (await fetch(B(8952) + '/healthz')).json();
     ok('无配置：healthz 如实上报 broken', String(hz.auth).startsWith('broken:'), hz.auth);
     const root = await get(8952, '/');
-    ok('无配置：首页不放行（去登录页）', root.status === 302 && root.headers.get('location') === '/login', `${root.status}`);
+    const rootText = await root.text();
+    ok('无配置：首页仍是公开门面页（纯静态资产不依赖认证后端，不该跟着消失）', root.status === 200 && rootText.includes(FRONTDOOR_MARK) && !rootText.includes(APP_MARK), `${root.status}`);
     ok('无配置：API 明确不可用 503，不是 401 更不是 200', (await world(8952)).status === 503, '');
     ok('无配置：登录也 503', (await login(8952, 'alice', PW_A)).status === 503, '');
   } finally { kill(inst.child); }
