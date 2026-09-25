@@ -1,6 +1,6 @@
 # World Space
 
-> 你想做什么事？选一件事，马上开始。每件事都替你选好了工具和第一步，照着做就行。
+> 你想做什么事？选一件事，马上开始。每件事都替你选好了工具和第一步，照着做就行。打开工具只是第一步，真正动手，看看现实里发生了什么。
 
 **公开入口：https://ymai.fun**
 
@@ -44,6 +44,7 @@ web/index.html          公开入口
 index.html              根跳转页
 docs/design/CURRENT_DESIGN.md  当前设计真源
 docs/goal-coverage.md  目标覆盖判断（为什么是这 7 个）
+docs/reality-return.md         行动-现实回路：8 入口审计 + 3 个验收例（打开工具 ≠ 现实改变）
 
 archive/                历史资产
 ```

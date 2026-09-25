@@ -1,8 +1,9 @@
 # PRODUCT.md — World Space 产品契约
 
 > 本文件是 World Space 的唯一产品定义。
-> 最后更新：2026-09-06
+> 最后更新：2026-09-25
 > 方向修正：从"自建 Reality Project 产品闭环"转向"Resource First——发现、筛选、带着普通人使用世界已有优秀能力"
+> 2026-09-25 补充：行动-现实回路——打开一个工具，不等于现实已经改变（§8）
 
 ---
 
@@ -13,6 +14,8 @@
 > **让一个原本不知道该怎么办的人，真正开始做，并且少走很多弯路。**
 
 > **不要造轮子。Founder 本身不是开发出身，也不应该靠一个人重新开发世界上已经成熟的 AI 基础设施。**
+
+> **打开一个工具，不等于现实已经改变。行动完成的标志是现实里出现了结果。**
 
 World Space 的价值不是"我们有多少 AI 功能"，而是：
 
@@ -35,7 +38,7 @@ World Space 做三件事：
 不是做"AI 工具大全"。而是替普通人筛选：这件事，现在最值得从哪里开始。
 
 ### 带着开始
-不是只扔一个 GitHub 链接。而是告诉普通人：它能帮你干什么、为什么推荐它、第一步点哪里、第一段话怎么说、做到什么程度算已经开始、卡住以后怎么办。
+不是只扔一个 GitHub 链接。而是告诉普通人：它能帮你干什么、为什么推荐它、第一步点哪里、第一段话怎么说、做到什么程度算已经开始、现实里应该看到什么结果（打开工具不算做成）、卡住以后怎么办、这个推荐什么时候会被重新核查。
 
 核心不是"收藏"，核心是：**行动。**
 
@@ -158,7 +161,47 @@ World Space 不需要为了"用户留存"强迫用户留在自己网站。如果
 
 ---
 
-## 8. 内容诚信约束
+## 8. 行动-现实回路（Reality Return）
+
+一次行动完整的形状是：
+
+```
+我想做什么（Intent）
+→ 借世界已有能力（Capability）
+→ 第一步（First Action）
+→ 现实里出现结果（Observable Result）
+→ 没结果 / 被卡住 / 说不清（No Result / Blocked / Unknown）
+→ 用户回来继续（Return）
+```
+
+产品对每一段的责任：
+
+| 段 | 产品必须回答 |
+|---|---|
+| Intent | 用户到底想实现什么 |
+| Capability | 推荐哪个已有能力、为什么是它、它随时可以被替换 |
+| First Action | 第一件真实动作是什么（不是"先了解一下"） |
+| Observable Result | 什么叫"已经开始"、现实里应该看到什么结果 |
+| No Result / Blocked / Unknown | 哪些地方会失败、卡住怎么办、说不清怎么办 |
+| Return | 回来以后怎么继续 |
+
+V0 是纯静态产品，这个回路只允许由以下四样承载：
+
+1. UX 语言（面板里的结果句、「如实说」、检查点清单）；
+2. 路径设计（第一步怎么走、失败往哪转）；
+3. "回来以后怎么继续"的引导（发完回到页面、回首页选下一件事、深链可收藏）；
+4. 本地轻状态（localStorage 进度）。
+
+**不允许**为了这个概念引入后端、账号体系或数据库。
+
+### 未来的 PRK 边界
+
+若 Owner 未来授权，重要 outcome 可以贡献给 PRK（personal reality continuity）。
+但现在不接 PRK API、不写 PRK——World Space 不成为个人现实权威，也不是个人现实数据库。
+
+---
+
+## 9. 内容诚信约束
 
 不得虚构：
 - 用户、成果、收入、数据、学员、转化率
@@ -168,19 +211,31 @@ World Space 不需要为了"用户留存"强迫用户留在自己网站。如果
 
 ---
 
-## 9. RELATION WITH OTHER PRODUCTS
+## 10. RELATION WITH OTHER PRODUCTS
 
 ### Family Space（YuemingHub/Family-Space）
 
 Family Space 关注"人与最重要关系中的真实共同生活"。World Space 关注"把想法变成行动"。两者独立。
 
-### Self Space（YuemingHub/Return-to-oneself）
+### Self Space（YuemingHub/Self-Space）
 
-Self Space 关注"理解自己、形成真实意图"。World Space 关注"带着行动开始"。两者独立。World Space 不假设进入的用户已经完成自我探索，但也不做自我探索。
+Self Space 关注"理解自己、形成真实意图"。World Space 关注"带着行动开始"。两者独立。World Space 不假设进入的用户已经完成自我探索，但也不做自我探索。（旧仓库名 Return-to-oneself 已停止使用，Self Space 不再指"回到自己"。）
+
+### Agent Space（可选入口 / Resolver）
+
+Agent Space 是可选的能力发现与解析入口，不是 World Space 的 runtime。World Space 不依赖它运行：用户不用 Agent Space，也能走完这里全部路径。
+
+### PRK（personal reality continuity）
+
+PRK 承载个人现实的连续性，不是 World Space 的数据库。World Space 现在不读、不写 PRK（边界见 §8）。
+
+### 推荐的能力（world capability）
+
+推荐的外在世界的能力随时可替换：换掉任何一个工具，回路不变。World Space 的资产是筛选判断、行动路径与诚实标注，不与任何单一能力绑定。
 
 ---
 
-## 10. V0.1 SCOPE
+## 11. V0.1 SCOPE
 
 V0.1 只做：
 
@@ -195,7 +250,7 @@ V0.1 只做：
 
 ---
 
-## 11. 仓库结构
+## 12. 仓库结构
 
 ```
 README.md
