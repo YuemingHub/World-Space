@@ -68,6 +68,8 @@ const CFG = {
   trustProxy: process.env.WS_TRUST_PROXY === '1',
   trustedProxies: (process.env.WS_TRUSTED_PROXIES || '127.0.0.1,::1').split(',').map(s => s.trim()).filter(Boolean),
   webDir: join(HERE, '..', 'web', 'v2'),
+  // 公开门面页（未登录 / 的应答）：纯静态资产，与登录后的应用目录分开
+  frontdoorDir: join(HERE, '..', 'web', 'public-frontdoor'),
 };
 
 /* ── 访问门：谁能进入（缺省开启；显式 WS_AUTH_ENABLED=0 才关闭，且启动日志大声声明）── */
@@ -330,11 +332,11 @@ function rateLimited(req) {
   return h.n > CFG.rateLimitPerMin;
 }
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml' };
-function serveStatic(req, res, corsH) {
+function serveStatic(req, res, corsH, dir = CFG.webDir) {
   let p = req.url === '/' ? '/index.html' : req.url.split('?')[0];
   if (p === '/login') p = '/login.html'; // 干净路径给用户，磁盘上带扩展名
-  const file = join(CFG.webDir, normalize(p).replace(/^([.][.][/\\])+/, ''));
-  if (!file.startsWith(CFG.webDir)) return false;
+  const file = join(dir, normalize(p).replace(/^([.][.][/\\])+/, ''));
+  if (!file.startsWith(dir)) return false;
   let data;
   try { data = readFileSync(file); } catch (e) { return false; }
   /* HTML 页面 no-store：退出/换账号后浏览器后退不能显示上一个人的内容 */
@@ -406,8 +408,13 @@ const server = http.createServer(async (req, res) => {
     const p = req.url === '/' ? '/' : req.url.split('?')[0];
     const sess = sessionState(req);
     if (p === '/' || p === '/index.html') {
-      /* 产品首页是受保护页面：没登录/门坏了都去登录页，登录页会如实说明状态 */
-      if (sess.mode === 'out' || sess.mode === 'broken') return redirect(res, '/login');
+      /* 首页分流：已登录（或本地 auth=off）进应用；未登录/门坏了给公开门面页。
+         门面页是纯静态资产，不含任何用户数据，不依赖认证后端健康——
+         认证配置损坏时它照常显示，而 API 与登录后应用照旧 fail closed。 */
+      if (sess.mode === 'out' || sess.mode === 'broken') {
+        if (serveStatic(req, res, corsH, CFG.frontdoorDir)) return;
+        return redirect(res, '/login'); // 门面资产缺失时维持旧入口，不裸 404
+      }
     } else if (p === '/login' || p === '/login.html') {
       if (sess.mode === 'in' || sess.mode === 'off') return redirect(res, '/');
     }
