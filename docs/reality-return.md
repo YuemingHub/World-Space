@@ -1,7 +1,7 @@
 # 行动-现实回路（Reality Return）
 
 > 本文是「打开工具 ≠ 现实已改变」的常设判断记录：回路定义、8 个入口的逐项审计、3 个验收例、以及明确不做的部分。
-> 与 PRODUCT.md §8 配套；catalog 的复核语义见 `catalog/resources.json` 的 review_expiry。
+> 与 PRODUCT.md §8 配套；catalog 的复核语义见 `catalog/resources.json` 的 review_due_at。
 > 最后更新：2026-09-25
 
 ## 1. 回路定义
@@ -51,7 +51,7 @@
 
 ⑧ 不写进用户界面（普通人不需要在按钮旁看到复核日期；复核是推荐方的责任），由 catalog 承载：
 
-- 每个资源新增 `review_expiry`（本次复核 2026-09-25 + 90 天 = 2026-12-24）；
+- 每个资源新增 `review_due_at`（本次复核 2026-09-25 + 默认 90 天 = 2026-12-24）；它是推荐方的复核提醒，不表示资源或推荐在该日自动失效；
 - 到期前必须重新核查价格/免费档/可访问性/政策，更新 `last_reviewed_at` 并顺延；
 - 面向用户的条件性提醒保留在面板「如实说」里（水印、会员、丢照片投诉、需电脑等）。
 
@@ -94,4 +94,4 @@
 - 无后端、无账号、无数据库、无任务追踪；World Space 不做执行平台。
 - 不接 PRK：现在没有 PRK API 调用、没有 PRK 写入路径（边界见 PRODUCT.md §8）。
 - 不为"结果"新增 UI 组件（不加结果输入框、不在页面上展示复核日期）——回路靠现有文案、路径与引导承载。
-- catalog 不扩成 capability registry：只在有真实产品用途时加字段（本次：known_failure、review_expiry）。
+- catalog 不扩成 capability registry：只在有真实产品用途时加字段（本次：known_failure、review_due_at）。
