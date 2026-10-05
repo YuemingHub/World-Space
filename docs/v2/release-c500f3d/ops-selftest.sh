@@ -4,7 +4,8 @@
 # 覆盖三件事，每件都配红绿一对（只见过一种状态的判据不算验证过）：
 #   A. ws-verify-faces.sh 对双面/单面、字段缺失、身份不符、门失效的分类与退出码
 #   B. cutover.sh 的关站边界：只有"公网面确实不可用"才允许 close；
-#      新版诊断面出问题必须留现场不关站（这正是 2026-10-05 的兼容性缺口）
+#      新版诊断面出问题必须留现场不关站（这正是 2026-10-05 的兼容性缺口）；
+#      以及轮换默认值：未设置 = 不轮换（默认 0），显式 WS_ROTATE_SECRET=1 才轮换
 #   C. ws-env-put.sh 对无换行文件的安全性（我把 WS_SEARCH_KEY_2 改坏过的那一类事故）
 #
 # 用法：bash ops-selftest.sh          （退出码 0 = 全部通过）
@@ -187,10 +188,11 @@ chmod +x "$T/fake-emerg.sh"
 printf 'const CFG = { opsPort: 3201 };\n' > "$SB/releases/$SHA/server/world.mjs"   # 新版双面
 printf 'const CFG = { webDir: 1 };\n'        > "$SB/releases/$PREV/server/world.mjs" # 旧版单面
 
-crun() { # crun <label> <expected_exit> <grep-for-verdict> <pub> <ops-or-0> [extra VAR=val]
+crun() { # crun <label> <expected_exit> <grep-for-verdict> <pub> <ops-or-0> [extra VAR=val ...]
+  # 轮换行为由调用方声明：要固定就显式传 WS_ROTATE_SECRET=…（B1-B4 固定 0）；不传 = 测默认值（B5）
   local label="$1" exp="$2" needle="$3" pub="$4" ops="$5"; shift 5
   local out code
-  out=$(env WS_ROOT="$SB" WS_EMERG="$T/fake-emerg.sh" WS_VERIFY="$VERIFY" WS_ROTATE_SECRET=0 \
+  out=$(env WS_ROOT="$SB" WS_EMERG="$T/fake-emerg.sh" WS_VERIFY="$VERIFY" \
         WS_RESTART_CMD=true WS_PID_CMD="echo 4242" EMERG_LOG="$T/emerg.log" \
         WS_PUBLIC_PORT="$pub" WS_OPS_PORT="$ops" WS_GATE_BASE="http://127.0.0.1:$pub" \
         WS_RESOLVE_HOST= WS_CURL_TIMEOUT=4 WS_POLL_TRIES=3 WS_SS_CMD="$T/ss-missing" "$@" \
@@ -202,7 +204,7 @@ crun() { # crun <label> <expected_exit> <grep-for-verdict> <pub> <ops-or-0> [ext
 
 # B1 新版双面健康 → 切流成功，且 current 真的换了，且一次都没关站
 if start_fixture $PB $OB MODE=dual PID=4242; then
-  crun "B1 新版健康切换" 0 "CUTOVER=OK" $PB $OB
+  crun "B1 新版健康切换" 0 "CUTOVER=OK" $PB $OB WS_ROTATE_SECRET=0
   eq "B1 current 已切换" "$SHA" "$(basename "$(readlink "$SB/current")")"
   eq "B1 关站次数" "0" "$(grep -c '^close$' "$T/emerg.log" || true)"
   stop_fixture
@@ -211,31 +213,62 @@ else no "B1 fixture 起不来" ""; fi
 # B2 公网面看起来正常但诊断面没起来 → 必须"留现场不关站"（旧版会在这里误关）
 : > "$T/emerg.log"; ln -sfn "$SB/releases/$PREV" "$SB/current"
 if start_fixture $PB 0 MODE=dual; then
-  crun "B2 诊断面缺失" 1 "CUTOVER=FAILED_SCENE_PRESERVED" $PB $OB
+  crun "B2 诊断面缺失" 1 "CUTOVER=FAILED_SCENE_PRESERVED" $PB $OB WS_ROTATE_SECRET=0
   eq "B2 关站次数（关键：必须 0）" "0" "$(grep -c '^close$' "$T/emerg.log" || true)"
   stop_fixture
 else no "B2 fixture 起不来" ""; fi
 
 # B3 真的什么都没起 → 才允许关站
 : > "$T/emerg.log"
-crun "B3 服务确实不可用" 1 "CUTOVER=FAILED_AND_CLOSED" $DEAD1 $DEAD2
+crun "B3 服务确实不可用" 1 "CUTOVER=FAILED_AND_CLOSED" $DEAD1 $DEAD2 WS_ROTATE_SECRET=0
 eq "B3 关站次数（应恰好 1）" "1" "$(grep -c '^close$' "$T/emerg.log" || true)"
 
 # B4 回滚到旧版单面 → 认出 legacy 并完成，不关站
 : > "$T/emerg.log"
 printf '%s\n' "$PREV" > "$SB/state/approved-sha"
 if start_fixture $PB 0 MODE=legacy; then
-  crun "B4 旧版回滚路径" 0 "CUTOVER=OK" $PB $OB
+  crun "B4 旧版回滚路径" 0 "CUTOVER=OK" $PB $OB WS_ROTATE_SECRET=0
   eq "B4 关站次数" "0" "$(grep -c '^close$' "$T/emerg.log" || true)"
   has "B4 认为目标是旧面" "legacy_single_face" "$CRUN_OUT"
   stop_fixture
 else no "B4 fixture 起不来" ""; fi
+
+# B5/B6/B7 轮换默认值（2026-10-05 起默认 0）：未设置 = 不轮换；显式 1 = 轮换；显式 0 = 与未设置同行为。
+# 红绿成对：B5 断言「不变」、B6 断言「变」——只见过一种状态的判据不算验证过。
+# 密钥文件每个用例独立种子，防上一用例残留造成假绿。
+reset_cut() { # 每次切流前把沙箱恢复到同一初态
+  printf '%s\n' "$SHA" > "$SB/state/approved-sha"
+  ln -sfn "$SB/releases/$PREV" "$SB/current"
+  : > "$T/emerg.log"
+}
+seed_secret() { printf 'seed-rot-%s\n' "$1" > "$SB/etc/session-secret.txt"; }
+secret_hash() { sha256sum "$SB/etc/session-secret.txt" | cut -c1-12; }
+rec_rotated() { grep -h '^session_secret_rotated=' "$(ls -1t "$SB/state"/cutover-*.txt | head -1)"; }
+if start_fixture $PB $OB MODE=dual PID=4242; then
+  unset WS_ROTATE_SECRET   # B5 测的就是「未设置」本身，不吃环境残留
+  reset_cut; seed_secret b5-default; B5H=$(secret_hash)
+  crun "B5 默认（未设置）不轮换" 0 "CUTOVER=OK" $PB $OB
+  eq "B5 session 密钥一字未变" "$B5H" "$(secret_hash)"
+  eq "B5 留档 session_secret_rotated" "session_secret_rotated=0" "$(rec_rotated)"
+  reset_cut; seed_secret b6-explicit-on; B6H=$(secret_hash)
+  crun "B6 显式 1 才轮换" 0 "CUTOVER=OK" $PB $OB WS_ROTATE_SECRET=1
+  if [ "$B6H" != "$(secret_hash)" ]; then ok "B6 session 密钥已重写"; else no "B6 session 密钥已重写" "密钥没变（轮换没生效）"; fi
+  eq "B6 留档 session_secret_rotated" "session_secret_rotated=1" "$(rec_rotated)"
+  reset_cut; seed_secret b7-explicit-off; B7H=$(secret_hash)
+  crun "B7 显式 0 不轮换" 0 "CUTOVER=OK" $PB $OB WS_ROTATE_SECRET=0
+  eq "B7 session 密钥一字未变" "$B7H" "$(secret_hash)"
+  eq "B7 留档 session_secret_rotated" "session_secret_rotated=0" "$(rec_rotated)"
+  stop_fixture
+else no "B5-B7 fixture 起不来" ""; fi
 
 else
   skip "B1 新版健康切换"      "本平台 ln -s 不产生符号链接，切流语义需在 Linux 上验（见报告）"
   skip "B2 诊断面缺失不关站"  "同上"
   skip "B3 真不可用才关站"    "同上"
   skip "B4 旧版回滚路径"      "同上"
+  skip "B5 默认（未设置）不轮换" "同上"
+  skip "B6 显式 1 才轮换"     "同上"
+  skip "B7 显式 0 不轮换"     "同上"
 fi
 
 # ─────────────────────── C. env 写入安全 ───────────────────────
