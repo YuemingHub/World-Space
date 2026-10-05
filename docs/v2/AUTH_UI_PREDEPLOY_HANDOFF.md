@@ -34,7 +34,9 @@
 - **密码**：`scrypt$16384$8$1$salt64$hash128`（crypto.scrypt，16B 随机盐，64B key）；验证恒时比较（`timingSafeEqual`）；账号不存在也烧一次等价 scrypt（decoy），"没这个账号"与"密码错"响应逐字节一致、计时不可区分。参数闸：N/r/p 超界视为坏 hash（防登录时内存 DoS）。
 - **Session**：`base64url({uid,iat,exp,v:1}) + "." + HMAC-SHA256(secret)`；负载无密码/无用户名/无用户正文；验证顺序 = 恒时验签 → 未过期 → 用户仍存在 → 未被登出吊销。Cookie：`HttpOnly; SameSite=Lax; Path=/; Max-Age=7天（默认，可配）`；`Secure` 由 `WS_COOKIE_SECURE=1` 或（受信反代 + `X-Forwarded-Proto: https`）自动开启。登出吊销表为内存 Set（token 哈希），重启即清——**单实例语义，与预算准入同一立场**。
 - **登录限流**：每 IP 连续失败 ≥5 次（默认）锁定 10 分钟（默认），锁定期间正确密码也 429；成功清零；与 `/api/world` 的每分钟限流相互独立。不做验证码。
-- **接口**：`POST /api/auth/login`、`GET /api/auth/me`、`POST /api/auth/logout`、`POST /api/world`（保护）、`GET /`（保护，302 /login）、`GET /login`（公开，已登录 302 /）、`/healthz`（公开，只报 `auth: ready|broken:<reason>|off`，不回显任何秘密）。
+- **接口**：`POST /api/auth/login`、`GET /api/auth/me`、`POST /api/auth/logout`、`POST /api/world`（保护）、`GET /`（保护，302 /login）、`GET /login`（公开，已登录 302 /）、`GET /healthz`（公开，**只返回 `{"ok":true}`**——不含 provider／模型／搜索厂商／密钥数量／预算／调用量／限流／代理信任／故障原因）。
+- **内部诊断面**：`GET http://127.0.0.1:3201/healthz`（`WS_OPS_PORT`，默认 3201，只绑回环、nginx 不代理）给全量诊断（含 `auth: ready|broken:<reason>|off`、`search_configured`、`today_calls`、`month_cost_rmb`、`trusted_proxy`、`pid`、`app_port`）。该面**不供应用页、不供静态、不供任何业务 API**（`/login`、`POST /api/world` 一律 404），除 `/healthz` 外全部 404。
+  **边界是结构性的，不靠请求头猜**：公网与本机两条路径在 Node 眼里的对端地址都是 `127.0.0.1`，而转发头是否被 nginx 覆写无法从真源证明（仓库里没有落地配置文件）。所以诊断面放在公网根本没有路径可达的端口上，而不是挂在 `X-Forwarded-*` 上判断"像不像本机"。`0 = 关掉诊断面`，自测多实例必须显式给每个实例一个专属口。
 - **缓存纪律**：HTML 页面 `cache-control: no-store`——退出/换账号后浏览器后退不显示上一个人的内容。
 - **日志纪律**：登录只记匿名事件（`auth login ok|fail|locked ip=…`），自测断言日志不含密码、不含用户名、不含 token。
 

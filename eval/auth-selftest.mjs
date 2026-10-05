@@ -35,6 +35,9 @@ function start(port, extra, captureLogs) {
     env: Object.assign({}, process.env, {
       WS_PROVIDER: 'stub', WS_STUB_CASE: 'ok', WS_SEARCH: 'fixture', WS_LIVENESS: '0',
       WS_PORT: String(port), WS_HOST: '127.0.0.1', WS_STATE_FILE: join(VAR, `auth-${port}.json`),
+      // 内部诊断口 = 应用口 + 400（约定写在运行手册里）：每个实例一个专属口，
+      // 绝不用默认 3201——多实例同时跑会抢同一个口，读到"别人的诊断"就是假绿。
+      WS_OPS_PORT: String(port + 400),
       WS_DAILY_CAP: '500',
       WS_AUTH_USERS_FILE: usersFile, WS_SESSION_SECRET_FILE: secretFile, WS_RATE_LIMIT: '1000',
     }, extra),
@@ -66,8 +69,22 @@ const cookieOf = res => res.headers.get('set-cookie') || '';
 const logs = start(8951, {}, true);
 try {
   await up(8951);
-  const hz = await (await fetch(B(8951) + '/healthz')).json();
-  ok('healthz：auth=ready（不泄露任何 secret）', hz.auth === 'ready', JSON.stringify(hz));
+  // 公网面只准说"活着"；诊断面在 127.0.0.1:9351 上说全部。两侧都要真断言，缺一侧就是假绿。
+  const pubResp = await fetch(B(8951) + '/healthz');
+  const pubText = await pubResp.text();
+  ok('公网 /healthz 只返回存活信号 {ok:true}', pubResp.status === 200 && pubText === '{"ok":true}', `${pubResp.status} ${pubText.slice(0, 120)}`);
+  ok('公网 /healthz 不含 provider／模型／搜索厂商／密钥数量', !/provider|model|tavily|bocha|aliyun|search_keys|search_configured/i.test(pubText), pubText);
+  ok('公网 /healthz 不含预算／调用量／限流／代理信任／故障原因',
+    !/daily_cap|monthly_cap_rmb|month_cost_rmb|today_calls|budget_mode|rate_limit_per_min|trusted_proxy|origins_configured|broken:|"auth"/i.test(pubText), pubText);
+  ok('公网面没有诊断路由（细节不挂在外面上）', (await get(8951, '/healthz/detail')).status === 404, String((await get(8951, '/healthz/detail')).status));
+  const ops = await (await fetch('http://127.0.0.1:9351/healthz')).json();
+  ok('内部诊断面：auth=ready 且不泄露任何 secret', ops.auth === 'ready', JSON.stringify(ops).slice(0, 200));
+  ok('内部诊断面保留全部运行摘要（运维盯盘没被削弱）',
+    ops.provider === 'stub' && typeof ops.search_keys === 'number' && ops.month_cost_rmb !== undefined && ops.liveness === false, JSON.stringify(ops).slice(0, 200));
+  ok('内部诊断面自报身份（pid＋app_port）——读到的一定是本实例', ops.app_port === 8951 && ops.pid > 0, `app_port=${ops.app_port} pid=${ops.pid}`);
+  ok('诊断面不供应用页（/login 404）', (await fetch('http://127.0.0.1:9351/login')).status === 404, '');
+  ok('诊断面不供业务 API（POST /api/world 404，不是 401 也不是 200——它压根没有这条路由）',
+    (await fetch('http://127.0.0.1:9351/api/world', { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' })).status === 404, '');
 
   // 未登录：页面去登录页，API 一律 401，静态资源（纯代码）可达
   const root = await get(8951, '/');
@@ -156,8 +173,10 @@ try {
   const inst = start(8952, { WS_AUTH_USERS_FILE: '', WS_SESSION_SECRET_FILE: '' });
   try {
     await up(8952);
-    const hz = await (await fetch(B(8952) + '/healthz')).json();
-    ok('无配置：healthz 如实上报 broken', String(hz.auth).startsWith('broken:'), hz.auth);
+    const pub2Text = await (await fetch(B(8952) + '/healthz')).text();
+    ok('无配置：公网面不吐故障原因（broken:<原因> 属内部诊断，不给外部看）', pub2Text === '{"ok":true}' && !/broken:/i.test(pub2Text), pub2Text);
+    const ops2 = await (await fetch('http://127.0.0.1:9352/healthz')).json();
+    ok('无配置：内部诊断面如实上报 broken（不是藏错误、也不是关掉检查）', String(ops2.auth).startsWith('broken:'), ops2.auth);
     const root = await get(8952, '/');
     ok('无配置：首页不放行（去登录页）', root.status === 302 && root.headers.get('location') === '/login', `${root.status}`);
     ok('无配置：API 明确不可用 503，不是 401 更不是 200', (await world(8952)).status === 503, '');
@@ -199,6 +218,25 @@ try {
     await up(8955);
     const sc = cookieOf(await login(8955, 'alice', PW_A));
     ok('WS_COOKIE_SECURE=1 → cookie 带 Secure（生产反代 TLS 场景）', /;\s*secure/i.test(sc), sc);
+  } finally { kill(inst.child); }
+}
+/* ── 实例 6（8956/8957/8958）：诊断口取值非法或明确关闭 ──
+   本轮 review 发现的真实缺陷：越界值曾被 Node 同步抛错（ERR_SOCKET_BAD_PORT）带走整个进程，
+   非法值则静默不监听、一条日志都不留。两种都必须堵住。 */
+for (const c of [
+  { port: 8956, raw: '999999', want: 'OPS_FACE_DISABLED', why: '越界' },
+  { port: 8957, raw: 'abc', want: 'OPS_FACE_DISABLED', why: '非整数' },
+  { port: 8958, raw: '0', want: 'OPS_FACE=off', why: '明确关闭' },
+]) {
+  const inst = start(c.port, { WS_OPS_PORT: c.raw }, true);
+  try {
+    await up(c.port);
+    const pub = await fetch(B(c.port) + '/healthz');
+    const pubBody = await pub.text();
+    ok(`诊断口${c.why}（WS_OPS_PORT=${c.raw}）：业务进程必须存活，公网面仍 {"ok":true}`, pub.status === 200 && pubBody === '{"ok":true}', `${pub.status} ${pubBody.slice(0, 60)}`);
+    ok(`诊断口${c.why}：未登录业务仍 401（没有因为诊断面缺失退化成开放访问）`, (await world(c.port)).status === 401, '');
+    await new Promise(r => setTimeout(r, 250));
+    ok(`诊断口${c.why}：必须大声声明（不许静默消失）`, inst.logs().includes(c.want), `${c.want} 未出现在启动日志`);
   } finally { kill(inst.child); }
 }
 

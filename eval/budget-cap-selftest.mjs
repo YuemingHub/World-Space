@@ -50,7 +50,7 @@ function startWorld(port, gwPort, stateFile, extraEnv = {}) {
   return spawn(process.execPath, [join(ROOT, 'server', 'world.mjs')], {
     env: Object.assign({}, process.env, {
       WS_PROVIDER: 'openai_compatible', WS_LLM_BASE_URL: `http://127.0.0.1:${gwPort}`,
-      WS_LLM_MODEL: 'mock', WS_SEARCH: 'none', WS_PORT: String(port), WS_HOST: '127.0.0.1',
+      WS_LLM_MODEL: 'mock', WS_SEARCH: 'none', WS_PORT: String(port), WS_HOST: '127.0.0.1', WS_OPS_PORT: '0',
       WS_STATE_FILE: stateFile, WS_DAILY_CAP: '50', WS_MONTHLY_CAP_RMB: '20',
       WS_RMB_PER_1K_IN: '0.002', WS_RMB_PER_1K_OUT: '0.008', WS_MAX_TOKENS: '1500',
       WS_RATE_LIMIT: '1000', WS_TIMEOUT_MS: '5000',

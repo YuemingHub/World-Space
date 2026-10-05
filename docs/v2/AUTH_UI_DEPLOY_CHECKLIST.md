@@ -50,11 +50,12 @@ WS_TRUST_PROXY=1                   # Nginx → Node 单层受信代理（限流�
 ```bash
 # 3a. 故意先只配 secret、不配用户文件启动一次：
 #     启动日志应出现 auth=FAIL_CLOSED(users_not_configured)
-#     curl -s localhost:8787/healthz   → "auth":"broken:users_not_configured"
+#     curl -s localhost:3201/healthz   → "auth":"broken:users_not_configured"（内部诊断口）
+#     curl -s localhost:8787/healthz   → {"ok":true}（公网口不再给故障原因，也不给任何运行摘要）
 #     curl -i localhost:8787/api/world -X POST → 503 auth_unavailable
 #     curl -i localhost:8787/          → 302 /login
 # 3b. 补上用户文件重启：
-#     healthz → "auth":"ready"
+#     诊断口 3201 → "auth":"ready"
 ```
 
 如果 3a 时任何接口返回了 200 业务数据——**停下来，这是 P0，不要继续**。
@@ -64,7 +65,7 @@ WS_TRUST_PROXY=1                   # Nginx → Node 单层受信代理（限流�
 ```bash
 cd /srv/world-space/repos/World-Space && git fetch origin && git checkout <批准的 SHA>
 # 按既有方式启动（env 见第 2 节）
-curl -s localhost:8787/healthz | grep '"auth":"ready"'
+curl -s localhost:3201/healthz | grep '"auth":"ready"'   # 内部诊断口；公网口 /healthz 只有 {"ok":true}
 # 未登录 API 必须 401：
 curl -i -X POST localhost:8787/api/world -H 'content-type: application/json' -d '{"intent":"smoke"}'   # → 401
 # 登录 → 带 cookie 调用成功：
@@ -98,7 +99,7 @@ https://ymai.fun          → 未登录自动到 /login
 
 ## 7. 上线后
 
-- `/healthz` 盯 `auth:"ready"` 与 `month_cost_rmb`（月上限 20 元硬闸）。
+- `127.0.0.1:3201/healthz`（内部诊断口）盯 `auth:"ready"` 与 `month_cost_rmb`（月上限 20 元硬闸）。公网 `/healthz` 只剩 `{"ok":true}`，**不得**再作为盯盘与验收依据。
 - 轮换 Tavily 旧 key（上一轮遗留，部署前必须做）。
 - 用户文件变更（加人/删人）即时生效，无需重启；删人后其会话立即失效。
 

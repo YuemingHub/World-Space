@@ -16,7 +16,7 @@ function start(port, extraEnv, captureLogs) {
   const child = spawn(process.execPath, [join(ROOT, 'server', 'world.mjs')], {
     env: Object.assign({}, process.env, {
       WS_PROVIDER: 'stub', WS_STUB_CASE: 'ok', WS_SEARCH: 'fixture', WS_LIVENESS: '0',
-      WS_PORT: String(port), WS_HOST: '127.0.0.1', WS_STATE_FILE: join(ROOT, 'var', `rt-${port}.json`),
+      WS_PORT: String(port), WS_HOST: '127.0.0.1', WS_OPS_PORT: String(port + 400), WS_STATE_FILE: join(ROOT, 'var', `rt-${port}.json`),
       WS_DAILY_CAP: '500', WS_AUTH_ENABLED: '0', // 本门测运行时边界，不测访问门（auth-selftest 专测）
     }, extraEnv),
     stdio: captureLogs ? ['ignore', 'pipe', 'pipe'] : 'ignore',
@@ -110,8 +110,10 @@ const kill = c => { try { c.kill('SIGKILL'); } catch (e) { } };
   const inst = start(8883, { WS_RATE_LIMIT: '3', WS_TRUST_PROXY: '1' });
   await up(8883);
   const B = 'http://127.0.0.1:8883/api/world';
-  const hz = await (await fetch('http://127.0.0.1:8883/healthz')).json();
-  ok('healthz 报告代理信任已开启', hz.trusted_proxy === true, JSON.stringify(hz));
+  const pubText = await (await fetch('http://127.0.0.1:8883/healthz')).text();
+  ok('公网面不报代理信任配置（trusted_proxy 只在内部诊断面）', pubText === '{"ok":true}', pubText.slice(0, 120));
+  const hz = await (await fetch('http://127.0.0.1:9283/healthz')).json();
+  ok('内部诊断面报告代理信任已开启（该字段不在公网面）', hz.trusted_proxy === true, JSON.stringify(hz));
   const send = xff => fetch(B, {
     method: 'POST',
     headers: Object.assign({ 'content-type': 'application/json' }, xff ? { 'x-forwarded-for': xff } : {}),
