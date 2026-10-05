@@ -39,7 +39,8 @@
             5. 服务端签发 e1..eN（模型只见 id）
             6. LLM compose（只引 id）→ guard（风险×授权 admission / 路径 backing 统一 /
                时效旗标 / 高风险撤回 / 中性兜底）→ 契约校验（不过 502）
-       ── GET /healthz（只报配没配，不回显 key）
+       ── GET /healthz（公网：只返回 {"ok":true}，运行摘要一律不给外部）
+       ── GET 127.0.0.1:3201/healthz（内部诊断面：配没配、用量、预算、auth 状态；不经 nginx）
 ```
 
 - model provider：OpenAI 兼容网关（现用 deepseek-flash）
@@ -91,7 +92,7 @@ node eval/run.mjs --pilot eval/pilot12.json --max 12 --dry-run   ✓ 恰好 12 �
 5. 陌生网站跨域调用接口 → 403；同源正常
 6. `WS_DAILY_CAP` 临时调小自测 → 429 + 手工降级文案（测完改回 50）
 7. 断网/停 LLM 网关提交 → 诚实错误 + 现实下一步，无假答案
-8. `GET /healthz`：search_configured=true、fail_closed=true、today_calls 在涨、月成本在涨
+8. `GET 127.0.0.1:3201/healthz`（内部诊断口）：search_configured=true、fail_closed=true、today_calls 在涨、月成本在涨；公网 `GET /healthz` 必须只有 `{"ok":true}`
 
 ## 8. Deployment Inputs（只列变量名；值由运维本机填写）
 

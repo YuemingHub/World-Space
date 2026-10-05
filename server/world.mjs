@@ -68,6 +68,9 @@ const CFG = {
   trustProxy: process.env.WS_TRUST_PROXY === '1',
   trustedProxies: (process.env.WS_TRUSTED_PROXIES || '127.0.0.1,::1').split(',').map(s => s.trim()).filter(Boolean),
   webDir: join(HERE, '..', 'web', 'v2'),
+  // 内部诊断端口：只绑 127.0.0.1，nginx 不代理，公网到不了。生产 3200 → 3201。
+  // 0 = 不开诊断面（不需要诊断字段的自测实例显式关掉，免得多个实例抢同一个口）。
+  opsPort: Number(process.env.WS_OPS_PORT || 3201),
 };
 
 /* ── 访问门：谁能进入（缺省开启；显式 WS_AUTH_ENABLED=0 才关闭，且启动日志大声声明）── */
@@ -356,6 +359,29 @@ function readBody(req) {
   });
 }
 
+/* 内部诊断 payload：只在 127.0.0.1:<opsPort> 上给，公网面拿不到。
+   字段口径与原公网 /healthz 逐字一致，另加 pid / app_port 两项：
+   自测靠它们确认"我读到的诊断面就是我起的这个实例"，把端口串台（L20/L21 的教训）堵在结构上。 */
+function healthDetail() {
+  const b = loadBudget();
+  const a = AUTH.status();
+  return {
+    ok: true, pid: process.pid, app_port: CFG.port,
+    provider: CFG.provider, search: CFG.search, model: CFG.llmModel || 'stub',
+    // 只报告"配没配、配了几把"，绝不回显 key。
+    // ⚠️ 注意（L25）：这里为 true 也**不代表钥匙还能用**——钥匙被撤销时看不出来，
+    //    真要靠一次真实搜索才验得出来。
+    search_configured: CFG.search === 'fixture' ? true : (CFG.search !== 'none' && searchKeys(CFG).length > 0),
+    search_keys: searchKeys(CFG).length,
+    origins_configured: CFG.allowedOrigins.length > 0, rate_limit_per_min: CFG.rateLimitPerMin,
+    liveness: CFG.liveness, trusted_proxy: CFG.trustProxy,
+    auth: a.enabled ? (a.ready ? 'ready' : `broken:${a.reason}`) : 'off',
+    budget_mode: b.mode, today_calls: b.state ? b.state.calls : null,
+    month_cost_rmb: b.state ? b.state.cost : null,
+    daily_cap: CFG.dailyCap, monthly_cap_rmb: CFG.monthlyCapRmb, fail_closed: CFG.failClosed,
+  };
+}
+
 const server = http.createServer(async (req, res) => {
   const t0 = Date.now();
   const { allowed, headers: corsH } = corsFor(req);
@@ -364,24 +390,9 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(204, corsH);
     return res.end();
   }
-  if (req.url === '/healthz') {
-    const b = loadBudget();
-    const a = AUTH.status();
-    return json(res, 200, {
-      ok: true, provider: CFG.provider, search: CFG.search, model: CFG.llmModel || 'stub',
-      // 只报告"配没配、配了几把"，绝不回显 key。
-      // ⚠️ 注意（L25）：这里为 true 也**不代表钥匙还能用**——钥匙被撤销时 healthz 看不出来，
-      //    真要靠一次真实搜索才验得出来。
-      search_configured: CFG.search === 'fixture' ? true : (CFG.search !== 'none' && searchKeys(CFG).length > 0),
-      search_keys: searchKeys(CFG).length,
-      origins_configured: CFG.allowedOrigins.length > 0, rate_limit_per_min: CFG.rateLimitPerMin,
-      liveness: CFG.liveness, trusted_proxy: CFG.trustProxy,
-      auth: a.enabled ? (a.ready ? 'ready' : `broken:${a.reason}`) : 'off',
-      budget_mode: b.mode, today_calls: b.state ? b.state.calls : null,
-      month_cost_rmb: b.state ? b.state.cost : null,
-      daily_cap: CFG.dailyCap, monthly_cap_rmb: CFG.monthlyCapRmb, fail_closed: CFG.failClosed,
-    }, corsH);
-  }
+  /* 公网只回答"活着没有"。运行摘要（provider／模型／密钥数量／预算／用量／故障原因）
+     一律不在这里——它们是内部诊断面（127.0.0.1:opsPort）的内容，见 healthDetail()。 */
+  if (req.url === '/healthz') return json(res, 200, { ok: true }, corsH);
   /* 认证是明码标价的门，不是暗桩：X-Forwarded-Proto 只在对面是受信代理时才看 */
   const protoHttps = CFG.trustProxy && CFG.trustedProxies.includes(req.socket.remoteAddress || '')
     && String(req.headers['x-forwarded-proto'] || '') === 'https';
@@ -558,6 +569,29 @@ async function handleWorld(req, res, corsH, t0) {
     console.log(`${new Date().toISOString()} ${req.method} ${res.statusCode} ${Date.now() - t0}ms llm=${usage.llm_calls} search=${usage.search_calls} retry=${usage.llm_retries} req_cost=${usage.request_cost_rmb} month=${s.cost} calls=${s.calls}`);
   }
 }
+/* ── 内部诊断面：只绑 127.0.0.1，nginx 不代理 ──
+   边界是结构性的，不靠猜请求头：公网流量必经 nginx 落到 3200，而 3201 没有任何代理指向它。
+   （对端地址在"公网经 nginx"和"本机 curl"两种情况下都是 127.0.0.1，头也全靠代理层覆写——
+     两者都无法证明，所以不拿它们当授权依据。） */
+if (CFG.opsPort > 0) {
+  const ops = http.createServer((req, res) => {
+    const p = req.url.split('?')[0];
+    if ((req.method === 'GET' || req.method === 'HEAD') && p === '/healthz') {
+      res.writeHead(200, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' });
+      return res.end(req.method === 'HEAD' ? undefined : JSON.stringify(healthDetail()));
+    }
+    /* 诊断面除 /healthz 外什么都不给：不供静态、不供 API */
+    res.writeHead(404, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' });
+    res.end(JSON.stringify({ error: 'not_found' }));
+  });
+  /* 绑定失败必须大声：诊断面消失不代表服务坏了，但绝不能静默——
+     否则"3201 上有响应"其实是别的实例留下的，自测会因此假绿。 */
+  ops.on('error', e => console.error(`OPS_LISTEN_FAILED 127.0.0.1:${CFG.opsPort} code=${e.code || e.message} —— 内部诊断面不可用（公网面与业务 API 不受影响），请检查端口占用`));
+  ops.listen(CFG.opsPort, '127.0.0.1', () => {
+    console.log(`world ops http://127.0.0.1:${CFG.opsPort}/healthz 仅本机可达（无 nginx 代理，公网零暴露）`);
+  });
+}
+
 server.listen(CFG.port, CFG.host, () => {
   const a = AUTH.status();
   const authState = a.enabled ? (a.ready ? 'ready' : `FAIL_CLOSED(${a.reason})`) : 'OFF(公开访问，只用于本地离线开发)';
