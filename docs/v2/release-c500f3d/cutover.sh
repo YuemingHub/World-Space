@@ -23,7 +23,7 @@ ROOT="${WS_ROOT:-/opt/world-space}"
 STATE="$ROOT/state"
 EMERG="${WS_EMERG:-/usr/local/bin/world-space-emergency.sh}"
 VERIFY="${WS_VERIFY:-/usr/local/bin/ws-verify-faces.sh}"
-ROTATE_SECRET="${WS_ROTATE_SECRET:-1}"          # 0 = 本次不轮换 session 密钥（现有登录不掉线）
+ROTATE_SECRET="${WS_ROTATE_SECRET:-0}"          # 默认 0 = 不轮换（现有登录不掉线）；只有显式 WS_ROTATE_SECRET=1 才轮换
 RESTART_CMD="${WS_RESTART_CMD:-systemctl restart world-space.service}"
 PID_CMD="${WS_PID_CMD:-systemctl show -p MainPID --value world-space.service}"
 PUBLIC_PORT="${WS_PUBLIC_PORT:-3200}"
@@ -65,7 +65,7 @@ if [ "$ROTATE_SECRET" = "1" ]; then
   chmod 600 "$ROOT/etc/session-secret.txt"; chown wsapp:wsapp "$ROOT/etc/session-secret.txt"
   echo "  已重写（值不回显）。所有账号需要重新登录一次，口令不变。"
 else
-  echo "=== 1) 跳过 session 密钥轮换（WS_ROTATE_SECRET=0：现有登录令牌继续有效）==="
+  echo "=== 1) 跳过 session 密钥轮换（WS_ROTATE_SECRET 未设置或为 0：现有登录令牌继续有效）==="
 fi
 
 # 2) 切版本 + 重启，并量出真实中断时长
