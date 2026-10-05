@@ -130,7 +130,7 @@ function structuralAudit(html) {
   const child = spawn(process.execPath, [join(ROOT, 'server', 'world.mjs')], {
     env: Object.assign({}, process.env, {
       WS_PROVIDER: 'stub', WS_STUB_CASE: 'xss', WS_SEARCH: 'none', WS_LIVENESS: '0',
-      WS_PORT: '8889', WS_HOST: '127.0.0.1', WS_STATE_FILE: join(ROOT, 'var', 'xss-e2e.json'), WS_RATE_LIMIT: '100',
+      WS_PORT: '8889', WS_HOST: '127.0.0.1', WS_OPS_PORT: '0', WS_STATE_FILE: join(ROOT, 'var', 'xss-e2e.json'), WS_RATE_LIMIT: '100',
       WS_AUTH_ENABLED: '0', // 本门测安全边界，不测访问门（auth-selftest 专测）
     }), stdio: 'ignore',
   });

@@ -39,7 +39,8 @@
             5. 服务端签发 e1..eN（模型只见 id）
             6. LLM compose（只引 id）→ guard（风险×授权 admission / 路径 backing 统一 /
                时效旗标 / 高风险撤回 / 中性兜底）→ 契约校验（不过 502）
-       ── GET /healthz（只报配没配，不回显 key）
+       ── GET /healthz（公网：只返回 {"ok":true}，运行摘要一律不给外部）
+       ── GET 127.0.0.1:3201/healthz（内部诊断面：配没配、用量、预算、auth 状态；不经 nginx）
 ```
 
 - model provider：OpenAI 兼容网关（现用 deepseek-flash）
@@ -91,7 +92,7 @@ node eval/run.mjs --pilot eval/pilot12.json --max 12 --dry-run   ✓ 恰好 12 �
 5. 陌生网站跨域调用接口 → 403；同源正常
 6. `WS_DAILY_CAP` 临时调小自测 → 429 + 手工降级文案（测完改回 50）
 7. 断网/停 LLM 网关提交 → 诚实错误 + 现实下一步，无假答案
-8. `GET /healthz`：search_configured=true、fail_closed=true、today_calls 在涨、月成本在涨
+8. `GET 127.0.0.1:3201/healthz`（内部诊断口）：search_configured=true、fail_closed=true、today_calls 在涨、月成本在涨；公网 `GET /healthz` 必须只有 `{"ok":true}`
 
 ## 8. Deployment Inputs（只列变量名；值由运维本机填写）
 
@@ -101,8 +102,11 @@ WS_MAX_TOKENS WS_TIMEOUT_MS
 WS_SEARCH WS_SEARCH_KEY WS_SEARCH_URL
 WS_DAILY_CAP WS_MONTHLY_CAP_RMB WS_RMB_PER_SEARCH WS_RMB_PER_1K_IN WS_RMB_PER_1K_OUT
 WS_HOST WS_PORT WS_STATE_FILE WS_BUDGET_FAIL_CLOSED
+WS_OPS_PORT                              ← 内部诊断口（默认 3201；只绑 127.0.0.1，nginx 不代理）
 WS_ALLOWED_ORIGINS WS_RATE_LIMIT WS_LIVENESS
 ```
+
+`WS_OPS_PORT` 只接受 **1-65535 的整数，或 `0`（明确关闭）**。越界或非整数不会拖垮业务进程：诊断面不监听并在 stderr 打 `OPS_FACE_DISABLED`（`0` 则打 `OPS_FACE=off`）。多实例并跑（含自测）必须给每个实例一个**互不相同**的口，禁止都吃默认 3201——否则会读到别人的实例，诊断与身份校验一起变成假绿。
 
 启动：`set -a && . var/.env.local && set +a && node server/world.mjs`（同源托管页面与接口）。
 若前端改走独立域名（如 GitHub Pages），必须设 `WS_ALLOWED_ORIGINS=https://<域名>`。

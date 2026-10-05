@@ -32,6 +32,23 @@ import { createAuth, sessionTokenFrom } from './auth.mjs';
 const HERE = dirname(fileURLToPath(import.meta.url));
 const SCHEMA = JSON.parse(readFileSync(join(HERE, '..', 'contracts', 'world.schema.json'), 'utf8'));
 
+/* 内部诊断口取值：只接受 1-65535 的整数，或 0 = 明确关闭。
+   为什么要专门校验（本轮实测发现的缺陷）：Node 的 Server.listen 对越界端口是**同步抛错**，
+   `server.on('error')` 抓不到——`WS_OPS_PORT=999999` 会直接把业务进程带崩
+   （RangeError [ERR_SOCKET_BAD_PORT]，实测进程退出）。诊断面是附属能力，
+   它配错不能升级为整服务不可用。业务口 WS_PORT 保持相反立场：配错就该起不来，
+   不静默换口继续跑——那是"跑在错误的地方"，比"没有诊断面"严重得多。 */
+function resolveOpsFace() {
+  const raw = process.env.WS_OPS_PORT;
+  if (raw === undefined || raw === '') return { port: 3201, declare: '' };
+  const n = Number(raw);
+  if (!Number.isInteger(n)) return { port: 0, declare: `OPS_FACE_DISABLED WS_OPS_PORT="${raw}" 不是整数 —— 内部诊断面不监听（公网存活面与业务 API 不受影响）` };
+  if (n === 0) return { port: 0, declare: 'OPS_FACE=off WS_OPS_PORT=0 —— 按配置关闭内部诊断面' };
+  if (n < 1 || n > 65535) return { port: 0, declare: `OPS_FACE_DISABLED WS_OPS_PORT=${n} 越界（应为 1-65535 的整数，或 0 关闭）—— 内部诊断面不监听（公网存活面与业务 API 不受影响）` };
+  return { port: n, declare: '' };
+}
+const OPS_FACE = resolveOpsFace();
+
 const CFG = {
   host: process.env.WS_HOST || '127.0.0.1',
   port: Number(process.env.WS_PORT || 8787),
@@ -70,6 +87,9 @@ const CFG = {
   webDir: join(HERE, '..', 'web', 'v2'),
   // 公开门面页（未登录 / 的应答）：纯静态资产，与登录后的应用目录分开
   frontdoorDir: join(HERE, '..', 'web', 'public-frontdoor'),
+  // 内部诊断端口：只绑 127.0.0.1，nginx 不代理，公网到不了。生产 3200 → 3201。
+  // 取值与非法值处理见 resolveOpsFace()（1-65535 整数，或 0 = 明确关闭）。
+  opsPort: OPS_FACE.port,
 };
 
 /* ── 访问门：谁能进入（缺省开启；显式 WS_AUTH_ENABLED=0 才关闭，且启动日志大声声明）── */
@@ -358,6 +378,29 @@ function readBody(req) {
   });
 }
 
+/* 内部诊断 payload：只在 127.0.0.1:<opsPort> 上给，公网面拿不到。
+   字段口径与原公网 /healthz 逐字一致，另加 pid / app_port 两项：
+   自测靠它们确认"我读到的诊断面就是我起的这个实例"，把端口串台（L20/L21 的教训）堵在结构上。 */
+function healthDetail() {
+  const b = loadBudget();
+  const a = AUTH.status();
+  return {
+    ok: true, pid: process.pid, app_port: CFG.port,
+    provider: CFG.provider, search: CFG.search, model: CFG.llmModel || 'stub',
+    // 只报告"配没配、配了几把"，绝不回显 key。
+    // ⚠️ 注意（L25）：这里为 true 也**不代表钥匙还能用**——钥匙被撤销时看不出来，
+    //    真要靠一次真实搜索才验得出来。
+    search_configured: CFG.search === 'fixture' ? true : (CFG.search !== 'none' && searchKeys(CFG).length > 0),
+    search_keys: searchKeys(CFG).length,
+    origins_configured: CFG.allowedOrigins.length > 0, rate_limit_per_min: CFG.rateLimitPerMin,
+    liveness: CFG.liveness, trusted_proxy: CFG.trustProxy,
+    auth: a.enabled ? (a.ready ? 'ready' : `broken:${a.reason}`) : 'off',
+    budget_mode: b.mode, today_calls: b.state ? b.state.calls : null,
+    month_cost_rmb: b.state ? b.state.cost : null,
+    daily_cap: CFG.dailyCap, monthly_cap_rmb: CFG.monthlyCapRmb, fail_closed: CFG.failClosed,
+  };
+}
+
 const server = http.createServer(async (req, res) => {
   const t0 = Date.now();
   const { allowed, headers: corsH } = corsFor(req);
@@ -366,24 +409,9 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(204, corsH);
     return res.end();
   }
-  if (req.url === '/healthz') {
-    const b = loadBudget();
-    const a = AUTH.status();
-    return json(res, 200, {
-      ok: true, provider: CFG.provider, search: CFG.search, model: CFG.llmModel || 'stub',
-      // 只报告"配没配、配了几把"，绝不回显 key。
-      // ⚠️ 注意（L25）：这里为 true 也**不代表钥匙还能用**——钥匙被撤销时 healthz 看不出来，
-      //    真要靠一次真实搜索才验得出来。
-      search_configured: CFG.search === 'fixture' ? true : (CFG.search !== 'none' && searchKeys(CFG).length > 0),
-      search_keys: searchKeys(CFG).length,
-      origins_configured: CFG.allowedOrigins.length > 0, rate_limit_per_min: CFG.rateLimitPerMin,
-      liveness: CFG.liveness, trusted_proxy: CFG.trustProxy,
-      auth: a.enabled ? (a.ready ? 'ready' : `broken:${a.reason}`) : 'off',
-      budget_mode: b.mode, today_calls: b.state ? b.state.calls : null,
-      month_cost_rmb: b.state ? b.state.cost : null,
-      daily_cap: CFG.dailyCap, monthly_cap_rmb: CFG.monthlyCapRmb, fail_closed: CFG.failClosed,
-    }, corsH);
-  }
+  /* 公网只回答"活着没有"。运行摘要（provider／模型／密钥数量／预算／用量／故障原因）
+     一律不在这里——它们是内部诊断面（127.0.0.1:opsPort）的内容，见 healthDetail()。 */
+  if (req.url === '/healthz') return json(res, 200, { ok: true }, corsH);
   /* 认证是明码标价的门，不是暗桩：X-Forwarded-Proto 只在对面是受信代理时才看 */
   const protoHttps = CFG.trustProxy && CFG.trustedProxies.includes(req.socket.remoteAddress || '')
     && String(req.headers['x-forwarded-proto'] || '') === 'https';
@@ -565,6 +593,34 @@ async function handleWorld(req, res, corsH, t0) {
     console.log(`${new Date().toISOString()} ${req.method} ${res.statusCode} ${Date.now() - t0}ms llm=${usage.llm_calls} search=${usage.search_calls} retry=${usage.llm_retries} req_cost=${usage.request_cost_rmb} month=${s.cost} calls=${s.calls}`);
   }
 }
+/* ── 内部诊断面：只绑 127.0.0.1，nginx 不代理 ──
+   边界是结构性的，不靠猜请求头：公网流量必经 nginx 落到 3200，而 3201 没有任何代理指向它。
+   （对端地址在"公网经 nginx"和"本机 curl"两种情况下都是 127.0.0.1，头也全靠代理层覆写——
+     两者都无法证明，所以不拿它们当授权依据。） */
+if (CFG.opsPort > 0) {
+  const ops = http.createServer((req, res) => {
+    const p = req.url.split('?')[0];
+    if ((req.method === 'GET' || req.method === 'HEAD') && p === '/healthz') {
+      res.writeHead(200, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' });
+      return res.end(req.method === 'HEAD' ? undefined : JSON.stringify(healthDetail()));
+    }
+    /* 诊断面除 /healthz 外什么都不给：不供静态、不供 API */
+    res.writeHead(404, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' });
+    res.end(JSON.stringify({ error: 'not_found' }));
+  });
+  /* 绑定失败必须大声：诊断面消失不代表服务坏了，但绝不能静默——
+     否则"3201 上有响应"其实是别的实例留下的，自测会因此假绿。 */
+  ops.on('error', e => console.error(`OPS_LISTEN_FAILED 127.0.0.1:${CFG.opsPort} code=${e.code || e.message} —— 内部诊断面不可用（公网面与业务 API 不受影响），请检查端口占用`));
+  ops.listen(CFG.opsPort, '127.0.0.1', () => {
+    console.log(`world ops http://127.0.0.1:${CFG.opsPort}/healthz 仅本机可达（无 nginx 代理，公网零暴露）`);
+  });
+} else if (OPS_FACE.declare.startsWith('OPS_FACE_DISABLED')) {
+  // 配错了：走 stderr，让它能被 journal 与告警抓到，而不是混在正常启动日志里没人看。
+  console.error(OPS_FACE.declare);
+} else if (OPS_FACE.declare) {
+  console.log(OPS_FACE.declare);
+}
+
 server.listen(CFG.port, CFG.host, () => {
   const a = AUTH.status();
   const authState = a.enabled ? (a.ready ? 'ready' : `FAIL_CLOSED(${a.reason})`) : 'OFF(公开访问，只用于本地离线开发)';

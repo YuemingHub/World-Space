@@ -42,7 +42,7 @@ function startWorld(port, env) {
   const child = spawn(process.execPath, [join(ROOT, 'server', 'world.mjs')], {
     env: Object.assign({}, process.env, {
       WS_PROVIDER: 'openai_compatible', WS_LLM_BASE_URL: `http://127.0.0.1:${port + 100}`,
-      WS_LLM_MODEL: 'mock', WS_SEARCH: 'none', WS_PORT: String(port), WS_HOST: '127.0.0.1',
+      WS_LLM_MODEL: 'mock', WS_SEARCH: 'none', WS_PORT: String(port), WS_HOST: '127.0.0.1', WS_OPS_PORT: String(port + 400),
       WS_STATE_FILE: env.stateFile, WS_DAILY_CAP: '50', WS_TIMEOUT_MS: '5000',
       WS_AUTH_ENABLED: '0', // 本门测业务边界，不测访问门（auth-selftest 专测）
     }), stdio: 'ignore',
@@ -50,14 +50,17 @@ function startWorld(port, env) {
   return child;
 }
 async function worldUp(port) {
+  const opsPort = port + 400; // 诊断口：公网面只剩 {ok:true}，身份校验必须走内部口
   for (let i = 0; i < 40; i++) {
     try {
       const r = await fetch(`http://127.0.0.1:${port}/healthz`);
       if (r.ok) {
         // 身份校验：本测试的 world 必须是 mock 模型。真实教训——端口被别的服务占用时，
         // 子进程绑定失败被静默忽略，轮询会连上"别人的服务"，离线门就悄悄变成了真实 provider 调用。
-        const h = await r.json();
-        if (h.model !== 'mock') throw new Error(`端口 ${port} 上是别的服务（model=${h.model}）——测试未连到自己的 world`);
+        // 现在诊断口自报 app_port，串台在结构上无法隐藏。
+        const h = await (await fetch(`http://127.0.0.1:${opsPort}/healthz`)).json();
+        if (h.model !== 'mock') throw new Error(`端口 ${opsPort} 上是别的服务（model=${h.model}）——测试未连到自己的 world`);
+        if (h.app_port !== port) throw new Error(`端口 ${opsPort} 上是别的服务（诊断口 app_port=${h.app_port}，应为 ${port}）——测试未连到自己的 world`);
         return;
       }
     } catch (e) {
@@ -125,7 +128,7 @@ const kill = c => { try { c.kill('SIGKILL'); } catch (e) { } };
   const child = spawn(process.execPath, [join(ROOT, 'server', 'world.mjs')], {
     env: Object.assign({}, process.env, {
       WS_PROVIDER: 'openai_compatible', WS_LLM_BASE_URL: `http://127.0.0.1:${gwPort}`,
-      WS_LLM_MODEL: 'mock', WS_SEARCH: 'none', WS_PORT: String(worldPort), WS_HOST: '127.0.0.1',
+      WS_LLM_MODEL: 'mock', WS_SEARCH: 'none', WS_PORT: String(worldPort), WS_HOST: '127.0.0.1', WS_OPS_PORT: String(worldPort + 400),
       WS_STATE_FILE: join(ROOT, 'var', 'retry-c.json'), WS_DAILY_CAP: '50', WS_TIMEOUT_MS: '5000',
       WS_AUTH_ENABLED: '0', // 同上：本门不测访问门
     }), stdio: 'ignore',
