@@ -102,8 +102,11 @@ WS_MAX_TOKENS WS_TIMEOUT_MS
 WS_SEARCH WS_SEARCH_KEY WS_SEARCH_URL
 WS_DAILY_CAP WS_MONTHLY_CAP_RMB WS_RMB_PER_SEARCH WS_RMB_PER_1K_IN WS_RMB_PER_1K_OUT
 WS_HOST WS_PORT WS_STATE_FILE WS_BUDGET_FAIL_CLOSED
+WS_OPS_PORT                              ← 内部诊断口（默认 3201；只绑 127.0.0.1，nginx 不代理）
 WS_ALLOWED_ORIGINS WS_RATE_LIMIT WS_LIVENESS
 ```
+
+`WS_OPS_PORT` 只接受 **1-65535 的整数，或 `0`（明确关闭）**。越界或非整数不会拖垮业务进程：诊断面不监听并在 stderr 打 `OPS_FACE_DISABLED`（`0` 则打 `OPS_FACE=off`）。多实例并跑（含自测）必须给每个实例一个**互不相同**的口，禁止都吃默认 3201——否则会读到别人的实例，诊断与身份校验一起变成假绿。
 
 启动：`set -a && . var/.env.local && set +a && node server/world.mjs`（同源托管页面与接口）。
 若前端改走独立域名（如 GitHub Pages），必须设 `WS_ALLOWED_ORIGINS=https://<域名>`。

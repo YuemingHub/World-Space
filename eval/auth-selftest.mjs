@@ -82,6 +82,9 @@ try {
   ok('内部诊断面保留全部运行摘要（运维盯盘没被削弱）',
     ops.provider === 'stub' && typeof ops.search_keys === 'number' && ops.month_cost_rmb !== undefined && ops.liveness === false, JSON.stringify(ops).slice(0, 200));
   ok('内部诊断面自报身份（pid＋app_port）——读到的一定是本实例', ops.app_port === 8951 && ops.pid > 0, `app_port=${ops.app_port} pid=${ops.pid}`);
+  ok('诊断面不供应用页（/login 404）', (await fetch('http://127.0.0.1:9351/login')).status === 404, '');
+  ok('诊断面不供业务 API（POST /api/world 404，不是 401 也不是 200——它压根没有这条路由）',
+    (await fetch('http://127.0.0.1:9351/api/world', { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' })).status === 404, '');
 
   // 未登录：页面去登录页，API 一律 401，静态资源（纯代码）可达
   const root = await get(8951, '/');
@@ -215,6 +218,25 @@ try {
     await up(8955);
     const sc = cookieOf(await login(8955, 'alice', PW_A));
     ok('WS_COOKIE_SECURE=1 → cookie 带 Secure（生产反代 TLS 场景）', /;\s*secure/i.test(sc), sc);
+  } finally { kill(inst.child); }
+}
+/* ── 实例 6（8956/8957/8958）：诊断口取值非法或明确关闭 ──
+   本轮 review 发现的真实缺陷：越界值曾被 Node 同步抛错（ERR_SOCKET_BAD_PORT）带走整个进程，
+   非法值则静默不监听、一条日志都不留。两种都必须堵住。 */
+for (const c of [
+  { port: 8956, raw: '999999', want: 'OPS_FACE_DISABLED', why: '越界' },
+  { port: 8957, raw: 'abc', want: 'OPS_FACE_DISABLED', why: '非整数' },
+  { port: 8958, raw: '0', want: 'OPS_FACE=off', why: '明确关闭' },
+]) {
+  const inst = start(c.port, { WS_OPS_PORT: c.raw }, true);
+  try {
+    await up(c.port);
+    const pub = await fetch(B(c.port) + '/healthz');
+    const pubBody = await pub.text();
+    ok(`诊断口${c.why}（WS_OPS_PORT=${c.raw}）：业务进程必须存活，公网面仍 {"ok":true}`, pub.status === 200 && pubBody === '{"ok":true}', `${pub.status} ${pubBody.slice(0, 60)}`);
+    ok(`诊断口${c.why}：未登录业务仍 401（没有因为诊断面缺失退化成开放访问）`, (await world(c.port)).status === 401, '');
+    await new Promise(r => setTimeout(r, 250));
+    ok(`诊断口${c.why}：必须大声声明（不许静默消失）`, inst.logs().includes(c.want), `${c.want} 未出现在启动日志`);
   } finally { kill(inst.child); }
 }
 

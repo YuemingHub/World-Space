@@ -32,6 +32,23 @@ import { createAuth, sessionTokenFrom } from './auth.mjs';
 const HERE = dirname(fileURLToPath(import.meta.url));
 const SCHEMA = JSON.parse(readFileSync(join(HERE, '..', 'contracts', 'world.schema.json'), 'utf8'));
 
+/* 内部诊断口取值：只接受 1-65535 的整数，或 0 = 明确关闭。
+   为什么要专门校验（本轮实测发现的缺陷）：Node 的 Server.listen 对越界端口是**同步抛错**，
+   `server.on('error')` 抓不到——`WS_OPS_PORT=999999` 会直接把业务进程带崩
+   （RangeError [ERR_SOCKET_BAD_PORT]，实测进程退出）。诊断面是附属能力，
+   它配错不能升级为整服务不可用。业务口 WS_PORT 保持相反立场：配错就该起不来，
+   不静默换口继续跑——那是"跑在错误的地方"，比"没有诊断面"严重得多。 */
+function resolveOpsFace() {
+  const raw = process.env.WS_OPS_PORT;
+  if (raw === undefined || raw === '') return { port: 3201, declare: '' };
+  const n = Number(raw);
+  if (!Number.isInteger(n)) return { port: 0, declare: `OPS_FACE_DISABLED WS_OPS_PORT="${raw}" 不是整数 —— 内部诊断面不监听（公网存活面与业务 API 不受影响）` };
+  if (n === 0) return { port: 0, declare: 'OPS_FACE=off WS_OPS_PORT=0 —— 按配置关闭内部诊断面' };
+  if (n < 1 || n > 65535) return { port: 0, declare: `OPS_FACE_DISABLED WS_OPS_PORT=${n} 越界（应为 1-65535 的整数，或 0 关闭）—— 内部诊断面不监听（公网存活面与业务 API 不受影响）` };
+  return { port: n, declare: '' };
+}
+const OPS_FACE = resolveOpsFace();
+
 const CFG = {
   host: process.env.WS_HOST || '127.0.0.1',
   port: Number(process.env.WS_PORT || 8787),
@@ -69,8 +86,8 @@ const CFG = {
   trustedProxies: (process.env.WS_TRUSTED_PROXIES || '127.0.0.1,::1').split(',').map(s => s.trim()).filter(Boolean),
   webDir: join(HERE, '..', 'web', 'v2'),
   // 内部诊断端口：只绑 127.0.0.1，nginx 不代理，公网到不了。生产 3200 → 3201。
-  // 0 = 不开诊断面（不需要诊断字段的自测实例显式关掉，免得多个实例抢同一个口）。
-  opsPort: Number(process.env.WS_OPS_PORT || 3201),
+  // 取值与非法值处理见 resolveOpsFace()（1-65535 整数，或 0 = 明确关闭）。
+  opsPort: OPS_FACE.port,
 };
 
 /* ── 访问门：谁能进入（缺省开启；显式 WS_AUTH_ENABLED=0 才关闭，且启动日志大声声明）── */
@@ -590,6 +607,11 @@ if (CFG.opsPort > 0) {
   ops.listen(CFG.opsPort, '127.0.0.1', () => {
     console.log(`world ops http://127.0.0.1:${CFG.opsPort}/healthz 仅本机可达（无 nginx 代理，公网零暴露）`);
   });
+} else if (OPS_FACE.declare.startsWith('OPS_FACE_DISABLED')) {
+  // 配错了：走 stderr，让它能被 journal 与告警抓到，而不是混在正常启动日志里没人看。
+  console.error(OPS_FACE.declare);
+} else if (OPS_FACE.declare) {
+  console.log(OPS_FACE.declare);
 }
 
 server.listen(CFG.port, CFG.host, () => {
