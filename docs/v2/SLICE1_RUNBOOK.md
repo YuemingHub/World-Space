@@ -8,9 +8,9 @@
 cd D:/服务器/repos/World-Space
 
 # 契约 + 证据纪律 + 预算护栏的自检（"ok" 是合格答案，"bad" 是故意做坏的假答案）
-WS_PROVIDER=stub WS_STUB_CASE=bad WS_PORT=8794 WS_DAILY_CAP=2 node server/world.mjs
+WS_PROVIDER=stub WS_STUB_CASE=bad WS_PORT=8794 WS_OPS_PORT=9194 WS_DAILY_CAP=2 node server/world.mjs
 node eval/run.mjs --base http://127.0.0.1:8794 --limit 2 --only S5
-curl http://127.0.0.1:8794/healthz
+curl http://127.0.0.1:9194/healthz   # 内部诊断口（公网口 8794 的 /healthz 只返回 {"ok":true}）
 ```
 
 桩只证明四件事真的生效：问题被截到 2 条、缺官方来源的高风险结论被删除并留痕、
@@ -69,7 +69,7 @@ cd D:/服务器/repos/World-Space && set -a && . var/.env.local && set +a && nod
 ## 3.5 接真实搜索（PHASE 1，等 Founder 给 Key）
 
 Key 纪律：**只存在 `var/.env.local`（已 gitignored）**；不打印、不进报告、不进 eval 输出、不进异常堆栈、不进 Git。
-只允许验证"配没配"：`/healthz` 的 `search_configured` 字段（不回显 key）。
+只允许在**内部诊断口**验证"配没配"：`curl 127.0.0.1:<WS_OPS_PORT，默认 3201>/healthz` 的 `search_configured` 字段（不回显 key）。公网 `/healthz` 现在连这个字段都不给，别拿它做验收。
 
 她要在本机执行（一次即可）：
 
