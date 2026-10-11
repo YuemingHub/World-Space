@@ -350,8 +350,8 @@ function rateLimited(req) {
   return h.n > CFG.rateLimitPerMin;
 }
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml' };
-function serveStatic(req, res, corsH) {
-  let p = req.url === '/' ? '/index.html' : req.url.split('?')[0];
+function serveStatic(req, res, corsH, pathOverride) {
+  let p = pathOverride || (req.url === '/' ? '/index.html' : req.url.split('?')[0]);
   if (p === '/login') p = '/login.html'; // 干净路径给用户，磁盘上带扩展名
   const file = join(CFG.webDir, normalize(p).replace(/^([.][.][/\\])+/, ''));
   if (!file.startsWith(CFG.webDir)) return false;
@@ -434,8 +434,14 @@ const server = http.createServer(async (req, res) => {
     const p = req.url === '/' ? '/' : req.url.split('?')[0];
     const sess = sessionState(req);
     if (p === '/' || p === '/index.html') {
-      /* 产品首页是受保护页面：没登录/门坏了都去登录页，登录页会如实说明状态 */
-      if (sess.mode === 'out' || sess.mode === 'broken') return redirect(res, '/login');
+      if (sess.mode === 'out') {
+        /* 公开门面：未登录先给七行动入口页（public/index.html，真源在 main 线，随发布同步）；
+           文件缺失时回落旧行为去登录页 —— 删文件即回滚，不引入新的失败面 */
+        if (serveStatic(req, res, corsH, '/public/index.html')) return;
+        return redirect(res, '/login');
+      }
+      /* 门坏了仍去登录页（登录页会如实说明状态），绝不假装服务正常 */
+      if (sess.mode === 'broken') return redirect(res, '/login');
     } else if (p === '/login' || p === '/login.html') {
       if (sess.mode === 'in' || sess.mode === 'off') return redirect(res, '/');
     }
