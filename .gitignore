@@ -15,3 +15,17 @@ Thumbs.db
 # Local working notes (never part of the product)
 .workbuddy/
 .workbuddy-ai/
+
+# Runtime state & local credentials (2026-10-14 audit: var/ held 9 plaintext
+# credential files, untracked, zero history exposure — keep it that way)
+var/
+eval/out/
+
+# Local env / secret files (defense in case they ever appear outside var/)
+.env
+.env.*
+*.env
+*-secret.txt
+*-pass.ps1
+auth-users.json
+providers.local.json
