@@ -18,6 +18,7 @@
  * 硬边界见仓库文档区的"北极星"文件 §4.3。唯一写盘的是预算计数（次数与金额，不含用户正文）。
  */
 import http from 'node:http';
+import crypto from 'node:crypto';
 import { isIP } from 'node:net';
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { dirname, join, normalize, extname } from 'node:path';
@@ -615,6 +616,31 @@ if (CFG.opsPort > 0) {
     if ((req.method === 'GET' || req.method === 'HEAD') && p === '/healthz') {
       res.writeHead(200, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' });
       return res.end(req.method === 'HEAD' ? undefined : JSON.stringify(healthDetail()));
+    }
+    /* C1 统一管理台：花名册只读视图。双门=loopback（本面绑定即保证）+ Bearer token
+       恒时比较（WS_MANAGEMENT_TOKEN；未配置=端点不存在，服务不受影响）。
+       只给 user_id / 门禁状态 / 统一身份绑定，绝不给密码哈希。 */
+    if (req.url === '/api/ops/roster') {
+      const token = process.env.WS_MANAGEMENT_TOKEN || '';
+      const bearer = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '');
+      const a = Buffer.from(String(bearer));
+      const b = Buffer.from(String(token));
+      if (!token || a.length !== b.length || !crypto.timingSafeEqual(a, b)) {
+        res.writeHead(token ? 401 : 404, { 'content-type': 'application/json; charset=utf-8' });
+        return res.end(JSON.stringify({ error: token ? 'unauthorized' : 'not_found' }));
+      }
+      const users = (AUTH.status().users && AUTH.status().users.byId)
+        ? [...AUTH.status().users.byId.values()].map(u => ({ user_id: u.user_id, username: u.username }))
+        : [];
+      let links = [];
+      const linksFile = process.env.WS_AUTH_USERS_FILE
+        ? join(dirname(process.env.WS_AUTH_USERS_FILE), 'oidc-links.json') : '';
+      if (linksFile && existsSync(linksFile)) {
+        try { links = Object.entries(JSON.parse(readFileSync(linksFile, 'utf8')))
+          .map(([sub, l]) => ({ sub: sub.slice(0, 14) + '…', user_id: l.user_id, bound_at: l.bound_at })); } catch {}
+      }
+      res.writeHead(200, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' });
+      return res.end(JSON.stringify({ ok: true, product: 'world-space', gate: { status: AUTH.status().ready ? 'ready' : 'broken', users }, identity_links: { total: links.length, items: links } }));
     }
     /* 诊断面除 /healthz 外什么都不给：不供静态、不供 API */
     res.writeHead(404, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' });
