@@ -28,6 +28,7 @@ import { guard } from './guard.mjs';
 import { validate } from './validate.mjs';
 import { localDate, localMonth } from './date.mjs';
 import { createAuth, sessionTokenFrom } from './auth.mjs';
+import { createOidcRp } from './oidc-rp.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const SCHEMA = JSON.parse(readFileSync(join(HERE, '..', 'contracts', 'world.schema.json'), 'utf8'));
@@ -92,6 +93,17 @@ const CFG = {
 
 /* ── 访问门：谁能进入（缺省开启；显式 WS_AUTH_ENABLED=0 才关闭，且启动日志大声声明）── */
 const AUTH = createAuth(process.env);
+
+/* B3 统一身份接入（RP）：env 显式开启才挂载；配置缺失在 createOidcRp 内即抛
+   （与业务口「配错就该起不来」同一立场），由启动处捕获拒启。 */
+let WS_OIDC = { enabled: false };
+try {
+  WS_OIDC = createOidcRp({ AUTH, usersFile: process.env.WS_AUTH_USERS_FILE || '', env: process.env });
+  if (WS_OIDC.enabled) console.log(new Date().toISOString() + ' oidc rp mounted issuer=' + (process.env.WS_OIDC_ISSUER || ''));
+} catch (err) {
+  console.error(new Date().toISOString() + ' refusing to start: [oidc] ' + err.message);
+  process.exit(1);
+}
 
 /* ── 预算：读不到就停，不静默放行 ─────────────────────────── */
 let MEM = { day: localDate(), calls: 0, month: localMonth(), cost: 0 };
@@ -416,6 +428,13 @@ const server = http.createServer(async (req, res) => {
   if (req.method === 'POST' && req.url === '/api/auth/login') return handleLogin(req, res, corsH, protoHttps);
   if (req.method === 'GET' && req.url === '/api/auth/me') return handleMe(req, res, corsH);
   if (req.method === 'POST' && req.url === '/api/auth/logout') return handleLogout(req, res, corsH);
+  /* B3 统一身份三路由：开始 / 回调 / 绑定提交 + 绑定页。挂在静态服务之前。 */
+  if (WS_OIDC.enabled) {
+    if (req.method === 'GET' && req.url === '/api/oidc/start') return WS_OIDC.start(res);
+    if (req.method === 'GET' && req.url.startsWith('/api/oidc/callback')) return WS_OIDC.callback(req, res, protoHttps);
+    if (req.method === 'POST' && req.url === '/api/oidc/bind') return WS_OIDC.bind(req, res, protoHttps);
+    if (req.method === 'GET' && req.url.startsWith('/oidc/bind')) return WS_OIDC.bindPage(req, res);
+  }
   if (req.method === 'POST' && req.url === '/api/world') {
     if (!allowed) return json(res, 403, { error: 'origin_not_allowed' });
     if (rateLimited(req)) return json(res, 429, {
