@@ -24,7 +24,10 @@ doc_not 'ls -1t "$SNIP".bak-* | head -1' && ok "文档回退不再用 ls 猜最�
 doc_has '[ -f "$BAK" ] || { echo "STOP: 回执里的备份文件不存在，不要猜其它文件"; exit 1; }' \
   && ok "文档回退先用回执里的唯一备份并校验存在" || bad "文档回退缺少唯一备份校验"
 doc_has '-path "$MOVED" -prune' && ok "文档保护清单同时排除 §B 改名后的目录" || bad "文档保护清单未排除 MOVED（正常回退会误报）"
-doc_has '--path-as-is' && ok "文档 B4 使用 --path-as-is" || bad "文档 B4 缺少 --path-as-is"
+# B4 断言必须匹配【命令本身】，不能用 '--path-as-is' 子串（文档说明里也提到这个词，
+# 只删命令、保留说明时子串匹配会漏判 —— 独立复核第三轮实测发现的盲点）。
+doc_has 'curl --path-as-is -s -o /dev/null' \
+  && ok "文档 B4 的命令本身带 --path-as-is" || bad "文档 B4 的命令缺少 --path-as-is（或只有说明文字在提它）"
 doc_has 'TREE=73726ee17b1020a44e52ec781c38fdf6ec66da6b' && ok "文档以目录树哈希绑定" || bad "文档缺少树哈希绑定"
 doc_has '期望：10' && ok "文档 find 断言为 10" || bad "文档 find 断言不是 10"
 
