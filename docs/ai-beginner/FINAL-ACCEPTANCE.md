@@ -16,12 +16,20 @@
 
 | 角色 | SHA | 含义 |
 |---|---|---|
-| **代码验收基线（历史）** | `888a97726c9a63ebbb7a3c74abc6b99ddbb3a0d8` | 独立终审在这上面跑到 **8 维度 7 VERIFIED / 1 BLOCKED、160/160 独立断言全绿**。Commander 的 `CODE_ACCEPTED` 针对这一份**代码**。 |
-| 当前分支 head | 见 PR #34（以远端为准） | 在 `888a977` 之后**只增加了本报告**，代码零改动。 |
-| 远端 main | `3f619d1676f10efa4e8e69517ce16cd4f201f793` | **未改动**。 |
+| **当前 head** | **`dc35f1337b4c718a2426e9f1b4823e3440cae0c8`**（2026-11-01 记录） | 文档收口后的分支头；`web/ai` 树哈希 `73726ee1…` 与代码验收基线**完全相同** |
+| **代码验收基线（历史）** | `888a97726c9a63ebbb7a3c74abc6b99ddbb3a0d8` | 独立终审在这上面跑到 **8 维度 7 VERIFIED / 1 BLOCKED、160/160 独立断言全绿**。Commander 的 `CODE_ACCEPTED` 针对这一份**代码** |
+| 远端 main | `3f619d1676f10efa4e8e69517ce16cd4f201f793` | **未改动** |
 
-**`888a977 → 956bb4a` 的差异证明**：`git diff --name-only 888a977 956bb4a` 只有 `docs/ai-beginner/FINAL-ACCEPTANCE.md`（新增 155 行）；`git diff --name-only 888a977 956bb4a -- web eval scripts` 输出为空。
-也就是说：**代码验收结论对当前 head 仍然成立**，但**不要把"当前 head 上的测试数字"说成"在 888a977 上重跑过"**——两者是同一份代码，证据来源是历史那一次。
+**从 `888a977` 到当前 head 增加的 4 份文档**（`git diff --name-only 888a977 <head>` 实测，**只有这 4 个**）：
+
+| 文件 | 作用 |
+|---|---|
+| `docs/ai-beginner/FINAL-ACCEPTANCE.md` | 本报告 |
+| `docs/ai-beginner/REAL-USER-TRIAL.md` | 真人试用方案（含儿童隐私六条硬门槛） |
+| `docs/ai-beginner/CHECKER-EVIDENCE.md` | 独立 Checker 脱敏摘要与复跑方法 |
+| `docs/ai-beginner/DEPLOY-AI-ROUTE.md` | `/ai/` 发布单（树哈希绑定、保护对象哈希核对、备份与回退） |
+
+`git diff --name-only 888a977 <head> -- web eval scripts` → **空**。代码一行未改。
 
 | 项目 | 值 |
 |---|---|
@@ -69,20 +77,28 @@ Commander 指出：PR 实际改了 `web/index.html`（首屏新增一行入口�
 
 ---
 
-## 3. 自测与真实浏览器旅程（在代码验收基线 `888a977` 上执行）
+## 3. 测试执行记录（分两段：本轮在当前 head 真实执行 + 历史基线记录）
 
-> 口径：本节数字是 **2026-11-01 在 `888a977` 上真实执行**的记录。`888a977` 之后只增加了本报告，
-> 代码零改动（`git diff --name-only 888a977 <head> -- web eval scripts` 为空），
-> 因此这些数字对当前 head **成立**，但**不是**在当前 head 上重新跑出来的——证据来源仍是那一次。
+### 3.1 在当前 head `dc35f1337b4c718a2426e9f1b4823e3440cae0c8` 上真实执行（2026-11-01 02:42 +08:00）
 
-| 命令 | 结果 | 位置 |
+| 命令 | 结果 | 退出码 | 输出位置 |
+|---|---|---|---|
+| `node eval/ai-beginner-selftest.mjs` | `内容契约自测：285/285 全部通过` | **0** | 本次终端 |
+| `node eval/ai-beginner-journey.mjs` | `浏览器旅程：70/70 通过` | **0** | `var/ai-journey/20261031T184201/`（`var/` 不入库） |
+| `node evidence/collect-urls.mjs` | 18 个外链逐个实测可达 | **0** | `evidence/urls.json`（本轮覆盖写） |
+
+> 以上是本轮**真实执行**的记录，执行时 HEAD 正是 `dc35f13…`。注意：本轮执行发生在
+> 本报告与另两份文档的收口提交**之前**，但这些提交只改 `docs/`，`web/ai` 树哈希不变，
+> 任何人可在新 head 上重跑这三条命令得到相同结果（`eval/check-deploy-manifest.mjs` 可验证清单）。
+
+### 3.2 历史记录（**不是**本轮重跑，来源：代码验收基线 `888a977`）
+
+| 项 | 结果 | 说明 |
 |---|---|---|
-| `node eval/ai-beginner-selftest.mjs` | **285/285，exit 0** | 2026-11-01 01:47 执行记录 |
-| `node eval/ai-beginner-journey.mjs` | **70/70，exit 0** | `var/ai-journey/20261101T…/`（`var/` 不入库） |
-| 独立 Checker 自有断言 | **160/160，exit 0**（三轮以来首次全绿） | `ws-final-checker-20261101/`（本机，未入库） |
-| 变异测试 | 作者 selftest 在 4 类注入下**均变红**（年龄口径、v0 事实、12355、路径一 og/首页摘要、双日期） | 同上 |
+| 独立 Checker 自有断言 | **160/160，exit 0** | final-checker 在 `888a977` 上执行，三轮以来首次全绿 |
+| 变异测试 | 作者 selftest 在 5 类注入下**均变红**（年龄口径、v0 事实、12355、路径一 og/首页摘要、双日期） | 同上 |
 
-**A8 口径声明**：浏览器自动化通过 **不等于** 真人体验成功。上面的 70/70、160/160 只证明"页面行为与契约一致"。
+**A8 口径声明**：浏览器自动化通过 **不等于** 真人体验成功。3.1 的 70/70、3.2 的 160/160 只证明"页面行为与契约一致"。
 
 ---
 

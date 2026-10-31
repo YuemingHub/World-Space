@@ -13,7 +13,7 @@
 
 | 项 | 值 |
 |---|---|
-| 待发布内容 | 分支 `feature/ai-beginner-20261031` 上的 `web/ai/` 目录（9 个文件） |
+| 待发布内容 | `web/ai/` 目录 —— **10 个文件**（`git ls-tree -r --name-only <head> -- web/ai \| wc -l` 实测） |
 | **发布必须绑定的对象** | 目录树 `web/ai` = **`73726ee17b1020a44e52ec781c38fdf6ec66da6b`**（`git rev-parse <SHA>:web/ai`）——它等于代码验收基线 `888a977` 的同一目录树，**不随提交重写而变化** |
 | 记录该树哈希的 commit（参考） | 以 PR #34 最新 head 为准；本轮记录时 head 为 `97481ea`（其 `web/ai` 树哈希与上一致）。**分支上有同步机制可能重写 commit SHA，所以发布以树哈希为准，不以 commit 号为准。** |
 | 代码验收基线 | `888a97726c9a63ebbb7a3c74abc6b99ddbb3a0d8`（独立终审在此执行） |
@@ -92,6 +92,7 @@ ls -la /etc/nginx/sites-enabled/ && ls -la /etc/nginx/snippets/ming-portfolio.co
 
 ```bash
 TREE=73726ee17b1020a44e52ec781c38fdf6ec66da6b   # 唯一绑定依据：web/ai 目录树哈希
+REF=refs/remotes/origin/feature/ai-beginner-20261031   # 只作为"取哪里"的来源，内容一律以 TREE 为准
 STAGE=/opt/world-space/ai-entries/$TREE         # 克隆与解包都用这一个目录
 
 # 1a 取源：优先用服务器上已有的检出，其次才 clone（两者落到同一目录约定）
@@ -99,22 +100,26 @@ if [ -d /opt/world-space/repos/World-Space/.git ]; then
   SRC=/opt/world-space/repos/World-Space
   git -C "$SRC" fetch origin --prune
 else
+  # 新 clone：默认只得到一个分支，必须显式 fetch 目标分支，否则没有 origin/feature/... 这个 ref
   git clone --filter=blob:none https://github.com/YuemingHub/World-Space.git "$STAGE"
   SRC="$STAGE"
+  git -C "$SRC" fetch origin \
+    '+refs/heads/feature/ai-beginner-20261031:refs/remotes/origin/feature/ai-beginner-20261031'
 fi
 
-# 1b 取到的那份代码里，web/ai 必须正好是这棵树（这是唯一对账点，失败即停）
-ACTUAL=$(git -C "$SRC" rev-parse origin/feature/ai-beginner-20261031:web/ai)
+# 1b 先核验：这棵树的哈希必须等于 TREE，否则立即停止（不做任何导出）
+ACTUAL=$(git -C "$SRC" rev-parse "$REF:web/ai") || { echo "STOP: 拿不到 $REF"; exit 1; }
 [ "$ACTUAL" = "$TREE" ] || { echo "STOP: 树哈希不符 $ACTUAL != $TREE"; exit 1; }
+VERIFIED_COMMIT=$(git -C "$SRC" rev-parse "$REF")   # 只用于回执记录，不作为绑定依据
+echo "verified commit=$VERIFIED_COMMIT tree=$ACTUAL"
 
-# 1c 只导出这棵子树（不检出整仓、不触碰 release 目录）
+# 1c 用【同一个已核验的 commit】导出（不是浮动分支名，也不是重新解析一次分支）
 mkdir -p "$STAGE/extract"
-git -C "$SRC" archive --format=tar \
-  "$(git -C "$SRC" rev-parse origin/feature/ai-beginner-20261031)" web/ai \
-  | tar -x -C "$STAGE/extract"
-find "$STAGE/extract/web/ai" -type f | wc -l         # 期望：9
+git -C "$SRC" archive --format=tar "$VERIFIED_COMMIT" web/ai | tar -x -C "$STAGE/extract"
+find "$STAGE/extract/web/ai" -type f | wc -l         # 期望：10
 ```
-**禁止**：`git clone --branch feature/...`（分支会移动，等于没绑定 SHA）；`--depth 1` 之后再用短 SHA（无法保证取到同一棵树）。
+**禁止**：`git clone --branch feature/...` 直接把分支当发布内容；`--depth 1` 之后用短 SHA；导出时重新解析分支名（两次解析之间分支可能移动）。
+**正确做法**：先核验树哈希 → 把核验过的 commit 记进变量 → 用该变量导出。
 
 #### 步骤 2｜复制前的哈希清单与"文件哈希"证据
 
@@ -122,36 +127,51 @@ find "$STAGE/extract/web/ai" -type f | wc -l         # 期望：9
 cd "$STAGE/extract/web/ai"
 find . -type f -exec sha256sum {} \; | sort -k2 > "$STAGE/web-ai-sha256.txt"
 sha256sum "$STAGE/web-ai-sha256.txt"                 # 清单本身的哈希，记录进发布单回执
-cat "$STAGE/web-ai-sha256.txt"                        # 9 行；逐行核对 §3.3
+cat "$STAGE/web-ai-sha256.txt"                        # 10 行；逐行核对 §3.3
 ```
 
-#### 步骤 3｜目标目录保护（**已存在即中止，绝不覆盖**）
+#### 步骤 3｜目标目录保护（**只保护 `/ai` 目录本身；既有生产文件只做哈希核对，不中止、不覆盖、不删除**）
 
 ```bash
 DEST=/var/www/ymai.fun-static/ai
 
+# 3a 只对「本次要创建的目录」做存在即中止
 if [ -e "$DEST" ]; then
   echo "STOP: $DEST 已存在"
-  echo "  这通常意味着已发布过一次。要升级请走 §6 的升级流程；"
-  echo "  要重装请先按 §5 回退（移走旧目录），不要就地覆盖。"
+  echo "  这通常意味着已发布过一次。要升级请走 §6；要重装请先按 §5 移走旧目录，不要就地覆盖。"
   exit 1
 fi
+
+# 3b 保护对象：发布前记录哈希（只记录，不因它们存在而中止）
+PROT=/var/www/ymai.fun-static
+find "$PROT" -path "$PROT/ai" -prune -o -type f -print0 \
+  | sort -z | xargs -0 sha256sum > /root/ai-release-protected-before.sha256
+[ -s /root/ai-release-protected-before.sha256 ] || { echo "STOP: 保护清单为空，路径不对"; exit 1; }
+wc -l < /root/ai-release-protected-before.sha256        # 期望 ≈ 11（/ming 下文件数，实测基线）
+#   ↑ 这个数字不是门槛：只要不是 0 就说明找到了既有文件。它以实测为准，本文件不硬编码"必须等于几"。
 
 install -d -m 755 "$DEST"
 cp -a "$STAGE/extract/web/ai/." "$DEST/"
 ```
 
-同理，以下路径**存在即中止**（防止覆盖仓库外文件）：
-`/var/www/ymai.fun-static/{ming,index.html,lrdf.html,site.css,og-card.png}` 以及任何 `.pdf`。
+> **规则说明（本轮修正）**：`/ming`、既有 PDF 与其他生产文件**存在是正常的**，不会让发布中止；
+> 它们由 3b 的哈希清单在发布前后核对，确保**一个字节都没有被改动或删除**。
+> 只有 `$DEST`（本次新目录）已存在时才中止——那是"重复发布"的信号，需要人工判断。
 
 #### 步骤 4｜复制后校验（必须逐字一致）
 
 ```bash
-cd "$DEST" && sha256sum -c "$STAGE/web-ai-sha256.txt"
-find "$DEST" -type f | wc -l                          # 期望 9
-find "$DEST" -type f -perm /o+w | wc -l               # 期望 0（不允许多余的可写位）
+cd "$DEST" && sha256sum -c "$STAGE/web-ai-sha256.txt"     # 10/10 OK
+find "$DEST" -type f | wc -l                              # 期望 10
+find "$DEST" -type f -perm /o+w | wc -l                    # 期望 0（不允许多余的可写位）
 diff -r "$STAGE/extract/web/ai" "$DEST" && echo "TREE IDENTICAL"
 chmod -R a+rX "$DEST" && find "$DEST" -type d -exec chmod 755 {} \;
+
+# 4b 保护对象复核：与发布前清单逐条比对，必须完全一致
+find "$PROT" -path "$PROT/ai" -prune -o -type f -print0 \
+  | sort -z | xargs -0 sha256sum > /root/ai-release-protected-after.sha256
+diff /root/ai-release-protected-before.sha256 /root/ai-release-protected-after.sha256 \
+  && echo "PROTECTED UNCHANGED" || { echo "STOP: 既有文件发生变化，按 §5 回退并上报"; exit 1; }
 ```
 
 #### 步骤 5｜nginx：先备份、再改、再验、失败即回退
@@ -160,7 +180,9 @@ chmod -R a+rX "$DEST" && find "$DEST" -type d -exec chmod 755 {} \;
 SNIP=/etc/nginx/snippets/ming-portfolio.conf
 BAK="$SNIP.bak-$(date +%Y%m%d%H%M%S)-$(sha256sum "$SNIP" | cut -c1-8)"
 cp -a "$SNIP" "$BAK"
-sha256sum "$SNIP" "$BAK" | tee /var/log/ymai-ai-release-nginx-hashes.txt
+# 回执：把备份路径与哈希写死下来，回退时只认这一条，不再 ls 猜
+printf 'nginx_backup=%s\nbackup_sha256=%s\nsnip_sha256=%s\n' "$BAK" "$(sha256sum "$BAK" | cut -d' ' -f1)" "$(sha256sum "$SNIP" | cut -d' ' -f1)" \
+  | tee /root/ai-release-nginx-receipt.txt
 ```
 
 追加到 `$SNIP` **末尾**（不要改已有内容）：
@@ -177,11 +199,21 @@ location ^~ /ai/ {
 ```
 
 ```bash
-nginx -t || { echo "STOP: 配置校验失败，未 reload；现场仍是发布前状态"; cp -a "$BAK" "$SNIP"; exit 1; }
-systemctl reload nginx && echo "reloaded (不中断连接，不重启 Node)"
+# 校验失败：立刻把原配置写回并确认，不允许"停在改了一半"
+if ! nginx -t; then
+  cp -a "$BAK" "$SNIP"
+  nginx -t || { echo "STOP: 恢复后仍不通过，保持现场，立即上报总运维"; exit 1; }
+  echo "配置校验失败，已恢复原配置并验证通过；未 reload，线上仍是发布前行为"
+  exit 1
+fi
 
-# 失败回退（任何一步验证不过都执行）
-#   cp -a "$BAK" "$SNIP" && nginx -t && systemctl reload nginx
+# reload 失败：同样必须恢复到可用状态并再次验证
+if ! systemctl reload nginx; then
+  cp -a "$BAK" "$SNIP"
+  nginx -t && systemctl reload nginx && echo "reload 失败后已恢复原配置并重新加载"
+  exit 1
+fi
+echo "reloaded (不中断连接，不重启 Node)"
 ```
 
 **硬约束**
@@ -201,15 +233,28 @@ git -C <World-Space 检出> rev-parse origin/feature/ai-beginner-20261031:web/ai
 `web/ai` 的**对象哈希 `73726ee17b1020a44e52ec781c38fdf6ec66da6b`**。
 它与代码验收基线 `888a977` 的**同一目录树哈希完全相同**（`git rev-parse 888a977:web/ai` 实测），
 说明本轮文档修订没有改动任何待发布文件。
-这是"整棵树"级别的对账点：只要它对上，9 个文件的内容就一个字节都不会错，不必逐个比对（但仍建议按步骤 2/4 保留文件级清单作为回执证据）。
+这是"整棵树"级别的对账点：只要它对上，**10 个文件**的内容就一个字节都不会错，不必逐个比对（但仍建议按步骤 2/4 保留文件级清单作为回执证据）。
 
-文件清单（9 个，`git ls-tree -r` 实测）：
-`assets/ai.css`、`assets/ai.js`、`assets/tools.js`、`index.html`、`limits.html`、
-`paths/find-the-facts.html`、`paths/make-a-picture.html`、`paths/make-something.html`、`safety.html`、`tools.html`
+文件清单（**10 个**，`git ls-tree -r <head> -- web/ai` 实测；第三列为该文件的 blob 哈希）：
 
+| # | 路径（相对 `web/ai/`） | blob 哈希 |
+|---|---|---|
+| 1 | `index.html` | `6671036d31c133c9c119863c9b0180ba66cde97b` |
+| 2 | `limits.html` | `51f95670cf0d792049af23b41105f3571d11d5f8` |
+| 3 | `tools.html` | `72d18ce1a8e917089c98d04af3a2e6c87182ebbd` |
+| 4 | `safety.html` | `ba7046b760d82b94c522b47672d0cd3925035780` |
+| 5 | `paths/make-something.html` | `d23a39fdc9ff303eb2605bc8bb79b427af191637` |
+| 6 | `paths/make-a-picture.html` | `ec2591de0b632be0d9bfebe8282d9b862c9e1a9e` |
+| 7 | `paths/find-the-facts.html` | `af853564cb01733424065f9c035ff8b5c212f644` |
+| 8 | `assets/ai.css` | `97f97a416266ae1fcdf962a2f10f3f8fedd2a39f` |
+| 9 | `assets/ai.js` | `9f642f7eb773969aeb00e265713e5854a0628000` |
+| 10 | `assets/tools.js` | `4ac7aa721f60daab783c65069e664e9497c85146` |
+
+> 说明：`tools.js` 目前没有被任何页面引用，但它是待发布内容的一部分（页面口径副本），所以照样计数、照样校验。
+> 上表可作为"目录树哈希对上之后"的第二道人工核对：任一 blob 哈希不符 → STOP。
 ---
 
-## 4. 发布后验证（**四条独立回归 + 8 条新功能验证**）
+## 4. 发布后验证（**A1–A6 六条独立回归 + B1–B8 八项新功能验证，共 14 项**）
 
 先记基线（2026-11-01 实测，发布前）：
 
@@ -223,7 +268,7 @@ git -C <World-Space 检出> rev-parse origin/feature/ai-beginner-20261031:web/ai
 | `GET /ming/` | **200**，md5 `3bca73c4d2533e4101b96583aa2113ec`，29,892 字节 |
 | `GET /ai/` | **404** |
 
-**A. 四条独立回归（逐条独立执行，不要串成一条命令——管道与 `&&` 会吞掉退出码）**
+**A. 六条独立回归（逐条独立执行，不要串成一条命令——管道与 `&&` 会吞掉退出码）**
 
 | # | 命令 | 期望 |
 |---|---|---|
@@ -234,14 +279,14 @@ git -C <World-Space 检出> rev-parse origin/feature/ai-beginner-20261031:web/ai
 | A5 | `curl -sI https://ymai.fun/ming/ \| grep -i -E "etag\|last-modified"` + `curl -s https://ymai.fun/ming/ \| md5sum` | 与基线一致（`3bca73c4…`，29,892 字节） |
 | A6 | `curl -s -o /dev/null -w "%{http_code}\n" https://ymai.fun/web/index.html` | `404`（与基线一致，**不是**本次发布的目标） |
 
-**B. 新功能验证**
+**B. 八项新功能验证**
 
 | # | 命令 | 期望 |
 |---|---|---|
 | B1 | `curl -sI https://ymai.fun/ai/ \| head -3` | `200`，`Content-Type: text/html; charset=utf-8` |
 | B2 | `curl -sI https://ymai.fun/ai \| head -2` | `301`，`location: /ai/` |
 | B3 | `curl -s -o /dev/null -w "%{http_code} %{content_type}\n" https://ymai.fun/ai/assets/ai.css` | `200 text/css` |
-| B4 | `curl -s -o /dev/null -w "%{http_code}\n" "https://ymai.fun/ai/../web/index.html"` | 不为 `200`（不得穿过到旧站） |
+| B4 | `curl --path-as-is -s -o /dev/null -w "%{http_code}\n" "https://ymai.fun/ai/../web/index.html"` | 不为 `200`（**必须加 `--path-as-is`**：否则 curl 会先在客户端把 `..` 规范化掉，测的就不是服务端行为了） |
 | B5 | `curl -s -o /dev/null -w "%{http_code}\n" https://ymai.fun/ai/nope` | `404` |
 | B6 | `curl -s https://ymai.fun/ai/ \| sha256sum` 与 §3 清单比对 | 与 `web-ai-sha256.txt` 中 `index.html` 一致 |
 | B7 | `BASE_URL=https://ymai.fun SITE_DIR=/ai node eval/ai-beginner-journey.mjs` | `70/70`，exit 0（真实公网旅程） |
@@ -249,27 +294,49 @@ git -C <World-Space 检出> rev-parse origin/feature/ai-beginner-20261031:web/ai
 
 ---
 
-## 5. 回退（不需要重启 Node、不需要动 DNS）
+## 5. 回退（不需要重启 Node、不需要动 DNS、**不删除任何文件**）
 
 ```bash
-# A) 撤 nginx（最快：/ai/ 立刻 404，其他一切不变）
+# A) 撤 nginx —— 使用步骤 5 记录在回执里的【唯一备份路径】，禁止 ls 猜"最新那个"
 SNIP=/etc/nginx/snippets/ming-portfolio.conf
-BAK=$(ls -1t "$SNIP".bak-* | head -1)
+BAK=/etc/nginx/snippets/ming-portfolio.conf.bak-<YYYYmmddHHMMSS>-<8位哈希>   # ← 从发布回执原样复制
+[ -f "$BAK" ] || { echo "STOP: 回执里的备份文件不存在，不要猜其它文件"; exit 1; }
+sha256sum "$BAK"                                     # 与回执里记录的备份哈希一致才继续
+
 cp -a "$BAK" "$SNIP"
-nginx -t && systemctl reload nginx
+if nginx -t; then
+  systemctl reload nginx || { echo "reload 失败，正在恢复发布后的配置并上报"; }
+else
+  echo "STOP: 回退配置校验失败"
+fi
+
+# A2) reload 失败时的恢复路径（保证站点不会卡在"改了一半"）
+#   回退失败 → 用发布时那条内容（备份文件的左右邻居不可猜）重新写回，然后必须验证：
+#   若手上没有发布后配置的副本，则改用备份 + 逐行删除本单 §步骤5 追加的 5 行 location 块，
+#   再 nginx -t && reload；仍失败则停止全部操作、保持现场、上报总运维。
+nginx -t && echo "nginx 配置有效"
 
 # B) 撤目录（先移走，不删，保留取证）
-mv /var/www/ymai.fun-static/ai /var/www/ymai.fun-static/ai.removed-$(date +%Y%m%d%H%M%S)
+mv /var/www/ymai.fun-static/ai /var/www/ymai.fun-static/ai.removed-<YYYYmmddHHMMSS>
 
-# C) 回退验收（与 §4 的 A1–A6 逐条对照，期望完全相同，只有 /ai/ 从 200 变回 404）
-curl -s -o /dev/null -w "%{http_code}\n" https://ymai.fun/ai/      # 404
-curl -sI https://ymai.fun/ | head -1                                # 302
-curl -s -o /dev/null -w "%{http_code}\n" https://ymai.fun/login     # 200
-curl -s https://ymai.fun/healthz                                    # {"ok":true}
-curl -s https://ymai.fun/ming/ | md5sum                             # 3bca73c4…
+# C) 回退验收（与 §4 的 A1–A6 逐条对照，期望完全相同；只有 /ai/ 从 200 变回 404）
+curl -s  -o /dev/null -w "%{http_code}\n" https://ymai.fun/ai/       # 404
+curl -sI https://ymai.fun/ | head -1                                 # 302
+curl -s  -o /dev/null -w "%{http_code}\n" https://ymai.fun/login     # 200
+curl -s  https://ymai.fun/healthz                                    # {"ok":true}
+curl -s  https://ymai.fun/ming/ | md5sum                             # 3bca73c4…
+
+# D) 保护对象最终核对：与发布前的清单逐条一致（回退也不得让任何既有文件变化）
+find /var/www/ymai.fun-static -path /var/www/ymai.fun-static/ai -prune -o -type f -print0 \
+  | sort -z | xargs -0 sha256sum > /root/ai-release-protected-after-rollback.sha256
+diff /root/ai-release-protected-before.sha256 /root/ai-release-protected-after-rollback.sha256 \
+  && echo "PROTECTED UNCHANGED AFTER ROLLBACK"
 ```
 
-若 `nginx -t` 失败：**不 reload**，旧配置继续生效，现场保持发布前状态。
+**回退铁律**
+- 只用回执里记录的**那一个**备份文件，不用 `ls -t | head -1` 猜。
+- `nginx -t` 失败 → **不 reload**；reload 失败 → 必须把配置恢复到可用状态并再次 `nginx -t` 验证，不允许"改了一半"就离场。
+- 回退过程中**不删除**任何 PDF、`/ming/` 文件或其他既有生产文件；只 `mv` 走本次新建的 `ai` 目录。
 
 ---
 
