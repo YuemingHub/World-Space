@@ -1,6 +1,7 @@
 # AI 从零开始 · v0.1 最终验收报告
 
-> 唯一最终验收报告。状态：**`WS_AI_V0.1_READY_FOR_COMMANDER_FINAL_REVIEW`**
+> 唯一最终验收报告。
+> **当前状态（Commander 2026-11-01 裁决）**：`WS_AI_V0.1_CODE_ACCEPTED` / `REAL_USER_EVIDENCE_PENDING` / `PUBLIC_RELEASE_HOLD`
 > 生成时间：2026-11-01 01:50 +08:00 · 执行：Deep（Builder）· 独立验收：final-checker（独立会话、干净副本、仅可写自己的证据目录）
 > 本报告只写**能被复跑或能指向外部证据**的结论；作者自测不替代独立验收。
 
@@ -9,16 +10,25 @@
 ## 0. 一句话
 
 `ymai.fun/ai/` 的候选已完成并通过独立终审：**P0=0 / P1=0 / P2=0 / P3=0**，8 个验收维度里 7 项 VERIFIED、1 项 BLOCKED（真人验证 = 0，工程无法替代）。
-**尚未合并、尚未发布**；发布路径已按真实生产身份写成可执行发布单，执行权不在开发窗口。
+**尚未合并、尚未发布**；发布执行方固定为**总运维窗口**。
+
+### 0.1 交付身份（三个 SHA，别混用）
+
+| 角色 | SHA | 含义 |
+|---|---|---|
+| **代码验收基线（历史）** | `888a97726c9a63ebbb7a3c74abc6b99ddbb3a0d8` | 独立终审在这上面跑到 **8 维度 7 VERIFIED / 1 BLOCKED、160/160 独立断言全绿**。Commander 的 `CODE_ACCEPTED` 针对这一份**代码**。 |
+| 当前分支 head | 见 PR #34（以远端为准） | 在 `888a977` 之后**只增加了本报告**，代码零改动。 |
+| 远端 main | `3f619d1676f10efa4e8e69517ce16cd4f201f793` | **未改动**。 |
+
+**`888a977 → 956bb4a` 的差异证明**：`git diff --name-only 888a977 956bb4a` 只有 `docs/ai-beginner/FINAL-ACCEPTANCE.md`（新增 155 行）；`git diff --name-only 888a977 956bb4a -- web eval scripts` 输出为空。
+也就是说：**代码验收结论对当前 head 仍然成立**，但**不要把"当前 head 上的测试数字"说成"在 888a977 上重跑过"**——两者是同一份代码，证据来源是历史那一次。
 
 | 项目 | 值 |
 |---|---|
 | 仓库 | `YuemingHub/World-Space` |
 | PR | https://github.com/YuemingHub/World-Space/pull/34 （**DRAFT**，base `main`） |
 | 分支 | `feature/ai-beginner-20261031` |
-| **最终 head SHA** | **`888a97726c9a63ebbb7a3c74abc6b99ddbb3a0d8`** |
-| 远端 main | `3f619d1676f10efa4e8e69517ce16cd4f201f793`（**未改动**） |
-| 与 main 的差异 | 24 个文件（21 新增、3 修改：`README.md`、`web/index.html`、`.gitignore` 未动） |
+| 与 main 的差异（`git diff --name-status origin/main <head>` 实测） | 22 个新增 + 2 个修改（`README.md`、`web/index.html`）；根 `index.html`、`CNAME`、`.cnb.yml`、`.github/**` 未动 |
 
 ---
 
@@ -59,13 +69,17 @@ Commander 指出：PR 实际改了 `web/index.html`（首屏新增一行入口�
 
 ---
 
-## 3. 最新自测与真实浏览器旅程（最终 SHA 上复跑）
+## 3. 自测与真实浏览器旅程（在代码验收基线 `888a977` 上执行）
+
+> 口径：本节数字是 **2026-11-01 在 `888a977` 上真实执行**的记录。`888a977` 之后只增加了本报告，
+> 代码零改动（`git diff --name-only 888a977 <head> -- web eval scripts` 为空），
+> 因此这些数字对当前 head **成立**，但**不是**在当前 head 上重新跑出来的——证据来源仍是那一次。
 
 | 命令 | 结果 | 位置 |
 |---|---|---|
-| `node eval/ai-beginner-selftest.mjs` | **285/285，exit 0** | 本次 |
-| `node eval/ai-beginner-journey.mjs` | **70/70，exit 0** | `var/ai-journey/<时间戳>/`（`var/` 不入库） |
-| 独立 Checker 自有断言 | **160/160，exit 0**（三轮以来首次全绿） | `ws-final-checker-20261101/` |
+| `node eval/ai-beginner-selftest.mjs` | **285/285，exit 0** | 2026-11-01 01:47 执行记录 |
+| `node eval/ai-beginner-journey.mjs` | **70/70，exit 0** | `var/ai-journey/20261101T…/`（`var/` 不入库） |
+| 独立 Checker 自有断言 | **160/160，exit 0**（三轮以来首次全绿） | `ws-final-checker-20261101/`（本机，未入库） |
 | 变异测试 | 作者 selftest 在 4 类注入下**均变红**（年龄口径、v0 事实、12355、路径一 og/首页摘要、双日期） | 同上 |
 
 **A8 口径声明**：浏览器自动化通过 **不等于** 真人体验成功。上面的 70/70、160/160 只证明"页面行为与契约一致"。
@@ -97,7 +111,7 @@ Commander 指出：PR 实际改了 `web/index.html`（首屏新增一行入口�
 报告路径（**未入库**，按合同要求保留在 Builder 本机，含本机路径）：
 `D:\服务器\repos\ws-final-checker-20261101\{REPORT.md, REVERIFY-790ffaa.md, FINAL-888a977.md}`
 
-**是否脱敏入库**：待 Commander 决定（`RELEASE.md` §7 第 4 条）。建议入库一份**脱敏摘要 + 复跑说明**，不公开原件中的本机路径。
+**脱敏摘要与复跑方法**：已入库为 `CHECKER-EVIDENCE.md`（只含结论、命令、退出码与路径占位符，不含本机绝对路径、不含参与者任何信息）。原件仍留在 Builder 本机，**不公开入库**。
 
 **已知限制（独立 Checker 明示，不阻塞）**
 - L-1 事实守卫是字符串匹配：防复犯、不防改写。
@@ -142,7 +156,7 @@ location ^~ /ai/ {
 |---|---|---|
 | 1 | 运营主体、备案适用性、公开联系方式 | **未完成**（需 Owner 决定主体与路径） |
 | 2 | 正式生产部署身份与路由验证 | **身份已证实**；路由未落地（待授权执行） |
-| 3 | 一名孩子 + 一名成人零基础者的真实体验 | **未完成**（=0，需 Owner 授权"找人"；应采用不收集敏感信息的观察方式） |
+| 3 | 一名孩子 + 一名成人零基础者的真实体验 | **未完成（`NOT_YET_TESTED`）**；方案已就绪：`REAL-USER-TRIAL.md`（任务卡 + 观察表 + 判据）。需 Owner 授权"找人" |
 | 4 | 外部工具年龄条款正式发布前复核 | **已完成到可核实程度**（19/19 官方原文比对）；发布前建议再跑一次 |
 | 5 | 对未完成验证的内容保持准确披露 | **已做**：`RELEASE.md` §6、本报告 §7、页面本身不宣称任何未验证能力 |
 
@@ -150,6 +164,11 @@ location ^~ /ai/ {
 
 ## 8. 状态
 
-**`WS_AI_V0.1_READY_FOR_COMMANDER_FINAL_REVIEW`**
+**`WS_AI_V0.1_CODE_ACCEPTED` / `REAL_USER_EVIDENCE_PENDING` / `PUBLIC_RELEASE_HOLD`**（Commander 2026-11-01 裁决）
 
-未合并、未部署、未宣称上线。下一次人工动作只有两件：①Commander 发布裁决与授权；②Owner 决定是否现在安排真人试用。
+未合并、未部署、未宣称上线。**发布执行方固定为总运维窗口**。
+
+下一步只剩两件，都不是工程动作：
+
+1. **真人验证**：按 `REAL-USER-TRIAL.md` 执行。**未执行前，本仓库任何文件都不得声称"零基础的人看得懂"**——当前真实状态是 `NOT_YET_TESTED`。
+2. **合并与发布授权**：Commander 决定时机后，由总运维按 `DEPLOY-AI-ROUTE.md` 执行；本轮不碰 nginx、不碰生产目录。
