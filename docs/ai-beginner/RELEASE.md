@@ -49,7 +49,7 @@
 
 | 命令 | 作用 | 最新结果 |
 |---|---|---|
-| `node eval/ai-beginner-selftest.mjs` | 内容契约 + 事实守卫（零依赖） | **266/266，exit 0** |
+| `node eval/ai-beginner-selftest.mjs` | 内容契约 + 事实守卫（零依赖） | **见 §4 末行（最新数字）** |
 | `node eval/ai-beginner-journey.mjs` | 真实 Chrome 旅程：三条路径从首页点进去、复制到剪贴板、勾完成、刷新保留、回退展开、320/390/768/1440 无溢出、严格触控口径、键盘焦点、旧站回归、0 第三方请求 | **70/70，exit 0** |
 | 变异测试 | 把"未明确最低年龄 + 未满 14 岁"注回 `tools.html`，自测必须变红 | 2 条断言失败、exit 1（人工执行过） |
 | `node evidence/collect-urls.mjs` | 逐个外部工具真实可达性（状态码/跳转/标题/耗时） | 结果见 `evidence/urls.json` |
@@ -97,7 +97,7 @@
 
 | 文件 | 改动 | 回退动作 |
 |---|---|---|
-| `web/ai/**`（9 个页面 + 3 个静态资源） | 全新文件 | 撤回 PR / 删除该目录 |
+| `web/ai/**`（7 个页面 + 3 个静态资源） | 全新文件 | 撤回 PR / 删除该目录 |
 | `web/index.html` | **改了 1 处**：在 hero 的 `<h1>你想做什么事？</h1>` 之前新增一行链接「第一次用 AI、完全不懂？从这里开始：AI 从零开始 →」（指向 `ai/index.html`）；`<h1>` 仅缩进变化 | 删掉那一行 `<p>` 并恢复 `<h1>` 缩进，或用 `git checkout origin/main -- web/index.html` |
 | `README.md` | 只追加了目录说明与一段「AI 从零开始」用法 | 可留可删，不影响站点 |
 | `docs/ai-beginner/**`、`eval/ai-beginner-*.mjs`、`scripts/preview.mjs`、`evidence/**`、`.gitattributes` | 全新文件 | 撤回 PR / 删除 |

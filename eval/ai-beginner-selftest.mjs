@@ -188,12 +188,20 @@ for (const [p, spec] of Object.entries(PATHS)) {
 }
 
 // 12) 路径一的「做成」不得以"别人回复"为判据（Commander 裁决：学习者的行动完成与否由他自己决定）
+//     注意：分享卡片（og:description）与首页摘要也算页面文案——独立 Checker 曾在这里抓到旧口径残留。
 {
   const src = html['paths/make-something.html'] || '';
+  const home = html['index.html'] || '';
   ok(!/收到了?一个人的回应/.test(src), '路径一：不以「收到回应」作为做成判据');
   ok(!/等回应/.test(src), '路径一：不再要求「等回应」');
   ok(/不需要等谁回复/.test(src), '路径一：明确写出「不需要等谁回复才算数」');
   ok(/不是你的成果指标/.test(src), '路径一：明确写出对方回复不是成果指标');
+  ok(!/并且收到回应/.test(src), '路径一：og 分享卡片不得残留「并且收到回应」');
+  ok(!/并且收到回应/.test(home), '首页路径一摘要不得残留「并且收到回应」');
+  const all = Object.entries(html);
+  for (const [p, pageSrc] of all) {
+    ok(!/收到回应/.test(pageSrc.replace(/不需要等谁回复/g, '')), `${p}：全页不得出现「收到回应」类判据`);
+  }
 }
 
 const total = pass + fails.length;
