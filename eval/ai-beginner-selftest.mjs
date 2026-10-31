@@ -131,22 +131,30 @@ for (const [p, spec] of Object.entries(PATHS)) {
 }
 
 // 8b) 事实断言：这条文案曾经写错过一次（把官方 18 岁门槛写成「未明确最低年龄」，
-//     方向还比官方更宽松）。这里把它锁死：只要出现「最低年龄」「更保守」这类措辞，
-//     同一页就必须写出官方口径（18 周岁 + 监护人），否则判失败。
+//     方向还比官方更宽松）。第一次的写法是「说到最低年龄就必须出现 18」——那是空转的：
+//     页面别处本来就有「18」，把错误文案注回去照样全绿（独立 Checker 用变异测试证伪过）。
+//     现在改成直接禁旧措辞：断言必须能被证伪，否则绿灯不提供任何信息。
 {
   const pages = { ...html, 'assets/tools.js': existsSync(join(SITE, 'assets', 'tools.js')) ? readFileSync(join(SITE, 'assets', 'tools.js'), 'utf8') : '' };
+  const BANNED = [
+    /未明确最低年龄/,
+    /没有公开明确的最低年龄/,
+    /更保守的家长判断线/,
+    /未满\s*14\s*岁请和家长一起用/
+  ];
   for (const [p, src] of Object.entries(pages)) {
-    if (!/未明确/.test(src) && !/更保守/.test(src)) continue;
-    ok(!/最低年龄/.test(src) || /18/.test(src), `${p}：说到「最低年龄」时必须同时写出官方 18 周岁口径`);
+    for (const re of BANNED) {
+      ok(!re.test(src), `${p}：不得出现旧口径 ${re}`);
+    }
   }
+  // 每条年龄断言旁边必须是官方口径（18 周岁 + 监护人），并且有可点开的条款出处
   const tools = pages['tools.html'] || '';
-  ok(/未满 18 周岁/.test(tools), '工具页写明豆包/DeepSeek 官方要求：未满 18 周岁须监护人陪同并同意');
-  ok(/《用户协议》/.test(tools), '工具页给出官方条款出处（《用户协议》），不是只说「官方说」');
-  // 曾经写错第二条事实：v0「打不开」——与实测相反
+  const ageLines = tools.split('\n').filter((l) => /未满 18 周岁/.test(l));
+  ok(ageLines.length >= 2, '工具页对豆包与 DeepSeek 各写一次官方 18 周岁口径', `实际命中 ${ageLines.length} 行`);
+  ok(/https:\/\/www\.doubao\.com\/legal\/terms/.test(tools), '豆包条款给出可点开的官方链接');
+  ok(/https:\/\/cdn\.deepseek\.com\/policies\/zh-CN\/deepseek-terms-of-use\.html/.test(tools), 'DeepSeek 条款给出可点开的官方链接');
   ok(!/打不开官网定价页/.test(tools), '工具页不再写「v0 定价页打不开」（2026-10-31 实测 200）');
-  // assets/tools.js 是未被引用的副本，不允许它复活旧口径
-  const tjs = pages['assets/tools.js'] || '';
-  ok(!/未明确最低年龄/.test(tjs), 'assets/tools.js 不含旧口径「未明确最低年龄」');
+  ok(!/速度也不稳定|访问不稳定/.test(tools), '工具页不写没有实测支撑的「不稳定」判断');
 }
 
 // 9) 安全页：隐私清单 + 求助渠道
