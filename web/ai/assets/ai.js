@@ -57,5 +57,32 @@
         if (window.localStorage.getItem('ws_ai_' + boxes[i].id) === '1') boxes[i].checked = true;
       } catch (e) { /* 忽略 */ }
     }
+    updateStepper();
   });
+
+  /* 步进条随滚动更新：只改 aria-current 与视觉高亮，不改变任何内容。
+     没有 JS 时第一步默认高亮，不至于误导成"整页都是第一步"。 */
+  function updateStepper() {
+    var bar = document.querySelector('.stepper');
+    if (!bar) return;
+    var items = [].slice.call(bar.querySelectorAll('li'));
+    var marks = [].slice.call(document.querySelectorAll('.stage'));
+    if (!items.length || !marks.length) return;
+    var active = 0;
+    for (var i = 0; i < marks.length; i++) {
+      var top = marks[i].getBoundingClientRect().top;
+      if (top < window.innerHeight * 0.45) active = Math.min(i, items.length - 1);
+    }
+    items.forEach(function (li, idx) {
+      if (idx === active) li.setAttribute('aria-current', 'step');
+      else li.removeAttribute('aria-current');
+    });
+  }
+
+  var ticking = false;
+  window.addEventListener('scroll', function () {
+    if (ticking) return;
+    ticking = true;
+    window.setTimeout(function () { updateStepper(); ticking = false; }, 120);
+  }, { passive: true });
 })();

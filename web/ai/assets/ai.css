@@ -110,9 +110,15 @@ details.stuck{background:var(--sun-soft);border:1px solid #FDE68A;border-radius:
 details.stuck summary{font-size:16px;font-weight:700;cursor:pointer;color:var(--sun);min-height:44px;display:flex;align-items:center;padding:2px 0}
 details.stuck li{font-size:15px}
 
-/* 正文链接在手机上要有足够的垂直触控空间（不改变行内观感） */
-p a,li a,td a,label a,em a,strong a,.note a{display:inline-block;min-height:44px;padding:10px 0;margin:-10px 0;line-height:24px}
-.note b a,.note span a{display:inline-block;min-height:44px;padding:10px 0;margin:-10px 0;line-height:24px}
+/* 正文链接在手机上要有足够的垂直触控空间（不改变行内观感）。
+   只对「行内正文」生效：段落与列表里直接放的链接、表格单元里的链接；
+   包在 <b>/<span> 等行内元素里的链接由 .note/.tip 的 line-height 提供触控余量，
+   不再强行撑成 44px 块，否则会把正文撑成碎行。 */
+p > a, li > a, td a, footer > .wrap > p a{display:inline-block;min-height:44px;padding:10px 0;margin:-10px 0;line-height:24px}
+.note{line-height:2}
+/* 提示块里的链接：行高已经 2 倍，但整行高度取决于块内最长一行，不能保证每个链接都到 44px。
+   这里只把「提示块里的链接」抬成 44px 行内块；它们不在大段正文里，不会造成碎行。 */
+.note a, .note b a, .note span a{display:inline-block;min-height:44px;line-height:24px;padding:10px 0;margin:-10px 0;vertical-align:middle}
 
 /* AI 不能信 / 局限 */
 .limits{display:grid;gap:10px}
