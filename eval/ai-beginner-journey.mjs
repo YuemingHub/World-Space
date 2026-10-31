@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env node
+#!/usr/bin/env node
 /*
  * AI 从零开始 · 真实浏览器旅程（零依赖，playwright-core 由环境提供 + 本机 Chrome）
  *
@@ -68,13 +68,13 @@ async function auditOverflow(page, label) {
 }
 
 async function auditTouch(page, label) {
-  // 原生 checkbox 22px 是浏览器默认外观；它的可点击区由包住它的 <label>（≥52px 高）提供，
-  // 因此这里量的是「实际可点区域」：input 用其 label 的盒子，其他元素用自身盒子。
+  // 独立 Checker 的量法更严：只量元素自己的盒子。这里按同一口径——
+  // 原生复选框本身只有 22px，可点区域由 <label> 提供，所以量 label；其余元素量自身。
   const small = await page.evaluate(() => {
     const nodes = [...document.querySelectorAll('a,button,summary,input[type="checkbox"]')];
     const list = [];
     for (const el of nodes) {
-      const probe = el.matches('input[type="checkbox"]') ? (el.closest('.checkdone') || el) : el;
+      const probe = el; // 严格口径：量元素自己的盒子（复选框也量自身）
       const r = probe.getBoundingClientRect();
       if (r.width === 0 || r.height === 0) continue;
       const style = getComputedStyle(probe);
@@ -83,7 +83,7 @@ async function auditTouch(page, label) {
     }
     return list;
   });
-  ok(small.length === 0, `${label}：所有可见交互元素可点区域高度 ≥44px`, JSON.stringify(small).slice(0, 600));
+  ok(small.length === 0, `${label}：所有可见交互元素自身可点区高度 ≥44px`, JSON.stringify(small).slice(0, 600));
 }
 
 async function externalRequestAudit(page) {

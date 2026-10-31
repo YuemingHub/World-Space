@@ -16,7 +16,7 @@ img{max-width:100%}
 /* 顶栏 */
 .topbar{position:sticky;top:0;z-index:50;background:rgba(250,249,246,.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
 .topbar .inner{max-width:var(--maxw);margin:0 auto;padding:8px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px}
-.brand{font-weight:700;font-size:16px;color:var(--fg);text-decoration:none;display:inline-flex;align-items:center;gap:8px;min-height:44px;min-width:44px;justify-content:center;white-space:nowrap;flex:0 0 auto}
+.brand{font-weight:700;font-size:16px;color:var(--fg);text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;min-width:44px;padding:0 8px;white-space:nowrap;flex:0 0 auto}
 .brand .dot{width:10px;height:10px;border-radius:50%;background:var(--leaf);display:inline-block;flex:0 0 auto}
 .topbar nav{display:flex;gap:2px;flex-wrap:nowrap;justify-content:flex-end;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .topbar nav::-webkit-scrollbar{display:none}
@@ -100,9 +100,9 @@ button.copy:hover{background:#1D4ED8}
 button.copy[data-ok="1"]{background:#15803D}
 .copy-note{font-size:14px;color:var(--fg-muted);margin:0}
 
-/* 做成了 ✓ */
+/* 做成了 ✓ —— 整行 label 都是可点区域；复选框本身按 44px 绘制，满足「元素自身也可点」的严格口径 */
 .checkdone{display:flex;gap:10px;align-items:flex-start;background:var(--leaf-soft);border:1px solid #BBF7D0;border-radius:10px;padding:0;margin:12px 0}
-.checkdone input{width:22px;height:22px;margin:15px 0 0 14px;accent-color:var(--leaf);flex:0 0 auto}
+.checkdone input{width:44px;height:44px;margin:4px 0 0 6px;accent-color:var(--leaf);flex:0 0 auto;cursor:pointer}
 .checkdone label{display:block;flex:1 1 auto;font-size:16px;padding:12px 14px 12px 8px;min-height:52px;cursor:pointer}
 
 /* 卡住 */
@@ -141,7 +141,7 @@ footer a{display:inline-flex;align-items:center;min-height:44px;padding:0 2px}
 
 /* 回到顶部、内联小件 */
 .inline-em{font-size:1.05em}
-.badge{display:inline-block;font-size:13px;padding:2px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-weight:700;margin-left:6px;vertical-align:1px}
+.badge{display:inline-block;font-size:14px;padding:2px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-weight:700;margin-left:6px;vertical-align:1px}
 .kbd{font-family:inherit;background:var(--surface);border:1px solid var(--border);border-bottom-width:2px;border-radius:6px;padding:1px 6px;font-size:15px}
 
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
