@@ -14,7 +14,7 @@
 | 项 | 值 |
 |---|---|
 | 待发布内容 | 分支 `feature/ai-beginner-20261031` 上的 `web/ai/` 目录（9 个文件） |
-| **发布必须绑定的 SHA** | **`8039ea7147c75ae1adb0e8f3446e183ccd62e86d`**（本轮最终 head；与代码验收基线 `888a977` 的 `web/ai` 树哈希相同：`73726ee1…`） |
+| **发布必须绑定的 SHA** | **`154496c1ab66cd3777a62c40097124ba88fcdf11`**（本轮交付 head；与代码验收基线 `888a977` 的 `web/ai` 树哈希相同：`73726ee1…`） |
 | 代码验收基线 | `888a97726c9a63ebbb7a3c74abc6b99ddbb3a0d8`（独立终审在此执行） |
 | PR #34 | **OPEN / DRAFT**，base `main`（`3f619d1676f10efa4e8e69517ce16cd4f201f793`） |
 | 合并 | **未合并** |
@@ -87,7 +87,7 @@ ls -la /etc/nginx/sites-enabled/ && ls -la /etc/nginx/snippets/ming-portfolio.co
 #### 步骤 1｜取文件（**只有一个目录，且绑定一个完整 SHA**）
 
 ```bash
-SHA=8039ea7147c75ae1adb0e8f3446e183ccd62e86d        # 必须是这个完整 40 位 SHA，禁止分支名、禁止短 SHA
+SHA=154496c1ab66cd3777a62c40097124ba88fcdf11        # 必须是这个完整 40 位 SHA，禁止分支名、禁止短 SHA
 STAGE=/opt/world-space/ai-entries/$SHA              # 克隆与解包都用这一个目录
 
 # 1a 取源：优先用服务器上已有的检出，其次才 clone（两者落到同一目录约定）
@@ -188,12 +188,12 @@ systemctl reload nginx && echo "reloaded (不中断连接，不重启 Node)"
 ### 3.3 预期树哈希（作为对账基线）
 
 ```bash
-git -C <World-Space 检出> rev-parse 8039ea7147c75ae1adb0e8f3446e183ccd62e86d:web/ai
+git -C <World-Space 检出> rev-parse 154496c1ab66cd3777a62c40097124ba88fcdf11:web/ai
 # 期望：73726ee17b1020a44e52ec781c38fdf6ec66da6b
 # 若服务器实测与它不同 → STOP：取到的不是这个 SHA 的同一棵树。
 ```
 
-在 SHA `8039ea7147c75ae1adb0e8f3446e183ccd62e86d` 上，`web/ai` 的**对象哈希 `73726ee17b1020a44e52ec781c38fdf6ec66da6b`**。
+在 SHA `154496c1ab66cd3777a62c40097124ba88fcdf11` 上，`web/ai` 的**对象哈希 `73726ee17b1020a44e52ec781c38fdf6ec66da6b`**。
 它与代码验收基线 `888a977` 的**同一目录树哈希完全相同**（`git rev-parse 888a977:web/ai` 实测），
 说明本轮文档修订没有改动任何待发布文件。
 这是"整棵树"级别的对账点：只要它对上，9 个文件的内容就一个字节都不会错，不必逐个比对（但仍建议按步骤 2/4 保留文件级清单作为回执证据）。
