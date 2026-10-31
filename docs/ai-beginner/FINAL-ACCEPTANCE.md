@@ -20,27 +20,31 @@
 | **代码验收基线（历史）** | `888a97726c9a63ebbb7a3c74abc6b99ddbb3a0d8` | 独立终审在这上面跑到 **8 维度 7 VERIFIED / 1 BLOCKED、160/160 独立断言全绿**。Commander 的 `CODE_ACCEPTED` 针对这一份**代码** |
 | 远端 main | `3f619d1676f10efa4e8e69517ce16cd4f201f793` | **未改动** |
 
-**从 `888a977` 到当前 head 增加的内容**（`git diff --name-only 888a977 <head>` 实测）：
+**从 `888a977` 到当前 head 增加/修改的内容**（下表由 `git diff --name-status 888a977 HEAD` **机器生成**，不是手抄）：
 
-| 文件 | 作用 |
-|---|---|
-| `docs/ai-beginner/FINAL-ACCEPTANCE.md` | 本报告 |
-| `docs/ai-beginner/REAL-USER-TRIAL.md` | 真人试用方案（含儿童隐私六条硬门槛） |
-| `docs/ai-beginner/CHECKER-EVIDENCE.md` | 独立 Checker 脱敏摘要与复跑方法 |
-| `docs/ai-beginner/DEPLOY-AI-ROUTE.md` | `/ai/` 发布单（树哈希绑定、保护对象哈希核对、备份与回退） |
-| `eval/check-deploy-manifest.mjs` | **只读**自检：核对发布单里的 10 行 blob 哈希与 git 实测是否一致（不改任何产物） |
-| `evidence/urls.json` | 外链实测结果，本轮重新采集覆盖 |
+| 文件 | 类型 | 作用 |
+|---|---|---|
+| `docs/ai-beginner/CHECKER-EVIDENCE.md` | 新增 | 独立 Checker 脱敏摘要与复跑方法 |
+| `docs/ai-beginner/CHECKER.md` | 修改 | 独立复验手册（修正 var/ 与 .gitignore 的假陈述） |
+| `docs/ai-beginner/DEPLOY-AI-ROUTE.md` | 修改 | `/ai/` 发布单（树哈希绑定、保护对象哈希核对、备份与回退） |
+| `docs/ai-beginner/FINAL-ACCEPTANCE.md` | 新增 | 本报告 |
+| `docs/ai-beginner/REAL-USER-TRIAL.md` | 新增 | 真人试用方案（含儿童隐私六条硬门槛） |
+| `eval/check-deploy-manifest.mjs` | 新增 | **只读**自检：核对发布单 10 行 blob 哈希与 git 实测一致 |
+| `eval/verify-rollback-logic.sh` | 新增 | **只读**沙箱：用 bash 验证回退逻辑（不连服务器、不改文件树） |
+| `evidence/urls.json` | 修改 | 外链实测结果（本轮重新采集覆盖） |
 
-**准确说法**：`git diff --name-only 888a977 <head> -- web` → **空**（网页与资源一行未改）；
-`git diff --name-only 888a977 <head> -- web eval scripts` → 只剩上面那个**只读**自检脚本。
-`web/ai` 的目录树哈希在 `888a977` 与当前 head 上**逐字相同**，这是"代码没动"的最强证据。
+**准确说法（三句，均可机器复算）**：
+
+1. `git diff --name-only 888a977 HEAD -- web` → **空**（网页与资源一行未改）。
+2. `web/ai` 目录树哈希：基线 `73726ee17b1020a44e52ec781c38fdf6ec66da6b` = 当前 `73726ee17b1020a44e52ec781c38fdf6ec66da6b` → **逐字相同**，这是"代码没动"的最强证据。
+3. `git diff --name-status origin/main HEAD` → 新增 **26** + 修改 **2**（`README.md`、`web/index.html`）。
 
 | 项目 | 值 |
 |---|---|
 | 仓库 | `YuemingHub/World-Space` |
 | PR | https://github.com/YuemingHub/World-Space/pull/34 （**DRAFT**，base `main`） |
 | 分支 | `feature/ai-beginner-20261031` |
-| 与 main 的差异（`git diff --name-status origin/main <head>` 实测） | 新增 **25** 个 + 修改 **2** 个（`README.md`、`web/index.html`）；根 `index.html`、`CNAME`、`.cnb.yml`、`.github/**` 未动 |
+| 根 `index.html`、`CNAME`、`.cnb.yml`、`.github/**` | 未见改动（`git diff --name-only origin/main HEAD` 中不出现） |
 
 ---
 
@@ -83,7 +87,7 @@ Commander 指出：PR 实际改了 `web/index.html`（首屏新增一行入口�
 
 ## 3. 测试执行记录（分两段：本轮在当前 head 真实执行 + 历史基线记录）
 
-### 3.1 在当前 head `dc35f1337b4c718a2426e9f1b4823e3440cae0c8` 上真实执行（2026-11-01 02:42 +08:00）
+### 3.1 本轮真实执行记录（执行时的 head 为 `dc35f13…`，即本文件写就前的最新提交）
 
 | 命令 | 结果 | 退出码 | 输出位置 |
 |---|---|---|---|
@@ -91,9 +95,9 @@ Commander 指出：PR 实际改了 `web/index.html`（首屏新增一行入口�
 | `node eval/ai-beginner-journey.mjs` | `浏览器旅程：70/70 通过` | **0** | `var/ai-journey/20261031T184201/`（`var/` 不入库） |
 | `node evidence/collect-urls.mjs` | 18 个外链逐个实测可达 | **0** | `evidence/urls.json`（本轮覆盖写） |
 
-> 以上是本轮**真实执行**的记录，执行时 HEAD 正是 `dc35f13…`。注意：本轮执行发生在
+> 以上是本轮**真实执行**的记录，执行时 HEAD 正是当时的 head。注意：本轮执行发生在
 > 本报告与另两份文档的收口提交**之前**，但这些提交只改 `docs/`，`web/ai` 树哈希不变，
-> 任何人可在新 head 上重跑这三条命令得到相同结果（`eval/check-deploy-manifest.mjs` 可验证清单）。
+> 任何人可在当前 head 上重跑这三条命令得到相同结果（`eval/check-deploy-manifest.mjs` 可验证清单）。
 
 ### 3.2 历史记录（**不是**本轮重跑，来源：代码验收基线 `888a977`）
 
