@@ -32,7 +32,6 @@ const PATHS = {
   'paths/make-a-picture.html': { steps: 4, resultWord: '愿意保存在手机里', tool: 'https://www.doubao.com' },
   'paths/find-the-facts.html': { steps: 5, resultWord: '哪几点', tool: 'https://chat.deepseek.com' }
 };
-
 const html = {};
 for (const p of PAGES) {
   const abs = join(SITE, p);
@@ -125,7 +124,8 @@ for (const [p, spec] of Object.entries(PATHS)) {
   for (const u of ['https://www.doubao.com', 'https://chat.deepseek.com', 'https://www.gaoding.com']) {
     ok(src.includes(u), `工具页含真实入口 ${u}`);
   }
-  ok(/2026-10-31/.test(src), '工具页写明复核日期');
+  ok(/复核于 20\d\d-\d\d-\d\d/.test(src), '工具页写明复核日期（格式可查）');
+  ok(/下次复核 20\d\d-\d\d-\d\d/.test(src), '工具页写明下次复核日期');
   ok(/v0/.test(src) && /不作零基础第一步/.test(src), '工具页说明 v0 不作零基础第一步及原因（年龄门槛）');
   ok(/Stirling/.test(src) && /电脑/.test(src), '工具页说明 Stirling 需要电脑');
 }
@@ -173,6 +173,27 @@ for (const [p, spec] of Object.entries(PATHS)) {
 {
   const src = html['index.html'] || '';
   ok(src.includes('../index.html'), '新站链回 World Space 主入口（../index.html）');
+}
+
+// 11) 与现有站的真实关系（Commander 裁决 PARALLEL_AI_ENTRY）：
+//     旧首页必须保留一个指向新入口的链接；但不得把新入口设成默认首页；
+//     且这条链接只能是"一行小字"，不能改动旧首页其它结构。
+{
+  const legacy = readFileSync(join(ROOT, 'web', 'index.html'), 'utf8');
+  const rootIdx = readFileSync(join(ROOT, 'index.html'), 'utf8');
+  ok(/href="ai\/index\.html"/.test(legacy), '旧首页保留指向 ai/index.html 的入口链接');
+  ok(!/<meta http-equiv="refresh"[^>]*ai\/index\.html/i.test(legacy), '旧首页不得把 AI 入口设成默认跳转');
+  ok(/url=web\/index\.html/.test(rootIdx), '根跳转页仍指向 web/index.html（未被改成 /ai/）');
+  ok((legacy.match(/href="ai\/index\.html"/g) || []).length === 1, '旧首页只有一处指向新入口（一行小字，不铺开）');
+}
+
+// 12) 路径一的「做成」不得以"别人回复"为判据（Commander 裁决：学习者的行动完成与否由他自己决定）
+{
+  const src = html['paths/make-something.html'] || '';
+  ok(!/收到了?一个人的回应/.test(src), '路径一：不以「收到回应」作为做成判据');
+  ok(!/等回应/.test(src), '路径一：不再要求「等回应」');
+  ok(/不需要等谁回复/.test(src), '路径一：明确写出「不需要等谁回复才算数」');
+  ok(/不是你的成果指标/.test(src), '路径一：明确写出对方回复不是成果指标');
 }
 
 const total = pass + fails.length;

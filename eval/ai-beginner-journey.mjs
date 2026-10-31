@@ -146,7 +146,7 @@ const journeys = [
     url: '/paths/make-something.html',
     steps: 4,
     tool: 'https://www.doubao.com',
-    doneLabel: '我发出去了，并且收到了回应'
+    doneLabel: '我把那段话真的发出去了'
   },
   {
     name: '路径二 做一张属于我自己的图',
