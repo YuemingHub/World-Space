@@ -61,6 +61,7 @@ section > p.sub{color:var(--fg-muted);margin:0 0 14px;font-size:16px}
 ul,ol{padding-left:1.25em;margin:10px 0}
 li{margin:6px 0}
 .spell{display:flex;gap:12px;align-items:flex-start}
+.spell a{display:inline-flex;align-items:center;min-height:44px;padding:8px 0;margin:-8px 0;line-height:24px;font-weight:700}
 .spell .em{font-size:22px}
 
 /* 判断方法四招 */

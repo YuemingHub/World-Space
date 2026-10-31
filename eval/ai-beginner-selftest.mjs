@@ -204,6 +204,19 @@ for (const [p, spec] of Object.entries(PATHS)) {
   }
 }
 
+// 13) 复核日期必须全站唯一：独立 Checker 曾抓到 limits 页脚同时出现 11-01 与 10-31。
+//     「复核于 X」只能有一个日期；「下次复核 Y」单独算，不参与唯一性。
+{
+  const reviewDates = new Set();
+  const dueDates = new Set();
+  for (const src of Object.values(html)) {
+    for (const m of src.matchAll(/复核于\s*(20\d\d-\d\d-\d\d)/g)) reviewDates.add(m[1]);
+    for (const m of src.matchAll(/下次复核\s*(20\d\d-\d\d-\d\d)/g)) dueDates.add(m[1]);
+  }
+  ok(reviewDates.size === 1, '全站「复核于」日期唯一', JSON.stringify([...reviewDates]));
+  ok(dueDates.size <= 1, '全站「下次复核」日期唯一', JSON.stringify([...dueDates]));
+}
+
 const total = pass + fails.length;
 if (fails.length) {
   console.error(`\nAI 从零开始 · 内容契约自测：${pass}/${total} 通过，${fails.length} 失败\n`);
