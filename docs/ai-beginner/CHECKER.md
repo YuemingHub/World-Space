@@ -39,7 +39,9 @@ node eval/ai-beginner-journey.mjs           # 真实浏览器旅程
 $env:BASE_URL="http://127.0.0.1:4173"; $env:SITE_DIR="/ai"; node eval/ai-beginner-journey.mjs
 ```
 
-截图与机读报告落在 `var/ai-journey/<时间戳>/`（`var/` 已在 `.gitignore` 中，不入库）。
+截图与机读报告落在 `var/ai-journey/<时间戳>/`。
+**注意：`var/` 目前并没有写进 `.gitignore`**，跑完一次 journey 会在检出里留下未跟踪的 `var/`；
+请用 `git status --short` 确认，然后 `rm -rf var`（或 `git clean -fd var`）清掉，**不要把它提交进去**。
 
 ## 4. 你要独立回答的问题（不要接受作者的自评）
 

@@ -15,7 +15,7 @@
 |---|---|
 | 待发布内容 | `web/ai/` 目录 —— **10 个文件**（`git ls-tree -r --name-only <head> -- web/ai \| wc -l` 实测） |
 | **发布必须绑定的对象** | 目录树 `web/ai` = **`73726ee17b1020a44e52ec781c38fdf6ec66da6b`**（`git rev-parse <SHA>:web/ai`）——它等于代码验收基线 `888a977` 的同一目录树，**不随提交重写而变化** |
-| 记录该树哈希的 commit（参考） | 以 PR #34 最新 head 为准；本轮记录时 head 为 `97481ea`（其 `web/ai` 树哈希与上一致）。**分支上有同步机制可能重写 commit SHA，所以发布以树哈希为准，不以 commit 号为准。** |
+| 记录方式 | **不绑定任何 commit 号**：分支上有 GitHub↔CNB 双向同步，commit 会被 force push 重写；发布与核对一律读目录树哈希。需要人工追溯时，以 PR #34 当时的 head 为准。 |
 | 代码验收基线 | `888a97726c9a63ebbb7a3c74abc6b99ddbb3a0d8`（独立终审在此执行） |
 | PR #34 | **OPEN / DRAFT**，base `main`（`3f619d1676f10efa4e8e69517ce16cd4f201f793`） |
 | 合并 | **未合并** |
@@ -100,7 +100,7 @@ if [ -d /opt/world-space/repos/World-Space/.git ]; then
   SRC=/opt/world-space/repos/World-Space
   git -C "$SRC" fetch origin --prune
 else
-  # 新 clone：默认只得到一个分支，必须显式 fetch 目标分支，否则没有 origin/feature/... 这个 ref
+  # 新 clone：通常已经带回远端跟踪 ref；这里仍然显式 fetch 一次作为保险（分支可能在克隆之后又前进）
   git clone --filter=blob:none https://github.com/YuemingHub/World-Space.git "$STAGE"
   SRC="$STAGE"
   git -C "$SRC" fetch origin \
@@ -303,21 +303,24 @@ BAK=/etc/nginx/snippets/ming-portfolio.conf.bak-<YYYYmmddHHMMSS>-<8位哈希>   
 [ -f "$BAK" ] || { echo "STOP: 回执里的备份文件不存在，不要猜其它文件"; exit 1; }
 sha256sum "$BAK"                                     # 与回执里记录的备份哈希一致才继续
 
+# A1) 写回原配置 → 校验 → reload，每一步失败都必须以非零码退出，不许"假成功"
 cp -a "$BAK" "$SNIP"
-if nginx -t; then
-  systemctl reload nginx || { echo "reload 失败，正在恢复发布后的配置并上报"; }
-else
-  echo "STOP: 回退配置校验失败"
+if ! nginx -t; then
+  echo "FAIL: 写回原配置后 nginx -t 不通过，现场保持原样，立即上报总运维"
+  exit 1
 fi
+if ! systemctl reload nginx; then
+  echo "FAIL: reload 失败。此时磁盘=原配置、线上=发布后配置，二者不一致。"
+  echo "      处置：重试一次 systemctl reload nginx；仍失败则 systemctl restart nginx；"
+  echo "      再失败则上报总运维，不要离开现场，不要执行任何 B/C/D 步骤。"
+  exit 1
+fi
+nginx -t || { echo "FAIL: reload 后配置校验不通过，停止并上报"; exit 1; }
+echo "OK: 已回到原配置并生效"
 
-# A2) reload 失败时的恢复路径（保证站点不会卡在"改了一半"）
-#   回退失败 → 用发布时那条内容（备份文件的左右邻居不可猜）重新写回，然后必须验证：
-#   若手上没有发布后配置的副本，则改用备份 + 逐行删除本单 §步骤5 追加的 5 行 location 块，
-#   再 nginx -t && reload；仍失败则停止全部操作、保持现场、上报总运维。
-nginx -t && echo "nginx 配置有效"
-
-# B) 撤目录（先移走，不删，保留取证）
-mv /var/www/ymai.fun-static/ai /var/www/ymai.fun-static/ai.removed-<YYYYmmddHHMMSS>
+# B) 撤目录（先移走，不删，保留取证）。记录下来，D 步骤要用
+MOVED=/var/www/ymai.fun-static/ai.removed-<YYYYmmddHHMMSS>
+mv /var/www/ymai.fun-static/ai "$MOVED"
 
 # C) 回退验收（与 §4 的 A1–A6 逐条对照，期望完全相同；只有 /ai/ 从 200 变回 404）
 curl -s  -o /dev/null -w "%{http_code}\n" https://ymai.fun/ai/       # 404
@@ -326,17 +329,25 @@ curl -s  -o /dev/null -w "%{http_code}\n" https://ymai.fun/login     # 200
 curl -s  https://ymai.fun/healthz                                    # {"ok":true}
 curl -s  https://ymai.fun/ming/ | md5sum                             # 3bca73c4…
 
-# D) 保护对象最终核对：与发布前的清单逐条一致（回退也不得让任何既有文件变化）
-find /var/www/ymai.fun-static -path /var/www/ymai.fun-static/ai -prune -o -type f -print0 \
+# D) 保护对象最终核对
+#    ⚠ B 步骤已经把 ai 改名成 ai.removed-*，所以必须把【两个】目录都排除，
+#    否则刚移走的 10 个文件会被算进"既有文件"，导致正常的回退被误报成故障。
+find /var/www/ymai.fun-static \
+      -path /var/www/ymai.fun-static/ai -prune -o \
+      -path "$MOVED" -prune -o \
+      -type f -print0 \
   | sort -z | xargs -0 sha256sum > /root/ai-release-protected-after-rollback.sha256
 diff /root/ai-release-protected-before.sha256 /root/ai-release-protected-after-rollback.sha256 \
-  && echo "PROTECTED UNCHANGED AFTER ROLLBACK"
+  || { echo "FAIL: 既有文件发生变化，立即上报总运维（不要删除任何文件）"; exit 1; }
+echo "PROTECTED UNCHANGED AFTER ROLLBACK"
 ```
 
 **回退铁律**
 - 只用回执里记录的**那一个**备份文件，不用 `ls -t | head -1` 猜。
-- `nginx -t` 失败 → **不 reload**；reload 失败 → 必须把配置恢复到可用状态并再次 `nginx -t` 验证，不允许"改了一半"就离场。
+- `nginx -t` 失败 → **不 reload** 并以非零码退出；reload 失败 → 说清"磁盘与线上不一致"的处置步骤并以非零码退出，
+  **不允许**出现"只打印提示却 exit 0"的假成功。
 - 回退过程中**不删除**任何 PDF、`/ming/` 文件或其他既有生产文件；只 `mv` 走本次新建的 `ai` 目录。
+- D 步骤必须同时排除 `ai` 与 `ai.removed-*`（B 步骤改名后的新路径），否则正常回退会被误判成故障。
 
 ---
 
