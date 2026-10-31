@@ -14,7 +14,8 @@
 | 项 | 值 |
 |---|---|
 | 待发布内容 | 分支 `feature/ai-beginner-20261031` 上的 `web/ai/` 目录（9 个文件） |
-| **发布必须绑定的 SHA** | **`154496c1ab66cd3777a62c40097124ba88fcdf11`**（本轮交付 head；与代码验收基线 `888a977` 的 `web/ai` 树哈希相同：`73726ee1…`） |
+| **发布必须绑定的对象** | 目录树 `web/ai` = **`73726ee17b1020a44e52ec781c38fdf6ec66da6b`**（`git rev-parse <SHA>:web/ai`）——它等于代码验收基线 `888a977` 的同一目录树，**不随提交重写而变化** |
+| 记录该树哈希的 commit（参考） | 以 PR #34 最新 head 为准；本轮记录时 head 为 `97481ea`（其 `web/ai` 树哈希与上一致）。**分支上有同步机制可能重写 commit SHA，所以发布以树哈希为准，不以 commit 号为准。** |
 | 代码验收基线 | `888a97726c9a63ebbb7a3c74abc6b99ddbb3a0d8`（独立终审在此执行） |
 | PR #34 | **OPEN / DRAFT**，base `main`（`3f619d1676f10efa4e8e69517ce16cd4f201f793`） |
 | 合并 | **未合并** |
@@ -84,30 +85,34 @@ ls -la /etc/nginx/sites-enabled/ && ls -la /etc/nginx/snippets/ming-portfolio.co
 ```
 任何一项与 §1 不符 → **停止**，回到 Commander，不要"边试边改"。
 
-#### 步骤 1｜取文件（**只有一个目录，且绑定一个完整 SHA**）
+#### 步骤 1｜取文件（**唯一绑定依据是目录树哈希，不是 commit 号**）
+
+> 为什么不用 commit 号绑定：该分支上有 GitHub↔CNB 双向同步机制，实测会以 force push 重写分支，
+> commit SHA 会变；而 `web/ai` 的目录树哈希 `73726ee1…` 只要内容不变就一直不变。
 
 ```bash
-SHA=154496c1ab66cd3777a62c40097124ba88fcdf11        # 必须是这个完整 40 位 SHA，禁止分支名、禁止短 SHA
-STAGE=/opt/world-space/ai-entries/$SHA              # 克隆与解包都用这一个目录
+TREE=73726ee17b1020a44e52ec781c38fdf6ec66da6b   # 唯一绑定依据：web/ai 目录树哈希
+STAGE=/opt/world-space/ai-entries/$TREE         # 克隆与解包都用这一个目录
 
 # 1a 取源：优先用服务器上已有的检出，其次才 clone（两者落到同一目录约定）
 if [ -d /opt/world-space/repos/World-Space/.git ]; then
-  git -C /opt/world-space/repos/World-Space fetch origin --prune
-  git -C /opt/world-space/repos/World-Space cat-file -e "$SHA^{commit}" \
-    || { echo "STOP: 该检出里没有 $SHA"; exit 1; }
   SRC=/opt/world-space/repos/World-Space
+  git -C "$SRC" fetch origin --prune
 else
-  git clone --no-checkout --filter=blob:none https://github.com/YuemingHub/World-Space.git "$STAGE"
+  git clone --filter=blob:none https://github.com/YuemingHub/World-Space.git "$STAGE"
   SRC="$STAGE"
 fi
 
-# 1b 只导出 web/ai 子树（不检出整仓、不触碰 release 目录）
-mkdir -p "$STAGE/extract"
-git -C "$SRC" archive --format=tar "$SHA" web/ai | tar -x -C "$STAGE/extract"
+# 1b 取到的那份代码里，web/ai 必须正好是这棵树（这是唯一对账点，失败即停）
+ACTUAL=$(git -C "$SRC" rev-parse origin/feature/ai-beginner-20261031:web/ai)
+[ "$ACTUAL" = "$TREE" ] || { echo "STOP: 树哈希不符 $ACTUAL != $TREE"; exit 1; }
 
-# 1c 取到的必须正好是 $SHA 的 web/ai，且与文档记录的树哈希一致
-git -C "$SRC" rev-parse "$SHA:web/ai"                # 期望 73726ee17b1020a44e52ec781c38fdf6ec66da6b（不同→STOP）
-find "$STAGE/extract/web/ai" -type f | wc -l         # 期望：9（若为 10，多出的通常是 3.2 之外的残留，也要 STOP 复核）
+# 1c 只导出这棵子树（不检出整仓、不触碰 release 目录）
+mkdir -p "$STAGE/extract"
+git -C "$SRC" archive --format=tar \
+  "$(git -C "$SRC" rev-parse origin/feature/ai-beginner-20261031)" web/ai \
+  | tar -x -C "$STAGE/extract"
+find "$STAGE/extract/web/ai" -type f | wc -l         # 期望：9
 ```
 **禁止**：`git clone --branch feature/...`（分支会移动，等于没绑定 SHA）；`--depth 1` 之后再用短 SHA（无法保证取到同一棵树）。
 
@@ -185,15 +190,15 @@ systemctl reload nginx && echo "reloaded (不中断连接，不重启 Node)"
 - `client_max_body_size 64k` 与静态页无关，不改。
 - 不做 DNS、不动 GitHub Pages。
 
-### 3.3 预期树哈希（作为对账基线）
+### 3.3 对账基线：目录树哈希（**唯一绑定依据**）
 
 ```bash
-git -C <World-Space 检出> rev-parse 154496c1ab66cd3777a62c40097124ba88fcdf11:web/ai
+# 任何一次 clone / 任何一次推送之后都能复算，且不会因为提交被重写而失效
+git -C <World-Space 检出> rev-parse origin/feature/ai-beginner-20261031:web/ai
 # 期望：73726ee17b1020a44e52ec781c38fdf6ec66da6b
-# 若服务器实测与它不同 → STOP：取到的不是这个 SHA 的同一棵树。
 ```
 
-在 SHA `154496c1ab66cd3777a62c40097124ba88fcdf11` 上，`web/ai` 的**对象哈希 `73726ee17b1020a44e52ec781c38fdf6ec66da6b`**。
+`web/ai` 的**对象哈希 `73726ee17b1020a44e52ec781c38fdf6ec66da6b`**。
 它与代码验收基线 `888a977` 的**同一目录树哈希完全相同**（`git rev-parse 888a977:web/ai` 实测），
 说明本轮文档修订没有改动任何待发布文件。
 这是"整棵树"级别的对账点：只要它对上，9 个文件的内容就一个字节都不会错，不必逐个比对（但仍建议按步骤 2/4 保留文件级清单作为回执证据）。
