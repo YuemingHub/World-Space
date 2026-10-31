@@ -14,7 +14,7 @@
 | 项 | 值 |
 |---|---|
 | 待发布内容 | 分支 `feature/ai-beginner-20261031` 上的 `web/ai/` 目录（9 个文件） |
-| **发布必须绑定的 SHA** | **`956bb4a4b2c27e435083fd948628173c762d5f20`**（本轮最终 head；只含文档增量，代码与 `888a977` 相同） |
+| **发布必须绑定的 SHA** | **`8039ea7147c75ae1adb0e8f3446e183ccd62e86d`**（本轮最终 head；与代码验收基线 `888a977` 的 `web/ai` 树哈希相同：`73726ee1…`） |
 | 代码验收基线 | `888a97726c9a63ebbb7a3c74abc6b99ddbb3a0d8`（独立终审在此执行） |
 | PR #34 | **OPEN / DRAFT**，base `main`（`3f619d1676f10efa4e8e69517ce16cd4f201f793`） |
 | 合并 | **未合并** |
@@ -87,7 +87,7 @@ ls -la /etc/nginx/sites-enabled/ && ls -la /etc/nginx/snippets/ming-portfolio.co
 #### 步骤 1｜取文件（**只有一个目录，且绑定一个完整 SHA**）
 
 ```bash
-SHA=956bb4a4b2c27e435083fd948628173c762d5f20        # 必须是这个完整 40 位 SHA，禁止分支名、禁止短 SHA
+SHA=8039ea7147c75ae1adb0e8f3446e183ccd62e86d        # 必须是这个完整 40 位 SHA，禁止分支名、禁止短 SHA
 STAGE=/opt/world-space/ai-entries/$SHA              # 克隆与解包都用这一个目录
 
 # 1a 取源：优先用服务器上已有的检出，其次才 clone（两者落到同一目录约定）
@@ -188,7 +188,7 @@ systemctl reload nginx && echo "reloaded (不中断连接，不重启 Node)"
 ### 3.3 预期树哈希（作为对账基线）
 
 ```bash
-git -C <World-Space 检出> rev-parse 956bb4a4b2c27e435083fd948628173c762d5f20:web/ai
+git -C <World-Space 检出> rev-parse 8039ea7147c75ae1adb0e8f3446e183ccd62e86d:web/ai
 # 期望：73726ee17b1020a44e52ec781c38fdf6ec66da6b
 # 若服务器实测与它不同 → STOP：取到的不是这个 SHA 的同一棵树。
 ```
@@ -269,7 +269,7 @@ curl -s https://ymai.fun/ming/ | md5sum                             # 3bca73c4�
 ## 6. 后续升级（同一路径的第二版）
 
 ```bash
-NEW=956bb4a…      # 新的完整 SHA
+NEW=<下一个完整 40 位 SHA>   # 升级时必须是完整 SHA，禁止短 SHA
 test ! -e /var/www/ymai.fun-static/ai.removed-* || true
 mv /var/www/ymai.fun-static/ai /var/www/ymai.fun-static/ai.prev-$NEW
 # 然后按步骤 1–4 重新放一份，按 §4 全部再验一遍
