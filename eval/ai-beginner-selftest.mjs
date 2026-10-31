@@ -114,7 +114,7 @@ for (const [p, spec] of Object.entries(PATHS)) {
   const src = html['limits.html'] || '';
   const moves = (src.match(/class="move"/g) || []).length;
   ok(moves === 4, `判断方法页恰好 4 招（实际 ${moves}）`);
-  ok(/换个问法/.test(src) && /要来源/.test(src) && /官方/.test(src) && /哪里可能是错的/.test(src), '四招名称齐全');
+  ok(/换个相反的问法/.test(src) && /要来源/.test(src) && /只认官方|只有官方/.test(src) && /哪里可能是错的/.test(src), '四招名称齐全');
   ok((src.match(/<tr><td>/g) || []).length >= 5, '至少 5 种常见错误');
   ok(/两个不同的 AI/.test(src) || /两个 AI/.test(src), '破除「问两个 AI 就可靠」的误解');
 }
@@ -126,17 +126,39 @@ for (const [p, spec] of Object.entries(PATHS)) {
     ok(src.includes(u), `工具页含真实入口 ${u}`);
   }
   ok(/2026-10-31/.test(src), '工具页写明复核日期');
-  ok(/官方条款未明确/.test(src), '工具页如实写「官方条款未明确」');
-  ok(/v0/.test(src) && /不作默认推荐/.test(src), '工具页说明 v0 不作默认推荐及原因');
+  ok(/v0/.test(src) && /不作零基础第一步/.test(src), '工具页说明 v0 不作零基础第一步及原因（年龄门槛）');
   ok(/Stirling/.test(src) && /电脑/.test(src), '工具页说明 Stirling 需要电脑');
+}
+
+// 8b) 事实断言：这条文案曾经写错过一次（把官方 18 岁门槛写成「未明确最低年龄」，
+//     方向还比官方更宽松）。这里把它锁死：只要出现「最低年龄」「更保守」这类措辞，
+//     同一页就必须写出官方口径（18 周岁 + 监护人），否则判失败。
+{
+  const pages = { ...html, 'assets/tools.js': existsSync(join(SITE, 'assets', 'tools.js')) ? readFileSync(join(SITE, 'assets', 'tools.js'), 'utf8') : '' };
+  for (const [p, src] of Object.entries(pages)) {
+    if (!/未明确/.test(src) && !/更保守/.test(src)) continue;
+    ok(!/最低年龄/.test(src) || /18/.test(src), `${p}：说到「最低年龄」时必须同时写出官方 18 周岁口径`);
+  }
+  const tools = pages['tools.html'] || '';
+  ok(/未满 18 周岁/.test(tools), '工具页写明豆包/DeepSeek 官方要求：未满 18 周岁须监护人陪同并同意');
+  ok(/《用户协议》/.test(tools), '工具页给出官方条款出处（《用户协议》），不是只说「官方说」');
+  // 曾经写错第二条事实：v0「打不开」——与实测相反
+  ok(!/打不开官网定价页/.test(tools), '工具页不再写「v0 定价页打不开」（2026-10-31 实测 200）');
+  // assets/tools.js 是未被引用的副本，不允许它复活旧口径
+  const tjs = pages['assets/tools.js'] || '';
+  ok(!/未明确最低年龄/.test(tjs), 'assets/tools.js 不含旧口径「未明确最低年龄」');
 }
 
 // 9) 安全页：隐私清单 + 求助渠道
 {
   const src = html['safety.html'] || '';
-  for (const w of ['真实姓名', '密码', '照片', '12355', '110']) ok(src.includes(w), `安全页含「${w}」`);
+  for (const w of ['真实姓名', '密码', '照片', '110', '120', '托管方']) ok(src.includes(w), `安全页含「${w}」`);
   ok(/没有账号系统/.test(src), '安全页说明本站没有账号系统');
-  ok(/不会/.test(src), '安全页说明不记录时长/不评分');
+  ok(/不测时长/.test(src), '安全页说明不测时长/不评分');
+  // 全站唯一没有可核实来源的断言（12355 的具体归属）不得再出现在任何页面里
+  for (const [p, pageSrc] of Object.entries(html)) {
+    ok(!/12355/.test(pageSrc), `${p}：不写无法核实归属的热线号码`);
+  }
 }
 
 // 10) 回主站链接存在（并存，不抢占首页）
