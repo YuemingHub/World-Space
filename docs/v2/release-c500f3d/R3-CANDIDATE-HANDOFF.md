@@ -136,6 +136,12 @@ R3_BASELINE_RED_PROBES=PASS
 **评测数据引用数 = 0**（扫描 17 个文件）。为满足它，三处身份实现的注释里不再出现被禁止的路径字样，
 并去掉了 `eval/out` 排除项（它在 `.gitignore` 里，永远不会出现在 `git archive` 发布树中）。
 
+**复核（推送到 GitHub 之后，在 `43f2256` 的树上原样重跑）**：三条装置读数与上表完全一致
+（405/0/0、118/0/0、31/31、`REAL_APP_IDENTITY_IT=PASS`）。该树的身份值为
+`a530d1600b9a3be5a19fb76c30464d1d3274fc63ec773fc4c5effd443fbbe86e`，
+与本文件 §2 的 `37cc8d15…` 不同是**预期的**——树多了三个装置文件，身份按整棵树算。
+两个值都可用 `release-id.mjs` 对对应提交的 `git -c core.autocrlf=false archive` 树复算。
+
 ---
 
 ## 7. 未解决 / 需要决策（不假装已闭合）
@@ -160,6 +166,7 @@ R3_BASELINE_RED_PROBES=PASS
 
 ```bash
 # 1) 取候选树（LF，与 blob 逐字节一致）
+#    6add3a6 = 被判读的代码；分支尖端只多出本文件与两个装置脚本（§9 可验证为空）
 git -c core.autocrlf=false archive 6add3a6 | tar -x -C /tmp/cand
 
 # 2) 两条自测（在 Linux/容器里跑；真 symlink）
