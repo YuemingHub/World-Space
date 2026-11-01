@@ -180,6 +180,7 @@ footer { text-align: center; padding: 24px; color: var(--fg-muted); font-size: 1
     <button class="intent-btn wide" id="btn-ocr" aria-expanded="false" onclick="toggleGoal('goal-ocr')"><span class="em">🔤</span>提取图片文字</button>
     <button class="intent-btn wide" id="startBtn" onclick="startJourney()"><span class="em">🌱</span><span id="startLbl">不知道从哪开始？跟着三步走</span></button>
   </div>
+  <p class="sub" style="margin-top:18px"><a href="/ai/" style="color:var(--leaf);font-weight:600">第一次用 AI、完全不懂？从零开始 →</a></p>
   <div class="goal-panel" id="goal-ocr" role="region" aria-label="提取图片文字">
     <h2>🔤 提取图片文字</h2>
     <p class="goal-sub">好消息：不用装任何 App。微信和手机自带就能做，免费。</p>
@@ -487,6 +488,24 @@ function markDone(n) {
   }
 }
 function completeStage(n) {
+  // 毕业只认三步都打勾：没做完就点「走完了」也必须如实说明，不能凭空显示"这些事你都真的做成了"
+  var missing = ALL_STEPS.filter(function(id) { return !completedSteps[id]; });
+  if (missing.length > 0) {
+    var cp = document.getElementById('cp-' + n);
+    if (cp) {
+      var note = cp.querySelector('.cp-note');
+      if (!note) { note = document.createElement('p'); note.className = 'cp-note'; cp.appendChild(note); }
+      note.textContent = '还有 ' + missing.length + ' 步没打勾（第 ' + missing.join('、') + ' 步）——做完再来这里。';
+    }
+    var first = document.getElementById('step-' + missing[0]);
+    if (first) {
+      var stage = first.closest('.stage');
+      if (stage) stage.classList.add('open');
+      first.classList.add('open');
+      first.scrollIntoView({behavior:'smooth', block:'center'});
+    }
+    return false;
+  }
   completedStages[n] = true;
   var el = document.getElementById('status-' + n);
   el.className = 'stage-status done';
@@ -571,11 +590,6 @@ function restoreProgress() {
     }
   }
   if (cleaned) saveProgress();
-  if (completedStages[1]) {
-    var st = document.getElementById('status-1');
-    st.className = 'stage-status done';
-    st.textContent = '已完成';
-  }
   // Graduated: finished the current 3 steps, or completed the old 4-stage path
   var allDone = ALL_STEPS.every(function(id) { return completedSteps[id]; });
   var legacyDone = [1,2,3,4].every(function(s) { return completedStages[s]; });
@@ -590,6 +604,8 @@ function restoreProgress() {
     allDone = true;
   }
   if (allDone) {
+    var st = document.getElementById('status-1');
+    if (st) { st.className = 'stage-status done'; st.textContent = '已完成'; }
     document.getElementById('startLbl').textContent = '看看你做成了什么 🎉';
     document.getElementById('graduation').style.display = 'block';
   } else {

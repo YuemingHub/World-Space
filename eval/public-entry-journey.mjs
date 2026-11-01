@@ -1,7 +1,8 @@
 /*
  * 公开入口浏览器旅程自测 —— 匿名合成访客（手机视口 390x844）从 / 触达「写点东西」行动路径。
  * 自包含：自己起 world.mjs（stub provider，fixture 用户），跑完即关，无需外部服务。
- * 验证层级：触达（页面打开）→ 选择（面板展开）→ 操作（复制第一步）→ 出口（工具外链）→ 深链 → 登录墙负控。
+ * 验证层级：触达（页面打开）→ 选择（面板展开）→ 操作（复制第一步）→ 出口（工具外链）→ 深链 → 登录墙负控
+ *          → 毕业诚实性（未做完三步不得显示"都真的做成了"）→ /ai/ 入口 → 全部完成才毕业。
  * 浏览器自动化只能证明"触达和操作"；真实工具内的产出（豆包要登录）如实标注，不冒充真人体验。
  * 依赖：playwright-core（非本仓依赖，用 env PW_CORE 指到本机现成安装，浏览器二进制走 ms-playwright 缓存）。
  * 产物：截图 PNG 与 journey.json 落 var/frontdoor-journey/（gitignored，复跑即再生）。
@@ -91,6 +92,33 @@ try {
   const loginForm = await page.locator('#username').isVisible() && await page.locator('#password').isVisible();
   step(7, '负控：/login 登录页正常（账号+密码表单在，既有入口无回归）', loginForm, `title=${await page.title()}`);
   await page.screenshot({ path: join(OUT, '03-login-negative-control.png'), fullPage: true });
+
+  // 毕业诚实性：没做三步不许显示"这些事你都真的做成了"
+  await page.goto(journey.base + '/', { waitUntil: 'domcontentloaded' });
+  await page.waitForTimeout(200);
+  await page.locator('#cp-1 .checkpoint-btn').click();
+  await page.waitForTimeout(250);
+  const gradEarly = await page.locator('#graduation').isVisible();
+  const cpNote = await page.locator('#cp-1 .cp-note').innerText().catch(() => '');
+  step(8, '未完成三步就点「走完了」→ 不显示毕业页，并说明缺哪几步', !gradEarly && cpNote.includes('没打勾'), `visible=${gradEarly} note=${cpNote}`);
+
+  const aiCount = await page.locator('a[href="/ai/"]').count();
+  const aiHref = aiCount ? await page.locator('a[href="/ai/"]').first().getAttribute('href') : '';
+  const aiText = aiCount ? await page.locator('a[href="/ai/"]').first().innerText() : '';
+  step(9, '门面有「从零开始」入口且指向 /ai/', aiCount > 0 && aiHref === '/ai/' && aiText.includes('从零开始'), `count=${aiCount} href=${aiHref} text=${aiText}`);
+
+  await page.goto(journey.base + '/', { waitUntil: 'domcontentloaded' });
+  await page.waitForTimeout(200);
+  await page.locator('#step-1 .checkpoint-btn').click();
+  await page.waitForTimeout(150);
+  await page.locator('#step-2 .checkpoint-btn').click();
+  await page.waitForTimeout(150);
+  await page.locator('#step-3 .checkpoint-btn').click();
+  await page.waitForTimeout(150);
+  await page.locator('#cp-1 .checkpoint-btn').click();
+  await page.waitForTimeout(300);
+  const gradAll = await page.locator('#graduation').isVisible();
+  step(10, '三步都打勾后才显示毕业页', gradAll, `visible=${gradAll}`);
 
   journey.summary = failures === 0 ? 'ALL_STEPS_PASS' : `${failures}_STEPS_FAIL`;
   writeFileSync(join(OUT, 'journey.json'), JSON.stringify(journey, null, 2));
