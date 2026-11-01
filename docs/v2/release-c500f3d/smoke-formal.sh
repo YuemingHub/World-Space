@@ -102,10 +102,13 @@ echo "$HZ" | grep -q '"auth":"ready"'; ckz "auth=ready（正式配置，不是�
 
 # ---------- 未登录 ----------
 echo "=== 未登录 ==="
-c=$(curl -s -o /dev/null -w '%{http_code}' --max-time 8 "$H/")
+# V1 起匿名访客直接看公开首页：这里必须 200，且不能是 /login 的重定向。
+c=$(curl -s -o "$OUT/root-anon.html" -w '%{http_code}' --max-time 8 "$H/")
 loc=$(curl -s -o /dev/null -w '%{redirect_url}' --max-time 8 "$H/")
-ck "GET / → 302" "$([ "$c" = "302" ] && echo 1 || echo 0)" "实际 $c"
-ck "重定向目标是 /login" "$([ -n "$loc" ] && echo "$loc" | grep -q '/login' && echo 1 || echo 0)" "$loc"
+ck "GET / 匿名 → 200 公开首页" "$([ "$c" = "200" ] && echo 1 || echo 0)" "实际 $c"
+grep -q '你想做什么事' "$OUT/root-anon.html"; ckz "公开首页含门面标题「你想做什么事」" $? "正文无该句"
+ck "GET / 不再重定向" "$([ -z "$loc" ] && echo 1 || echo 0)" "redirect_url=$loc"
+ck "GET /login → 200（登录入口仍在）" "$(curl -s -o /dev/null -w '%{http_code}' --max-time 8 "$H/login")" 200
 api=$(curl -s -o "$OUT/unauth.json" -w '%{http_code}' --max-time 8 -X POST -H 'content-type: application/json' \
       -d '{"intent":"smoke unauth probe"}' "$H/api/world")
 ck "POST /api/world 未登录 → 401" "$([ "$api" = "401" ] && echo 1 || echo 0)" "$api $(head -c 120 "$OUT/unauth.json")"
@@ -213,8 +216,10 @@ curl -s -o /dev/null -w '%{http_code}\n' --max-time 8 -X POST -H "Cookie: $TOKA"
 AFTER=$(curl -s -o "$OUT/after-logout.json" -w '%{http_code}' --max-time 8 -X POST -H "Cookie: $TOKA" \
         -H 'content-type: application/json' --data-binary @"$OUT/intent1.json" "$H/api/world")
 ck "logout 后旧 cookie 调 /api/world → 401（服务端真吊销）" "$([ "$AFTER" = "401" ] && echo 1 || echo 0)" "$AFTER"
-ROOTC=$(curl -s -o /dev/null -w '%{http_code}' --max-time 8 -H "Cookie: $TOKA" "$H/")
-ck "logout 后旧 cookie 打开首页 → 送回 /login" "$([ "$ROOTC" = "302" ] && echo 1 || echo 0)" "$ROOTC"
+ROOTC=$(curl -s -o "$OUT/root-after-logout.html" -w '%{http_code}' --max-time 8 -H "Cookie: $TOKA" "$H/")
+ck "logout 后旧 cookie 打开首页 → 200 公开首页（不再回本人页面）" "$([ "$ROOTC" = "200" ] && echo 1 || echo 0)" "$ROOTC"
+grep -q '你想做什么事' "$OUT/root-after-logout.html" && ! grep -q '你现在想做成什么' "$OUT/root-after-logout.html"
+ckz "logout 后的首页是门面而不是本人页面" $? "正文里仍有本人页面标记"
 curl -s -D - -o /dev/null --max-time 8 "$H/" | grep -i '^cache-control' | tr -d '\r' | tee "$OUT/cc.txt"
 grep -qi 'no-store' "$OUT/cc.txt"; ckz "页面响应带 no-store（后退不显示上一次内容）" $? "$(cat "$OUT/cc.txt")"
 

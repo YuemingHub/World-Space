@@ -218,9 +218,19 @@ MSYS_NO_PATHCONV=1 docker run -d --name "$NGX_CT" --network "$NET" \
   -v "$WORK/static:/srv/static:ro" \
   -p "127.0.0.1:$PORT:8080" nginx:1.18.0 >/dev/null || die "起 nginx 容器失败"
 echo "  node=$NODE_CT nginx=$NGX_CT net=$NET port=$PORT"
+# 嵌套运行（给 R4_WORK_BASE 即"外层容器里再起容器"）时，127.0.0.1:$PORT 是外层容器自己的
+# 回环，不是发布端口的宿主；外层也不在 $NET 上，解析不了容器名 —— 用 nginx 容器的网络 IP。
+if [ -n "${R4_WORK_BASE:-}" ]; then
+  NGX_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$NGX_CT" | tr -d '\r')
+  [ -n "$NGX_IP" ] || die "取不到 $NGX_CT 的网络 IP"
+  PROBE="http://$NGX_IP:8080"
+else
+  PROBE="http://127.0.0.1:$PORT"
+fi
+echo "  probe=$PROBE/healthz"
 
 for i in $(seq 1 60); do
-  CODE=$(curl -s -o /dev/null -w '%{http_code}' --max-time 2 "http://127.0.0.1:$PORT/healthz" 2>/dev/null || true)
+  CODE=$(curl -s -o /dev/null -w '%{http_code}' --max-time 2 "$PROBE/healthz" 2>/dev/null || true)
   [ "$CODE" != "000" ] && [ -n "$CODE" ] && break
   sleep 0.25
 done

@@ -16,8 +16,11 @@ ck() { if [ "$2" = "1" ]; then echo "  ✓ $1"; pass=$((pass+1)); else echo "  �
 ckz() { ck "$1" "$([ "$2" = 0 ] && echo 1 || echo 0)" "$3"; }
 
 echo "=== 未登录 ==="
-rc=$(curl -s $R -o /dev/null -w '%{http_code}' --max-time 20 "$H/")
-ck "GET / → 302 到登录页" "$([ "$rc" = "302" ] && echo 1 || echo 0)" "$rc"
+rc=$(curl -s $R -o "$OUT/root-anon.html" -w '%{http_code}' --max-time 20 "$H/")
+ck "GET / 匿名 → 200 公开首页（不再 302 强制登录）" "$([ "$rc" = "200" ] && echo 1 || echo 0)" "$rc"
+grep -q '你想做什么事' "$OUT/root-anon.html"; ckz "公开首页含门面标题「你想做什么事」" $? "正文无该句"
+aic=$(curl -s $R -o "$OUT/ai.html" -w '%{http_code}' --max-time 20 "$H/ai/")
+ck "/ai/ 独立入口 → 200" "$([ "$aic" = "200" ] && echo 1 || echo 0)" "$aic"
 api=$(curl -s $R -o "$OUT/unauth.json" -w '%{http_code}' --max-time 20 -X POST \
      -H 'content-type: application/json' -d '{"intent":"public probe"}' "$H/api/world")
 ck "未登录 POST /api/world → 401（无门版本这里是 200，那正是本次发布要修的）" \
