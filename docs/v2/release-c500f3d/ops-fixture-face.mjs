@@ -9,7 +9,7 @@
 //   OPS_PORT   诊断面端口，0 = 不监听（模拟新版 3201 没起来）
 //   MODE       dual | legacy
 //   APP_PORT   诊断面自报的 app_port（默认等于 PUB_PORT；改小写错即模拟串台）
-//   PID        诊断面自报 pid
+//   PID        诊断面自报 pid（默认 4242；auto = 真实进程 pid，用于"重启后 pid 真的变了"）
 //   DROP       逗号分隔：从诊断面响应里删掉的字段（模拟字段不完整）
 //   DETAIL     公网 /healthz/detail 的状态码（默认 404；给 200 即模拟细节外露）
 //   API        未登录 POST /api/world 的状态码（默认 401）
@@ -20,9 +20,47 @@
 //   BADCOOKIE_API 带无效 ws_sess 的 POST /api/world：401（默认）| 200（模拟会话失效仍放行）
 //   LOGIN_CODE POST /api/auth/login（空 body）的状态码（默认 400；200 模拟空凭据被接受）
 //   LOGIN_MARK 登录页是否含「进入你的空间」（默认 1）
+// ── R3 发布身份 ──
+//   RELEASE_ROOT 要自测的发布树目录（默认 cwd）；诊断面按真实应用同口径算 release_id
+//   IDENTITY     computed（默认）| missing（不带身份字段）| wrong（冒充另一个身份）
+//   START_AT     自报启动时间（毫秒，默认进程真实启动时间）
 import http from 'node:http';
+import crypto from 'node:crypto';
+import { readFileSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
 
 const E = process.env;
+const SCHEME = 'world-release-tree-v1';
+function computeReleaseId(root) {
+  const files = [];
+  const walk = (dir, rel) => {
+    const ents = readdirSync(dir, { withFileTypes: true });
+    ents.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
+    for (const ent of ents) {
+      const r = rel ? rel + '/' + ent.name : ent.name;
+      const top = r.split('/')[0];
+      if (top === '.git' || top === 'node_modules' || top === 'var') continue;
+      if (ent.isDirectory()) walk(join(dir, ent.name), r);
+      else if (ent.isFile()) files.push(r);
+    }
+  };
+  walk(root, '');
+  files.sort();
+  const h = crypto.createHash('sha256');
+  h.update(SCHEME + '\n');
+  for (const f of files) {
+    h.update(f); h.update('\0');
+    h.update(crypto.createHash('sha256').update(readFileSync(join(root, f))).digest('hex'));
+    h.update('\n');
+  }
+  return h.digest('hex');
+}
+const identityMode = E.IDENTITY || 'computed';
+let releaseId = '';
+try { releaseId = computeReleaseId(E.RELEASE_ROOT || process.cwd()); }
+catch (e) { console.log('FIXTURE_FAIL identity ' + e.message); process.exit(1); }
+if (identityMode === 'wrong') releaseId = 'f'.repeat(64);
+const startedAt = Number(E.START_AT || Date.now());
 const pub = Number(E.PUB_PORT || 0);
 const ops = Number(E.OPS_PORT || 0);
 const mode = E.MODE || 'dual';
@@ -57,7 +95,13 @@ const pick = (keys, extra = {}) => {
   return { ...o, ...extra };
 };
 const pubBody = () => (mode === 'dual' ? { ok: true } : pick(Object.keys(FIELDS)));
-const opsBody = () => pick(Object.keys(FIELDS), { app_port: Number(E.APP_PORT || pub), pid: Number(E.PID || 4242) });
+const identityFields = () => (identityMode === 'missing' ? {} : {
+  diagnostic_face: 'ops-v1', release_id: releaseId,
+  release_id_scheme: identityMode === 'missing' ? '' : SCHEME, started_at_ms: startedAt,
+});
+const opsBody = () => pick(Object.keys(FIELDS), {
+  app_port: Number(E.APP_PORT || pub), pid: E.PID === 'auto' ? process.pid : Number(E.PID || 4242), ...identityFields(),
+});
 
 const send = (res, code, obj, hdr = {}) => {
   res.writeHead(code, { 'content-type': 'application/json', 'cache-control': 'no-store', ...hdr });

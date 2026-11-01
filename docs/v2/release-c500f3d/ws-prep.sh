@@ -11,9 +11,12 @@
 #
 # 候选版本必须显式指定（2026-11-01 收紧 P0-B）：
 #   本脚本不再有任何默认版本。WS_REF 必须是完整的 40 位提交号，且必须能通过发布身份验证：
-#   解析成同一个提交、发布线（refs/heads/v2）在它的历史里、不是 legacy 单面、发布目录逐文件等于
-#   该提交的树、并且相对当前线上版本是前进而不是回退。任何一步不成立 → 零写入 + 明确报错。
-#   旧版本只能走显式回滚：WS_MODE=rollback WS_ROLLBACK_TO=<sha> WS_REF=<同一个 sha>。
+#   解析成同一个提交、发布线写死 refs/heads/v2（WS_BRANCH 不能换线）且在它的历史里、
+#   不是 legacy 单面、代码里自带发布身份测量（release_id）、发布目录逐文件等于该提交的树、
+#   路径不逃出 ROOT/releases、git 缓存里没有被 replace refs / info/grafts 伪造的祖先关系、
+#   并且相对当前线上版本是前进而不是回退。任何一步不成立 → 明确报错，不登记批准点。
+#   旧版本只能走显式回滚：WS_MODE=rollback WS_ROLLBACK_TO=<sha> WS_REF=<同一个 sha>；
+#   回滚目标同样必须自带发布身份——没有身份物证的旧版无法被切流核实，本脚本不给它登记。
 #
 # 用法（root，服务器上）：
 #   WS_REF=<40位候选> ws-prep.sh fetch       # 1. 取批准 SHA 的发布树（不动 current）
@@ -29,9 +32,10 @@ set -euo pipefail
 # 只用真实对象关系判断祖先：replace refs 可以在缓存里伪造"谁是谁的祖先"
 export GIT_NO_REPLACE_OBJECTS=1
 
+HERE=$(cd "$(dirname "$0")" && pwd)
 ROOT="${WS_ROOT:-/opt/world-space}"
 REPO="${WS_REPO:-https://github.com/YuemingHub/World-Space}"
-BRANCH="${WS_BRANCH:-v2}"                         # 发布线：升级候选必须包含它的最新提交
+BRANCH="v2"                                       # 写死：残留的 WS_BRANCH 不能静默换发布线
 REF="${WS_REF:-}"                                 # 必须显式给出，不做任何默认
 MODE="${WS_MODE:-upgrade}"                        # upgrade | rollback
 ROLLBACK_TO="${WS_ROLLBACK_TO:-}"                 # 回滚的第二把钥匙
@@ -42,6 +46,9 @@ SMOKE_ENV=$ROOT/shared/env/world-space.v01-smoke.env
 PRIV=$ROOT/etc                                    # 仓库外私有文件（users.json / session-secret）
 EMERG=$ROOT/emergency
 STATE=$ROOT/state                                 # 本脚本自己的状态/日志，不是 nginx 的
+META=$STATE/approved-meta.txt                     # 批准记录：sha/mode/发布线/回滚目标/发布身份 一起登记
+FACE_PROBE=$HERE/face-probe.mjs                   # 面形状与身份能力：读代码，不读注释
+IDENTITY_TOOL=$HERE/release-id.mjs                # 发布身份：对发布树做内容摘要
 SMOKE_PORT=3210                                   # 只绑 127.0.0.1，公网不可达
 SMOKE_HOST=127.0.0.1
 LOGDIR=$STATE/logs
@@ -50,6 +57,9 @@ OUTCOME_URL=https://ymai.fun                      # 唯一正式 Origin
 die() { echo "FAIL: $*" >&2; exit "${2:-1}"; }
 need_root() { [ "$(id -u)" = 0 ] || die "需要 root" 2; }
 ensure_dirs() { mkdir -p "$LOGDIR" "$STATE"; }
+real_dir() { ( cd "$1" 2>/dev/null && pwd -P ); }
+is_hex64() { printf '%s' "$1" | grep -Eq '^[0-9a-f]{64}$'; }
+is_sha() { printf '%s' "$1" | grep -Eq '^[0-9a-f]{40}$'; }
 
 need_ref() { # 零写入的第一道闸：没有显式候选就什么都不做
   case "$REF" in
@@ -67,10 +77,66 @@ check_mode() {
 
 policy_abort() { echo "FAIL: PREDEPLOY_ABORT_$1  $2" >&2; exit 2; }
 
-face_of_commit() {
-  local n
-  n=$(git -C "$CACHE" cat-file blob "$1:server/world.mjs" 2>/dev/null | grep -c 'opsPort' || true)
-  [ "${n:-0}" -gt 0 ] && printf 'dual_face' || printf 'legacy_single_face'
+# 发布线写死 v2：残留的 WS_BRANCH 不允许静默换线（切流那边同样写死，且会拒绝覆盖）
+check_release_line() {
+  if [ -n "${WS_BRANCH:-}" ] && [ "${WS_BRANCH}" != "v2" ]; then
+    policy_abort RELEASE_LINE_OVERRIDE "WS_BRANCH=${WS_BRANCH}：发布线写死 v2，不允许用环境变量换线"
+  fi
+}
+
+# 路径边界：ROOT 是根，releases 是它下面的真实目录，发布树只能是 releases/<40hex>
+# releases 尚不存在时（全新主机）不在这里创建，留给写入阶段；但"存在却是链接/别的类型"立刻拒绝。
+RELEASES_REAL=""
+check_path_bounds() {
+  [ -d "$ROOT" ] || policy_abort ROOT_MISSING "$ROOT 不存在"
+  ROOT_REAL=$(real_dir "$ROOT") || policy_abort ROOT_MISSING "读不了 WS_ROOT=$ROOT"
+  if [ -L "$ROOT/releases" ]; then
+    policy_abort RELEASES_NOT_DIRECTORY "$ROOT/releases 是符号链接：releases 必须是 ROOT 下的真实目录"
+  fi
+  if [ -e "$ROOT/releases" ] && [ ! -d "$ROOT/releases" ]; then
+    policy_abort RELEASES_NOT_DIRECTORY "$ROOT/releases 存在但不是目录"
+  fi
+  if [ -d "$ROOT/releases" ]; then
+    RELEASES_REAL=$(real_dir "$ROOT/releases") || policy_abort RELEASES_NOT_DIRECTORY "读不了 $ROOT/releases"
+    [ "$RELEASES_REAL" = "$ROOT_REAL/releases" ] \
+      || policy_abort PATH_ESCAPE "$ROOT/releases 的物理位置是 $RELEASES_REAL，不在 ROOT 内（$ROOT_REAL/releases）"
+  fi
+  if [ -L "$REL" ]; then
+    policy_abort PATH_ESCAPE "发布树 $REL 是符号链接：发布树必须是真实目录，不能把树外内容当成本发布"
+  fi
+  if [ -d "$REL" ]; then
+    [ -n "$RELEASES_REAL" ] || policy_abort RELEASES_NOT_DIRECTORY "发布树在，但 $ROOT/releases 不是可读真实目录"
+    [ "$(real_dir "$REL")" = "$RELEASES_REAL/$REF" ] \
+      || policy_abort PATH_ESCAPE "发布树 $REL 的物理位置逃出了 releases"
+  fi
+}
+
+# Git 祖先关系可被两类元数据伪造：replace refs 与 info/grafts。环境变量只能关掉前者。
+check_git_metadata() {
+  [ -d "$CACHE" ] || policy_abort GIT_CACHE_MISSING "本机 git 缓存不在位（$CACHE）"
+  if [ -n "$(git -C "$CACHE" for-each-ref --format='%(refname)' refs/replace 2>/dev/null)" ]; then
+    policy_abort GIT_METADATA_TAMPERED "git 缓存里存在 refs/replace：祖先关系可被伪造，先清理缓存"
+  fi
+  [ ! -e "$CACHE/info/grafts" ] \
+    || policy_abort GIT_METADATA_TAMPERED "git 缓存里存在 info/grafts：祖先关系可被伪造，先清理缓存"
+}
+
+face_of_commit() { # 读提交里的代码（去注释/字符串），不认注释里写的 opsPort
+  local f="$STATE/.probe-$1.mjs"
+  mkdir -p "$STATE"
+  git -C "$CACHE" cat-file blob "$1:server/world.mjs" > "$f" 2>/dev/null || { rm -f "$f"; printf 'unknown'; return 1; }
+  local out; out=$(node "$FACE_PROBE" "$f" 2>/dev/null); rm -f "$f"
+  [ -n "$out" ] || out=unknown
+  printf '%s' "$out"
+}
+
+identity_capability_of_commit() { # identity_v1 | no_identity
+  local f="$STATE/.probe-id-$1.mjs"
+  mkdir -p "$STATE"
+  git -C "$CACHE" cat-file blob "$1:server/world.mjs" > "$f" 2>/dev/null || { rm -f "$f"; printf 'unknown'; return 1; }
+  local out; out=$(node "$FACE_PROBE" "$f" identity 2>/dev/null); rm -f "$f"
+  [ -n "$out" ] || out=unknown
+  printf '%s' "$out"
 }
 
 facade_of_commit() { # none | valid | invalid
@@ -88,8 +154,12 @@ is_ancestor() { git -C "$CACHE" merge-base --is-ancestor "$1" "$2" 2>/dev/null; 
 
 # 发布身份与策略验证（只读）。所有"未知/回退/越线/形状不符"都在这里停下，调用方不得先写后验。
 verify_target_policy() {
-  local ref=$1 live live_sha face facade
-  [ -d "$CACHE" ] || policy_abort GIT_CACHE_MISSING "本机 git 缓存不在位（$CACHE）"
+  local ref=$1 live_raw live_sha face facade idcap
+  check_path_bounds
+  check_git_metadata
+  [ -f "$FACE_PROBE" ] || policy_abort FACE_PROBE_MISSING "面形状探针不在位（$FACE_PROBE）"
+  [ -f "$IDENTITY_TOOL" ] || policy_abort IDENTITY_TOOL_MISSING "发布身份工具不在位（$IDENTITY_TOOL）"
+  command -v node >/dev/null 2>&1 || policy_abort NODE_MISSING "本机没有 node，无法计算发布身份"
   git -C "$CACHE" cat-file -e "$ref^{commit}" 2>/dev/null \
     || policy_abort TARGET_IDENTITY_UNKNOWN "WS_REF=$ref 在缓存里解析不到（未知版本不许登记）"
   [ "$(git -C "$CACHE" rev-parse "$ref^{commit}" 2>/dev/null)" = "$ref" ] \
@@ -97,21 +167,40 @@ verify_target_policy() {
   git -C "$CACHE" cat-file -e "$ref:server/world.mjs" 2>/dev/null \
     || policy_abort TARGET_NOT_A_RELEASE "该提交里没有 server/world.mjs，不是 World Space 发布树"
   face=$(face_of_commit "$ref")
+  idcap=$(identity_capability_of_commit "$ref")
   facade=$(facade_of_commit "$ref")
   [ "$facade" = invalid ] && policy_abort FACADE_INVALID "目标树里的 web/v2/public/index.html 存在但不是完整门面（<8000 字节或缺物证）"
+  # 先给最具体的诊断：升级路径塞了单面旧版。它同时也可能没有身份测量，但那是次要原因。
+  if [ "$MODE" = upgrade ] && [ "$face" = legacy_single_face ]; then
+    policy_abort LEGACY_AS_UPGRADE "升级路径不接受 legacy 单面旧版；回滚旧版必须显式 WS_MODE=rollback + WS_ROLLBACK_TO"
+  fi
+  # 没有身份测量的提交无法在切流时证明"正在服务的是它"，登记了也永远拿不到 OK（核验器 7）。
+  # 宁可在这里拒绝，也不制造一个注定失败的批准点。
+  [ "$idcap" = identity_v1 ] \
+    || policy_abort IDENTITY_UNSUPPORTED_BY_TARGET "目标代码不带发布身份测量（release_id）：切流无法核实运行版本，不允许登记批准点（legacy 旧版无法通过正常路径回滚，需另行评估）"
 
-  live=$(readlink "$ROOT/current" 2>/dev/null || true)
+  # current 的身份 = 位置 + 名字：只认 $ROOT/releases/<40hex>，basename 相同不足以证明
+  live_raw=$(readlink "$ROOT/current" 2>/dev/null || true)
   live_sha=""
-  [ -n "$live" ] && live_sha=$(basename "$live")
+  if [ -n "$live_raw" ]; then
+    live_sha=$(basename "$live_raw")
+    { [ "$live_raw" = "$ROOT/releases/$live_sha" ] && is_sha "$live_sha"; } \
+      || policy_abort LIVE_IDENTITY_UNKNOWN "current 指向 $live_raw，不是 $ROOT/releases/<40位提交号> 的形状"
+    [ -d "$ROOT/releases/$live_sha" ] && [ ! -L "$ROOT/releases/$live_sha" ] \
+      || policy_abort LIVE_IDENTITY_UNKNOWN "current 指向的发布树不存在或不是真实目录：$ROOT/releases/$live_sha"
+    [ "$(real_dir "$ROOT/releases/$live_sha")" = "$RELEASES_REAL/$live_sha" ] \
+      || policy_abort PATH_ESCAPE "current 指向的发布树物理位置逃出了 releases（$live_sha）"
+  fi
   if [ -n "$live_sha" ]; then
     git -C "$CACHE" cat-file -e "$live_sha^{commit}" 2>/dev/null \
       || policy_abort LIVE_IDENTITY_UNKNOWN "当前线上版本 $live_sha 在缓存里解析不到，无法判断前后代关系"
+    [ "$(git -C "$CACHE" rev-parse "$live_sha^{commit}" 2>/dev/null)" = "$live_sha" ] \
+      || policy_abort LIVE_IDENTITY_MISMATCH "当前线上版本解析成了另一个提交"
   elif [ "$MODE" = upgrade ]; then
     policy_abort LIVE_IDENTITY_UNKNOWN "没有可识别的 current（$ROOT/current 不存在或不是符号链接），升级无法判断这是不是一次前进"
   fi
 
   if [ "$MODE" = upgrade ]; then
-    [ "$face" = legacy_single_face ] && policy_abort LEGACY_AS_UPGRADE "升级路径不接受 legacy 单面旧版；回滚旧版必须显式 WS_MODE=rollback + WS_ROLLBACK_TO"
     git -C "$CACHE" rev-parse --verify -q "refs/heads/$BRANCH^{commit}" >/dev/null 2>&1 \
       || policy_abort RELEASE_LINE_UNKNOWN "缓存里没有发布线 refs/heads/$BRANCH，无法判断候选是否在发布线上"
     is_ancestor "refs/heads/$BRANCH" "$ref" \
@@ -135,14 +224,19 @@ cmd_fetch() {
   need_root
   need_ref
   check_mode
+  check_release_line
   [ -d "$ROOT" ] || die "PREDEPLOY_ABORT_ROOT_MISSING $ROOT 不存在" 2
   install -d -m 755 "$ROOT/.git-cache"
   if [ ! -d "$CACHE" ]; then
     git init --bare -q "$CACHE"
     git -C "$CACHE" remote add origin "$REPO"
   fi
-  # 先取全部分支（发布线、当前线上版本、候选通常都在上面）；远端不支持时退回按提交号直接取。
+  # 先取全部分支（发布线、当前线上版本、候选通常都在上面）；取完之后仍解析不到该提交
+  # （例如候选是不在任何分支上的冻结提交），再按提交号定点取一次。
   if ! timeout 300 git -C "$CACHE" fetch -q --force origin '+refs/heads/*:refs/heads/*' 2>/dev/null; then
+    timeout 300 git -C "$CACHE" fetch -q --force origin "$REF" 2>/dev/null \
+      || die "PREDEPLOY_ABORT_FETCH_FAILED 取不到 $REF（远端不可达，或该提交不在任何分支上）" 2
+  elif ! git -C "$CACHE" cat-file -e "$REF^{commit}" 2>/dev/null; then
     timeout 300 git -C "$CACHE" fetch -q --force origin "$REF" 2>/dev/null \
       || die "PREDEPLOY_ABORT_FETCH_FAILED 取不到 $REF（远端不可达，或该提交不在任何分支上）" 2
   fi
@@ -154,12 +248,16 @@ cmd_fetch() {
   # 身份与策略通过之后才允许写发布树
   verify_target_policy "$REF"
   ensure_dirs
-  install -d -m 755 "$(dirname "$REL")"
+  install -d -m 755 "$ROOT/releases"
+  [ "$(real_dir "$ROOT/releases")" = "$ROOT_REAL/releases" ] \
+    || die "PREDEPLOY_ABORT_PATH_ESCAPE $ROOT/releases 的物理位置不是 $ROOT_REAL/releases" 2
   if [ -d "$REL" ]; then
     echo "已存在：$REL（不重复展开；verify 会逐文件核对内容）"
     return 0
   fi
   install -d -m 755 "$REL"
+  [ -d "$REL" ] && [ ! -L "$REL" ] && [ "$(real_dir "$REL")" = "$RELEASES_REAL/$REF" ] \
+    || die "PREDEPLOY_ABORT_PATH_ESCAPE 发布树 $REL 创建后物理位置不对" 2
   # 逐文件从该 SHA 展开（不带 .git，避免"目录里有个 git 仓库"被误当成可改的工作区）
   git -C "$CACHE" archive "$REF" | tar -x -C "$REL"
   git -C "$CACHE" ls-tree -r --full-name "$REF" | sha256sum > "$STATE/tree-manifest-$REF.sha256"
@@ -174,6 +272,7 @@ cmd_verify() {
   need_root
   need_ref
   check_mode
+  check_release_line
   [ -d "$REL" ]  || die "PREDEPLOY_ABORT_RELEASE_TREE_MISSING 先跑 fetch（$REL 不存在）" 2
   [ -d "$CACHE" ] || die "PREDEPLOY_ABORT_GIT_CACHE_MISSING 与发布树对应的 git 缓存不在位（$CACHE）" 2
   # 先验身份、形状、发布线、前后代关系；不过就退出，批准点一个字都不写
@@ -212,10 +311,28 @@ cmd_verify() {
   done <<< "$exp"
   [ "$bad" = 0 ] || die "PREDEPLOY_ABORT_GIT_DRIFT $bad 个文件内容与 $REF 不一致" 2
 
-  # 全部通过之后才登记批准点（原子写：读者永远看不到半个 SHA）
-  local tmp="$STATE/.approved-sha.tmp.$$"
-  printf '%s\n' "$REF" > "$tmp" && mv -f "$tmp" "$STATE/approved-sha"
-  echo "  批准点已登记：$STATE/approved-sha = $REF（路径 $MODE$([ "$MODE" = rollback ] && echo " → $ROLLBACK_TO")）"
+  # 发布身份：对刚逐文件核对过的树做内容测量（与运行时自报、切流预检用同一个算法）
+  local rel_id
+  rel_id=$(node "$IDENTITY_TOOL" "$REL" 2>/dev/null || true)
+  is_hex64 "$rel_id" || die "PREDEPLOY_ABORT_IDENTITY_COMPUTE_FAILED 算不出发布树 $REL 的发布身份（$IDENTITY_TOOL）" 2
+
+  # 全部通过之后才登记批准点。两份记录必须互相对得上：
+  #   approved-sha 只说明"批准了哪份字节"；approved-meta 说明"以什么路径批准、预期身份是什么"。
+  # 先写 meta 再写 sha：中途崩溃会让 cutover 因两者不一致而拒绝（失败关闭，不会误切）。
+  local tmpm="$STATE/.approved-meta.tmp.$$" tmps="$STATE/.approved-sha.tmp.$$"
+  {
+    echo "sha=$REF"
+    echo "mode=$MODE"
+    echo "release_line=$BRANCH"
+    echo "rollback_to=$([ "$MODE" = rollback ] && echo "$ROLLBACK_TO" || echo -)"
+    echo "release_id=$rel_id"
+  } > "$tmpm" || die "PREDEPLOY_ABORT_STATE_UNWRITABLE 写不了 $tmpm" 2
+  printf '%s\n' "$REF" > "$tmps" || { rm -f "$tmpm"; die "PREDEPLOY_ABORT_STATE_UNWRITABLE 写不了 $tmps" 2; }
+  mv -f "$tmpm" "$META" && mv -f "$tmps" "$STATE/approved-sha" \
+    || die "PREDEPLOY_ABORT_STATE_UNWRITABLE 批准记录落盘失败（meta=$META sha=$STATE/approved-sha）" 2
+  echo "  批准点已登记：$STATE/approved-sha = $REF（路径 $MODE$([ "$MODE" = rollback ] && echo " → $ROLLBACK_TO")，发布线 $BRANCH）"
+  echo "  批准记录：$META"
+  echo "  目标发布身份：$rel_id"
   echo "GIT=PASS  发布树 $n 个文件逐内容与 $REF 相同，无缺失、无多余（只读比对，未写发布树）"
   echo "  树清单留档：$(cat "$STATE/tree-manifest-$REF.sha256" 2>/dev/null || echo 无)"
   echo "  current 仍指向：$(readlink "$ROOT/current" || echo 未设置)（本脚本从不改它）"
@@ -384,9 +501,24 @@ cmd_report() {
   echo "=== 关站 ==="; /usr/local/bin/world-space-emergency.sh status 2>/dev/null || echo "  未安装"
 }
 
+usage() {
+  cat <<'USAGE'
+用法（root，服务器上）：
+  WS_REF=<40位候选> ws-prep.sh fetch       # 1. 取批准 SHA 的发布树（不动 current）
+  WS_REF=<40位候选> ws-prep.sh verify      # 2. 逐文件证明部署树 = 该 SHA，并登记批准点 + 批准记录
+  WS_MODE=rollback WS_ROLLBACK_TO=<sha> WS_REF=<sha> ws-prep.sh fetch|verify   # 显式回滚
+  ws-prep.sh emergency          # 3. 装关站方案 + 独立进程预演（不 reload 公网入口）
+  ws-prep.sh smokeenv           # 4. 从生产 env 派生仓库外 smoke env（600），补访问门配置
+  ws-prep.sh failclosed         # 5. 先验证"认证配置坏了绝不退化成公开访问"
+  ws-prep.sh gates              # 6. 在服务器发布树跑全部 Gate（离线桩，0 外网 0 花费）
+  ws-prep.sh start|stop         # 7. 起/停本机验证实例（仅 127.0.0.1:3210）
+  ws-prep.sh report             # 8. 汇总只读事实（不含任何密钥值）
+USAGE
+}
+
 case "${1:-}" in
   fetch) cmd_fetch ;; verify) cmd_verify ;; emergency) cmd_emergency ;;
   smokeenv) cmd_smokeenv ;; adduser) shift; cmd_adduser "$@" ;; failclosed) cmd_failclosed ;;
   gates) cmd_gates ;; start) cmd_start ;; stop) cmd_stop ;; report) cmd_report ;;
-  *) sed -n '17,28p' "$0"; exit 2 ;;
+  *) usage; exit 2 ;;
 esac

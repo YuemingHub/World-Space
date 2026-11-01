@@ -11,11 +11,13 @@
 #
 # 退出码是**契约**，调用方只按码动作，不许靠读中文猜：
 #   0  通过（当前模式的断言全成立）
-#   2  新版面不完整：3201 不可达／自报身份不符／app_port 不符／诊断字段缺项
+#   2  新版面不完整：3201 不可达／自报身份不符／app_port 不符／诊断字段缺项／
+#      发布身份缺失或与批准版本不符／进程启动时间早于本次切流
 #   3  公网面本身不对：形状不对、detail 对外可见、访问门失效，或首页形状与发布树物证不符
 #   4  静态探针（目标代码里有没有诊断面）与运行时形状互相矛盾
 #   5  公网面完全探测不到 —— 只有这一码代表「服务确实不可用」
 #   6  用法或环境错误（含 WS_EXPECTED_ROOT 非法，或显式预期与发布树物证矛盾）
+#   7  身份不可核实：旧版单面没有诊断面，无法证明"正在服务的是批准提交" —— 不返回 OK
 #
 # 匿名首页的预期形状由**发布树物证**决定，不由人临时声明：
 #   WS_EXPECTED_ROOT=auto（默认）  目标树有 web/v2/public/index.html → facade，否则 → auth_only
@@ -28,12 +30,18 @@
 # 不是网站挂了。把它们当成关站条件，就会把一次正确部署误关成 503。
 set -uo pipefail
 
+HERE=$(cd "$(dirname "$0")" && pwd)
 PUBLIC_PORT="${WS_PUBLIC_PORT:-3200}"
 OPS_PORT="${WS_OPS_PORT:-3201}"
 PROBE_HOST="${WS_PROBE_HOST:-127.0.0.1}"
 TARGET_REL="${WS_TARGET_REL:-}"                          # 目标发布树；给了才做静态探针
 EXPECTED_ROOT="${WS_EXPECTED_ROOT:-auto}"                # auto | facade | auth_only
 EXPECT_PID="${WS_EXPECT_PID:-}"                          # 服务 MainPID；给了才要求诊断口自报同一 pid
+# ── 发布身份绑定（2026-11-01 R3 P0）─────────────────────────────────────
+# 期望身份优先**由本脚本从批准发布树现算**（WS_TARGET_REL），env 只是交叉核对；
+# 两边都没有 = 不可核实 → 拒绝 OK（不能凭调用方一句声明就放行）。
+EXPECT_RELEASE_ID="${WS_EXPECT_RELEASE_ID:-}"
+EXPECT_START_AFTER="${WS_EXPECT_START_AFTER:-}"          # 本次切流重启前的时间（毫秒）
 GATE_BASE="${WS_GATE_BASE:-https://ymai.fun}"            # 访问门的既有行为从这里验
 RESOLVE_HOST="${WS_RESOLVE_HOST:-ymai.fun:443:127.0.0.1}" # 空串＝不加 --resolve（fixture 用）
 TIMEOUT="${WS_CURL_TIMEOUT:-8}"
@@ -45,8 +53,9 @@ FACADE_MARK_B='id="btn-write"'
 FACADE_MARK_C='</html>'
 FACADE_MIN_BYTES=8000
 
-# 诊断面必须带的字段：少一个就说明这个面不是我以为的那个面
-REQUIRED_OPS_FIELDS="auth provider model search search_configured today_calls daily_cap month_cost_rmb monthly_cap_rmb fail_closed app_port pid"
+# 诊断面必须带的字段：少一个就说明这个面不是我以为的那个面。
+# release_id/release_id_scheme/started_at_ms/diagnostic_face 是"正在服务哪份字节"的物证。
+REQUIRED_OPS_FIELDS="auth provider model search search_configured today_calls daily_cap month_cost_rmb monthly_cap_rmb fail_closed app_port pid diagnostic_face release_id release_id_scheme started_at_ms"
 
 PUB="http://$PROBE_HOST:$PUBLIC_PORT"
 OPS="http://$PROBE_HOST:$OPS_PORT"
@@ -123,9 +132,43 @@ if [ -n "$TARGET_REL" ]; then
     bad "static_probe_target_readable" "发布树里找不到 $wf"
     verdict "STATIC_PROBE_FAILED" 6
   fi
-  if [ "$(grep -c 'opsPort' "$wf")" -gt 0 ]; then STATIC=dual_face; else STATIC=legacy_single_face; fi
-  good "static_probe_code_face_mode" "$STATIC"
+  # 去注释/字符串后再判：一行注释不能把 legacy 冒充成 dual_face（Deep 复核 P8）
+  STATIC=$(node "$HERE/face-probe.mjs" "$wf" 2>/dev/null || true)
+  case "$STATIC" in
+    dual_face|legacy_single_face) good "static_probe_code_face_mode" "$STATIC" ;;
+    *) STATIC=""; MODE=static_probe_failed
+       bad "static_probe_code_face_mode" "无法从 $wf 读出诊断面能力"
+       verdict "STATIC_PROBE_FAILED" 6 ;;
+  esac
 fi
+
+# ---------- 期望发布身份：优先从批准发布树现算；env 只做交叉核对 ----------
+EXPECTED_RELEASE_ID=""; IDENTITY_EXPECT_ERROR=""
+case "$EXPECT_RELEASE_ID" in
+  '') ;;
+  *) if printf '%s' "$EXPECT_RELEASE_ID" | grep -Eq '^[0-9a-f]{64}$'; then EXPECTED_RELEASE_ID="$EXPECT_RELEASE_ID"
+     else IDENTITY_EXPECT_ERROR="WS_EXPECT_RELEASE_ID 不是 64 位小写 hex"; fi ;;
+esac
+if [ -n "$TARGET_REL" ]; then
+  if [ -f "$HERE/release-id.mjs" ]; then
+    CALC=$(node "$HERE/release-id.mjs" "$TARGET_REL" 2>/dev/null || true)
+    if ! printf '%s' "$CALC" | grep -Eq '^[0-9a-f]{64}$'; then
+      IDENTITY_EXPECT_ERROR="无法从发布树 $TARGET_REL 算出发布身份"
+    elif [ -n "$EXPECTED_RELEASE_ID" ] && [ "$EXPECTED_RELEASE_ID" != "$CALC" ]; then
+      IDENTITY_EXPECT_ERROR="WS_EXPECT_RELEASE_ID=$EXPECTED_RELEASE_ID 与发布树实算 $CALC 不一致"
+    else
+      EXPECTED_RELEASE_ID="$CALC"
+    fi
+  elif [ -z "$EXPECTED_RELEASE_ID" ]; then
+    IDENTITY_EXPECT_ERROR="找不到 $HERE/release-id.mjs，且没有 WS_EXPECT_RELEASE_ID"
+  fi
+elif [ -z "$EXPECTED_RELEASE_ID" ]; then
+  IDENTITY_EXPECT_ERROR="既没有 WS_TARGET_REL 也没有 WS_EXPECT_RELEASE_ID，身份不可核实"
+fi
+START_EXPECT_ERROR=""
+case "$EXPECT_START_AFTER" in
+  ''|*[!0-9]*) START_EXPECT_ERROR="WS_EXPECT_START_AFTER 缺失或不是毫秒整数" ;;
+esac
 
 # ---------- 匿名首页预期：由发布树物证决定（不是"任何 200 都算过"） ----------
 ARTIFACT_FACADE=no
@@ -230,6 +273,11 @@ fi
 if [ "$MODE" = "legacy_single_face" ]; then
   printf 'WARN=LEGACY_SINGLE_FACE 诊断字段仍在公网面上（未登录可读 provider／预算／用量）\n'
   if printf '%s' "$B" | grep -q '"auth"'; then good "legacy_still_reports_auth" ""; else bad "legacy_still_reports_auth" "$B"; fi
+  # P0：没有诊断面就没有"正在服务哪份字节"的物证 → 不得给出 OK（7 = 身份不可核实）。
+  if [ -z "$PUBFAIL" ]; then
+    printf 'WARN=IDENTITY_UNVERIFIABLE 旧版单面没有诊断面，无法证明正在服务的是批准提交\n'
+    verdict "IDENTITY_UNVERIFIABLE" 7
+  fi
 elif [ "$MODE" = "dual_face" ]; then
   if [ "$PUB_KEYS" != "ok" ]; then
     bad "public_face_minimal_shape" "公网面上还挂着别的键：$PUB_KEYS"
@@ -258,15 +306,39 @@ elif [ "$MODE" = "dual_face" ]; then
   else
     bad "ops_face_has_all_fields" "缺:$miss"
   fi
-  OAUTH=$(printf '%s' "$OB" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s);console.log(j.auth)})' 2>/dev/null || echo ERR)
-  OPORT=$(printf '%s' "$OB" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s);console.log(j.app_port)})' 2>/dev/null || echo ERR)
-  OPID=$(printf '%s' "$OB"  | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s);console.log(j.pid)})' 2>/dev/null || echo ERR)
+  jget() { printf '%s' "$OB" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const j=JSON.parse(s);console.log(j[process.argv[1]])}catch(e){console.log("ERR")}})' "$1" 2>/dev/null || echo ERR; }
+  OAUTH=$(jget auth); OPORT=$(jget app_port); OPID=$(jget pid)
+  OFACE=$(jget diagnostic_face); OIDENT=$(jget release_id); OSCHEME=$(jget release_id_scheme); OSTART=$(jget started_at_ms)
   [ "$OAUTH" = "ready" ] && good "ops_auth_ready" "$OAUTH" || bad "ops_auth_ready" "$OAUTH"
   if [ "$OPORT" = "$PUBLIC_PORT" ]; then good "ops_app_port_matches_public" "$OPORT"; else bad "ops_app_port_matches_public" "自报 $OPORT ≠ 公网口 $PUBLIC_PORT"; fi
   if [ -n "$EXPECT_PID" ]; then
     if [ "$OPID" = "$EXPECT_PID" ]; then good "ops_pid_matches_service" "$OPID"; else bad "ops_pid_matches_service" "自报 $OPID ≠ MainPID $EXPECT_PID"; fi
   else
-    note "ops_pid_matches_service" "SKIP  未给 WS_EXPECT_PID（自报 pid=$OPID）"
+    bad "ops_pid_matches_service" "未给 WS_EXPECT_PID：无法证明这个诊断面属于被重启的进程"
+  fi
+  # ── P0：正在服务的字节身份 ─────────────────────────────────────────
+  [ "$OFACE" = "ops-v1" ] && good "ops_diagnostic_face_marker" "$OFACE" || bad "ops_diagnostic_face_marker" "自报 '$OFACE' ≠ ops-v1"
+  [ "$OSCHEME" = "world-release-tree-v1" ] && good "ops_release_id_scheme" "$OSCHEME" || bad "ops_release_id_scheme" "自报 '$OSCHEME'"
+  if printf '%s' "$OIDENT" | grep -Eq '^[0-9a-f]{64}$'; then
+    good "ops_release_id_shape" "sha256"
+    if [ -n "$EXPECTED_RELEASE_ID" ]; then
+      if [ "$OIDENT" = "$EXPECTED_RELEASE_ID" ]; then good "ops_release_id_matches_approved" "$OIDENT"
+      else bad "ops_release_id_matches_approved" "运行中 $OIDENT ≠ 批准版本 $EXPECTED_RELEASE_ID"; fi
+    else
+      bad "ops_release_id_matches_approved" "无可核实的期望身份：${IDENTITY_EXPECT_ERROR:-未知}"
+    fi
+  else
+    bad "ops_release_id_shape" "缺失或不是 64 位 hex：'${OIDENT}'"
+    bad "ops_release_id_matches_approved" "运行身份不可核实"
+  fi
+  if [ -n "$START_EXPECT_ERROR" ]; then
+    bad "ops_started_after_cutover" "$START_EXPECT_ERROR"
+  elif ! printf '%s' "$OSTART" | grep -Eq '^[0-9]+$'; then
+    bad "ops_started_after_cutover" "自报启动时间 '$OSTART' 不是毫秒整数"
+  elif [ "$OSTART" -lt "$((EXPECT_START_AFTER - 1000))" ]; then
+    bad "ops_started_after_cutover" "自报启动 $OSTART 早于本次切流 $EXPECT_START_AFTER：这是旧进程，重启没有生效"
+  else
+    good "ops_started_after_cutover" "$OSTART ≥ $EXPECT_START_AFTER"
   fi
   OL=$(curl_get "$OPS/login" '%{http_code}')
   OA=$(curl_post "$OPS/api/world" '{}')
