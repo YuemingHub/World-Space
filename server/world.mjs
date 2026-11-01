@@ -20,7 +20,7 @@
 import http from 'node:http';
 import crypto from 'node:crypto';
 import { isIP } from 'node:net';
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 'node:fs';
 import { dirname, join, normalize, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { evidenceTable, minimizeQuery, filterLive } from './evidence.mjs';
@@ -33,6 +33,44 @@ import { createOidcRp } from './oidc-rp.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const SCHEMA = JSON.parse(readFileSync(join(HERE, '..', 'contracts', 'world.schema.json'), 'utf8'));
+
+/* ── 发布身份：进程启动时实测"我实际加载的发布树" ─────────────────────
+   切流工具的全部价值是「CUTOVER=OK ⇒ 批准的提交正在服务」。进程自己声明一个
+   SHA 不算证据（环境变量谁都能改）；这里把**磁盘上这一份发布树的字节**做成摘要，
+   核验器再拿批准提交的树算出同一个摘要。两者相等才说明正在服务的就是批准版本。
+   口径（v1，发布工具里的 release-id.mjs 必须逐字一致）：
+     sha256("world-release-tree-v1\n" + Σ sorted(relpath + "\0" + sha256hex(file) + "\n"))
+   排除只属于运行期/开发环境的目录：.git、node_modules、var（运行期账本）。
+   发布树由 git archive 展开，只含提交里的文件；var/ 是运行期写入的，必须排除，
+   否则进程每重启一次、账本每写一笔，身份就会跟着变。 */
+const RELEASE_ID_SCHEME = 'world-release-tree-v1';
+const STARTED_AT_MS = Date.now();
+function computeReleaseId(root) {
+  const files = [];
+  const walk = (dir, rel) => {
+    let ents;
+    try { ents = readdirSync(dir, { withFileTypes: true }); } catch (e) { return; }
+    ents.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
+    for (const ent of ents) {
+      const r = rel ? rel + '/' + ent.name : ent.name;
+      const top = r.split('/')[0];
+      if (top === '.git' || top === 'node_modules' || top === 'var') continue;
+      if (ent.isDirectory()) walk(join(dir, ent.name), r);
+      else if (ent.isFile()) files.push(r);
+    }
+  };
+  walk(root, '');
+  files.sort();
+  const h = crypto.createHash('sha256');
+  h.update(RELEASE_ID_SCHEME + '\n');
+  for (const f of files) {
+    h.update(f); h.update('\0');
+    h.update(crypto.createHash('sha256').update(readFileSync(join(root, f))).digest('hex'));
+    h.update('\n');
+  }
+  return h.digest('hex');
+}
+const RELEASE_ID = computeReleaseId(join(HERE, '..'));
 
 /* 内部诊断口取值：只接受 1-65535 的整数，或 0 = 明确关闭。
    为什么要专门校验（本轮实测发现的缺陷）：Node 的 Server.listen 对越界端口是**同步抛错**，
@@ -397,6 +435,9 @@ function healthDetail() {
   const a = AUTH.status();
   return {
     ok: true, pid: process.pid, app_port: CFG.port,
+    diagnostic_face: 'ops-v1',
+    release_id: RELEASE_ID, release_id_scheme: RELEASE_ID_SCHEME,
+    started_at_ms: STARTED_AT_MS,
     provider: CFG.provider, search: CFG.search, model: CFG.llmModel || 'stub',
     // 只报告"配没配、配了几把"，绝不回显 key。
     // ⚠️ 注意（L25）：这里为 true 也**不代表钥匙还能用**——钥匙被撤销时看不出来，
