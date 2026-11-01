@@ -41,6 +41,7 @@
 | 静态根 | `/var/www/ymai.fun-static`；**`/srv/static` 不存在** |
 | 旧核验器 | `/usr/local/bin/ws-verify-faces.sh`，10623 B，`523597968809da7ca3ebb4000704077cfb069f7e12b2f33049621567bde3aad8`；无 `.sha256`、无 `face-probe.mjs`、无 `release-id.mjs` |
 | 旧工具 | cutover `405a9b80…`、ws-prep `2533365a…`、ops-selftest `2f876b13…`、ops-fixture-face `9a35cfd9…` |
+| 关站工具（2026-11-02T00:55Z 只读补测） | `/usr/local/bin/world-space-emergency.sh` 8132 B（2026-09-15）；staging 两件在位：`/opt/world-space/emergency/staging/world-space-closed.conf` 2256 B、`maintenance.html` 990 B；`/etc/nginx/sites-available/world-space-closed` 2256 B |
 | 服务 | `world-space.service` active；`WorkingDirectory=/opt/world-space/current`；env 在 `/opt/world-space/shared/env/world-space.env` |
 
 由此得到两个**必须一起做**的发布项：
@@ -79,10 +80,24 @@ git -C /opt/world-space/.git-cache/World-Space.git rev-parse refs/heads/v2
 | G2 | 装新工具组（8 件） | `/usr/local/bin/` + `/root/backups/…` | `install-tools.sh` 的 `backup_dir` 整组还原 |
 | G3 | 放 `/ai/` 静态文件（10 个，只增不删） | `/var/www/ymai.fun-static/ai/` | 停用 location 即可；文件保留 |
 | G4 | 改 nginx snippet（追加 `/ai` 两个 location）并 reload | `/etc/nginx/snippets/ming-portfolio.conf`（先备份） | 还原 `.bak-$TS` 并 reload |
-| G5 | `ws-prep` 取树 / 登记 / 预演 / 起本机 3210 验证实例 | `/opt/world-space/releases|state|shared/env` | 不换 `current`，公网不变 |
+| G5 | `ws-prep` 取树 / 登记 / 预演 / 起本机 3210 验证实例 | 见下方“G5 实际写入面” | 不换 `current`、不 reload nginx、公网不变 |
 | G6 | `cutover.sh` 切流（换 `current` + 重启一次） | `/opt/world-space/current`、systemd | 见 §7 |
 | G7（可选） | 付费真实回路（LLM + 搜索） | 生产账本，产生真实费用 | 不跑即零花费 |
 | G8（仅故障时） | 带外回退到无身份旧版 | `current` + `state` | 见 §7.2 |
+
+**G5 实际写入面**（批准 G5 = 同时批准下面全部，不是只管 releases/state/env）：
+
+- `/opt/world-space/releases/<RELEASE_SHA>/`（取树）；
+- `/opt/world-space/state/`（批准记录、树清单、日志、3210 实例 pid）；
+- `/opt/world-space/shared/env/world-space.v01-smoke.env`（从生产 env 派生的副本，600）；
+- `/opt/world-space/shared/data/budget-smoke.json`（3210 预演实例的**独立**预算账本，不碰生产账本）；
+- `/opt/world-space/emergency/www/maintenance.html`（`ws-prep emergency` 装关站维护页）；
+- `/etc/nginx/sites-available/world-space-closed`（装关站块；**不**改 `sites-enabled/world-space`，**不** reload）；
+- `/opt/world-space/etc/`（若不存在则建目录）及 `users.json` → `users.json.hold` → 原位（`failclosed` 期间临时移开并恢复，内容不变）。
+
+G5 **不写**：`/opt/world-space/current`、`sites-enabled/world-space`、`shared/env/world-space.env`、
+systemd 服务、DNS、`/var/www`。`ws-prep emergency` 会跑 `nginx -t`（只校验，不 reload）；
+`preflight` 另起一个 8088 端口的一次性 nginx 进程，不碰公网入口。
 
 **任何一步没拿到对应门的批准，就停在这一步之前。** 已经批准的步骤失败时，只按该步的失败语义处理，不擅自扩大写入面。
 
@@ -101,7 +116,15 @@ sha256sum /usr/local/bin/ws-verify-faces.sh # 52359796…（旧版）
 systemctl is-active world-space             # active
 node -v                                     # v20.20.2
 nginx -v                                    # nginx/1.18.0
+test -x /usr/local/bin/world-space-emergency.sh && echo EMERG_TOOL=YES   # YES
+test -f /opt/world-space/emergency/staging/world-space-closed.conf \
+  && test -f /opt/world-space/emergency/staging/maintenance.html \
+  && echo EMERG_STAGE=YES                    # YES
 ```
+
+`world-space-emergency.sh` 与 staging 两件**不在 G2 的 8 件里**，也不由本手册安装；
+它们缺失时 `ws-prep emergency` 会零写入退出，`cutover.sh` 的重启失败关站路径也不可用。
+若上面两项不是 `YES`：**停止**，先按现有运维流程补齐（scp + chmod 755），再继续。
 
 若其中任一项与 §1 表不符：**停止**，先查清"谁在什么时候改的"，不要在漂移的现场上发布。
 建议此时由 Owner 触发一次服务器快照（平台动作，不在本手册命令内）；本手册不删除任何已有备份。
@@ -140,6 +163,11 @@ OK 发布树就位：/opt/world-space/releases/<RELEASE_SHA>
 
 ```bash
 cd /opt/world-space/releases/$RELEASE_SHA/docs/v2/release-c500f3d/verifier-update
+```
+
+> 只在**服务器发布树**里执行。发布树是 `git archive` 展开的 LF 字节；哈希钉也是按 LF 字节算的。
+> 不要从 Windows 工作副本 scp 这些文件：CRLF 会让 `TOOLS.sha256` 以 `FAIL_SOURCE_HASH` 拒绝
+> （这是设计的 fail-closed，不是误报）。
 
 # 3.1 装前认证（只读）
 bash verify-production.sh
@@ -165,6 +193,10 @@ bash /usr/local/bin/ops-selftest.sh
 `FAIL_READBACK` = 已尝试整组回滚，按输出的 `backup_dir` 人工核对后再决定下一步。
 **不要只装核验器不装配套工具**：旧 cutover 配新核验器会安全失败（`FAILED_SCENE_PRESERVED`），不关站，但永远拿不到 OK。
 
+**手动单跑核验器只是“形状检查”**：不带 `WS_EXPECT_*` 绑定信息时，它只看面形状（200/标记/大小），
+不能证明"服务的就是批准的那份字节"。决定性证据只有一个：`cutover.sh` 在重启后**带着期望身份**
+调用核验器并拿到退出码 0（§7 的 `CUTOVER=OK`）。别拿手动跑出来的 0 替代它。
+
 ### 步骤 4 ·（G5）登记批准点 + 本机预演（公网不动）
 
 ```bash
@@ -182,7 +214,7 @@ node /usr/local/bin/release-id.mjs $REL     # 必须逐字等于 $RELEASE_ID
 bash /usr/local/bin/ws-prep.sh emergency    # 期望：EMERGENCY_CLOSED=READY
 bash /usr/local/bin/ws-prep.sh smokeenv     # 期望：OK …/world-space.v01-smoke.env（600，生产 env 未改动）
 bash /usr/local/bin/ws-prep.sh failclosed   # 期望：AUTH_FAIL_CLOSED=PASS
-bash /usr/local/bin/ws-prep.sh gates        # 期望：ALL_GATES=PASS（服务器真实发布树，离线桩）
+bash /usr/local/bin/ws-prep.sh gates        # 期望：ALL_GATES=PASS（服务器真实发布树）
 bash /usr/local/bin/ws-prep.sh start        # 仅 127.0.0.1:3210
 curl -s http://127.0.0.1:3210/ | grep -q '你想做什么事' && echo SMOKE_FACADE=PASS
 curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:3210/          # 200
@@ -206,17 +238,26 @@ diff /tmp/ai.src.$TS /tmp/ai.dst.$TS && echo AI_STATIC=PASS   # 期望 AI_STATIC
 ```
 
 源文件是 10 个（`index.html`、`limits.html`、`safety.html`、`tools.html`、`assets/`、`paths/`），
-与 PR #34 的 `web/ai` 同树。**不删除**任何既有文件；不覆盖 `/ming/`。
+内容即 PR #34 验收通过的那份静态树（树对象 `73726ee1…`），在发布树里的落地位置是
+`docs/v2/release-c500f3d/ai-entry/files/`——发布树里**没有** `web/ai` 这个路径，别按旧说法去找。
+**不删除**任何既有文件；不覆盖 `/ming/`。
 
 ### 步骤 6 ·（G4）追加 `/ai` location 并 reload
 
-先备份，再追加（已存在则跳过），最后配置检查：
+先备份，再追加，最后配置检查。**追加前先做“两个标记同时在场”的判定**：只写了 `location ^~ /ai/`
+却缺 `location = /ai`（或反之）说明上一次追加被打断，此时不允许继续往里贴，先人工看清再决定。
 
 ```bash
 SNIP=/etc/nginx/snippets/ming-portfolio.conf
-cp -a "$SNIP" "$SNIP.bak-$TS"
+BAK="$SNIP.bak-$TS"
+cp -a "$SNIP" "$BAK"
 
-grep -q 'location ^~ /ai/' "$SNIP" || cat >> "$SNIP" <<'NGX'
+# 两个标记必须同在或同缺；只出现一个是半套配置，停下
+A=$(grep -c 'location = /ai ' "$SNIP" || true)
+B=$(grep -c 'location ^~ /ai/' "$SNIP" || true)
+if [ "$A" != "$B" ]; then echo "AI_SNIPPET_HALF A=$A B=$B"; nginx -t; exit 1; fi
+if [ "$A" = "0" ]; then
+  cat >> "$SNIP" <<'NGX'
 
 # --- /ai/ (World Space AI beginner entry) ---
 location = /ai { return 301 /ai/; }
@@ -228,9 +269,15 @@ location ^~ /ai/ {
     add_header Cache-Control "public, max-age=300";
 }
 NGX
+fi
 
-nginx -t                                  # 期望：syntax is ok / test is successful
-systemctl reload nginx
+if ! nginx -t; then
+  cp -a "$BAK" "$SNIP"            # 配置坏的：整块回滚回备份，不 reload
+  echo NGINX_TEST=FAILED_ROLLED_BACK
+  exit 1
+fi
+echo NGINX_TEST=PASS
+systemctl reload nginx             # 只有上一步 PASS 才走这里
 ```
 
 注意两点：
@@ -332,20 +379,53 @@ cat $STATE/cutover-*.txt | tail -30      # status=OK / target_release_id=$RELEAS
 ls -l $STATE/approved-sha $STATE/approved-meta.txt
 ```
 
-把以下内容抄进发布回执（`docs/v2/release-c500f3d/RELEASE-RECEIPT-TEMPLATE.md` 的格式）：
+把 `docs/v2/release-c500f3d/RELEASE-RECEIPT-TEMPLATE.md` **整份复制**为
+`RELEASE-RECEIPT-<UTC>.md`，只填 `<…>` 处的实测值——**不是只抄下面这几行**，模板里的每个字段都要填：
 
 ```text
-release_sha=<RELEASE_SHA>
-release_id=<RELEASE_ID>
-previous=3e8e15f17bc5bae7fe78298661a5d5d14ce581c6（无身份）
-cutover_token=CUTOVER=OK
-verifier_sha256=f291021a6d25f42904a93755c3a5d700d2f6b7762094b35d6861bb799124065c
-tools_backup_dir=/root/backups/world-space-tools-<stamp>
-nginx_snippet_backup=/etc/nginx/snippets/ming-portfolio.conf.bak-<TS>
-paid_smoke=<未跑 / PUBLIC_SMOKE=PASS>
-operator=…
-at=<UTC>
+status=<OK | ROLLED_BACK | CLOSED | ABORTED>
+at=<YYYY-MM-DDTHH:MM:SSZ>
+operator=<执行人>
+
+release_sha=<RELEASE_SHA，现读>
+release_id=<RELEASE_ID，现读>
+identity_verified=<yes | no>
+previous_sha=<切流前 current 指向，本次 3e8e15f17bc5bae7fe78298661a5d5d14ce581c6>
+previous_release_id=<本次 unidentified>
+
+cutover_token=<CUTOVER=OK 或实际 token>
+cutover_receipt=/opt/world-space/state/cutover-<stamp>.txt
+verifier_sha256=<现算，须与 ws-verify-faces.sh.sha256 第一行一致>
+verifier_cert=<PROD_VERIFIER_CERT=PASS/FAIL>
+tools_install=<TOOLS_INSTALL=OK / NOOP_ALREADY_CURRENT>
+tools_backup_dir=<install-tools.sh 输出>
+ops_selftest=<OPS_SELFTEST=PASS>
+
+ai_static=<AI_STATIC=PASS>
+ai_files=<文件数，期望 10>
+nginx_snippet_backup=<.bak-<TS> 路径>
+nginx_test=<ok | failed>
+nginx_reload=<done | not_done>
+
+public_root=<200>
+facade_mark=<PASS>
+public_healthz=<200>
+detail_public=<404>
+ai_slash=<200>
+ai_charset=<text/html; charset=utf-8>
+ming_slash=<200>
+unauth_world=<401>
+unauth_me=<401>
+login=<200>
+logged_in_app=<PASS>
+
+paid_smoke=<未跑 | PUBLIC_SMOKE=PASS | PUBLIC_SMOKE=FAIL>
+notes=<异常、偏差、残留风险；没有就写 none>
 ```
+
+判定规则（与模板一致）：`status=OK` 只允许出现在 `cutover_token=CUTOVER=OK` **且**
+`identity_verified=yes` **且** 步骤 8 免费验收全部符合时；`identity_verified=no` 只能配
+`ROLLED_BACK` 或 `CLOSED`。回执进证据分支，不改发布树。
 
 ---
 
@@ -362,15 +442,21 @@ at=<UTC>
 
 ## 6. 切流失败分诊（按脚本 token，不按感觉）
 
-| token / 退出码 | 现场 | 立即动作 |
+**先记住两套数字，别混**：`cutover.sh` 自己的退出码只有 **0（OK）、3（ABORT_*）、1（所有 FAILED_*）**
+三种；核验器的 2/3/4/5/7（以及 6=用法错误）是**诊断信号**，被 cutover 翻译成下面的 token，
+不是 cutover 的退出码。
+
+| token（cutover 退出码） | 现场 | 立即动作 |
 |---|---|---|
+| `CUTOVER=OK`（0） | 批准的字节正在服务 | 进步骤 8 验收 |
 | `CUTOVER=ABORT_*`（3） | 零写入；`current` 未变 | 读原因（多为批准点/身份/发布线/元数据），修正后重跑 |
-| `CUTOVER=FAILED_SWITCH` | `current` 可能未变或已退回并核实 | 不重试；按输出的 `current_after` 核对，必要时人工恢复 |
-| `CUTOVER=FAILED_RESTART_SCENE_PRESERVED` | 旧版仍在服务 | 不关站；查重启命令与日志，修好后重跑 |
-| `CUTOVER=FAILED_RESTART_AND_CLOSED` | 已按 §10 关站 | 人工修复；恢复用 `world-space-emergency.sh restore` |
-| `CUTOVER=FAILED_AND_CLOSED`（核验 5） | 公网确实不可用，已关站 | 保留现场；先恢复服务能力，再查原因 |
-| `CUTOVER=FAILED_IDENTITY_UNVERIFIABLE`（7） | 保留现场，不关站 | 说明身份能力不在线；不要手工改 `current` |
-| `CUTOVER=FAILED_SCENE_PRESERVED`（2/3/4） | 保留现场，不关站 | 读核验器输出逐项判断；关站要人决定 |
+| `CUTOVER=FAILED_SWITCH`（1） | `current` 可能未变或已退回并核实 | 不重试；按输出的 `current_after` 核对，必要时人工恢复 |
+| `CUTOVER=FAILED_RESTART_SCENE_PRESERVED`（1） | 重启失败，但已核实旧版仍在服务 | 不关站；查重启命令与日志，修好后重跑 |
+| `CUTOVER=FAILED_RESTART_SCENE_UNVERIFIED`（1） | 重启失败，探测有响应但**无法证明服务的是旧版**（可能端口被别的进程占用） | 不关站；先查 `current`、端口占用与进程身份，别把它当成“旧版还在” |
+| `CUTOVER=FAILED_RESTART_AND_CLOSED`（1） | 重启失败且恢复探测也失败，已按 §7.3 关站 | 人工修复；恢复用 `world-space-emergency.sh restore` |
+| `CUTOVER=FAILED_AND_CLOSED`（1；核验器 5，或重启后公网面不可用） | 公网确实不可用，已关站 | 保留现场；先恢复服务能力，再查原因 |
+| `CUTOVER=FAILED_IDENTITY_UNVERIFIABLE`（1；核验器 7） | 保留现场，不关站 | 说明身份能力不在线；不要手工改 `current` |
+| `CUTOVER=FAILED_SCENE_PRESERVED`（1；核验器 2/3/4 及其他非 0/5/7） | 保留现场，不关站 | 读核验器输出逐项判断；关站要人决定 |
 
 ---
 
@@ -403,8 +489,23 @@ bash /opt/world-space/releases/$RELEASE_SHA/docs/v2/release-c500f3d/emergency-ro
 
 期望：`EMERGENCY_ROLLBACK=OK  target=3e8e15f…  identity=absent  public_healthz=200`。
 回执写在 `/opt/world-space/state/emergency-rollback-<时间戳>.txt`，先落回执再动手。
-它要求：显式第二把钥匙、完整 40 位 SHA、目标是 `releases/` 下的真实目录、目标里**没有** `release_id_scheme`。
-不删除任何文件；失败时保留现场（退出码 4）。
+
+**它要求（任一不满足就 `ABORT_*` 退出 3、零写入）**：
+
+- 显式第二把钥匙 `WS_ALLOW_IDENTITYLESS_ROLLBACK=yes`；
+- 完整 40 位 SHA，目标是 `releases/` 下的真实目录，且目标里**没有** `release_id_scheme`；
+- `current` 是指向 `releases/<40位>` 的形状；
+- **回退前公网 `/healthz` 必须正好是 200**（否则 `ABORT_PRE_SERVICE_NOT_HEALTHY`）。
+
+最后一条最容易踩：**这条脚本不是用来救"站点已经挂了"的**。如果公网已经不可用，它会在动手前
+拒绝，这是设计如此——不在坏现场上再叠一层。那种情况走 §7.3 关站止血，再人工排查。
+常见 `ABORT_*`：`SECOND_KEY_MISSING` / `TARGET_INVALID` / `TARGET_TREE_MISSING` /
+`TARGET_HAS_IDENTITY`（目标其实带身份，应改用 7.1）/ `PRE_SERVICE_NOT_HEALTHY`。
+切 `current` 或重启后核实失败会以 `SWITCH_FAILED` / `SWITCH_UNVERIFIED` 退出 4；
+服务起不来是 `FAILED_SERVICE_DOWN`，目标自报身份是 `FAILED_UNEXPECTED_IDENTITY`，都保留现场、不删文件。
+
+脚本本身存放在**发布树里**（`releases/$RELEASE_SHA/docs/...`）：若现场连发布树都不可用，
+先按 §7.3 关站，再从别处取同一份脚本（工具备份目录 `tools_backup_dir` 里有源文件）再执行。
 
 回退后若要再前进：重新走 `ws-prep verify`（批准点会被重新登记为前进），再 `cutover.sh`。
 演练证据：隔离环境 S9（回退）+ S10（从无身份旧版再前进）均 `CUTOVER=OK`。
@@ -417,6 +518,7 @@ bash /opt/world-space/releases/$RELEASE_SHA/docs/v2/release-c500f3d/emergency-ro
 ```
 
 只有"公网确实不可用"或人判断必须止血时才用；回执与原因一并留档。
+关站工具与它的 staging 文件在 §0 已核对在位（`EMERG_TOOL=YES` / `EMERG_STAGE=YES`）。
 
 ---
 
@@ -428,6 +530,6 @@ bash /opt/world-space/releases/$RELEASE_SHA/docs/v2/release-c500f3d/emergency-ro
 - [ ] G4 snippet 已备份、`nginx -t` 通过、reload 完成、`/ai/` 200
 - [ ] G5 `ws-prep verify` 的 `GIT=PASS` 与 `RELEASE_ID`
 - [ ] G6 `CUTOVER=OK`
-- [ ] §8 免费验收全绿（身份、首页、`/ai/`、`/ming/`、边界、登录）
+- [ ] 步骤 8 免费验收全绿（身份、首页、`/ai/`、`/ming/`、边界、登录）
 - [ ] 回执填写完毕，`cutover-*.txt` 留档
 - [ ] （可选）G7 付费回路 `PUBLIC_SMOKE=PASS`

@@ -47,7 +47,7 @@ notes=<异常、偏差、残留风险；没有就写 none>
 ## 判定规则
 
 - `status=OK` 只允许出现在 `cutover_token=CUTOVER=OK` **且** `identity_verified=yes`
-  **且** §8 免费验收全部符合时；其余任何组合写 `ABORTED` / `ROLLED_BACK` / `CLOSED`。
+  **且** 步骤 8 免费验收全部符合时；其余任何组合写 `ABORTED` / `ROLLED_BACK` / `CLOSED`。
 - `identity_verified=no` 只能配 `ROLLED_BACK`（带外回退）或 `CLOSED`，
   不得与 `status=OK` 同时出现。
 - `paid_smoke=未跑` 不代表失败；它只是"这一轮没有真实模型/搜索费用"的事实记录。

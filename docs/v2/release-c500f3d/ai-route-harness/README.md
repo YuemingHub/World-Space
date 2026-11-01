@@ -3,8 +3,9 @@
 用途：在**不碰生产**的前提下，用真 nginx 1.18.0 + 生产 443 块的真实文本，验证 PR #34 发布单
 （`docs/ai-beginner/DEPLOY-AI-ROUTE.md`）里的 nginx 片段是否会误伤 `/` `/api/` `/login` `/healthz` `/ming/`。
 
-本目录**不是发布产物**。发布只包含两样东西：`web/ai/` 十个文件 + 追加到
-`/etc/nginx/snippets/ming-portfolio.conf` 末尾的两个 location。
+本目录**不是发布产物**。发布只包含两样东西：`web/ai/` 十个文件（即上游 PR #34 的静态树
+`73726ee1…`；在本发布树中的落地位置是 `docs/v2/release-c500f3d/ai-entry/files/`，发布树里没有
+`web/ai` 这个路径）+ 追加到 `/etc/nginx/snippets/ming-portfolio.conf` 末尾的两个 location。
 
 ## 基线来源
 
