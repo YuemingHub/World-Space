@@ -42,7 +42,7 @@ helper_expect() { awk -v n="$1" '$2==n{print $1}' "$HELPER_PIN" 2>/dev/null | he
 [ -f "$SRC" ] || fail SOURCE_MISSING "找不到源文件 $SRC"
 [ -f "$PIN_SRC" ] || fail PIN_MISSING "找不到哈希钉 $PIN_SRC"
 [ -f "$HELPER_PIN" ] || fail HELPERS_PIN_MISSING "找不到辅助文件哈希钉 $HELPER_PIN"
-printf '%s' "$EXPECT" | grep -Eq '^[0-9a-f]{64}$' || fail EXPECT_INVALID "期望哈希不是 64 位十六进制：'$EXPECT'"
+grep -Eq '^[0-9a-f]{64}$' <<<"$EXPECT" || fail EXPECT_INVALID "期望哈希不是 64 位十六进制：'$EXPECT'"
 SRC_H=$(sha "$SRC"); [ "$SRC_H" = "$EXPECT" ] || fail SOURCE_HASH_MISMATCH "源文件 sha256=$SRC_H ≠ 期望 $EXPECT"
 bash -n "$SRC" || fail SOURCE_SYNTAX "源文件 bash 语法不通过"
 for c in bash curl sha256sum node stat install mv awk cp ls; do
@@ -53,7 +53,7 @@ SRC_DIR=$(dirname "$SRC")
 for h in $HELPERS; do
   [ -f "$SRC_DIR/$h" ] || fail HELPER_SOURCE_MISSING "找不到辅助源文件 $SRC_DIR/$h"
   E=$(helper_expect "$h")
-  printf '%s' "$E" | grep -Eq '^[0-9a-f]{64}$' || fail HELPER_PIN_INVALID "$HELPER_PIN 里没有 $h 的合法哈希"
+  grep -Eq '^[0-9a-f]{64}$' <<<"$E" || fail HELPER_PIN_INVALID "$HELPER_PIN 里没有 $h 的合法哈希"
   H=$(sha "$SRC_DIR/$h"); [ "$H" = "$E" ] || fail HELPER_HASH_MISMATCH "$h sha256=$H ≠ 期望 $E"
   node --check "$SRC_DIR/$h" >/dev/null 2>&1 || fail HELPER_SYNTAX "$h node 语法不通过"
 done

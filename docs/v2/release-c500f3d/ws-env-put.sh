@@ -36,7 +36,7 @@ while [ $# -gt 0 ]; do
 done
 
 [ -n "$KEY" ] || { echo "FAIL: 需要 KEY"; exit 6; }
-printf '%s' "$KEY" | grep -qE '^[A-Z][A-Z0-9_]*$' || { echo "FAIL: KEY 必须是大写下划线形状（不是 '$KEY'）"; exit 6; }
+grep -qE '^[A-Z][A-Z0-9_]*$' <<<"$KEY" || { echo "FAIL: KEY 必须是大写下划线形状（不是 '$KEY'）"; exit 6; }
 if [ "$MODE" = put ]; then
   [ -n "$VAL" ] || { echo "FAIL: 写入需要非空 VALUE（要删键请人工做，这里不提供）"; exit 6; }
   case "$VAL" in *$'\n'*) echo "FAIL: VALUE 不许含换行"; exit 6 ;; esac

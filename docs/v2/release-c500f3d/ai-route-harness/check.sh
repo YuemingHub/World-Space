@@ -30,7 +30,7 @@ C=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$BASE/api/world" -H 'content
 
 # A3 /login -> 200 with gate marker
 B=$(curl -s "$BASE/login"); C=$(code "$BASE/login")
-if [ "$C" = 200 ] && printf '%s' "$B" | grep -q '进入你的空间'; then ok A3_login_serves_gate "$C"; else bad A3_login_serves_gate "HTTP=$C"; fi
+if [ "$C" = 200 ] && grep -q '进入你的空间' <<<"$B"; then ok A3_login_serves_gate "$C"; else bad A3_login_serves_gate "HTTP=$C"; fi
 
 # A4 /healthz -> {"ok":true}
 B=$(curl -s "$BASE/healthz")
@@ -39,7 +39,7 @@ B=$(curl -s "$BASE/healthz")
 # A5 /ming/ unchanged (fixture baseline; production md5 must be measured at deploy time)
 C=$(code "$BASE/ming/"); B=$(curl -s "$BASE/ming/")
 M=$(printf '%s' "$B" | md5sum | cut -d' ' -f1)
-if [ "$C" = 200 ] && printf '%s' "$B" | grep -q 'MING-FIXTURE-SENTINEL'; then ok A5_ming_still_served "$C md5=$M"; else bad A5_ming_still_served "HTTP=$C"; fi
+if [ "$C" = 200 ] && grep -q 'MING-FIXTURE-SENTINEL' <<<"$B"; then ok A5_ming_still_served "$C md5=$M"; else bad A5_ming_still_served "HTTP=$C"; fi
 
 # A5b /ming (exact) still 301 -> /ming/ (snippet's existing rule intact)
 R=$(code "$BASE/ming"); L=$(loc "$BASE/ming")
@@ -54,8 +54,8 @@ H=$(hdr "$BASE/ai/"); B=$(curl -s "$BASE/ai/")
 SZ=$(printf '%s' "$B" | wc -c | tr -d ' ')
 CT=$(printf '%s' "$H" | cut -d'|' -f2)
 case "$H" in 200\|text/html*) ok B1_ai_index_200 "$H bytes=$SZ" ;; *) bad B1_ai_index_200 "$H bytes=$SZ" ;; esac
-if printf '%s' "$CT" | grep -q 'charset=utf-8'; then ok B1b_ai_charset_header "$CT"; else bad B1b_ai_charset_header "$CT"; fi
-if printf '%s' "$B" | grep -q '完全不懂也没关系' && printf '%s' "$B" | grep -q '不要注册'; then ok B1c_ai_body_marker "both markers present"; else bad B1c_ai_body_marker "marker missing"; fi
+if grep -q 'charset=utf-8' <<<"$CT"; then ok B1b_ai_charset_header "$CT"; else bad B1b_ai_charset_header "$CT"; fi
+if grep -q '完全不懂也没关系' <<<"$B" && printf '%s' "$B" | grep -q '不要注册'; then ok B1c_ai_body_marker "both markers present"; else bad B1c_ai_body_marker "marker missing"; fi
 
 # B2 /ai -> 301 /ai/
 R=$(code "$BASE/ai"); L=$(loc "$BASE/ai")
@@ -86,11 +86,11 @@ GOT=$(curl -s "$BASE/ai/" | sha256sum | cut -d' ' -f1)
 
 # B7 no directory listing at /ai/ (index served, not autoindex)
 B=$(curl -s "$BASE/ai/")
-printf '%s' "$B" | grep -q 'Index of /ai/' && bad B7_no_autoindex "listing visible" || ok B7_no_autoindex "no listing"
+grep -q 'Index of /ai/' <<<"$B" && bad B7_no_autoindex "listing visible" || ok B7_no_autoindex "no listing"
 
 # B8 cache header present on /ai/, app's no-store must not leak
 H=$(curl -sI "$BASE/ai/")
-printf '%s' "$H" | grep -qi 'Cache-Control: public, max-age=300' && ok B8_ai_cache_header "public, max-age=300" || bad B8_ai_cache_header "$(printf '%s' "$H" | grep -i cache-control | tr -d '\r')"
+grep -qi 'Cache-Control: public, max-age=300' <<<"$H" && ok B8_ai_cache_header "public, max-age=300" || bad B8_ai_cache_header "$(printf '%s' "$H" | grep -i cache-control | tr -d '\r')"
 
 echo "SUMMARY pass=$PASS fail=$FAIL"
 [ "$FAIL" -eq 0 ] && exit 0 || exit 1

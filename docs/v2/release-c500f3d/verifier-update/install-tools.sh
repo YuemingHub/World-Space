@@ -41,7 +41,7 @@ done
 for f in $FILES; do
   [ -f "$SRC/$f" ] || { say "TOOLS_INSTALL=FAIL_SOURCE_MISSING  缺 $SRC/$f"; exit 2; }
   E=$(awk -v n="$f" '$2==n{print $1}' "$PIN" 2>/dev/null | head -1)
-  printf '%s' "$E" | grep -Eq '^[0-9a-f]{64}$' || { say "TOOLS_INSTALL=FAIL_PIN_ENTRY  $PIN 里没有 $f 的合法哈希"; exit 2; }
+  grep -Eq '^[0-9a-f]{64}$' <<<"$E" || { say "TOOLS_INSTALL=FAIL_PIN_ENTRY  $PIN 里没有 $f 的合法哈希"; exit 2; }
   H=$(sha "$SRC/$f"); [ "$H" = "$E" ] || { say "TOOLS_INSTALL=FAIL_SOURCE_HASH  $f sha256=$H ≠ 期望 $E"; exit 2; }
 done
 bash -n "$SRC/cutover.sh" && bash -n "$SRC/ops-selftest.sh" && bash -n "$SRC/ws-prep.sh" && bash -n "$SRC/ws-verify-faces.sh" \

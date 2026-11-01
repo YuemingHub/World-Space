@@ -31,7 +31,7 @@ abort() { log "EMERGENCY_ROLLBACK=ABORT_$1  $2"; exit 3; }
 
 [ "${WS_ALLOW_IDENTITYLESS_ROLLBACK:-}" = "yes" ] \
   || abort SECOND_KEY_MISSING "带外回退必须显式给 WS_ALLOW_IDENTITYLESS_ROLLBACK=yes（这是第二把钥匙，防误用）"
-printf '%s' "$TARGET" | grep -Eq '^[0-9a-f]{40}$' \
+grep -Eq '^[0-9a-f]{40}$' <<<"$TARGET" \
   || abort TARGET_INVALID "WS_TARGET_SHA 必须是完整 40 位提交号：'$TARGET'"
 [ -d "$ROOT" ] || abort ROOT_MISSING "WS_ROOT=$ROOT 不存在"
 [ -d "$ROOT/releases/$TARGET" ] && [ ! -L "$ROOT/releases/$TARGET" ] \

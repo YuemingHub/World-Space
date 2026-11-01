@@ -66,8 +66,8 @@ abort() { # abort <大写下划线原因> <人话说明>   —— 退出码 3：
   echo "CUTOVER=ABORT_$1  $2"
   exit 3
 }
-is_sha()   { printf '%s' "$1" | grep -Eq '^[0-9a-f]{40}$'; }
-is_hex64() { printf '%s' "$1" | grep -Eq '^[0-9a-f]{64}$'; }
+is_sha()   { grep -Eq '^[0-9a-f]{40}$' <<<"$1"; }
+is_hex64() { grep -Eq '^[0-9a-f]{64}$' <<<"$1"; }
 real_dir() { ( cd "$1" 2>/dev/null && pwd -P ); }
 sha256_of() { sha256sum "$1" 2>/dev/null | awk '{print $1}'; }
 
@@ -171,9 +171,9 @@ facade_of_commit() { # none | valid | invalid（公开门面物证，同样读�
   size=$(git -C "$CACHE" cat-file -s "$1:web/v2/public/index.html" 2>/dev/null) || { printf 'none'; return; }
   [ "${size:-0}" -ge 8000 ] || { printf 'invalid'; return; }
   blob=$(git -C "$CACHE" cat-file blob "$1:web/v2/public/index.html" 2>/dev/null) || { printf 'invalid'; return; }
-  printf '%s' "$blob" | grep -q '你想做什么事' || { printf 'invalid'; return; }
-  printf '%s' "$blob" | grep -q 'id="btn-write"'  || { printf 'invalid'; return; }
-  printf '%s' "$blob" | grep -q '</html>'          || { printf 'invalid'; return; }
+  grep -q '你想做什么事' <<<"$blob" || { printf 'invalid'; return; }
+  grep -q 'id="btn-write"' <<<"$blob"  || { printf 'invalid'; return; }
+  grep -q '</html>' <<<"$blob"          || { printf 'invalid'; return; }
   printf 'valid'
 }
 

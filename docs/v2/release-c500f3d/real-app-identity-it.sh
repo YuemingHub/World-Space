@@ -34,7 +34,7 @@ ck "session_secret_length_ge_32" "$SECLEN" "$( [ "$SECLEN" -ge 32 ] && echo "$SE
 echo "=== 1) 独立算出批准树身份（与运行进程无关） ==="
 APPROVED_ID=$(node "$TOOL/release-id.mjs" "$REL")
 echo "APPROVED_RELEASE_ID=$APPROVED_ID"
-printf '%s' "$APPROVED_ID" | grep -Eq '^[0-9a-f]{64}$' && echo "PASS approved_tree_identity_shape" || { echo FAIL approved_tree_identity_shape; FAILS=$((FAILS+1)); }
+grep -Eq '^[0-9a-f]{64}$' <<<"$APPROVED_ID" && echo "PASS approved_tree_identity_shape" || { echo FAIL approved_tree_identity_shape; FAILS=$((FAILS+1)); }
 
 echo "=== 2) 启动真应用（发布树内代码，0 本地补丁） ==="
 START_AFTER=$(( $(date +%s%3N) - 2000 ))

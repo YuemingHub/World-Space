@@ -58,8 +58,8 @@ die() { echo "FAIL: $*" >&2; exit "${2:-1}"; }
 need_root() { [ "$(id -u)" = 0 ] || die "需要 root" 2; }
 ensure_dirs() { mkdir -p "$LOGDIR" "$STATE"; }
 real_dir() { ( cd "$1" 2>/dev/null && pwd -P ); }
-is_hex64() { printf '%s' "$1" | grep -Eq '^[0-9a-f]{64}$'; }
-is_sha() { printf '%s' "$1" | grep -Eq '^[0-9a-f]{40}$'; }
+is_hex64() { grep -Eq '^[0-9a-f]{64}$' <<<"$1"; }
+is_sha() { grep -Eq '^[0-9a-f]{40}$' <<<"$1"; }
 
 need_ref() { # 零写入的第一道闸：没有显式候选就什么都不做
   case "$REF" in
@@ -144,9 +144,9 @@ facade_of_commit() { # none | valid | invalid
   size=$(git -C "$CACHE" cat-file -s "$1:web/v2/public/index.html" 2>/dev/null) || { printf 'none'; return; }
   [ "${size:-0}" -ge 8000 ] || { printf 'invalid'; return; }
   blob=$(git -C "$CACHE" cat-file blob "$1:web/v2/public/index.html" 2>/dev/null) || { printf 'invalid'; return; }
-  printf '%s' "$blob" | grep -q '你想做什么事' || { printf 'invalid'; return; }
-  printf '%s' "$blob" | grep -q 'id="btn-write"'  || { printf 'invalid'; return; }
-  printf '%s' "$blob" | grep -q '</html>'          || { printf 'invalid'; return; }
+  grep -q '你想做什么事' <<<"$blob" || { printf 'invalid'; return; }
+  grep -q 'id="btn-write"' <<<"$blob"  || { printf 'invalid'; return; }
+  grep -q '</html>' <<<"$blob"          || { printf 'invalid'; return; }
   printf 'valid'
 }
 

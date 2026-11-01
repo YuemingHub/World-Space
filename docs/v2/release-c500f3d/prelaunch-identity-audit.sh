@@ -22,7 +22,7 @@ ID() { node "$WS_TOOL/release-id.mjs" "$1"; }
 echo "=== 1) 确定性：同一棵树算两次 ==="
 ID_A=$(ID "$WS_TREE"); ID_B=$(ID "$WS_TREE")
 ck identity_deterministic "$ID_A" "$ID_B"
-ck identity_shape "$(printf '%s' "$ID_A" | grep -Ec '^[0-9a-f]{64}$')" 1
+ck identity_shape "$(grep -Ec '^[0-9a-f]{64}$' <<<"$ID_A")" 1
 
 echo "=== 2) 唯一性：不同树不同身份 ==="
 if [ -n "${WS_BASE:-}" ]; then ck identity_differs_base "$(differs x "$ID_A" "$(ID "$WS_BASE")")" different; fi
@@ -69,7 +69,7 @@ V="$WS_TOOL/ws-verify-faces.sh"; P="$WS_TOOL/ws-verify-faces.sh.sha256"
 H=$(sha256sum "$V" | cut -d' ' -f1)
 E=$(awk 'NR==1{print $1}' "$P")
 ck verifier_hash_matches_pin "$H" "$E"
-ck verifier_pin_shape "$(printf '%s' "$E" | grep -Ec '^[0-9a-f]{64}$')" 1
+ck verifier_pin_shape "$(grep -Ec '^[0-9a-f]{64}$' <<<"$E")" 1
 
 echo
 echo "IDENTITY_AUDIT_TOTAL=$N  FAILS=$F"

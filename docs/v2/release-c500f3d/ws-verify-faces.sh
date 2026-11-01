@@ -93,25 +93,25 @@ root_expect() { # root_expect <label> <raw body+meta> —— 按 PROFILE 判匿�
   loc=$(printf '%s' "$meta" | cut -d'|' -f3)
   body=$(printf '%s' "$raw" | sed '$d')
   bytes=$(printf '%s' "$body" | wc -c | tr -d ' ')
-  if printf '%s' "$body" | grep -qF "$FACADE_MARK_A" \
-     && printf '%s' "$body" | grep -qF "$FACADE_MARK_B" \
-     && printf '%s' "$body" | grep -qF "$FACADE_MARK_C" \
+  if grep -qF "$FACADE_MARK_A" <<<"$body" \
+     && grep -qF "$FACADE_MARK_B" <<<"$body" \
+     && grep -qF "$FACADE_MARK_C" <<<"$body" \
      && [ "$bytes" -ge "$FACADE_MIN_BYTES" ]; then proof=yes; fi
   case "$PROFILE" in
     facade)
-      if [ "$code" = 200 ] && printf '%s' "$ct" | grep -qi 'text/html' && [ "$proof" = yes ]; then
+      if [ "$code" = 200 ] && grep -qi 'text/html' <<<"$ct" && [ "$proof" = yes ]; then
         good "$label" "200 facade html ${bytes}B"
       else
         bad "$label" "期望 200 门面（HTML+标志串+≥${FACADE_MIN_BYTES}B），实得 code=$code ct=$ct bytes=$bytes"
       fi ;;
     auth_only)
-      if [ "$code" = 302 ] && printf '%s' "$loc" | grep -q '/login'; then
+      if [ "$code" = 302 ] && grep -q '/login' <<<"$loc"; then
         good "$label" "302 → /login"
       else
         bad "$label" "期望 302 → /login，实得 code=$code loc=${loc:-none}"
       fi ;;
     *)
-      if { [ "$code" = 200 ] && [ "$proof" = yes ]; } || { [ "$code" = 302 ] && printf '%s' "$loc" | grep -q '/login'; }; then
+      if { [ "$code" = 200 ] && [ "$proof" = yes ]; } || { [ "$code" = 302 ] && grep -q '/login' <<<"$loc"; }; then
         good "$label" "unbound: code=$code（门面物证/登录跳转二选一）"
       else
         bad "$label" "unbound: code=$code bytes=$bytes 既无门面物证也无 /login 跳转"
@@ -146,13 +146,13 @@ fi
 EXPECTED_RELEASE_ID=""; IDENTITY_EXPECT_ERROR=""
 case "$EXPECT_RELEASE_ID" in
   '') ;;
-  *) if printf '%s' "$EXPECT_RELEASE_ID" | grep -Eq '^[0-9a-f]{64}$'; then EXPECTED_RELEASE_ID="$EXPECT_RELEASE_ID"
+  *) if grep -Eq '^[0-9a-f]{64}$' <<<"$EXPECT_RELEASE_ID"; then EXPECTED_RELEASE_ID="$EXPECT_RELEASE_ID"
      else IDENTITY_EXPECT_ERROR="WS_EXPECT_RELEASE_ID 不是 64 位小写 hex"; fi ;;
 esac
 if [ -n "$TARGET_REL" ]; then
   if [ -f "$HERE/release-id.mjs" ]; then
     CALC=$(node "$HERE/release-id.mjs" "$TARGET_REL" 2>/dev/null || true)
-    if ! printf '%s' "$CALC" | grep -Eq '^[0-9a-f]{64}$'; then
+    if ! grep -Eq '^[0-9a-f]{64}$' <<<"$CALC"; then
       IDENTITY_EXPECT_ERROR="无法从发布树 $TARGET_REL 算出发布身份"
     elif [ -n "$EXPECTED_RELEASE_ID" ] && [ "$EXPECTED_RELEASE_ID" != "$CALC" ]; then
       IDENTITY_EXPECT_ERROR="WS_EXPECT_RELEASE_ID=$EXPECTED_RELEASE_ID 与发布树实算 $CALC 不一致"
@@ -230,7 +230,7 @@ if [ "$PUB_KEYS" = "UNPARSABLE" ]; then
 else
   good "public_healthz_is_json" "keys=$PUB_KEYS"
 fi
-if printf '%s' "$B" | grep -q '"ok"[[:space:]]*:[[:space:]]*true'; then
+if grep -q '"ok"[[:space:]]*:[[:space:]]*true' <<<"$B"; then
   good "public_healthz_ok_true" ""
 else
   bad "public_healthz_ok_true" "$(printf '%s' "$B" | head -c 60)"
@@ -258,7 +258,7 @@ L0=$(curl_post "$GATE_BASE/api/auth/login" '{}')
 [ "$L0" = "400" ] && good "login_endpoint_rejects_empty" "$L0" || bad "login_endpoint_rejects_empty" "$L0"
 LPR=$(body_get "$GATE_BASE/login")
 LPS=$(status_of "$LPR")
-if [ "$LPS" = "200" ] && printf '%s' "$(body_of "$LPR")" | grep -q '进入你的空间'; then
+if [ "$LPS" = "200" ] && grep -q '进入你的空间' <<<"$(body_of "$LPR")"; then
   good "login_page_serves_gate" "$LPS"
 else
   bad "login_page_serves_gate" "HTTP $LPS 或缺登录页标志串"
@@ -272,7 +272,7 @@ fi
 
 if [ "$MODE" = "legacy_single_face" ]; then
   printf 'WARN=LEGACY_SINGLE_FACE 诊断字段仍在公网面上（未登录可读 provider／预算／用量）\n'
-  if printf '%s' "$B" | grep -q '"auth"'; then good "legacy_still_reports_auth" ""; else bad "legacy_still_reports_auth" "$B"; fi
+  if grep -q '"auth"' <<<"$B"; then good "legacy_still_reports_auth" ""; else bad "legacy_still_reports_auth" "$B"; fi
   # P0：没有诊断面就没有"正在服务哪份字节"的物证 → 不得给出 OK（7 = 身份不可核实）。
   if [ -z "$PUBFAIL" ]; then
     printf 'WARN=IDENTITY_UNVERIFIABLE 旧版单面没有诊断面，无法证明正在服务的是批准提交\n'
@@ -299,7 +299,7 @@ elif [ "$MODE" = "dual_face" ]; then
   fi
   miss=""
   for k in $REQUIRED_OPS_FIELDS; do
-    printf '%s' "$OB" | grep -q "\"$k\"" || miss="$miss $k"
+    grep -q "\"$k\"" <<<"$OB" || miss="$miss $k"
   done
   if [ -z "$miss" ]; then
     good "ops_face_has_all_fields" "$(json_keys "$OB" | tr ',' '\n' | wc -l) 键"
@@ -319,7 +319,7 @@ elif [ "$MODE" = "dual_face" ]; then
   # ── P0：正在服务的字节身份 ─────────────────────────────────────────
   [ "$OFACE" = "ops-v1" ] && good "ops_diagnostic_face_marker" "$OFACE" || bad "ops_diagnostic_face_marker" "自报 '$OFACE' ≠ ops-v1"
   [ "$OSCHEME" = "world-release-tree-v1" ] && good "ops_release_id_scheme" "$OSCHEME" || bad "ops_release_id_scheme" "自报 '$OSCHEME'"
-  if printf '%s' "$OIDENT" | grep -Eq '^[0-9a-f]{64}$'; then
+  if grep -Eq '^[0-9a-f]{64}$' <<<"$OIDENT"; then
     good "ops_release_id_shape" "sha256"
     if [ -n "$EXPECTED_RELEASE_ID" ]; then
       if [ "$OIDENT" = "$EXPECTED_RELEASE_ID" ]; then good "ops_release_id_matches_approved" "$OIDENT"
@@ -333,7 +333,7 @@ elif [ "$MODE" = "dual_face" ]; then
   fi
   if [ -n "$START_EXPECT_ERROR" ]; then
     bad "ops_started_after_cutover" "$START_EXPECT_ERROR"
-  elif ! printf '%s' "$OSTART" | grep -Eq '^[0-9]+$'; then
+  elif ! grep -Eq '^[0-9]+$' <<<"$OSTART"; then
     bad "ops_started_after_cutover" "自报启动时间 '$OSTART' 不是毫秒整数"
   elif [ "$OSTART" -lt "$((EXPECT_START_AFTER - 1000))" ]; then
     bad "ops_started_after_cutover" "自报启动 $OSTART 早于本次切流 $EXPECT_START_AFTER：这是旧进程，重启没有生效"

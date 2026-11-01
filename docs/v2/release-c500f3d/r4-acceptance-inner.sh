@@ -26,8 +26,8 @@ REL4=/srv/trees/r4
 NG="http://$NGINX_HOST:8080"
 N=0; F=0
 ck()   { N=$((N+1)); if [ "$2" = "$3" ]; then echo "PASS $1 = $2"; else echo "FAIL $1 = $2（期望 $3）"; F=$((F+1)); fi; }
-has()  { N=$((N+1)); if printf '%s' "$2" | grep -qF -- "$3"; then echo "PASS $1 含「$3」"; else echo "FAIL $1 缺「$3」"; F=$((F+1)); fi; }
-hasnt(){ N=$((N+1)); if printf '%s' "$2" | grep -qF -- "$3"; then echo "FAIL $1 不该含「$3」"; F=$((F+1)); else echo "PASS $1 无「$3」"; fi; }
+has()  { N=$((N+1)); if grep -qF -- <<<"$2" "$3"; then echo "PASS $1 含「$3」"; else echo "FAIL $1 缺「$3」"; F=$((F+1)); fi; }
+hasnt(){ N=$((N+1)); if grep -qF -- <<<"$2" "$3"; then echo "FAIL $1 不该含「$3」"; F=$((F+1)); else echo "PASS $1 无「$3」"; fi; }
 jget() { node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const j=JSON.parse(s);const v=j[process.argv[1]];console.log(typeof v==="undefined"?"":String(v))}catch(e){console.log("ERR")}})' "$1"; }
 code() { curl -s -o "$2" -w '%{http_code}' "$1"; }
 md5f() { md5sum "$1" | cut -d' ' -f1; }

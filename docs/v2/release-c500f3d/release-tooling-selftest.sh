@@ -40,8 +40,8 @@ ok()   { TOTAL=$((TOTAL+1)); printf '  \033[32m✓\033[0m %-58s %s\n' "$1" "${2:
 no()   { TOTAL=$((TOTAL+1)); FAILED=$((FAILED+1)); printf '  \033[31m✗\033[0m %-58s %s\n' "$1" "${2:-}"; }
 skip() { SKIPPED=$((SKIPPED+1)); printf '  \033[33m-\033[0m %-58s %s\n' "$1" "${2:-}"; }
 eq()   { if [ "$2" = "$3" ]; then ok "$1" "=$3"; else no "$1" "期望 $2 实得 $3"; fi; }
-has()  { if printf '%s' "$3" | grep -q "$2"; then ok "$1" "含 /$2/"; else no "$1" "缺 /$2/（输出：$(printf '%s' "$3" | tr '\n' ' ' | head -c 200)）"; fi; }
-hasnt(){ if printf '%s' "$3" | grep -q "$2"; then no "$1" "不应出现 /$2/"; else ok "$1" "无 /$2/"; fi; }
+has()  { if grep -q "$2" <<<"$3"; then ok "$1" "含 /$2/"; else no "$1" "缺 /$2/（输出：$(printf '%s' "$3" | tr '\n' ' ' | head -c 200)）"; fi; }
+hasnt(){ if grep -q "$2" <<<"$3"; then no "$1" "不应出现 /$2/"; else ok "$1" "无 /$2/"; fi; }
 
 cleanup() { for p in $PIDS; do kill "$p" 2>/dev/null; done; [ -f "$T/fx.pid" ] && kill "$(cat "$T/fx.pid")" 2>/dev/null; chmod -R u+rwX "$T" 2>/dev/null; rm -rf "$T"; }
 trap cleanup EXIT

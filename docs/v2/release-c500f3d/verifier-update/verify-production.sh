@@ -12,7 +12,7 @@ EXPECT=${1:-${WS_VERIFY_EXPECT:-}}
 
 N=0; F=0
 ck() { N=$((N+1)); if [ "$2" = "$3" ]; then echo "PASS $1 = $2"; else echo "FAIL $1 = $2（期望 $3）"; F=$((F+1)); fi; }
-has() { N=$((N+1)); if printf '%s' "$2" | grep -qF -- "$3"; then echo "PASS $1 含「$3」"; else echo "FAIL $1 缺「$3」"; F=$((F+1)); fi; }
+has() { N=$((N+1)); if grep -qF -- <<<"$2" "$3"; then echo "PASS $1 含「$3」"; else echo "FAIL $1 缺「$3」"; F=$((F+1)); fi; }
 sha() { sha256sum "$1" 2>/dev/null | awk '{print $1}'; }
 
 echo "=== 核验器文件 ==="

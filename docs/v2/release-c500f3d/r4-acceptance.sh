@@ -110,7 +110,7 @@ done
 say "2) 独立复算集成树身份（与运行进程无关；宿主 node 与容器 node20 各算一次）"
 ID_R4=$(node "$TREES/r4/docs/v2/release-c500f3d/release-id.mjs" "$TREES/r4") \
   || die "宿主算不出集成树身份"
-printf '%s' "$ID_R4" | grep -Eq '^[0-9a-f]{64}$' || die "身份形状不对：$ID_R4"
+grep -Eq '^[0-9a-f]{64}$' <<<"$ID_R4" || die "身份形状不对：$ID_R4"
 echo "  EXPECT_RELEASE_ID=$ID_R4"
 ID_PREV=$(node "$TREES/r4/docs/v2/release-c500f3d/release-id.mjs" "$TREES/prev") || die "prev 身份算不出"
 ID_BASE=$(node "$TREES/r4/docs/v2/release-c500f3d/release-id.mjs" "$TREES/base") || die "base 身份算不出"

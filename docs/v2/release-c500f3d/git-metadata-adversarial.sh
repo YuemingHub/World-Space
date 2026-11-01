@@ -19,8 +19,8 @@ trap 'rm -rf "$TMP"' EXIT
 
 N=0; F=0
 ck() { N=$((N+1)); if [ "$2" = "$3" ]; then echo "PASS $1 = $2"; else echo "FAIL $1 = $2（期望 $3）"; F=$((F+1)); fi; }
-has() { N=$((N+1)); if printf '%s' "$2" | grep -qF -- "$3"; then echo "PASS $1 含「$3」"; else echo "FAIL $1 缺「$3」"; F=$((F+1)); fi; }
-hasnt() { N=$((N+1)); if printf '%s' "$2" | grep -qF -- "$3"; then echo "FAIL $1 不该含「$3」"; F=$((F+1)); else echo "PASS $1 无「$3」"; fi; }
+has() { N=$((N+1)); if grep -qF -- <<<"$2" "$3"; then echo "PASS $1 含「$3」"; else echo "FAIL $1 缺「$3」"; F=$((F+1)); fi; }
+hasnt() { N=$((N+1)); if grep -qF -- <<<"$2" "$3"; then echo "FAIL $1 不该含「$3」"; F=$((F+1)); else echo "PASS $1 无「$3」"; fi; }
 cutover_rc() { # 用给定 WS_CACHE / 额外环境跑 cutover，输出到 $TMP/out，返回退出码
   local cache=$1; shift
   ( cd "$WS_CUTOVER_DIR" && WS_ROOT="$WS_ROOT" WS_CACHE="$cache" WS_EMERG="${WS_EMERG:?}" \

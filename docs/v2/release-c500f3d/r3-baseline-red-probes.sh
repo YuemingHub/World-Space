@@ -22,8 +22,8 @@ SB=$(mktemp -d)
 mkdir -p "$SB/bin"
 FAILS=0; TOTAL=0
 ck() { TOTAL=$((TOTAL+1)); if [ "$2" = "$3" ]; then printf '  PASS %-48s = %s\n' "$1" "$2"; else printf '  FAIL %-48s = %s (expect %s)\n' "$1" "$2" "$3"; FAILS=$((FAILS+1)); fi; }
-has() { TOTAL=$((TOTAL+1)); if printf '%s' "$3" | grep -q "$2"; then printf '  PASS %-48s 含 /%s/\n' "$1" "$2"; else printf '  FAIL %-48s 缺 /%s/（输出：%s）\n' "$1" "$2" "$(printf '%s' "$3" | tr '\n' ' ' | head -c 160)"; FAILS=$((FAILS+1)); fi; }
-hasnt() { TOTAL=$((TOTAL+1)); if printf '%s' "$3" | grep -q "$2"; then printf '  FAIL %-48s 不应出现 /%s/\n' "$1" "$2"; FAILS=$((FAILS+1)); else printf '  PASS %-48s 无 /%s/\n' "$1" "$2"; fi; }
+has() { TOTAL=$((TOTAL+1)); if grep -q "$2" <<<"$3"; then printf '  PASS %-48s 含 /%s/\n' "$1" "$2"; else printf '  FAIL %-48s 缺 /%s/（输出：%s）\n' "$1" "$2" "$(printf '%s' "$3" | tr '\n' ' ' | head -c 160)"; FAILS=$((FAILS+1)); fi; }
+hasnt() { TOTAL=$((TOTAL+1)); if grep -q "$2" <<<"$3"; then printf '  FAIL %-48s 不应出现 /%s/\n' "$1" "$2"; FAILS=$((FAILS+1)); else printf '  PASS %-48s 无 /%s/\n' "$1" "$2"; fi; }
 
 cleanup() { [ -f "$SB/app.wrap" ] && while read -r w; do kill "$w" 2>/dev/null; done < "$SB/app.wrap"; chmod -R u+rwX "$SB" 2>/dev/null; rm -rf "$SB"; }
 trap cleanup EXIT

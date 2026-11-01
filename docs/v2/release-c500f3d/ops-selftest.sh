@@ -81,7 +81,7 @@ have_symlinks() { mkdir -p "$T/symdir"; rm -f "$T/symprobe"; ln -s "$T/symdir" "
 eq()   { # eq <label> <expected> <actual>
   if [ "$2" = "$3" ]; then ok "$1" "=$3"; else no "$1" "期望 $2 实得 $3"; fi
 }
-has()  { if printf '%s' "$3" | grep -q "$2"; then ok "$1" "含 /$2/"; else no "$1" "缺 /$2/（输出：$(printf '%s' "$3" | tr '\n' ' ' | head -c 120)）"; fi; }
+has()  { if grep -q "$2" <<<"$3"; then ok "$1" "含 /$2/"; else no "$1" "缺 /$2/（输出：$(printf '%s' "$3" | tr '\n' ' ' | head -c 120)）"; fi; }
 
 start_fixture() { # start_fixture <pub> <ops> [VAR=val ...]  → 等就绪
   local pub="$1" ops="$2"; shift 2
@@ -113,7 +113,7 @@ echo "=== A. ws-verify-faces.sh 的面判定 ==="
 # A1 旧版单面（诊断字段仍在公网、没有 3201）→ 7：没有诊断面就没有"正在服务哪份字节"的物证，不得 OK
 if start_fixture $P1 0 MODE=legacy; then
   vrun "A1 legacy 单面（回滚状态）" 7 WS_PUBLIC_PORT=$P1 WS_OPS_PORT=$O1 WS_GATE_BASE="http://127.0.0.1:$P1" WS_TARGET_REL="$T/rel-legacy" WS_SS_CMD=echo
-  eq "A1 MODE" "legacy_single_face" "$(printf '%s' "$LAST_OUT" | grep '^MODE=' | cut -d= -f2)"
+  eq "A1 MODE" "legacy_single_face" "$(grep '^MODE=' <<<"$LAST_OUT" | cut -d= -f2)"
   has "A1 打出旧版警告" "WARN=LEGACY_SINGLE_FACE" "$LAST_OUT"
   has "A1 点名身份不可核实" "IDENTITY_UNVERIFIABLE" "$LAST_OUT"
   stop_fixture
@@ -123,7 +123,7 @@ else no "A1 fixture 起不来" ""; fi
 if start_fixture $P1 $O1 MODE=dual PID=4242 RELEASE_ROOT="$T/rel-dual"; then
   vrun "A2 dual 双面健康" 0 WS_PUBLIC_PORT=$P1 WS_OPS_PORT=$O1 WS_GATE_BASE="http://127.0.0.1:$P1" WS_EXPECT_PID=4242 \
     WS_TARGET_REL="$T/rel-dual" WS_EXPECT_START_AFTER="$(( $(now_ms) - 60000 ))" WS_SS_CMD="$T/ss-loop"
-  eq "A2 MODE" "dual_face" "$(printf '%s' "$LAST_OUT" | grep '^MODE=' | cut -d= -f2)"
+  eq "A2 MODE" "dual_face" "$(grep '^MODE=' <<<"$LAST_OUT" | cut -d= -f2)"
   has "A2 身份与批准树一致" "ops_release_id_matches_approved" "$LAST_OUT"
   stop_fixture
 else no "A2 fixture 起不来" ""; fi
