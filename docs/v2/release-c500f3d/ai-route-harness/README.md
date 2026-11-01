@@ -10,6 +10,8 @@
 
 - 生产配置文本：2026-11-01 经 `ssh aliyun-ecs` 只读读取（`sites-available/world-space` 与
   `snippets/ming-portfolio.conf`）。沙盘里只改两处：监听 `443 ssl` → `8080`；静态根与 upstream 指到容器。
+  本目录的 `ming-portfolio.conf` 是**测试夹具副本**，不是第二真源；真源在服务器与 ming-portfolio 仓库，
+  每次使用前应重新读取并比对。
 - 静态内容：发布单绑定的目录树 `73726ee17b1020a44e52ec781c38fdf6ec66da6b`（`web/ai`，10 文件）。
 - 上游 Node：`stub-server.mjs` 只复现发布单基线里的状态码语义，不实现应用。
 
