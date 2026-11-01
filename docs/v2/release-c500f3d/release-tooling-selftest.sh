@@ -133,6 +133,7 @@ prep_run() { # prep_run <fetch|verify> [VAR=val ...]
   local sub=$1; shift
   env WS_ROOT="$ROOT" WS_REPO="$ORIGIN_URL" WS_BRANCH=v2 "$@" bash "$PREP" "$sub" 2>&1
 }
+can_symlink() { rm -f "$T/symprobe"; ln -s "$T" "$T/symprobe" 2>/dev/null && [ -L "$T/symprobe" ]; }
 run_cut() { # run_cut <label> <expected_exit> <needle> [VAR=val ...]
   local label=$1 exp=$2 needle=$3; shift 3
   local out code
@@ -232,6 +233,26 @@ OUT=$(prep_run fetch WS_MODE=rollback WS_ROLLBACK_TO="$FACADE" WS_REF="$FACADE")
 eq "P10 伪回滚退出码" "2" "$code"
 has "P10 拒绝非祖先" "PREDEPLOY_ABORT_ROLLBACK_NOT_ANCESTOR" "$OUT"
 assert_untouched "P10"
+
+# P11 发布树里被塞进符号链接 → verify 必须拒绝且不写批准点（find -type f 看不见链接）
+if can_symlink; then
+  reset_root; set_current "$DUAL"
+  prep_run fetch WS_REF="$FACADE" >/dev/null 2>&1
+  ln -s /etc/passwd "$ROOT/releases/$FACADE/leak.txt"
+  mark
+  OUT=$(prep_run verify WS_REF="$FACADE"); code=$?
+  eq "P11 符号链接退出码" "2" "$code"
+  has "P11 点名符号链接" "PREDEPLOY_ABORT_GIT_DRIFT" "$OUT"
+  eq "P11 approved-sha 未写" "-" "$(approved_now)"
+else skip "P11 符号链接" "本平台建不了符号链接"; fi
+
+# P12 没有 current（升级路径）→ 拒绝：不知道从哪来就不算前进
+reset_root; mark
+OUT=$(prep_run fetch WS_REF="$FACADE"); code=$?
+eq "P12 无 current 退出码" "2" "$code"
+has "P12 点名线上身份未知" "PREDEPLOY_ABORT_LIVE_IDENTITY_UNKNOWN" "$OUT"
+eq "P12 approved-sha 未写" "-" "$(approved_now)"
+eq "P12 未展开发布树" "no" "$([ -e "$ROOT/releases/$FACADE" ] && echo yes || echo no)"
 fi
 
 # ─────────────────────── C. cutover.sh 的切换路径 ───────────────────────
@@ -338,6 +359,32 @@ else no "C10 fixture 起不来" ""; fi
 setup_cut "$DUAL" "$FACADE"; mark
 run_cut "C11 面形状不符" 3 "CUTOVER=ABORT_FACE_MISMATCH" WS_MODE=upgrade WS_EXPECT_FACE=legacy_single_face
 assert_untouched "C11"
+
+# C12 发布树被塞符号链接（逐文件校验看不见，运行时会顺着它读树外文件）→ 拒绝
+if can_symlink; then
+  setup_cut "$DUAL" "$FACADE"
+  ln -s /etc/passwd "$ROOT/releases/$FACADE/leak.txt"; mark
+  run_cut "C12 发布树符号链接" 3 "CUTOVER=ABORT_RELEASE_TREE_SYMLINK" WS_MODE=upgrade
+  assert_untouched "C12"
+else skip "C12 符号链接" "本平台建不了符号链接"; fi
+
+# C13 重启命令失败 → 不得报成功；current 退回旧版本、不关站、无留档
+setup_cut "$DUAL" "$FACADE"; mark
+if start_fixture MODE=dual PID=4242 ROOT=200 ROOT_MARK=facade; then
+  run_cut "C13 重启失败" 1 "CUTOVER=FAILED_RESTART_SCENE_PRESERVED" WS_MODE=upgrade WS_RESTART_CMD=false
+  assert_untouched "C13"
+  stop_fixture
+else no "C13 fixture 起不来" ""; fi
+
+# C14 没有 current（升级）→ 拒绝：无法判断前进方向
+setup_cut none "$FACADE"; mark
+run_cut "C14 无 current" 3 "CUTOVER=ABORT_LIVE_IDENTITY_UNKNOWN" WS_MODE=upgrade
+assert_untouched "C14"
+
+# C15 current 是真目录而不是符号链接 → 拒绝（否则 ln 会往目录里建链接）
+setup_cut none "$FACADE"; mkdir -p "$ROOT/current"; mark
+run_cut "C15 current 非链接" 3 "CUTOVER=ABORT_LIVE_IDENTITY_UNKNOWN" WS_MODE=upgrade
+assert_untouched "C15"
 
 echo
 printf '发布工具自测合计 %s 项，失败 %s 项，跳过 %s 项\n' "$TOTAL" "$FAILED" "$SKIPPED"

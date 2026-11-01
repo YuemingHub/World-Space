@@ -25,6 +25,8 @@
 #   legacy_single_face（e8284c4 及更早）诊断字段仍在公网面上、没有 3201 —— 这是**旧版回滚状态**，
 #     不是新版的失败：打印 WARN=LEGACY_SINGLE_FACE，按旧版规则继续验门。它只允许出现在回滚路径。
 set -uo pipefail
+# 只用真实对象关系判断祖先：replace refs 可以在 root 可写的缓存里伪造"谁是谁的祖先"
+export GIT_NO_REPLACE_OBJECTS=1
 
 ROOT="${WS_ROOT:-/opt/world-space}"
 STATE="$ROOT/state"
@@ -69,6 +71,11 @@ LIVE_SHA=""
 command -v git >/dev/null 2>&1 || abort GIT_MISSING "本机没有 git，无法验证目标身份"
 [ -d "$CACHE" ]  || abort GIT_CACHE_MISSING "本机 git 缓存不在位（$CACHE）；先跑 ws-prep.sh fetch"
 case "$MODE" in upgrade|rollback) ;; *) abort MODE_INVALID "WS_MODE=$MODE（只认 upgrade 或 rollback）" ;; esac
+# 升级必须知道"从哪来"：current 缺失/不是符号链接时，前后代关系无从判断，不能当成"从零升级"
+if [ "$MODE" = upgrade ]; then
+  [ -L "$ROOT/current" ] && [ -n "$LIVE_SHA" ] \
+    || abort LIVE_IDENTITY_UNKNOWN "没有可识别的 current（$ROOT/current 不存在或不是符号链接），无法判断这是不是一次前进"
+fi
 
 resolve_commit() { # <sha> → 打印该提交的完整 SHA；解析不了返回 1
   git -C "$CACHE" cat-file -e "$1^{commit}" 2>/dev/null || return 1
@@ -94,7 +101,12 @@ facade_of_commit() { # none | valid | invalid（公开门面物证，同样读�
 }
 
 verify_release_tree() { # <sha>：发布目录必须逐文件等于该提交的树（运行期暂存 var/ eval/out/ 除外）
-  local sha=$1 want_list have_list p w h
+  # 返回 0=一致，1=内容/清单不符，2=含符号链接或特殊文件
+  local sha=$1 want_list have_list p w h irregular
+  # 符号链接必须单独判：find -type f 看不见它，Node 却会顺着它把发布树之外的文件发到公网
+  irregular=$(cd "$REL" && find . \( -type l -o \( ! -type f ! -type d \) \) -print 2>/dev/null | head -1)
+  [ -z "$irregular" ] || return 2
+  [ -z "$(git -C "$CACHE" ls-tree -r "$sha" | awk '$1=="120000"{print $4; exit}')" ] || return 2
   want_list=$(git -C "$CACHE" ls-tree -r --name-only "$sha" | sort)
   have_list=$(cd "$REL" && find . -type f | sed 's|^\./||' | grep -vE '^(var|eval/out)/' | sort)
   [ "$want_list" = "$have_list" ] || return 1
@@ -125,7 +137,9 @@ if [ -n "${WS_EXPECT_FACE:-}" ] && [ "$WS_EXPECT_FACE" != "$TARGET_FACE" ]; then
   abort FACE_MISMATCH "WS_EXPECT_FACE=$WS_EXPECT_FACE 与目标实际面 $TARGET_FACE 不一致"
 fi
 
-verify_release_tree "$SHA" || abort RELEASE_TREE_MISMATCH "发布目录 $REL 与该提交的树不一致（缺文件/多文件/内容被改）"
+VR=0; verify_release_tree "$SHA" || VR=$?
+[ "$VR" = 2 ] && abort RELEASE_TREE_SYMLINK "发布树 $REL 含符号链接或特殊文件（只允许普通文件；符号链接可把发布树之外的文件带进公网）"
+[ "$VR" = 0 ] || abort RELEASE_TREE_MISMATCH "发布目录 $REL 与该提交的树不一致（缺文件/多文件/内容被改）"
 
 if [ -n "$LIVE_SHA" ]; then
   LIVE_RESOLVED=$(resolve_commit "$LIVE_SHA") || abort LIVE_IDENTITY_UNKNOWN "当前线上版本 $LIVE_SHA 在本机 git 缓存里解析不到（无法判断前后代关系）"
@@ -165,10 +179,33 @@ fi
 
 # 2) 切版本 + 重启，并量出真实中断时长
 echo "=== 2) 换 current 并重启 ==="
-ln -sfn "$REL" "$ROOT/current"
+ln -sfn "$REL" "$ROOT/current" 2>/dev/null || true
+if [ "$(readlink "$ROOT/current" 2>/dev/null || true)" != "$REL" ]; then
+  [ -n "$LIVE_SHA" ] && ln -sfn "$ROOT/releases/$LIVE_SHA" "$ROOT/current" 2>/dev/null
+  echo "CUTOVER=FAILED_SWITCH  无法把 current 指向 $REL（current 可能不是符号链接）；已退回 ${LIVE_SHA:-none}"
+  exit 1
+fi
 echo "  current: $([ -n "$LIVE_SHA" ] && echo "$LIVE_SHA" || echo none) -> $(basename "$(readlink "$ROOT/current")")"
 T0=$(now_ns)
-$RESTART_CMD
+RESTART_RC=0
+$RESTART_CMD || RESTART_RC=$?
+if [ "$RESTART_RC" != 0 ]; then
+  # 重启命令失败：新版本没有生效。把 current 退回运行中的旧版本，避免"链接指新、进程跑旧"的假一致。
+  [ -n "$LIVE_SHA" ] && ln -sfn "$ROOT/releases/$LIVE_SHA" "$ROOT/current" 2>/dev/null
+  OK=no
+  for _ in $(seq 1 "$POLL_TRIES"); do
+    if curl -s -o /dev/null --max-time 2 "http://127.0.0.1:$PUBLIC_PORT/healthz"; then OK=yes; break; fi
+    sleep 0.2
+  done
+  if [ "$OK" = yes ]; then
+    echo "CUTOVER=FAILED_RESTART_SCENE_PRESERVED  重启命令退出码 $RESTART_RC；新版本未生效，current 已退回 ${LIVE_SHA:-none}（不关站）"
+    exit 1
+  fi
+  echo "=== 重启失败且公网面在轮询窗口内没起来 → 按 §10 关站 ==="
+  "$EMERG" close
+  echo "CUTOVER=FAILED_RESTART_AND_CLOSED  重启命令退出码 $RESTART_RC，恢复探测仍失败"
+  exit 1
+fi
 OK=no
 for _ in $(seq 1 "$POLL_TRIES"); do
   if curl -s -o /dev/null --max-time 2 "http://127.0.0.1:$PUBLIC_PORT/healthz"; then OK=yes; break; fi

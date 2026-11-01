@@ -26,6 +26,8 @@
 #   ws-prep.sh start|stop         # 7. 起/停本机验证实例（仅 127.0.0.1:3210）
 #   ws-prep.sh report             # 8. 汇总只读事实（不含任何密钥值）
 set -euo pipefail
+# 只用真实对象关系判断祖先：replace refs 可以在缓存里伪造"谁是谁的祖先"
+export GIT_NO_REPLACE_OBJECTS=1
 
 ROOT="${WS_ROOT:-/opt/world-space}"
 REPO="${WS_REPO:-https://github.com/YuemingHub/World-Space}"
@@ -104,6 +106,8 @@ verify_target_policy() {
   if [ -n "$live_sha" ]; then
     git -C "$CACHE" cat-file -e "$live_sha^{commit}" 2>/dev/null \
       || policy_abort LIVE_IDENTITY_UNKNOWN "当前线上版本 $live_sha 在缓存里解析不到，无法判断前后代关系"
+  elif [ "$MODE" = upgrade ]; then
+    policy_abort LIVE_IDENTITY_UNKNOWN "没有可识别的 current（$ROOT/current 不存在或不是符号链接），升级无法判断这是不是一次前进"
   fi
 
   if [ "$MODE" = upgrade ]; then
@@ -180,6 +184,13 @@ cmd_verify() {
   # 被 gitignore 的运行期暂存：Gate 在发布树里跑自测时会生成 var/、eval/out/ 下的文件
   # （本轮实测多出 var/auth-8951.json）。把它们算进"该 SHA 之外的文件"会让逐文件校验
   # 永远红，校验本身就变成假的——所以显式排除，并报告排除了几个。
+  # 但符号链接/特殊文件不能放行：find -type f 看不见链接，运行时会顺着它把树外文件发出去。
+  local irregular
+  irregular=$(cd "$REL" && find . \( -type l -o \( ! -type f ! -type d \) \) -print 2>/dev/null | head -1)
+  [ -z "$irregular" ] || die "PREDEPLOY_ABORT_GIT_DRIFT 发布树含符号链接或特殊文件（$irregular）：只允许普通文件" 2
+  if git -C "$CACHE" ls-tree -r "$REF" | awk '$1=="120000"{print $4; exit}' | grep -q .; then
+    die "PREDEPLOY_ABORT_GIT_DRIFT 该提交本身含符号链接；发布树只允许普通文件" 2
+  fi
   exp=$(git -C "$CACHE" ls-tree -r --name-only "$REF" | sort)
   act=$(cd "$REL" && find . -type f | sed 's|^\./||' | grep -vE '^(var|eval/out)/' | sort)
   scratch=$(cd "$REL" && find . -type f | sed 's|^\./||' | grep -cE '^(var|eval/out)/' || true)
