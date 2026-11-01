@@ -1,0 +1,16 @@
+2026-11-01T17:14:25Z
+status=FAILED_SCENE_PRESERVED
+approved=e9577d24eee6086962e7611d9d9d1f6d836faa67
+previous=d27c320b38318fb052573624e1357b58ef352724
+mode=upgrade
+rollback_to=-
+target_face=dual_face
+target_facade=valid
+target_release_id=0d5ced05d4e2a06867f2660e0cf689e1951713146237ae14dce7331ed125a442
+verifier_sha256=f291021a6d25f42904a93755c3a5d700d2f6b7762094b35d6861bb799124065c
+recovery_s=0.01
+verify_exit=2
+poll_attempts=1
+restore_verified=no
+current_after=/srv/work/root/releases/e9577d24eee6086962e7611d9d9d1f6d836faa67
+session_secret_rotated=0

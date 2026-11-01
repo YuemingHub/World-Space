@@ -1,16 +1,16 @@
-fixtures: C1=a9a8f8baa5f55caa3b2bbb42fe463d2d53705c6a C2=69390c6203cf6f8b37d8d64cd4574291159f68af ALT=79ec6a9cc7de35933086439741622010f3a97442 X=769c8c1bcdf55d566c7007741a25f5f8026d37b9 K=2ae735e1ee95e0d3d10a87559d306a5aac04f57f
+fixtures: C1=c8d93bd7131c93ed6ec0eed56360829770dbc95c C2=28a57b2ada0ea81a39c12cbf565a659b620ad0e7 ALT=d50958ec42e0cf9eae302213e3965ffd99d6b50b X=e9f97e0d6b5a2baf06b13fd2ac767005d4e87ea2 K=412fb6b0920fbf0f154fbd4b55cd7617b9a1957d
 
 === P0 重启命令 rc=0 但没重启：baseline 必须假报 OK，候选必须不给 OK ===
   PASS [baseline] 假报 CUTOVER=OK（RED）            含 /CUTOVER=OK/
   PASS [baseline] 退出码                             = 0
-  PASS [baseline] 旧进程 pid 未变（证明没重启） = 37156
-  PASS [baseline] current 已切到 C2                  = /tmp/tmp.hNDywiypEO/roots/p0-baseline/releases/69390c6203cf6f8b37d8d64cd4574291159f68af
+  PASS [baseline] 旧进程 pid 未变（证明没重启） = 37018
+  PASS [baseline] current 已切到 C2                  = /tmp/tmp.3FhUGeJPTo/roots/p0-baseline/releases/28a57b2ada0ea81a39c12cbf565a659b620ad0e7
   PASS [baseline] 3200 仍由旧进程应答            = {"ok":true}
   PASS [candidate] 预检中止（目标无身份能力） 含 /CUTOVER=ABORT_IDENTITY_UNSUPPORTED_BY_TARGET/
   PASS [candidate] 退出码                            = 3
   PASS [candidate] 不得报 OK                         无 /CUTOVER=OK/
-  PASS [candidate] 旧进程 pid 未变（没重启）  = 37500
-  PASS [candidate] current 未变                       = /tmp/tmp.hNDywiypEO/roots/p0-candidate/releases/a9a8f8baa5f55caa3b2bbb42fe463d2d53705c6a
+  PASS [candidate] 旧进程 pid 未变（没重启）  = 37362
+  PASS [candidate] current 未变                       = /tmp/tmp.3FhUGeJPTo/roots/p0-candidate/releases/c8d93bd7131c93ed6ec0eed56360829770dbc95c
   PASS [candidate] 未关站                            = 0
 
 === P2 重启失败 + 恢复 current 失败：旧版仍称「已退回」 ===
@@ -45,7 +45,7 @@ fixtures: C1=a9a8f8baa5f55caa3b2bbb42fe463d2d53705c6a C2=69390c6203cf6f8b37d8d64
 === P8 注释里的 opsPort 被当成真实诊断面能力 ===
   PASS [baseline] 把只有注释的 K 判成 dual_face 含 /dual_face/
   PASS [baseline] 未在写入前中止 LEGACY_AS_UPGRADE 无 /LEGACY_AS_UPGRADE/
-  PASS [baseline] current 已被切到 K（写入已发生） = /tmp/tmp.hNDywiypEO/roots/p8/releases/2ae735e1ee95e0d3d10a87559d306a5aac04f57f
+  PASS [baseline] current 已被切到 K（写入已发生） = /tmp/tmp.3FhUGeJPTo/roots/p8/releases/412fb6b0920fbf0f154fbd4b55cd7617b9a1957d
 
 R3_BASELINE_RED_PROBES_FAILS=0（共 31 项）
 R3_BASELINE_RED_PROBES=PASS

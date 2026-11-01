@@ -1,2 +1,2 @@
-EMERGENCY_ROLLBACK=OK  target=14594c14736ca78958bed7a7fd0f780806ce2674  from=f9cc2edfb08dadd0992c19d4bac22833887472df  identity=absent  public_healthz=200  pid=9977
-  注意：本通道只能证明'旧版面在服务'，不能证明'是那一份字节'（旧版没有身份能力）。回执=/srv/work/root/state/emergency-rollback-20261101T161640Z.txt
+EMERGENCY_ROLLBACK=OK  target=f0f6b787c900814a2163efc76cc9dc920dcc28bf  from=02e6e1ab3bd0cc3ce505f0e52aceee9c12da2105  identity=absent  public_healthz=200  pid=9945
+  注意：本通道只能证明'旧版面在服务'，不能证明'是那一份字节'（旧版没有身份能力）。回执=/srv/work/root/state/emergency-rollback-20261101T171524Z.txt

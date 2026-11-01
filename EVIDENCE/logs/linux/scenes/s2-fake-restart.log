@@ -1,13 +1,13 @@
-批准点：3a2978ca5db14dd46f3629756a050ab1afe87db0
-当前线上：cff2be0ba539430e8892ee5ee43692602e60d59a
+批准点：e9577d24eee6086962e7611d9d9d1f6d836faa67
+当前线上：d27c320b38318fb052573624e1357b58ef352724
 路径：upgrade
 核验器：/srv/trees/r4/docs/v2/release-c500f3d/ws-verify-faces.sh（sha256=f291021a6d25f42904a93755c3a5d700d2f6b7762094b35d6861bb799124065c，已绑定）
 目标面形状（读提交里的代码，已去注释/字符串）：dual_face  身份能力：identity_v1  门面：valid
-目标发布身份：47281c7ed233e702a02553d3d1e1ed046b3eae3f6470a232a30d1a0d499d04dc
+目标发布身份：0d5ced05d4e2a06867f2660e0cf689e1951713146237ae14dce7331ed125a442
 === 1) 跳过 session 密钥轮换（WS_ROTATE_SECRET 未设置或为 0：现有登录令牌继续有效）===
 === 2) 换 current 并重启 ===
-  current: cff2be0ba539430e8892ee5ee43692602e60d59a -> 3a2978ca5db14dd46f3629756a050ab1afe87db0
-  恢复探测：成功（0.03 秒；探测 1 次）
+  current: d27c320b38318fb052573624e1357b58ef352724 -> e9577d24eee6086962e7611d9d9d1f6d836faa67
+  恢复探测：成功（0.01 秒；探测 1 次）
 === 3) 双面核验 ===
   static_probe_code_face_mode                    PASS  dual_face
   expected_root_profile                          facade（发布树有 web/v2/public/index.html）
@@ -32,8 +32,8 @@
   ops_diagnostic_face_marker                     PASS  ops-v1
   ops_release_id_scheme                          PASS  world-release-tree-v1
   ops_release_id_shape                           PASS  sha256
-  ops_release_id_matches_approved                FAIL  运行中 f40b621121ef880d2b37c521d1c3018b17a208dd8cb68f4ac097889448073020 ≠ 批准版本 47281c7ed233e702a02553d3d1e1ed046b3eae3f6470a232a30d1a0d499d04dc
-  ops_started_after_cutover                      FAIL  自报启动 1793549661744 早于本次切流 1793549707904：这是旧进程，重启没有生效
+  ops_release_id_matches_approved                FAIL  运行中 80a92a7a4a4587385ff62691bef04353432e5f0e6b08ac938078fdb250b31d84 ≠ 批准版本 0d5ced05d4e2a06867f2660e0cf689e1951713146237ae14dce7331ed125a442
+  ops_started_after_cutover                      FAIL  自报启动 1793553238370 早于本次切流 1793553264643：这是旧进程，重启没有生效
   ops_face_no_app_pages                          PASS  404
   ops_face_no_business_api                       PASS  404
   ops_face_loopback_only                         SKIP  「ss -lnt」不可用（退出 127）—— 这项没量到，不算过
@@ -47,6 +47,6 @@ EXIT=2
 === 核验未过（退出码 2）：保留现场，不关站 ===
   这一类代表判据不过、两面矛盾或运行身份与批准版本不一致，不代表服务挂了。
   关站会把一次可诊断的部署变成没人看得见的 503；要关，由人判断之后再关。
-  现在 current=/srv/work/root/releases/3a2978ca5db14dd46f3629756a050ab1afe87db0  撤销用：/srv/work/root/bin/emergency.sh restore
+  现在 current=/srv/work/root/releases/e9577d24eee6086962e7611d9d9d1f6d836faa67  撤销用：/srv/work/root/bin/emergency.sh restore
 CUTOVER=FAILED_SCENE_PRESERVED
-  留档：/srv/work/root/state/cutover-20261101-161510.txt
+  留档：/srv/work/root/state/cutover-20261101-171425.txt

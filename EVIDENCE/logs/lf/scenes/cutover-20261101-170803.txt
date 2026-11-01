@@ -1,0 +1,16 @@
+2026-11-01T17:08:03Z
+status=FAILED_RESTART_AND_CLOSED
+approved=d21afa332720f35e4a9a13fa3ccd84947d5f61ab
+previous=efce92353545139bf0ff7fed506424215eb7e2db
+mode=upgrade
+rollback_to=-
+target_face=dual_face
+target_facade=valid
+target_release_id=0d5ced05d4e2a06867f2660e0cf689e1951713146237ae14dce7331ed125a442
+verifier_sha256=f291021a6d25f42904a93755c3a5d700d2f6b7762094b35d6861bb799124065c
+recovery_s=0.32
+verify_exit=1
+poll_attempts=100
+restore_verified=yes
+current_after=/srv/work/root/releases/efce92353545139bf0ff7fed506424215eb7e2db
+session_secret_rotated=0

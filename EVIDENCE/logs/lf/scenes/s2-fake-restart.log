@@ -1,12 +1,12 @@
-批准点：c886d681bcdf9db21cc0c8a106bd8265439a7584
-当前线上：07380ce3880f6c99ae8c4bf135994383eab9d0a5
+批准点：d21afa332720f35e4a9a13fa3ccd84947d5f61ab
+当前线上：efce92353545139bf0ff7fed506424215eb7e2db
 路径：upgrade
 核验器：/srv/trees/r4/docs/v2/release-c500f3d/ws-verify-faces.sh（sha256=f291021a6d25f42904a93755c3a5d700d2f6b7762094b35d6861bb799124065c，已绑定）
 目标面形状（读提交里的代码，已去注释/字符串）：dual_face  身份能力：identity_v1  门面：valid
-目标发布身份：47281c7ed233e702a02553d3d1e1ed046b3eae3f6470a232a30d1a0d499d04dc
+目标发布身份：0d5ced05d4e2a06867f2660e0cf689e1951713146237ae14dce7331ed125a442
 === 1) 跳过 session 密钥轮换（WS_ROTATE_SECRET 未设置或为 0：现有登录令牌继续有效）===
 === 2) 换 current 并重启 ===
-  current: 07380ce3880f6c99ae8c4bf135994383eab9d0a5 -> c886d681bcdf9db21cc0c8a106bd8265439a7584
+  current: efce92353545139bf0ff7fed506424215eb7e2db -> d21afa332720f35e4a9a13fa3ccd84947d5f61ab
   恢复探测：成功（0.02 秒；探测 1 次）
 === 3) 双面核验 ===
   static_probe_code_face_mode                    PASS  dual_face
@@ -28,12 +28,12 @@
   ops_face_has_all_fields                        PASS  23 键
   ops_auth_ready                                 PASS  ready
   ops_app_port_matches_public                    PASS  3200
-  ops_pid_matches_service                        PASS  1667
+  ops_pid_matches_service                        PASS  1663
   ops_diagnostic_face_marker                     PASS  ops-v1
   ops_release_id_scheme                          PASS  world-release-tree-v1
   ops_release_id_shape                           PASS  sha256
-  ops_release_id_matches_approved                FAIL  运行中 f40b621121ef880d2b37c521d1c3018b17a208dd8cb68f4ac097889448073020 ≠ 批准版本 47281c7ed233e702a02553d3d1e1ed046b3eae3f6470a232a30d1a0d499d04dc
-  ops_started_after_cutover                      FAIL  自报启动 1793550559308 早于本次切流 1793550611761：这是旧进程，重启没有生效
+  ops_release_id_matches_approved                FAIL  运行中 80a92a7a4a4587385ff62691bef04353432e5f0e6b08ac938078fdb250b31d84 ≠ 批准版本 0d5ced05d4e2a06867f2660e0cf689e1951713146237ae14dce7331ed125a442
+  ops_started_after_cutover                      FAIL  自报启动 1793552804163 早于本次切流 1793552834581：这是旧进程，重启没有生效
   ops_face_no_app_pages                          PASS  404
   ops_face_no_business_api                       PASS  404
   ops_face_loopback_only                         SKIP  「ss -lnt」不可用（退出 127）—— 这项没量到，不算过
@@ -47,6 +47,6 @@ EXIT=2
 === 核验未过（退出码 2）：保留现场，不关站 ===
   这一类代表判据不过、两面矛盾或运行身份与批准版本不一致，不代表服务挂了。
   关站会把一次可诊断的部署变成没人看得见的 503；要关，由人判断之后再关。
-  现在 current=/srv/work/root/releases/c886d681bcdf9db21cc0c8a106bd8265439a7584  撤销用：/srv/work/root/bin/emergency.sh restore
+  现在 current=/srv/work/root/releases/d21afa332720f35e4a9a13fa3ccd84947d5f61ab  撤销用：/srv/work/root/bin/emergency.sh restore
 CUTOVER=FAILED_SCENE_PRESERVED
-  留档：/srv/work/root/state/cutover-20261101-163013.txt
+  留档：/srv/work/root/state/cutover-20261101-170715.txt

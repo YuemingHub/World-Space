@@ -1,6 +1,6 @@
-批准点：3a2978ca5db14dd46f3629756a050ab1afe87db0
-当前线上：cff2be0ba539430e8892ee5ee43692602e60d59a
+批准点：e9577d24eee6086962e7611d9d9d1f6d836faa67
+当前线上：d27c320b38318fb052573624e1357b58ef352724
 路径：upgrade
 核验器：/srv/trees/r4/docs/v2/release-c500f3d/ws-verify-faces.sh（sha256=f291021a6d25f42904a93755c3a5d700d2f6b7762094b35d6861bb799124065c，已绑定）
 目标面形状（读提交里的代码，已去注释/字符串）：dual_face  身份能力：identity_v1  门面：valid
-CUTOVER=ABORT_RELEASE_TREE_SYMLINK  发布树 /srv/work/root/releases/3a2978ca5db14dd46f3629756a050ab1afe87db0 含符号链接或特殊文件（只允许普通文件；符号链接可把发布树之外的文件带进公网）
+CUTOVER=ABORT_RELEASE_TREE_SYMLINK  发布树 /srv/work/root/releases/e9577d24eee6086962e7611d9d9d1f6d836faa67 含符号链接或特殊文件（只允许普通文件；符号链接可把发布树之外的文件带进公网）

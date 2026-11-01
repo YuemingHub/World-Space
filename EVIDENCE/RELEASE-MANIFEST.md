@@ -1,42 +1,58 @@
 # World Space 发布候选 · 冻结清单（P7）
 
 > 本文件是**证据分支**上的冻结记录，不属于发布树本身。
-> 发布树 = 提交 `5b08b6590b787cacd05b78042b2a0c46026efc64` 经 `git archive` 展开的 184 个文件。
+> 发布树 = 提交 `8e10fd0c79536549607c856bf475323378c6aee8` 经 `git archive` 展开的 184 个文件。
 
 ## 1. 身份
 
 | 项 | 值 |
 |---|---|
-| 发布候选提交 | `5b08b6590b787cacd05b78042b2a0c46026efc64` |
-| 父提交 | `05794a07162cb6a897e1acea727d5d420eb2aa4d` |
-| 树对象 | `42c18bc94ca1a9d663fa0af1513dd73765f207af` |
+| 发布候选提交 | `8e10fd0c79536549607c856bf475323378c6aee8` |
+| 父提交 | `9aeaf1acc8ee7730eadde89b7b042cf8e48c4a74` |
+| 树对象 | `761b12d3c657627086ede19139304b572ba66133` |
 | 文件数（发布树） | 184 |
-| 内容清单 `sha256` | `fb35f605b28b60aa0ebc79548d6fb5f60d74b706232aaa88bd3357e06d7a354c` |
-| 发布身份 `release_id` | `f40b621121ef880d2b37c521d1c3018b17a208dd8cb68f4ac097889448073020` |
+| 内容清单 `sha256` | `b5b9f952297dfbedadfa1b3a776ef3dfe1d0cdb644c951655d09b291d49bd8cb` |
+| 发布身份 `release_id` | `80a92a7a4a4587385ff62691bef04353432e5f0e6b08ac938078fdb250b31d84` |
 | 身份方案 | `world-release-tree-v1`（`release-id.mjs`，与 `server/world.mjs` 的 `computeReleaseId()` 同口径） |
 
 **不复用旧值。** R4 阶段的 `e8c949a681901ce0d9841483303ed8dfb765ef035459e89d335bda8099152a2f`
-对应的是另一棵树（本轮在其上补齐了最终手册、回执模板、匿名首页新契约与嵌套探测修复）。
-本清单只认上表的 `f40b6211…`。
+对应的是另一棵树。本清单只认上表的 `80a92a7a…`。
+
+冻结链（每一步都是文档修正，脚本零改动）：
+
+| 提交 | `release_id` | 变更 |
+|---|---|---|
+| `5b08b65` | `f40b6211…` | 最终发布手册 + 回执模板初版 |
+| `f899669` | `8339096b…` | 对抗审查发现的 P1/P2 手册缺陷（3 份文档） |
+| `9aeaf1a` | `c4e6b71b…` | 步骤 3 代码围栏断裂 |
+| `8e10fd0` | `80a92a7a…` | §7.2 回退脚本来源写错（工具备份目录不含该文件） |
+
+`git diff --name-status 5b08b65 8e10fd0` 只有 3 个文件：
+`WORLD-SPACE-FINAL-RELEASE-RUNBOOK.md`、`RELEASE-RECEIPT-TEMPLATE.md`、`ai-route-harness/README.md`。
+8 件发布工具与两套验收脚本逐字节未变，所以机制类结论可跨轮沿用；本清单与验收矩阵仍按最终提交重跑。
 
 ### 1.1 两个哈希的口径（可复算）
 
 ```bash
 # 发布身份：对 git archive 展开的 LF 树逐文件内容测量
-git -c core.autocrlf=false archive 5b08b6590b787cacd05b78042b2a0c46026efc64 | tar -x -C /tmp/rel
+git -c core.autocrlf=false archive 8e10fd0c79536549607c856bf475323378c6aee8 | tar -x -C /tmp/rel
 node /tmp/rel/docs/v2/release-c500f3d/release-id.mjs /tmp/rel
-# 期望：f40b621121ef880d2b37c521d1c3018b17a208dd8cb68f4ac097889448073020
+# 期望：80a92a7a4a4587385ff62691bef04353432e5f0e6b08ac938078fdb250b31d84
 
 # 内容清单：仓库自身的 tree 清单（blob 号 + 路径），排序后整体哈希
-git ls-tree -r --format='%(objectname) %(path)' 5b08b6590b787cacd05b78042b2a0c46026efc64 \
+git ls-tree -r --format='%(objectname) %(path)' 8e10fd0c79536549607c856bf475323378c6aee8 \
   | LC_ALL=C sort | sha256sum
-# 期望：fb35f605b28b60aa0ebc79548d6fb5f60d74b706232aaa88bd3357e06d7a354c
+# 期望：b5b9f952297dfbedadfa1b3a776ef3dfe1d0cdb644c951655d09b291d49bd8cb
 ```
 
 > 审计身份时必须用**发布形态树**（`git archive` 展开）。直接对 Windows 工作副本跑会被
-> 两件与发布无关的东西干扰：未跟踪的 `_local/` 会进入身份；链接工作树的 `.git` 是普通文件
-> （其内容被身份方案按顶层 `.git` 排除，但会被朴素的 `find` 选成突变目标）。
-> 本轮证据一律使用 `/tmp/rel` 这类展开树。
+> 未跟踪的 `_local/` 干扰；链接工作树的 `.git` 是普通文件（顶层 `.git` 被方案排除，但会被朴素
+> `find` 选成突变目标）。本轮证据一律使用展开树。
+>
+> 展开树的文本文件 **164 个，CR 数为 0**（逐字节扫描，二进制文件 20 个不计）。
+> `r4-acceptance.sh` 里那行 `含 CR 的文件=N` 在 MSYS 下不可信：`grep -lI $'\r'` 的 CR 参数
+> 会在 argv 传递中被吃掉，变成空模式 → 命中所有文本文件（本轮报 163，正是文本文件数）。
+> 该行只报数不判红，不影响任何判定；判断 CRLF 形态请直接用逐字节扫描。
 
 ## 2. 工具钉（8 件，发布形态树逐条复验 8/8）
 
@@ -60,7 +76,7 @@ git ls-tree -r --format='%(objectname) %(path)' 5b08b6590b787cacd05b78042b2a0c46
 ## 3. `/ai/` 静态入口（10 文件）
 
 - 树对象：`73726ee17b1020a44e52ec781c38fdf6ec66da6b`
-- 来源：`5b08b65:docs/v2/release-c500f3d/ai-entry/files`（与 PR #34 的 `web/ai` 同树）
+- 来源：`8e10fd0:docs/v2/release-c500f3d/ai-entry/files`（与 PR #34 的 `web/ai` 同树）
 
 | 路径 | 字节 | blob |
 |---|---:|---|
@@ -85,8 +101,8 @@ git ls-tree -r --format='%(objectname) %(path)' 5b08b6590b787cacd05b78042b2a0c46
 
 | 环境 | 结论行 | 发布身份 |
 |---|---|---|
-| Linux 容器（node:20.20.2 + nginx:1.18.0，嵌套 Docker） | `R4_ACCEPTANCE_TOTAL=174  FAILS=0` / `R4_HOST_ACCEPTANCE=PASS` | `f40b6211…` |
-| Windows CRLF 检出（153 个文本文件全带 CR） | `R4_ACCEPTANCE_TOTAL=174  FAILS=0` / `R4_HOST_ACCEPTANCE=PASS` | `f40b6211…` |
-| Windows LF 检出（0 个 CR） | 见 `ACCEPTANCE-MATRIX.md`（同一轮三环境） | `f40b6211…` |
+| Linux 容器（node:20.20.2 + nginx:1.18.0，嵌套 Docker） | `R4_ACCEPTANCE_TOTAL=174  FAILS=0` / `R4_HOST_ACCEPTANCE=PASS` | `80a92a7a…` |
+| Windows CRLF 检出（autocrlf=true 实检出：162 个含换行的文本文件全带 CR；另 2 个单行文件无换行；20 个二进制） | `R4_ACCEPTANCE_TOTAL=174  FAILS=0` / `R4_HOST_ACCEPTANCE=PASS` | `80a92a7a…` |
+| Windows LF 检出（文本文件 0 个 CR） | `R4_ACCEPTANCE_TOTAL=174  FAILS=0` / `R4_HOST_ACCEPTANCE=PASS` | `80a92a7a…` |
 
 原始日志在 `EVIDENCE/logs/`。详细矩阵见 `EVIDENCE/ACCEPTANCE-MATRIX.md`。

@@ -1,14 +1,14 @@
-批准点：f9cc2edfb08dadd0992c19d4bac22833887472df
-当前线上：cff2be0ba539430e8892ee5ee43692602e60d59a
-路径：rollback → f9cc2edfb08dadd0992c19d4bac22833887472df
+批准点：02e6e1ab3bd0cc3ce505f0e52aceee9c12da2105
+当前线上：d27c320b38318fb052573624e1357b58ef352724
+路径：rollback → 02e6e1ab3bd0cc3ce505f0e52aceee9c12da2105
 核验器：/srv/trees/r4/docs/v2/release-c500f3d/ws-verify-faces.sh（sha256=f291021a6d25f42904a93755c3a5d700d2f6b7762094b35d6861bb799124065c，已绑定）
 目标面形状（读提交里的代码，已去注释/字符串）：dual_face  身份能力：identity_v1  门面：none
 目标发布身份：37cc8d1572ea720814f169c4287f28c62a47082da00e72eac828df0a85cc9469
   WARN: 回滚路径：允许上线旧版（dual_face），这是显式授权且可留档的路径。
 === 1) 跳过 session 密钥轮换（WS_ROTATE_SECRET 未设置或为 0：现有登录令牌继续有效）===
 === 2) 换 current 并重启 ===
-  current: cff2be0ba539430e8892ee5ee43692602e60d59a -> f9cc2edfb08dadd0992c19d4bac22833887472df
-  恢复探测：成功（0.04 秒；探测 5 次）
+  current: d27c320b38318fb052573624e1357b58ef352724 -> 02e6e1ab3bd0cc3ce505f0e52aceee9c12da2105
+  恢复探测：成功（0.03 秒；探测 4 次）
 === 3) 双面核验 ===
   static_probe_code_face_mode                    PASS  dual_face
   expected_root_profile                          auth_only（发布树无门面文件）
@@ -29,12 +29,12 @@
   ops_face_has_all_fields                        PASS  23 键
   ops_auth_ready                                 PASS  ready
   ops_app_port_matches_public                    PASS  3200
-  ops_pid_matches_service                        PASS  9276
+  ops_pid_matches_service                        PASS  9246
   ops_diagnostic_face_marker                     PASS  ops-v1
   ops_release_id_scheme                          PASS  world-release-tree-v1
   ops_release_id_shape                           PASS  sha256
   ops_release_id_matches_approved                PASS  37cc8d1572ea720814f169c4287f28c62a47082da00e72eac828df0a85cc9469
-  ops_started_after_cutover                      PASS  1793549797613 ≥ 1793549797503
+  ops_started_after_cutover                      PASS  1793553322723 ≥ 1793553322636
   ops_face_no_app_pages                          PASS  404
   ops_face_no_business_api                       PASS  404
   ops_face_loopback_only                         SKIP  「ss -lnt」不可用（退出 127）—— 这项没量到，不算过
@@ -46,8 +46,8 @@ VERDICT=OK
 EXIT=0
   核验退出码：0
 === 切流完成 ===
-CUTOVER=OK  线上现在是 f9cc2edfb08dadd0992c19d4bac22833887472df（路径 rollback，面形状 dual_face，release_id=37cc8d1572ea720814f169c4287f28c62a47082da00e72eac828df0a85cc9469）
-  留档：/srv/work/root/state/cutover-20261101-161640.txt
+CUTOVER=OK  线上现在是 02e6e1ab3bd0cc3ce505f0e52aceee9c12da2105（路径 rollback，面形状 dual_face，release_id=37cc8d1572ea720814f169c4287f28c62a47082da00e72eac828df0a85cc9469）
+  留档：/srv/work/root/state/cutover-20261101-171524.txt
   关站（一条命令）：/srv/work/root/bin/emergency.sh close
   撤销关站：/srv/work/root/bin/emergency.sh restore
   版本级回退只允许在本系列内含发布身份的提交之间进行；回滚旧版用 WS_MODE=rollback + WS_ROLLBACK_TO

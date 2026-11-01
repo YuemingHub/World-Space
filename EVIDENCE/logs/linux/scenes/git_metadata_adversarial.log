@@ -10,17 +10,17 @@ PASS a_grafts_removed_restores = 1
 PASS b_replace_ref_present = 1
 PASS b_replace_exit = 3
 PASS b_replace_token 含「CUTOVER=ABORT_GIT_METADATA_TAMPERED」
-PASS b_replace_current_unchanged = /srv/work/root/releases/cff2be0ba539430e8892ee5ee43692602e60d59a|1663|1
+PASS b_replace_current_unchanged = /srv/work/root/releases/d27c320b38318fb052573624e1357b58ef352724|1663|1
 PASS b_replace_no_receipt = 1
 PASS b_grafts_exit = 3
 PASS b_grafts_token 含「CUTOVER=ABORT_GIT_METADATA_TAMPERED」
-PASS b_grafts_current_unchanged = /srv/work/root/releases/cff2be0ba539430e8892ee5ee43692602e60d59a|1663|1
+PASS b_grafts_current_unchanged = /srv/work/root/releases/d27c320b38318fb052573624e1357b58ef352724|1663|1
 PASS b_grafts_no_receipt = 1
 === C) 清掉投毒后同一套参数能越过元数据闸（拒绝是精确的，不是一律误伤） ===
 PASS c_clean_exit = 3
 PASS c_clean_reaches_verifier_gate 含「CUTOVER=ABORT_VERIFIER_IDENTITY_MISMATCH」
 PASS c_clean_not_metadata_rejected 无「GIT_METADATA_TAMPERED」
-PASS c_clean_current_unchanged = /srv/work/root/releases/cff2be0ba539430e8892ee5ee43692602e60d59a|1663|1
+PASS c_clean_current_unchanged = /srv/work/root/releases/d27c320b38318fb052573624e1357b58ef352724|1663|1
 PASS c_clean_no_receipt = 1
 
 GIT_METADATA_ADVERSARIAL_TOTAL=21  FAILS=0

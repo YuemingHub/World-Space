@@ -1,25 +1,25 @@
 === 0) 准备：用户文件 + session 密钥（一律在发布树之外） ===
--rw-r--r-- 1 root root  49 Nov  1 16:34 /tmp/idt-cfg.biznkY/secret
--rw-r--r-- 1 root root 241 Nov  1 16:34 /tmp/idt-cfg.biznkY/users.json
+-rw-r--r-- 1 root root  49 Nov  1 17:09 /tmp/idt-cfg.KdhZs0/secret
+-rw-r--r-- 1 root root 241 Nov  1 17:09 /tmp/idt-cfg.KdhZs0/users.json
 PASS session_secret_length_ge_32                = 48
 === 1) 独立算出批准树身份（与运行进程无关） ===
-APPROVED_RELEASE_ID=f40b621121ef880d2b37c521d1c3018b17a208dd8cb68f4ac097889448073020
+APPROVED_RELEASE_ID=80a92a7a4a4587385ff62691bef04353432e5f0e6b08ac938078fdb250b31d84
 PASS approved_tree_identity_shape
 === 2) 启动真应用（发布树内代码，0 本地补丁） ===
-APP_PID=35835  START_AFTER=1793550866328
+APP_PID=35697  START_AFTER=1793552997303
 --- app.log (head) ---
 world ops http://127.0.0.1:3201/healthz 仅本机可达（无 nginx 代理，公网零暴露）
 world api http://127.0.0.1:3200 provider=stub search=fixture caps=50/day 20RMB/month fail_closed=false origins=local-only rate=1000/min liveness=true trusted_proxy=off auth=ready
 {"ok":true}
 --- ops/healthz ---
-{"ok":true,"pid":35835,"app_port":3200,"diagnostic_face":"ops-v1","release_id":"f40b621121ef880d2b37c521d1c3018b17a208dd8cb68f4ac097889448073020","release_id_scheme":"world-release-tree-v1","started_at_ms":1793550868430,"provider":"stub","search":"fixture","model":"stub","search_configured":true,"search_keys":0,"origins_configured":false,"rate_limit_per_min":1000,"liveness":true,"trusted_proxy":false,"auth":"ready","budget_mode":"file","today_calls":0,"month_cost_rmb":0,"daily_cap":50,"monthly_cap_rmb":20,"fail_closed":false}
+{"ok":true,"pid":35697,"app_port":3200,"diagnostic_face":"ops-v1","release_id":"80a92a7a4a4587385ff62691bef04353432e5f0e6b08ac938078fdb250b31d84","release_id_scheme":"world-release-tree-v1","started_at_ms":1793552999373,"provider":"stub","search":"fixture","model":"stub","search_configured":true,"search_keys":0,"origins_configured":false,"rate_limit_per_min":1000,"liveness":true,"trusted_proxy":false,"auth":"ready","budget_mode":"file","today_calls":0,"month_cost_rmb":0,"daily_cap":50,"monthly_cap_rmb":20,"fail_closed":false}
 === 3) 运行中身份 vs 批准树身份 ===
-RUNNING: id=f40b621121ef880d2b37c521d1c3018b17a208dd8cb68f4ac097889448073020 scheme=world-release-tree-v1 pid=35835 started=1793550868430 face=ops-v1
-PASS runtime_release_id_equals_approved_tree    = f40b621121ef880d2b37c521d1c3018b17a208dd8cb68f4ac097889448073020
+RUNNING: id=80a92a7a4a4587385ff62691bef04353432e5f0e6b08ac938078fdb250b31d84 scheme=world-release-tree-v1 pid=35697 started=1793552999373 face=ops-v1
+PASS runtime_release_id_equals_approved_tree    = 80a92a7a4a4587385ff62691bef04353432e5f0e6b08ac938078fdb250b31d84
 PASS runtime_release_id_scheme                  = world-release-tree-v1
-PASS runtime_pid_is_the_process_we_started      = 35835
+PASS runtime_pid_is_the_process_we_started      = 35697
 PASS runtime_diagnostic_face                    = ops-v1
-PASS runtime_started_after_cutover = 1793550868430 >= 1793550866328
+PASS runtime_started_after_cutover = 1793552999373 >= 1793552997303
 === 4) 核验器（WS_TARGET_REL=发布树）→ 期望 exit 0 ===
   static_probe_code_face_mode                    PASS  dual_face
   expected_root_profile                          facade（发布树有 web/v2/public/index.html）
@@ -40,12 +40,12 @@ PASS runtime_started_after_cutover = 1793550868430 >= 1793550866328
   ops_face_has_all_fields                        PASS  23 键
   ops_auth_ready                                 PASS  ready
   ops_app_port_matches_public                    PASS  3200
-  ops_pid_matches_service                        PASS  35835
+  ops_pid_matches_service                        PASS  35697
   ops_diagnostic_face_marker                     PASS  ops-v1
   ops_release_id_scheme                          PASS  world-release-tree-v1
   ops_release_id_shape                           PASS  sha256
-  ops_release_id_matches_approved                PASS  f40b621121ef880d2b37c521d1c3018b17a208dd8cb68f4ac097889448073020
-  ops_started_after_cutover                      PASS  1793550868430 ≥ 1793550866328
+  ops_release_id_matches_approved                PASS  80a92a7a4a4587385ff62691bef04353432e5f0e6b08ac938078fdb250b31d84
+  ops_started_after_cutover                      PASS  1793552999373 ≥ 1793552997303
   ops_face_no_app_pages                          PASS  404
   ops_face_no_business_api                       PASS  404
   ops_face_loopback_only                         SKIP  「ss -lnt」不可用（退出 127）—— 这项没量到，不算过
@@ -76,12 +76,12 @@ PASS verifier_exit_equals_0                     = 0
   ops_face_has_all_fields                        PASS  23 键
   ops_auth_ready                                 PASS  ready
   ops_app_port_matches_public                    PASS  3200
-  ops_pid_matches_service                        PASS  35835
+  ops_pid_matches_service                        PASS  35697
   ops_diagnostic_face_marker                     PASS  ops-v1
   ops_release_id_scheme                          PASS  world-release-tree-v1
   ops_release_id_shape                           PASS  sha256
-  ops_release_id_matches_approved                FAIL  运行中 f40b621121ef880d2b37c521d1c3018b17a208dd8cb68f4ac097889448073020 ≠ 批准版本 443a4181c7ec183eda69deafd1307bdab5ada5ea9b713551ab3055df4535c5c9
-  ops_started_after_cutover                      PASS  1793550868430 ≥ 1793550866328
+  ops_release_id_matches_approved                FAIL  运行中 80a92a7a4a4587385ff62691bef04353432e5f0e6b08ac938078fdb250b31d84 ≠ 批准版本 1b68d0a75dc96f62ffe169092eb9df6a19c86da6c12453e9fe7f865ba0e92949
+  ops_started_after_cutover                      PASS  1793552999373 ≥ 1793552997303
   ops_face_no_app_pages                          PASS  404
   ops_face_no_business_api                       PASS  404
   ops_face_loopback_only                         SKIP  「ss -lnt」不可用（退出 127）—— 这项没量到，不算过
@@ -113,12 +113,12 @@ PASS mismatch_reported_as_identity_fail
   ops_face_has_all_fields                        PASS  23 键
   ops_auth_ready                                 PASS  ready
   ops_app_port_matches_public                    PASS  3200
-  ops_pid_matches_service                        PASS  35835
+  ops_pid_matches_service                        PASS  35697
   ops_diagnostic_face_marker                     PASS  ops-v1
   ops_release_id_scheme                          PASS  world-release-tree-v1
   ops_release_id_shape                           PASS  sha256
-  ops_release_id_matches_approved                PASS  f40b621121ef880d2b37c521d1c3018b17a208dd8cb68f4ac097889448073020
-  ops_started_after_cutover                      FAIL  自报启动 1793550868430 早于本次切流 1793550909619：这是旧进程，重启没有生效
+  ops_release_id_matches_approved                PASS  80a92a7a4a4587385ff62691bef04353432e5f0e6b08ac938078fdb250b31d84
+  ops_started_after_cutover                      FAIL  自报启动 1793552999373 早于本次切流 1793553035848：这是旧进程，重启没有生效
   ops_face_no_app_pages                          PASS  404
   ops_face_no_business_api                       PASS  404
   ops_face_loopback_only                         SKIP  「ss -lnt」不可用（退出 127）—— 这项没量到，不算过

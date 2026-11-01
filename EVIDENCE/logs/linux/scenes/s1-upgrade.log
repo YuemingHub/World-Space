@@ -1,13 +1,13 @@
-批准点：cff2be0ba539430e8892ee5ee43692602e60d59a
-当前线上：14594c14736ca78958bed7a7fd0f780806ce2674
+批准点：d27c320b38318fb052573624e1357b58ef352724
+当前线上：f0f6b787c900814a2163efc76cc9dc920dcc28bf
 路径：upgrade
 核验器：/srv/trees/r4/docs/v2/release-c500f3d/ws-verify-faces.sh（sha256=f291021a6d25f42904a93755c3a5d700d2f6b7762094b35d6861bb799124065c，已绑定）
 目标面形状（读提交里的代码，已去注释/字符串）：dual_face  身份能力：identity_v1  门面：valid
-目标发布身份：f40b621121ef880d2b37c521d1c3018b17a208dd8cb68f4ac097889448073020
+目标发布身份：80a92a7a4a4587385ff62691bef04353432e5f0e6b08ac938078fdb250b31d84
 === 1) 跳过 session 密钥轮换（WS_ROTATE_SECRET 未设置或为 0：现有登录令牌继续有效）===
 === 2) 换 current 并重启 ===
-  current: 14594c14736ca78958bed7a7fd0f780806ce2674 -> cff2be0ba539430e8892ee5ee43692602e60d59a
-  恢复探测：成功（0.12 秒；探测 13 次）
+  current: f0f6b787c900814a2163efc76cc9dc920dcc28bf -> d27c320b38318fb052573624e1357b58ef352724
+  恢复探测：成功（0.03 秒；探测 5 次）
 === 3) 双面核验 ===
   static_probe_code_face_mode                    PASS  dual_face
   expected_root_profile                          facade（发布树有 web/v2/public/index.html）
@@ -32,8 +32,8 @@
   ops_diagnostic_face_marker                     PASS  ops-v1
   ops_release_id_scheme                          PASS  world-release-tree-v1
   ops_release_id_shape                           PASS  sha256
-  ops_release_id_matches_approved                PASS  f40b621121ef880d2b37c521d1c3018b17a208dd8cb68f4ac097889448073020
-  ops_started_after_cutover                      PASS  1793549661744 ≥ 1793549661401
+  ops_release_id_matches_approved                PASS  80a92a7a4a4587385ff62691bef04353432e5f0e6b08ac938078fdb250b31d84
+  ops_started_after_cutover                      PASS  1793553238370 ≥ 1793553238241
   ops_face_no_app_pages                          PASS  404
   ops_face_no_business_api                       PASS  404
   ops_face_loopback_only                         SKIP  「ss -lnt」不可用（退出 127）—— 这项没量到，不算过
@@ -45,8 +45,8 @@ VERDICT=OK
 EXIT=0
   核验退出码：0
 === 切流完成 ===
-CUTOVER=OK  线上现在是 cff2be0ba539430e8892ee5ee43692602e60d59a（路径 upgrade，面形状 dual_face，release_id=f40b621121ef880d2b37c521d1c3018b17a208dd8cb68f4ac097889448073020）
-  留档：/srv/work/root/state/cutover-20261101-161426.txt
+CUTOVER=OK  线上现在是 d27c320b38318fb052573624e1357b58ef352724（路径 upgrade，面形状 dual_face，release_id=80a92a7a4a4587385ff62691bef04353432e5f0e6b08ac938078fdb250b31d84）
+  留档：/srv/work/root/state/cutover-20261101-171400.txt
   关站（一条命令）：/srv/work/root/bin/emergency.sh close
   撤销关站：/srv/work/root/bin/emergency.sh restore
   版本级回退只允许在本系列内含发布身份的提交之间进行；回滚旧版用 WS_MODE=rollback + WS_ROLLBACK_TO
