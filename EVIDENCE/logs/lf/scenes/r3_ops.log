@@ -1,0 +1,126 @@
+测试端口基址 4711（3 对已确认空闲）
+=== A. ws-verify-faces.sh 的面判定 ===
+  [32m✓[0m A1 legacy 单面（回滚状态） 退出码               =7
+  [32m✓[0m A1 MODE                                                    =legacy_single_face
+  [32m✓[0m A1 打出旧版警告                                      含 /WARN=LEGACY_SINGLE_FACE/
+  [32m✓[0m A1 点名身份不可核实                                含 /IDENTITY_UNVERIFIABLE/
+  [32m✓[0m A2 dual 双面健康 退出码                             =0
+  [32m✓[0m A2 MODE                                                    =dual_face
+  [32m✓[0m A2 身份与批准树一致                                含 /ops_release_id_matches_approved/
+  [32m✓[0m A3 dual 但 3201 缺失 退出码                          =2
+  [32m✓[0m A4 app_port 自报不符 退出码                         =2
+  [32m✓[0m A5 pid 与服务不符 退出码                           =2
+  [32m✓[0m A6 诊断字段不完整 退出码                         =2
+  [32m✓[0m A6 点名缺哪个字段                                   含 /fail_closed/
+  [32m✓[0m A7 detail 对外可见 退出码                           =3
+  [32m✓[0m A8 未登录 API 被放行 退出码                       =3
+  [32m✓[0m A9 未登录首页放行 退出码                         =3
+  [32m✓[0m A9b 门面 200 与物证一致 退出码                   =0
+  [32m✓[0m A9b 打印 facade profile                                  含 /PROFILE=facade/
+  [32m✓[0m A9c 任意 200 冒充门面 退出码                      =3
+  [32m✓[0m A9d 门面未生效仍 302 退出码                       =3
+  [32m✓[0m A9e 旧版树冒出公开门面 退出码                  =3
+  [32m✓[0m A9f 显式预期与物证矛盾 退出码                  =6
+  [32m✓[0m A9g 非法 WS_EXPECTED_ROOT 退出码                      =6
+  [32m✓[0m A9h 过期会话被当成已登录 退出码               =3
+  [32m✓[0m A9i 未登录 me 被放行 退出码                       =3
+  [32m✓[0m A9j 登录端点接受空凭据 退出码                  =3
+  [32m✓[0m A9k 过期会话 API 放行 退出码                      =3
+  [32m✓[0m A10 服务完全不可达 退出码                        =5
+  [32m✓[0m A11 静态与运行时矛盾 退出码                     =4
+  [32m✓[0m A12 诊断口非 loopback 绑定 退出码                 =2
+  [32m✓[0m A13 ss 不可用时不冒充通过 退出码               =0
+  [32m✓[0m A13 明确标 SKIP                                         含 /ops_face_loopback_only.*SKIP/
+  [32m✓[0m A14 运行身份与批准树不符 退出码               =2
+  [32m✓[0m A14 点名身份不一致                                  含 /ops_release_id_matches_approved/
+  [32m✓[0m A15 老进程（启动早于切流） 退出码            =2
+  [32m✓[0m A15 点名旧进程                                        含 /ops_started_after_cutover/
+  [32m✓[0m A16 诊断面缺身份字段 退出码                     =2
+  [32m✓[0m A16 点名缺字段                                        含 /ops_face_has_all_fields/
+=== B. cutover.sh 的关站边界（假 EMERG 记账，真进程重启）===
+  [32m✓[0m B1 新版健康切换 退出码                            =0
+  [32m✓[0m B1 新版健康切换 结论行                            含 /CUTOVER=OK/
+  [32m✓[0m B1 current 已切换                                       =2ab53e9e91163ac42215548e6d0b08757e3b6976
+  [32m✓[0m B1 关站次数                                            =0
+  [32m✓[0m B1b 门面发布切换 退出码                           =0
+  [32m✓[0m B1b 门面发布切换 结论行                           含 /CUTOVER=OK/
+  [32m✓[0m B1b current 已切换                                      =5dbdbe3b7f0e67440822a2d8c4b6378e9e3c6888
+  [32m✓[0m B1b 关站次数                                           =0
+  [32m✓[0m B1c 门面未生效 退出码                              =1
+  [32m✓[0m B1c 门面未生效 结论行                              含 /CUTOVER=FAILED_SCENE_PRESERVED/
+  [32m✓[0m B1c 关站次数（关键：必须 0）                    =0
+  [32m✓[0m B2 诊断面缺失 退出码                               =1
+  [32m✓[0m B2 诊断面缺失 结论行                               含 /CUTOVER=FAILED_SCENE_PRESERVED/
+  [32m✓[0m B2 关站次数（关键：必须 0）                     =0
+  [32m✓[0m B3 服务确实不可用 退出码                         =1
+  [32m✓[0m B3 服务确实不可用 结论行                         含 /CUTOVER=FAILED_AND_CLOSED/
+  [32m✓[0m B3 关站次数（应恰好 1）                           =1
+  [32m✓[0m B4 无身份旧版回滚被拒 退出码                   =3
+  [32m✓[0m B4 无身份旧版回滚被拒 结论行                   含 /CUTOVER=ABORT_IDENTITY_UNSUPPORTED_BY_TARGET/
+  [32m✓[0m B4 current 未动                                          =2ab53e9e91163ac42215548e6d0b08757e3b6976
+  [32m✓[0m B4 关站次数                                            =0
+  [32m✓[0m B4ok 合法回滚 退出码                                =0
+  [32m✓[0m B4ok 合法回滚 结论行                                含 /CUTOVER=OK/
+  [32m✓[0m B4ok current 已回滚                                     =2ab53e9e91163ac42215548e6d0b08757e3b6976
+  [32m✓[0m B4ok 留档 mode                                           =mode=rollback
+  [32m✓[0m B4ok 关站次数                                          =0
+  [32m✓[0m B4r 旧版冒充升级被拒 退出码                     =3
+  [32m✓[0m B4r 旧版冒充升级被拒 结论行                     含 /CUTOVER=ABORT_LEGACY_AS_UPGRADE/
+  [32m✓[0m B4r current 未动                                         =2ab53e9e91163ac42215548e6d0b08757e3b6976
+  [32m✓[0m B4r 关站次数                                           =0
+  [32m✓[0m B4s 越线候选被拒 退出码                           =3
+  [32m✓[0m B4s 越线候选被拒 结论行                           含 /CUTOVER=ABORT_NOT_IN_RELEASE_LINE/
+  [32m✓[0m B4s 关站次数                                           =0
+  [32m✓[0m B5 默认（未设置）不轮换 退出码                =0
+  [32m✓[0m B5 默认（未设置）不轮换 结论行                含 /CUTOVER=OK/
+  [32m✓[0m B5 session 密钥一字未变                              =1296142fec9a
+  [32m✓[0m B5 留档 session_secret_rotated                           =session_secret_rotated=0
+  [32m✓[0m B6 显式 1 才轮换 退出码                            =0
+  [32m✓[0m B6 显式 1 才轮换 结论行                            含 /CUTOVER=OK/
+  [32m✓[0m B6 session 密钥已重写                                 
+  [32m✓[0m B6 留档 session_secret_rotated                           =session_secret_rotated=1
+  [32m✓[0m B7 显式 0 不轮换 退出码                            =0
+  [32m✓[0m B7 显式 0 不轮换 结论行                            含 /CUTOVER=OK/
+  [32m✓[0m B7 session 密钥一字未变                              =28a9c14d05e7
+  [32m✓[0m B7 留档 session_secret_rotated                           =session_secret_rotated=0
+=== C. ws-env-put.sh 的无换行防护 ===
+  [32m✓[0m C1 无换行文件退出码                                =0
+  [32m✓[0m C1 报告动作                                            含 /action=appended/
+  [32m✓[0m C1 WS_SEARCH_KEY_2 未变                                  =e572a7379f2d
+  [32m✓[0m C1 行首锚定=1                                          =1
+  [32m✓[0m C1 全文出现=1（无粘连）                           =1
+  [32m✓[0m C1 字节算式                                            =109
+  [32m✓[0m C1 行数                                                  =4
+  [32m✓[0m C1b 污染形状必须判红                               =2
+  [32m✓[0m C1c 干净文件判绿                                     =0
+  [32m✓[0m C2 有换行文件退出码                                =0
+  [32m✓[0m C2 行数                                                  =4
+  [32m✓[0m C2 原有三行未动                                      =d49a530f5f31
+  [32m✓[0m C3 二次写入内容不变                                =8017b9bb0e79
+  [32m✓[0m C3 第二次是 replaced                                   含 /action=replaced/
+  [32m✓[0m C3 锚定仍为 1                                          =1
+  [32m✓[0m C4 改值生效                                            =WS_OPS_PORT=3202
+  [32m✓[0m C4 敏感行仍未动                                      =e572a7379f2d
+  [32m✓[0m C5 空值被拒                                            =6
+  [32m✓[0m C5 小写键被拒                                         =6
+  [32m✓[0m C5 含换行的值被拒                                   =6
+  [32m✓[0m C5 文件一字未动                                      =d49a530f5f31
+  [32m✓[0m C6 生成了备份                                         =yes
+  [32m✓[0m C7 有换行 → 读成 yes                                含 /is_newline  *yes/
+  [32m✓[0m C7 无换行 → 读成 no                                 含 /is_newline  *no/
+=== D. 语法 / 静态检查 ===
+  [32m✓[0m bash -n cutover.sh                                         
+  [32m✓[0m bash -n ws-prep.sh                                         
+  [32m✓[0m bash -n ws-verify-faces.sh                                 
+  [32m✓[0m bash -n ws-env-put.sh                                      
+  [32m✓[0m bash -n ops-selftest.sh                                    
+  [32m✓[0m bash -n release-tooling-selftest.sh                        
+  [32m✓[0m node --check fixture                                       
+  [32m✓[0m node --check face-probe                                    
+  [32m✓[0m node --check release-id                                    
+  [32m✓[0m 核验器哈希钉与文件一致                          =f291021a6d25f42904a93755c3a5d700d2f6b7762094b35d6861bb799124065c
+  [32m✓[0m 每次 ws-env-put 调用都被 WS_ENV_FILE 圈住          =0
+  [32m✓[0m cutover 调用只经由 crun（带 WS_ROOT 沙箱）       =1
+
+自测合计 118 项，失败 0 项，跳过 0 项
+OPS_SELFTEST=PASS

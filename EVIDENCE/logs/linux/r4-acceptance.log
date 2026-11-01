@@ -1,0 +1,210 @@
+=== 0) 用三棵真树搭一个真 git 源（提交号由内容决定，不是编的） ===
+PASS manifest_base_same_as_real_commit = a2cecf9870b400dfc94278a4de8c172b6a18c27b8c35bb9551324b42d00125f5
+  base 文件数=120
+PASS manifest_prev_same_as_real_commit = d3338bec21671411aecc9362bda42c46cbd41b8adc98b1926aa1fa1512068c8d
+  prev 文件数=148
+PASS manifest_r4_same_as_real_commit = fb35f605b28b60aa0ebc79548d6fb5f60d74b706232aaa88bd3357e06d7a354c
+  r4 文件数=184
+BASE=14594c14736ca78958bed7a7fd0f780806ce2674 PREV=f9cc2edfb08dadd0992c19d4bac22833887472df R4=cff2be0ba539430e8892ee5ee43692602e60d59a C3=3a2978ca5db14dd46f3629756a050ab1afe87db0
+=== 1) 发布根：三棵树 + 一个后继载体（逐文件等于提交树） ===
+R4 发布身份=f40b621121ef880d2b37c521d1c3018b17a208dd8cb68f4ac097889448073020
+PREV 发布身份=37cc8d1572ea720814f169c4287f28c62a47082da00e72eac828df0a85cc9469
+BASE 发布身份=bdad93a9366d13d48fd2494bf4c34dfa63b850d259d19590d5790e6a2d517239
+C3 发布身份=47281c7ed233e702a02553d3d1e1ed046b3eae3f6470a232a30d1a0d499d04dc
+PASS identity_r4_matches_supplied = f40b621121ef880d2b37c521d1c3018b17a208dd8cb68f4ac097889448073020
+PASS identity_r4_changed_vs_prev = different
+PASS identity_r4_changed_vs_base = different
+=== 2) 运行期配置（用户/密钥/预算全部在发布树之外） ===
+fixture: /srv/work/root/etc/users.json 237B, secret 65B
+=== 3) 初始状态：线上 = 生产基线（无门面、无身份），起真应用 ===
+PASS baseline_root_redirects_to_login = 302
+PASS baseline_runtime_id_absent = 
+=== 4) 场景 S1：正常发布到集成候选（真重启） ===
+PASS s1_exit = 0
+PASS s1_ok_token 含「CUTOVER=OK」
+PASS s1_current = /srv/work/root/releases/cff2be0ba539430e8892ee5ee43692602e60d59a
+PASS s1_runtime_identity = f40b621121ef880d2b37c521d1c3018b17a208dd8cb68f4ac097889448073020
+PASS s1_new_pid = changed
+PASS s1_started_after_T0 = yes
+PASS s1_meta_release_id = f40b621121ef880d2b37c521d1c3018b17a208dd8cb68f4ac097889448073020
+PASS s1_receipt_status = OK
+PASS s1_receipt_target_id = f40b621121ef880d2b37c521d1c3018b17a208dd8cb68f4ac097889448073020
+PASS s1_receipt_verifier = f291021a6d25f42904a93755c3a5d700d2f6b7762094b35d6861bb799124065c
+PASS s1_emergency_not_called = 0
+=== 5) 12 项验收（经 nginx 1.18 真实转发） ===
+PASS a1_root_status = 200
+PASS a1_root_facade_title 含「你想做什么事」
+PASS a1_root_write_button 含「id="btn-write"」
+PASS a1_root_bytes_ge_8000 = yes
+PASS a1_root_not_login_redirect 无「进入你的空间」
+PASS a2_ai_slash_status = 200
+PASS a2_ai_title 含「AI 从零开始」
+PASS a2_ai_no_slash_301 = 301
+PASS a2_ai_deeplink = 200
+PASS a2_ai_asset = 200
+PASS a2_ai_missing_404 = 404
+PASS a3_login_status = 200
+PASS a3_login_ok = true
+PASS a3_session_cookie = 1
+PASS a3_me_after_login = 200
+PASS a3_me_user = u-r4
+PASS a3_logged_in_root_is_app = 200
+PASS a3_logged_in_root_app_title 含「你现在想做成什么」
+PASS a4_world_status = 200
+PASS a4_world_no_error = 
+PASS a4_logout_status = 200
+PASS a4_me_after_logout = 401
+PASS a5_world_unauth = 401
+PASS a5_me_unauth = 401
+PASS a5_no_userid_leak 无「u-r4」
+PASS a5_no_cookie_leak 无「session」
+PASS a6_healthz = 200
+PASS a6_healthz_body = true
+PASS a6_detail_not_public = 404
+PASS a7_ming_status = 200
+PASS a7_ming_unchanged = dfac7e017060592f52bbb839e461c0c1
+PASS a7_ming_no_slash_301 = 301
+PASS a8_runtime_release_id = f40b621121ef880d2b37c521d1c3018b17a208dd8cb68f4ac097889448073020
+PASS a8_runtime_scheme = world-release-tree-v1
+PASS a8_runtime_pid_matches = 1663
+PASS a8_diagnostic_face = ops-v1
+=== 5b) 分享卡 / 登录页 / API 契约 / 私密面 ===
+PASS og_title 含「<meta property="og:title" content="World Space — 你想做什么事？">」
+PASS og_description 含「<meta property="og:description" content="选一件事，马上开始。」
+PASS og_type 含「<meta property="og:type" content="website">」
+PASS og_url 含「<meta property="og:url" content="https://ymai.fun">」
+PASS html_title 含「<title>World Space — 你想做什么事？</title>」
+PASS og_no_placeholder 无「content=""」
+PASS login_page_status = 200
+PASS login_page_title 含「进入你的空间」
+PASS api_world_get_404 = 404
+PASS api_world_get_contract 含「only POST /api/world exists」
+PASS ops_roster_not_public = 404
+PASS roster_no_payload 无「members」
+PASS j1_anonymous_root = 200
+PASS j1_anonymous_facade 含「你想做什么事」
+PASS j1_anonymous_ai = 200
+PASS j1_anonymous_ai_deeplink = 200
+PASS j1_anonymous_login = 200
+PASS j2_login = 200
+PASS j2_root_is_app = 200
+PASS j2_root_app_marker 含「你现在想做成什么」
+PASS j2_world = 200
+PASS j3_world_unauth = 401
+PASS j3_me_unauth = 401
+PASS j3_no_private_leak 无「u-r4」
+PASS j4_logout = 200
+PASS j4_root_facade_again = 200
+PASS j4_facade_after_logout 含「你想做什么事」
+PASS j4_me_after_logout = 401
+=== 5c) 场景 S5：核验器版本被换（哈希不符）—— 任何写入之前中止 ===
+PASS s5_exit = 3
+PASS s5_token 含「CUTOVER=ABORT_VERIFIER_IDENTITY_MISMATCH」
+PASS s5_no_ok 无「CUTOVER=OK」
+PASS s5_current_unchanged = /srv/work/root/releases/cff2be0ba539430e8892ee5ee43692602e60d59a
+PASS s5_pid_unchanged = 1663
+PASS s5_no_receipt = 1
+=== 5d) 场景 S6：Git 元数据伪造（replace refs / info/grafts） ===
+PASS s6_script_exit = 0
+PASS s6_verdict 含「GIT_METADATA_ADVERSARIAL=PASS」
+PASS s6_no_receipt = 1
+=== 5e) 场景 S7：发布树被改 / 含符号链接 / 目标目录是链接 / current 逃逸 ===
+PASS s7a_exit = 3
+PASS s7a_token 含「CUTOVER=ABORT_RELEASE_TREE_MISMATCH」
+PASS s7a_current_unchanged = /srv/work/root/releases/cff2be0ba539430e8892ee5ee43692602e60d59a
+PASS s7a_pid_unchanged = 1663
+PASS s7b_exit = 3
+PASS s7b_token 含「CUTOVER=ABORT_RELEASE_TREE_SYMLINK」
+PASS s7b_pid_unchanged = 1663
+PASS s7c_exit = 3
+PASS s7c_token 含「CUTOVER=ABORT_RELEASE_TREE_MISSING」
+PASS s7c_pid_unchanged = 1663
+PASS s7d_exit = 3
+PASS s7d_token 含「CUTOVER=ABORT_LIVE_IDENTITY_UNKNOWN」
+PASS s7d_pid_unchanged = 1663
+PASS s7d_identity_still_r4 = f40b621121ef880d2b37c521d1c3018b17a208dd8cb68f4ac097889448073020
+PASS s7d_service_alive = 200
+PASS s7_restored_current = /srv/work/root/releases/cff2be0ba539430e8892ee5ee43692602e60d59a
+=== 6) 场景 S2：重启命令退出 0 但没重启（假重启不得假报成功） ===
+PASS s2_exit = 1
+PASS s2_no_ok_token 含「CUTOVER=FAILED_SCENE_PRESERVED」
+PASS s2_never_ok 无「CUTOVER=OK」
+PASS s2_scene_is_target = /srv/work/root/releases/3a2978ca5db14dd46f3629756a050ab1afe87db0
+PASS s2_old_process_still_serving = 1663
+PASS s2_identity_still_r4 = f40b621121ef880d2b37c521d1c3018b17a208dd8cb68f4ac097889448073020
+PASS s2_service_alive = 200
+PASS s2_emergency_not_called = 0
+PASS s2_manual_repair_current = /srv/work/root/releases/cff2be0ba539430e8892ee5ee43692602e60d59a
+=== 7) 场景 S3a：重启命令失败、旧进程还在 —— 必须保留现场 ===
+PASS s3a_exit = 1
+PASS s3a_scene_preserved 含「CUTOVER=FAILED_RESTART_SCENE_PRESERVED」
+PASS s3a_current_restored = /srv/work/root/releases/cff2be0ba539430e8892ee5ee43692602e60d59a
+PASS s3a_identity_still_r4 = f40b621121ef880d2b37c521d1c3018b17a208dd8cb68f4ac097889448073020
+PASS s3a_service_alive = 200
+PASS s3a_emergency_not_called = 0
+=== 8) 场景 S3b：旧进程已停且新进程起不来 —— 只有此时才允许关站 ===
+PASS s3b_exit = 1
+PASS s3b_closed 含「CUTOVER=FAILED_RESTART_AND_CLOSED」
+PASS s3b_emergency_once = 1
+PASS s3b_recovered_service = 200
+=== 9) 场景 S4：回滚到上一版（两把钥匙），并核实真实恢复状态 ===
+PASS s4_exit = 0
+PASS s4_ok_token 含「CUTOVER=OK」
+PASS s4_current = /srv/work/root/releases/f9cc2edfb08dadd0992c19d4bac22833887472df
+PASS s4_runtime_identity = 37cc8d1572ea720814f169c4287f28c62a47082da00e72eac828df0a85cc9469
+PASS s4_root_back_to_login = 302
+PASS s4_meta_release_id = 37cc8d1572ea720814f169c4287f28c62a47082da00e72eac828df0a85cc9469
+PASS s4_receipt_status = OK
+PASS s4_receipt_target_id = 37cc8d1572ea720814f169c4287f28c62a47082da00e72eac828df0a85cc9469
+PASS s4_service_alive = 200
+=== 9b) 场景 S9：退回无身份的旧版（带外通道，两把钥匙） ===
+PASS s9_exit = 0
+PASS s9_ok 含「EMERGENCY_ROLLBACK=OK」
+PASS s9_current = /srv/work/root/releases/14594c14736ca78958bed7a7fd0f780806ce2674
+PASS s9_root_back_to_login = 302
+PASS s9_identity_absent = 
+PASS s9_service_alive = 200
+PASS s9_pid_changed = changed
+PASS s9_approved_sha = 14594c14736ca78958bed7a7fd0f780806ce2674
+PASS s9_meta_mode = emergency-rollback
+PASS s9_meta_identity_unidentified = unidentified
+PASS s9_receipt_status = OK
+PASS s9_receipt_identity_verified = no
+PASS s9_receipt_from_id = 37cc8d1572ea720814f169c4287f28c62a47082da00e72eac828df0a85cc9469
+PASS s9_receipt_target_id = unidentified
+PASS s9_emergency_close_not_called = 0
+PASS s9_no_key_exit = 3
+PASS s9_no_key_token 含「EMERGENCY_ROLLBACK=ABORT_SECOND_KEY_MISSING」
+PASS s9_no_key_current_unchanged = /srv/work/root/releases/14594c14736ca78958bed7a7fd0f780806ce2674
+=== 9c) 场景 S10：从无身份旧版正常前进回集成候选（cutover 仍是唯一前进通道） ===
+PASS s10_exit = 0
+PASS s10_ok 含「CUTOVER=OK」
+PASS s10_current = /srv/work/root/releases/cff2be0ba539430e8892ee5ee43692602e60d59a
+PASS s10_identity = f40b621121ef880d2b37c521d1c3018b17a208dd8cb68f4ac097889448073020
+PASS s10_root_is_facade = 200
+=== 9d) 发布身份机制复审（真运行进程 + 真核验器） ===
+PASS identity_audit_exit = 0
+PASS identity_audit_verdict 含「IDENTITY_AUDIT=PASS」
+=== 10) 停应用，跑 R3 四套装置与首页回归（同一容器、同一棵树） ===
+PASS r3_tooling exit = 0
+PASS r3_tooling verdict 含「RELEASE_TOOLING_SELFTEST=PASS」
+  ↳  发布工具自测合计 405 项，失败 0 项，跳过 0 项 RELEASE_TOOLING_SELFTEST=PASS 
+PASS r3_ops exit = 0
+PASS r3_ops verdict 含「OPS_SELFTEST=PASS」
+  ↳  自测合计 118 项，失败 0 项，跳过 0 项 OPS_SELFTEST=PASS 
+PASS r3_real_app_it exit = 0
+PASS r3_real_app_it verdict 含「REAL_APP_IDENTITY_IT=PASS」
+  ↳ === 汇总 === REAL_APP_IDENTITY_IT_FAILS=0 REAL_APP_IDENTITY_IT=PASS 
+PASS r3_baseline_red exit = 0
+PASS r3_baseline_red verdict 含「R3_BASELINE_RED_PROBES=PASS」
+  ↳  R3_BASELINE_RED_PROBES_FAILS=0（共 31 项） R3_BASELINE_RED_PROBES=PASS 
+PASS repo_regression exit = 0
+PASS repo_regression verdict 含「REPO_REGRESSION=PASS」
+  ↳ REPO_REGRESSION_TOTAL=20  PASS=15  FAIL=0  SKIP=1  NOT_RUN=4 REPO_REGRESSION_SKIP_IS_NOT_PASS=yes REPO_REGRESSION=PASS 
+PASS public_entry_selftest_exit = 0
+PASS public_entry_selftest_zero_fail = 0
+PASS auth_selftest_exit = 0
+  ↳ auth-selftest: 访问门自测全部通过
+
+R4_ACCEPTANCE_TOTAL=174  FAILS=0
+R4_ACCEPTANCE=PASS

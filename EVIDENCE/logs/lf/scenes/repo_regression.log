@@ -1,0 +1,24 @@
+PASS     adapter-shape-selftest.mjs（断言✓=10）
+PASS     admission-selftest.mjs（断言✓=17）
+PASS     auth-selftest.mjs（断言✓=58）
+PASS     authority-selftest.mjs（断言✓=6）
+PASS     budget-cap-selftest.mjs（断言✓=10）
+NOT_RUN  date-selftest.child.mjs —— 子进程模块，由 date-selftest.mjs 调用，不单独执行
+PASS     date-selftest.mjs（断言✓=8）
+PASS     frontend-e2e.mjs（断言✓=15）
+PASS     liveness-selftest.mjs（断言✓=3）
+SKIP     oidc-rp-selftest.mjs —— SKIP: oidc-provider 未安装（npm i oidc-provider@8 --no-save 后重跑）。零依赖运行时不受影响。
+NOT_RUN  outcome-journeys.mjs —— 外部活体服务驱动器，只留痕不判分
+PASS     outcome-loop-selftest.mjs（断言✓=24）
+NOT_RUN  public-entry-journey.mjs —— 需要 playwright-core + 浏览器二进制，容器内不装
+PASS     public-entry-selftest.mjs（断言✓=22）
+PASS     retry-selftest.mjs（断言✓=8）
+NOT_RUN  run.mjs —— 真实 provider 压测（计费+日预算上限），不属于回归套件
+PASS     runtime-isolation-selftest.mjs（断言✓=1）
+PASS     runtime-selftest.mjs（断言✓=18）
+PASS     search-key-failover-selftest.mjs（断言✓=21）
+PASS     xss-boundary-selftest.mjs（断言✓=19）
+
+REPO_REGRESSION_TOTAL=20  PASS=15  FAIL=0  SKIP=1  NOT_RUN=4
+REPO_REGRESSION_SKIP_IS_NOT_PASS=yes
+REPO_REGRESSION=PASS

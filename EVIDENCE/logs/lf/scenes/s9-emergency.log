@@ -1,0 +1,2 @@
+EMERGENCY_ROLLBACK=OK  target=be2d76585d678c86455f8fc3d401ebe020932c01  from=2ec7893db71e01757f5d1daac618238de04b321b  identity=absent  public_healthz=200  pid=9969
+  注意：本通道只能证明'旧版面在服务'，不能证明'是那一份字节'（旧版没有身份能力）。回执=/srv/work/root/state/emergency-rollback-20261101T163134Z.txt

@@ -1,0 +1,12 @@
+批准点：e770f8eec67abd70457ceb1dcca2d807e7eb911b
+当前线上：ecbad6fd80063f802295818dd956f7ce012828de
+路径：upgrade
+核验器：/srv/trees/r4/docs/v2/release-c500f3d/ws-verify-faces.sh（sha256=f291021a6d25f42904a93755c3a5d700d2f6b7762094b35d6861bb799124065c，已绑定）
+目标面形状（读提交里的代码，已去注释/字符串）：dual_face  身份能力：identity_v1  门面：valid
+目标发布身份：47281c7ed233e702a02553d3d1e1ed046b3eae3f6470a232a30d1a0d499d04dc
+=== 1) 跳过 session 密钥轮换（WS_ROTATE_SECRET 未设置或为 0：现有登录令牌继续有效）===
+=== 2) 换 current 并重启 ===
+  current: ecbad6fd80063f802295818dd956f7ce012828de -> e770f8eec67abd70457ceb1dcca2d807e7eb911b
+=== 重启失败且公网面在轮询窗口内没起来（探测 100 次）→ 按 §10 关站 ===
+CUTOVER=FAILED_RESTART_AND_CLOSED  重启命令退出码 1，恢复探测失败；恢复核实=yes，current=/srv/work/root/releases/ecbad6fd80063f802295818dd956f7ce012828de
+  留档：/srv/work/root/state/cutover-20261101-162354.txt

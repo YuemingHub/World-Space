@@ -1,0 +1,22 @@
+=== 1) 确定性：同一棵树算两次 ===
+PASS identity_deterministic = f40b621121ef880d2b37c521d1c3018b17a208dd8cb68f4ac097889448073020
+PASS identity_shape = 1
+=== 2) 唯一性：不同树不同身份 ===
+PASS identity_differs_base = different
+PASS identity_differs_prev = different
+=== 3) 敏感性：改一个字节身份变，改回身份恢复 ===
+PASS identity_changes_on_one_byte = different
+PASS identity_restores_after_revert = f40b621121ef880d2b37c521d1c3018b17a208dd8cb68f4ac097889448073020
+  （改动点：.gitignore 原尺寸=218 字节）
+=== 4) 批准记录 == 最终树（若给 WS_ROOT） ===
+PASS approval_release_id_matches_tree = f40b621121ef880d2b37c521d1c3018b17a208dd8cb68f4ac097889448073020
+PASS approved_sha_is_full_sha = 1
+=== 5) 运行进程自报 == 批准身份（若给 WS_OPS_PORT） ===
+PASS runtime_release_id_matches_tree = f40b621121ef880d2b37c521d1c3018b17a208dd8cb68f4ac097889448073020
+PASS runtime_scheme = world-release-tree-v1
+=== 6) 核验器版本绑定 ===
+PASS verifier_hash_matches_pin = f291021a6d25f42904a93755c3a5d700d2f6b7762094b35d6861bb799124065c
+PASS verifier_pin_shape = 1
+
+IDENTITY_AUDIT_TOTAL=12  FAILS=0
+IDENTITY_AUDIT=PASS

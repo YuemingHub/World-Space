@@ -1,0 +1,1 @@
+CUTOVER=ABORT_LIVE_IDENTITY_UNKNOWN  current 指向 /srv/static，不是 /srv/work/root/releases/<40位提交号> 的形状

@@ -1,0 +1,27 @@
+=== A) 纯 git 语义：伪造确实有效，防护也确实有边界 ===
+PASS a_plain_not_ancestor = 1
+PASS a_replace_forges = 0
+PASS a_git_no_replace_defends = 1
+PASS a_replace_removed_restores = 1
+PASS a_grafts_forge = 0
+PASS a_git_no_replace_does_not_stop_grafts = 0
+PASS a_grafts_removed_restores = 1
+=== B) 真 cutover：投毒必须在任何写入之前被拒 ===
+PASS b_replace_ref_present = 1
+PASS b_replace_exit = 3
+PASS b_replace_token 含「CUTOVER=ABORT_GIT_METADATA_TAMPERED」
+PASS b_replace_current_unchanged = /srv/work/root/releases/ecbad6fd80063f802295818dd956f7ce012828de|1665|1
+PASS b_replace_no_receipt = 1
+PASS b_grafts_exit = 3
+PASS b_grafts_token 含「CUTOVER=ABORT_GIT_METADATA_TAMPERED」
+PASS b_grafts_current_unchanged = /srv/work/root/releases/ecbad6fd80063f802295818dd956f7ce012828de|1665|1
+PASS b_grafts_no_receipt = 1
+=== C) 清掉投毒后同一套参数能越过元数据闸（拒绝是精确的，不是一律误伤） ===
+PASS c_clean_exit = 3
+PASS c_clean_reaches_verifier_gate 含「CUTOVER=ABORT_VERIFIER_IDENTITY_MISMATCH」
+PASS c_clean_not_metadata_rejected 无「GIT_METADATA_TAMPERED」
+PASS c_clean_current_unchanged = /srv/work/root/releases/ecbad6fd80063f802295818dd956f7ce012828de|1665|1
+PASS c_clean_no_receipt = 1
+
+GIT_METADATA_ADVERSARIAL_TOTAL=21  FAILS=0
+GIT_METADATA_ADVERSARIAL=PASS

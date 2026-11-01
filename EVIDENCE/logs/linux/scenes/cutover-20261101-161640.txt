@@ -1,0 +1,16 @@
+2026-11-01T16:16:40Z
+status=OK
+approved=f9cc2edfb08dadd0992c19d4bac22833887472df
+previous=cff2be0ba539430e8892ee5ee43692602e60d59a
+mode=rollback
+rollback_to=f9cc2edfb08dadd0992c19d4bac22833887472df
+target_face=dual_face
+target_facade=none
+target_release_id=37cc8d1572ea720814f169c4287f28c62a47082da00e72eac828df0a85cc9469
+verifier_sha256=f291021a6d25f42904a93755c3a5d700d2f6b7762094b35d6861bb799124065c
+recovery_s=0.04
+verify_exit=0
+poll_attempts=5
+restore_verified=-
+current_after=/srv/work/root/releases/f9cc2edfb08dadd0992c19d4bac22833887472df
+session_secret_rotated=0

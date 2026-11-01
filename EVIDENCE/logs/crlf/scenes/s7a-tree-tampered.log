@@ -1,0 +1,6 @@
+批准点：e770f8eec67abd70457ceb1dcca2d807e7eb911b
+当前线上：ecbad6fd80063f802295818dd956f7ce012828de
+路径：upgrade
+核验器：/srv/trees/r4/docs/v2/release-c500f3d/ws-verify-faces.sh（sha256=f291021a6d25f42904a93755c3a5d700d2f6b7762094b35d6861bb799124065c，已绑定）
+目标面形状（读提交里的代码，已去注释/字符串）：dual_face  身份能力：identity_v1  门面：valid
+CUTOVER=ABORT_RELEASE_TREE_MISMATCH  发布目录 /srv/work/root/releases/e770f8eec67abd70457ceb1dcca2d807e7eb911b 与该提交的树不一致（缺文件/多文件/内容被改）

@@ -1,0 +1,52 @@
+批准点：07380ce3880f6c99ae8c4bf135994383eab9d0a5
+当前线上：be2d76585d678c86455f8fc3d401ebe020932c01
+路径：upgrade
+核验器：/srv/trees/r4/docs/v2/release-c500f3d/ws-verify-faces.sh（sha256=f291021a6d25f42904a93755c3a5d700d2f6b7762094b35d6861bb799124065c，已绑定）
+目标面形状（读提交里的代码，已去注释/字符串）：dual_face  身份能力：identity_v1  门面：valid
+目标发布身份：f40b621121ef880d2b37c521d1c3018b17a208dd8cb68f4ac097889448073020
+=== 1) 跳过 session 密钥轮换（WS_ROTATE_SECRET 未设置或为 0：现有登录令牌继续有效）===
+=== 2) 换 current 并重启 ===
+  current: be2d76585d678c86455f8fc3d401ebe020932c01 -> 07380ce3880f6c99ae8c4bf135994383eab9d0a5
+  恢复探测：成功（7.42 秒；探测 15 次）
+=== 3) 双面核验 ===
+  static_probe_code_face_mode                    PASS  dual_face
+  expected_root_profile                          facade（发布树有 web/v2/public/index.html）
+  public_healthz_http200                         PASS  200
+  public_healthz_is_json                         PASS  keys=ok
+  public_healthz_ok_true                         PASS  
+  public_healthz_detail_not_exposed              PASS  404
+  unauth_root_matches_expected                   PASS  200 facade html 43326B
+  unauth_index_matches_expected                  PASS  200 facade html 43326B
+  expired_session_root_not_logged_in             PASS  200 facade html 43326B
+  unauth_api_still_401                           PASS  401
+  expired_session_api_401                        PASS  401
+  unauth_me_401                                  PASS  401
+  login_endpoint_rejects_empty                   PASS  400
+  login_page_serves_gate                         PASS  200
+  public_face_minimal_shape                      PASS  只有 ok
+  ops_face_http200                               PASS  200
+  ops_face_has_all_fields                        PASS  23 键
+  ops_auth_ready                                 PASS  ready
+  ops_app_port_matches_public                    PASS  3200
+  ops_pid_matches_service                        PASS  11815
+  ops_diagnostic_face_marker                     PASS  ops-v1
+  ops_release_id_scheme                          PASS  world-release-tree-v1
+  ops_release_id_shape                           PASS  sha256
+  ops_release_id_matches_approved                PASS  f40b621121ef880d2b37c521d1c3018b17a208dd8cb68f4ac097889448073020
+  ops_started_after_cutover                      PASS  1793550756320 ≥ 1793550748545
+  ops_face_no_app_pages                          PASS  404
+  ops_face_no_business_api                       PASS  404
+  ops_face_loopback_only                         SKIP  「ss -lnt」不可用（退出 127）—— 这项没量到，不算过
+MODE=dual_face
+PROFILE=facade
+CHECKS=26
+FAILS= none
+VERDICT=OK
+EXIT=0
+  核验退出码：0
+=== 切流完成 ===
+CUTOVER=OK  线上现在是 07380ce3880f6c99ae8c4bf135994383eab9d0a5（路径 upgrade，面形状 dual_face，release_id=f40b621121ef880d2b37c521d1c3018b17a208dd8cb68f4ac097889448073020）
+  留档：/srv/work/root/state/cutover-20261101-163241.txt
+  关站（一条命令）：/srv/work/root/bin/emergency.sh close
+  撤销关站：/srv/work/root/bin/emergency.sh restore
+  版本级回退只允许在本系列内含发布身份的提交之间进行；回滚旧版用 WS_MODE=rollback + WS_ROLLBACK_TO

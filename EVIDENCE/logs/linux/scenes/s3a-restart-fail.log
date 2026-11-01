@@ -1,0 +1,11 @@
+批准点：3a2978ca5db14dd46f3629756a050ab1afe87db0
+当前线上：cff2be0ba539430e8892ee5ee43692602e60d59a
+路径：upgrade
+核验器：/srv/trees/r4/docs/v2/release-c500f3d/ws-verify-faces.sh（sha256=f291021a6d25f42904a93755c3a5d700d2f6b7762094b35d6861bb799124065c，已绑定）
+目标面形状（读提交里的代码，已去注释/字符串）：dual_face  身份能力：identity_v1  门面：valid
+目标发布身份：47281c7ed233e702a02553d3d1e1ed046b3eae3f6470a232a30d1a0d499d04dc
+=== 1) 跳过 session 密钥轮换（WS_ROTATE_SECRET 未设置或为 0：现有登录令牌继续有效）===
+=== 2) 换 current 并重启 ===
+  current: cff2be0ba539430e8892ee5ee43692602e60d59a -> 3a2978ca5db14dd46f3629756a050ab1afe87db0
+CUTOVER=FAILED_RESTART_SCENE_PRESERVED  重启命令退出码 1；已核实旧版 cff2be0ba539430e8892ee5ee43692602e60d59a 仍在服务（identity=f40b621121ef880d2b37c521d1c3018b17a208dd8cb68f4ac097889448073020，pid=1663）；不关站
+  留档：/srv/work/root/state/cutover-20261101-161532.txt

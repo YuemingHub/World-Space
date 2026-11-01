@@ -1,0 +1,412 @@
+沙箱提交：LEGACY=a9ccaf5920 DUAL=7b6f65fdfe FACADE=3705828063 SIDE=32bf620f03 NID=4f802cee33 FORGED=bb2a398d0a
+=== P. ws-prep.sh：没有显式候选就不写批准点；身份/路径/发布线逐条把关 ===
+  [32m✓[0m P1 无候选退出码                                      =2
+  [32m✓[0m P1 点名缺候选                                         含 /PREDEPLOY_ABORT_TARGET_REQUIRED/
+  [32m✓[0m P1 current 未变                                          =-
+  [32m✓[0m P1 approved-sha 未变                                     =-
+  [32m✓[0m P1 批准记录未变                                      =-
+  [32m✓[0m P1 发布树未增                                         =
+  [32m✓[0m P1 无新留档                                            =0
+  [32m✓[0m P1 未关站                                               =0
+  [32m✓[0m P1 未创建 git 缓存                                    =no
+  [32m✓[0m P1 未创建日志目录                                   =no
+  [32m✓[0m P2 旧版作为升级目标                                =2
+  [32m✓[0m P2 拒绝 legacy 升级                                    含 /PREDEPLOY_ABORT_LEGACY_AS_UPGRADE/
+  [32m✓[0m P2 current 未变                                          =7b6f65fdfe7b492f9237ed8f558aec631ece5894
+  [32m✓[0m P2 approved-sha 未变                                     =-
+  [32m✓[0m P2 批准记录未变                                      =-
+  [32m✓[0m P2 发布树未增                                         =7b6f65fdfe7b492f9237ed8f558aec631ece5894,
+  [32m✓[0m P2 无新留档                                            =0
+  [32m✓[0m P2 未关站                                               =0
+  [32m✓[0m P3 回退候选退出码                                   =2
+  [32m✓[0m P3 拒绝版本回退                                      含 /PREDEPLOY_ABORT_VERSION_REGRESSION/
+  [32m✓[0m P3 current 未变                                          =37058280637827a3e9610439a4d5a51631003fb8
+  [32m✓[0m P3 approved-sha 未变                                     =-
+  [32m✓[0m P3 批准记录未变                                      =-
+  [32m✓[0m P3 发布树未增                                         =37058280637827a3e9610439a4d5a51631003fb8,
+  [32m✓[0m P3 无新留档                                            =0
+  [32m✓[0m P3 未关站                                               =0
+  [32m✓[0m P4 未知提交退出码                                   =2
+  [32m✓[0m P4 点名身份未知                                      含 /PREDEPLOY_ABORT_\(TARGET_IDENTITY_UNKNOWN\|FETCH_FAILED\)/
+  [32m✓[0m P4 current 未变                                          =7b6f65fdfe7b492f9237ed8f558aec631ece5894
+  [32m✓[0m P4 approved-sha 未变                                     =-
+  [32m✓[0m P4 批准记录未变                                      =-
+  [32m✓[0m P4 发布树未增                                         =7b6f65fdfe7b492f9237ed8f558aec631ece5894,
+  [32m✓[0m P4 无新留档                                            =0
+  [32m✓[0m P4 未关站                                               =0
+  [32m✓[0m P5 分叉候选退出码                                   =2
+  [32m✓[0m P5 拒绝越线候选                                      含 /PREDEPLOY_ABORT_NOT_IN_RELEASE_LINE/
+  [32m✓[0m P5 current 未变                                          =a9ccaf5920f3fe2d98616c84e611f1546339c0b9
+  [32m✓[0m P5 approved-sha 未变                                     =-
+  [32m✓[0m P5 批准记录未变                                      =-
+  [32m✓[0m P5 发布树未增                                         =a9ccaf5920f3fe2d98616c84e611f1546339c0b9,
+  [32m✓[0m P5 无新留档                                            =0
+  [32m✓[0m P5 未关站                                               =0
+  [32m✓[0m P6 正常候选 fetch                                      =0
+  [32m✓[0m P6 正常候选 verify                                     =0
+  [32m✓[0m P6 登记批准点                                         含 /GIT=PASS/
+  [32m✓[0m P6 approved-sha                                            =37058280637827a3e9610439a4d5a51631003fb8
+  [32m✓[0m P6 current 未变                                          =7b6f65fdfe7b492f9237ed8f558aec631ece5894
+  [32m✓[0m P6 发布树就位                                         =yes
+  [32m✓[0m P6 记录发布线                                         =release_line=v2
+  [32m✓[0m P6 记录模式                                            =mode=upgrade
+  [32m✓[0m P6 记录身份=实算                                     =release_id=d721c844d90be7141c2e948b13375b9f076d9749f198d286e5c54ba4faf6473f
+  [32m✓[0m P7 内容漂移退出码                                   =2
+  [32m✓[0m P7 点名内容不一致                                   含 /PREDEPLOY_ABORT_GIT_DRIFT/
+  [32m✓[0m P7 approved-sha 未写                                     =-
+  [32m✓[0m P7 批准记录未写                                      =no
+  [32m✓[0m P7 current 未变                                          =7b6f65fdfe7b492f9237ed8f558aec631ece5894
+  [32m✓[0m P8 回滚 fetch                                            =0
+  [32m✓[0m P8 回滚 verify                                           =0
+  [32m✓[0m P8 approved-sha                                            =7b6f65fdfe7b492f9237ed8f558aec631ece5894
+  [32m✓[0m P8 current 未变                                          =37058280637827a3e9610439a4d5a51631003fb8
+  [32m✓[0m P8 记录回滚目标                                      =rollback_to=7b6f65fdfe7b492f9237ed8f558aec631ece5894
+  [32m✓[0m P9 缺 ROLLBACK_TO 退出码                               =2
+  [32m✓[0m P9 点名缺第二把钥匙                                含 /PREDEPLOY_ABORT_ROLLBACK_TARGET_REQUIRED/
+  [32m✓[0m P9 current 未变                                          =37058280637827a3e9610439a4d5a51631003fb8
+  [32m✓[0m P9 approved-sha 未变                                     =-
+  [32m✓[0m P9 批准记录未变                                      =-
+  [32m✓[0m P9 发布树未增                                         =37058280637827a3e9610439a4d5a51631003fb8,
+  [32m✓[0m P9 无新留档                                            =0
+  [32m✓[0m P9 未关站                                               =0
+  [32m✓[0m P10 伪回滚退出码                                     =2
+  [32m✓[0m P10 拒绝非祖先                                        含 /PREDEPLOY_ABORT_ROLLBACK_NOT_ANCESTOR/
+  [32m✓[0m P10 current 未变                                         =7b6f65fdfe7b492f9237ed8f558aec631ece5894
+  [32m✓[0m P10 approved-sha 未变                                    =-
+  [32m✓[0m P10 批准记录未变                                     =-
+  [32m✓[0m P10 发布树未增                                        =7b6f65fdfe7b492f9237ed8f558aec631ece5894,
+  [32m✓[0m P10 无新留档                                           =0
+  [32m✓[0m P10 未关站                                              =0
+  [32m✓[0m P11 符号链接退出码                                  =2
+  [32m✓[0m P11 点名符号链接                                     含 /PREDEPLOY_ABORT_GIT_DRIFT/
+  [32m✓[0m P11 approved-sha 未写                                    =-
+  [32m✓[0m P12 无 current 退出码                                  =2
+  [32m✓[0m P12 点名线上身份未知                               含 /PREDEPLOY_ABORT_LIVE_IDENTITY_UNKNOWN/
+  [32m✓[0m P12 approved-sha 未写                                    =-
+  [32m✓[0m P12 未展开发布树                                     =no
+  [32m✓[0m P13 换线退出码                                        =2
+  [32m✓[0m P13 点名换线                                           含 /PREDEPLOY_ABORT_RELEASE_LINE_OVERRIDE/
+  [32m✓[0m P13 current 未变                                         =7b6f65fdfe7b492f9237ed8f558aec631ece5894
+  [32m✓[0m P13 approved-sha 未变                                    =-
+  [32m✓[0m P13 批准记录未变                                     =-
+  [32m✓[0m P13 发布树未增                                        =7b6f65fdfe7b492f9237ed8f558aec631ece5894,
+  [32m✓[0m P13 无新留档                                           =0
+  [32m✓[0m P13 未关站                                              =0
+  [32m✓[0m P14 releases 链接退出码                               =2
+  [32m✓[0m P14 点名 releases 不是目录                           含 /PREDEPLOY_ABORT_RELEASES_NOT_DIRECTORY/
+  [32m✓[0m P14 current 未变                                         =7b6f65fdfe7b492f9237ed8f558aec631ece5894
+  [32m✓[0m P14 approved-sha 未变                                    =-
+  [32m✓[0m P14 批准记录未变                                     =-
+  [32m✓[0m P14 发布树未增                                        =7b6f65fdfe7b492f9237ed8f558aec631ece5894,
+  [32m✓[0m P14 无新留档                                           =0
+  [32m✓[0m P14 未关站                                              =0
+  [32m✓[0m P15 replace refs 退出码                                 =2
+  [32m✓[0m P15 点名元数据被改                                  含 /PREDEPLOY_ABORT_GIT_METADATA_TAMPERED/
+  [32m✓[0m P15 current 未变                                         =7b6f65fdfe7b492f9237ed8f558aec631ece5894
+  [32m✓[0m P15 approved-sha 未变                                    =-
+  [32m✓[0m P15 批准记录未变                                     =-
+  [32m✓[0m P15 发布树未增                                        =7b6f65fdfe7b492f9237ed8f558aec631ece5894,
+  [32m✓[0m P15 无新留档                                           =0
+  [32m✓[0m P15 未关站                                              =0
+  [32m✓[0m P16 grafts 退出码                                       =2
+  [32m✓[0m P16 点名元数据被改                                  含 /PREDEPLOY_ABORT_GIT_METADATA_TAMPERED/
+  [32m✓[0m P16 current 未变                                         =7b6f65fdfe7b492f9237ed8f558aec631ece5894
+  [32m✓[0m P16 approved-sha 未变                                    =-
+  [32m✓[0m P16 批准记录未变                                     =-
+  [32m✓[0m P16 发布树未增                                        =7b6f65fdfe7b492f9237ed8f558aec631ece5894,
+  [32m✓[0m P16 无新留档                                           =0
+  [32m✓[0m P16 未关站                                              =0
+  [32m✓[0m P17 注释伪造退出码                                  =2
+  [32m✓[0m P17 按代码判为单面                                  含 /PREDEPLOY_ABORT_LEGACY_AS_UPGRADE/
+  [32m✓[0m P17 approved-sha 未写                                    =-
+  [32m✓[0m P18 无身份退出码                                     =2
+  [32m✓[0m P18 点名无身份能力                                  含 /PREDEPLOY_ABORT_IDENTITY_UNSUPPORTED_BY_TARGET/
+  [32m✓[0m P18 approved-sha 未写                                    =-
+  [32m✓[0m P19 current 越界退出码                                =2
+  [32m✓[0m P19 拒绝越界 current                                   含 /PREDEPLOY_ABORT_LIVE_IDENTITY_UNKNOWN/
+  [32m✓[0m P19 current 未变                                         =7b6f65fdfe7b492f9237ed8f558aec631ece5894
+  [32m✓[0m P19 approved-sha 未变                                    =-
+  [32m✓[0m P19 批准记录未变                                     =-
+  [32m✓[0m P19 发布树未增                                        =
+  [32m✓[0m P19 无新留档                                           =0
+  [32m✓[0m P19 未关站                                              =0
+  [32m✓[0m P20 无身份回滚退出码                               =2
+  [32m✓[0m P20 点名无身份能力                                  含 /PREDEPLOY_ABORT_IDENTITY_UNSUPPORTED_BY_TARGET/
+  [32m✓[0m P20 approved-sha 未写                                    =-
+=== C. cutover.sh：身份、发布线、前进方向、两把钥匙、路径与元数据 ===
+  [32m✓[0m C1 正常升级 退出码                                  =0
+  [32m✓[0m C1 正常升级 结论                                     含 /CUTOVER=OK/
+  [32m✓[0m C1 current 已切换                                       =37058280637827a3e9610439a4d5a51631003fb8
+  [32m✓[0m C1 留档 mode                                             =mode=upgrade
+  [32m✓[0m C1 留档身份=批准身份                               =target_release_id=d721c844d90be7141c2e948b13375b9f076d9749f198d286e5c54ba4faf6473f
+  [32m✓[0m C1 关站次数                                            =0
+  [32m✓[0m C2 静默降级 退出码                                  =3
+  [32m✓[0m C2 静默降级 结论                                     含 /CUTOVER=ABORT_VERSION_REGRESSION/
+  [32m✓[0m C2 current 未变                                          =37058280637827a3e9610439a4d5a51631003fb8
+  [32m✓[0m C2 approved-sha 未变                                     =7b6f65fdfe7b492f9237ed8f558aec631ece5894
+  [32m✓[0m C2 批准记录未变                                      =88941b7550f3
+  [32m✓[0m C2 发布树未增                                         =015a4f02be32768547a625c900c6ae2cbb7e80a4,32bf620f03234fedd504607abdcd336f666ab525,37058280637827a3e9610439a4d5a51631003fb8,4f802cee338e415d66730c2aae47b10773200301,7b6f65fdfe7b492f9237ed8f558aec631ece5894,a9ccaf5920f3fe2d98616c84e611f1546339c0b9,bb2a398d0a98ce477ff73133624cc84e7d5443dc,
+  [32m✓[0m C2 无新留档                                            =0
+  [32m✓[0m C2 未关站                                               =0
+  [32m✓[0m C3 旧版冒充升级 退出码                            =3
+  [32m✓[0m C3 旧版冒充升级 结论                               含 /CUTOVER=ABORT_LEGACY_AS_UPGRADE/
+  [32m✓[0m C3 current 未变                                          =7b6f65fdfe7b492f9237ed8f558aec631ece5894
+  [32m✓[0m C3 approved-sha 未变                                     =a9ccaf5920f3fe2d98616c84e611f1546339c0b9
+  [32m✓[0m C3 批准记录未变                                      =1f1f5e7f7ff0
+  [32m✓[0m C3 发布树未增                                         =015a4f02be32768547a625c900c6ae2cbb7e80a4,32bf620f03234fedd504607abdcd336f666ab525,37058280637827a3e9610439a4d5a51631003fb8,4f802cee338e415d66730c2aae47b10773200301,7b6f65fdfe7b492f9237ed8f558aec631ece5894,a9ccaf5920f3fe2d98616c84e611f1546339c0b9,bb2a398d0a98ce477ff73133624cc84e7d5443dc,
+  [32m✓[0m C3 无新留档                                            =0
+  [32m✓[0m C3 未关站                                               =0
+  [32m✓[0m C4 越线候选 退出码                                  =3
+  [32m✓[0m C4 越线候选 结论                                     含 /CUTOVER=ABORT_NOT_IN_RELEASE_LINE/
+  [32m✓[0m C4 current 未变                                          =a9ccaf5920f3fe2d98616c84e611f1546339c0b9
+  [32m✓[0m C4 approved-sha 未变                                     =32bf620f03234fedd504607abdcd336f666ab525
+  [32m✓[0m C4 批准记录未变                                      =de3a9a190df4
+  [32m✓[0m C4 发布树未增                                         =015a4f02be32768547a625c900c6ae2cbb7e80a4,32bf620f03234fedd504607abdcd336f666ab525,37058280637827a3e9610439a4d5a51631003fb8,4f802cee338e415d66730c2aae47b10773200301,7b6f65fdfe7b492f9237ed8f558aec631ece5894,a9ccaf5920f3fe2d98616c84e611f1546339c0b9,bb2a398d0a98ce477ff73133624cc84e7d5443dc,
+  [32m✓[0m C4 无新留档                                            =0
+  [32m✓[0m C4 未关站                                               =0
+  [32m✓[0m C5 未知身份 退出码                                  =3
+  [32m✓[0m C5 未知身份 结论                                     含 /CUTOVER=ABORT_TARGET_IDENTITY_UNKNOWN/
+  [32m✓[0m C5 current 未变                                          =7b6f65fdfe7b492f9237ed8f558aec631ece5894
+  [32m✓[0m C5 approved-sha 未变                                     =0123456789abcdef0123456789abcdef01234567
+  [32m✓[0m C5 批准记录未变                                      =505085bf5626
+  [32m✓[0m C5 发布树未增                                         =0123456789abcdef0123456789abcdef01234567,015a4f02be32768547a625c900c6ae2cbb7e80a4,32bf620f03234fedd504607abdcd336f666ab525,37058280637827a3e9610439a4d5a51631003fb8,4f802cee338e415d66730c2aae47b10773200301,7b6f65fdfe7b492f9237ed8f558aec631ece5894,a9ccaf5920f3fe2d98616c84e611f1546339c0b9,bb2a398d0a98ce477ff73133624cc84e7d5443dc,
+  [32m✓[0m C5 无新留档                                            =0
+  [32m✓[0m C5 未关站                                               =0
+  [32m✓[0m C6 发布树漂移 退出码                               =3
+  [32m✓[0m C6 发布树漂移 结论                                  含 /CUTOVER=ABORT_RELEASE_TREE_MISMATCH/
+  [32m✓[0m C6 current 未变                                          =7b6f65fdfe7b492f9237ed8f558aec631ece5894
+  [32m✓[0m C6 approved-sha 未变                                     =37058280637827a3e9610439a4d5a51631003fb8
+  [32m✓[0m C6 批准记录未变                                      =14222cfc9a30
+  [32m✓[0m C6 发布树未增                                         =015a4f02be32768547a625c900c6ae2cbb7e80a4,32bf620f03234fedd504607abdcd336f666ab525,37058280637827a3e9610439a4d5a51631003fb8,4f802cee338e415d66730c2aae47b10773200301,7b6f65fdfe7b492f9237ed8f558aec631ece5894,a9ccaf5920f3fe2d98616c84e611f1546339c0b9,bb2a398d0a98ce477ff73133624cc84e7d5443dc,
+  [32m✓[0m C6 无新留档                                            =0
+  [32m✓[0m C6 未关站                                               =0
+  [32m✓[0m C6b 门面不完整 退出码                              =3
+  [32m✓[0m C6b 门面不完整 结论                                 含 /CUTOVER=ABORT_FACADE_INVALID/
+  [32m✓[0m C6b current 未变                                         =7b6f65fdfe7b492f9237ed8f558aec631ece5894
+  [32m✓[0m C6b approved-sha 未变                                    =015a4f02be32768547a625c900c6ae2cbb7e80a4
+  [32m✓[0m C6b 批准记录未变                                     =eac0e4b43380
+  [32m✓[0m C6b 发布树未增                                        =015a4f02be32768547a625c900c6ae2cbb7e80a4,32bf620f03234fedd504607abdcd336f666ab525,37058280637827a3e9610439a4d5a51631003fb8,4f802cee338e415d66730c2aae47b10773200301,7b6f65fdfe7b492f9237ed8f558aec631ece5894,a9ccaf5920f3fe2d98616c84e611f1546339c0b9,bb2a398d0a98ce477ff73133624cc84e7d5443dc,
+  [32m✓[0m C6b 无新留档                                           =0
+  [32m✓[0m C6b 未关站                                              =0
+  [32m✓[0m C7 回滚缺钥匙 退出码                               =3
+  [32m✓[0m C7 回滚缺钥匙 结论                                  含 /CUTOVER=ABORT_ROLLBACK_TARGET_REQUIRED/
+  [32m✓[0m C7 current 未变                                          =37058280637827a3e9610439a4d5a51631003fb8
+  [32m✓[0m C7 approved-sha 未变                                     =7b6f65fdfe7b492f9237ed8f558aec631ece5894
+  [32m✓[0m C7 批准记录未变                                      =2f5f745810fc
+  [32m✓[0m C7 发布树未增                                         =015a4f02be32768547a625c900c6ae2cbb7e80a4,32bf620f03234fedd504607abdcd336f666ab525,37058280637827a3e9610439a4d5a51631003fb8,4f802cee338e415d66730c2aae47b10773200301,7b6f65fdfe7b492f9237ed8f558aec631ece5894,a9ccaf5920f3fe2d98616c84e611f1546339c0b9,bb2a398d0a98ce477ff73133624cc84e7d5443dc,
+  [32m✓[0m C7 无新留档                                            =0
+  [32m✓[0m C7 未关站                                               =0
+  [32m✓[0m C8 伪回滚 退出码                                     =3
+  [32m✓[0m C8 伪回滚 结论                                        含 /CUTOVER=ABORT_ROLLBACK_NOT_ANCESTOR/
+  [32m✓[0m C8 current 未变                                          =7b6f65fdfe7b492f9237ed8f558aec631ece5894
+  [32m✓[0m C8 approved-sha 未变                                     =37058280637827a3e9610439a4d5a51631003fb8
+  [32m✓[0m C8 批准记录未变                                      =8ae9a8fc13ef
+  [32m✓[0m C8 发布树未增                                         =015a4f02be32768547a625c900c6ae2cbb7e80a4,32bf620f03234fedd504607abdcd336f666ab525,37058280637827a3e9610439a4d5a51631003fb8,4f802cee338e415d66730c2aae47b10773200301,7b6f65fdfe7b492f9237ed8f558aec631ece5894,a9ccaf5920f3fe2d98616c84e611f1546339c0b9,bb2a398d0a98ce477ff73133624cc84e7d5443dc,
+  [32m✓[0m C8 无新留档                                            =0
+  [32m✓[0m C8 未关站                                               =0
+  [32m✓[0m C9 合法回滚 退出码                                  =0
+  [32m✓[0m C9 合法回滚 结论                                     含 /CUTOVER=OK/
+  [32m✓[0m C9 current 已回滚                                       =7b6f65fdfe7b492f9237ed8f558aec631ece5894
+  [32m✓[0m C9 留档 mode                                             =mode=rollback
+  [32m✓[0m C9 留下回滚目标                                      =rollback_to=7b6f65fdfe7b492f9237ed8f558aec631ece5894
+  [32m✓[0m C9 关站次数                                            =0
+  [32m✓[0m C10 已在线 退出码                                    =3
+  [32m✓[0m C10 已在线 结论                                       含 /CUTOVER=ABORT_ALREADY_LIVE/
+  [32m✓[0m C10 current 未变                                         =7b6f65fdfe7b492f9237ed8f558aec631ece5894
+  [32m✓[0m C10 approved-sha 未变                                    =7b6f65fdfe7b492f9237ed8f558aec631ece5894
+  [32m✓[0m C10 批准记录未变                                     =88941b7550f3
+  [32m✓[0m C10 发布树未增                                        =015a4f02be32768547a625c900c6ae2cbb7e80a4,32bf620f03234fedd504607abdcd336f666ab525,37058280637827a3e9610439a4d5a51631003fb8,4f802cee338e415d66730c2aae47b10773200301,7b6f65fdfe7b492f9237ed8f558aec631ece5894,a9ccaf5920f3fe2d98616c84e611f1546339c0b9,bb2a398d0a98ce477ff73133624cc84e7d5443dc,
+  [32m✓[0m C10 无新留档                                           =0
+  [32m✓[0m C10 未关站                                              =0
+  [32m✓[0m C11 面形状不符 退出码                              =3
+  [32m✓[0m C11 面形状不符 结论                                 含 /CUTOVER=ABORT_FACE_MISMATCH/
+  [32m✓[0m C11 current 未变                                         =7b6f65fdfe7b492f9237ed8f558aec631ece5894
+  [32m✓[0m C11 approved-sha 未变                                    =37058280637827a3e9610439a4d5a51631003fb8
+  [32m✓[0m C11 批准记录未变                                     =14222cfc9a30
+  [32m✓[0m C11 发布树未增                                        =015a4f02be32768547a625c900c6ae2cbb7e80a4,32bf620f03234fedd504607abdcd336f666ab525,37058280637827a3e9610439a4d5a51631003fb8,4f802cee338e415d66730c2aae47b10773200301,7b6f65fdfe7b492f9237ed8f558aec631ece5894,a9ccaf5920f3fe2d98616c84e611f1546339c0b9,bb2a398d0a98ce477ff73133624cc84e7d5443dc,
+  [32m✓[0m C11 无新留档                                           =0
+  [32m✓[0m C11 未关站                                              =0
+  [32m✓[0m C12 发布树符号链接 退出码                        =3
+  [32m✓[0m C12 发布树符号链接 结论                           含 /CUTOVER=ABORT_RELEASE_TREE_SYMLINK/
+  [32m✓[0m C12 current 未变                                         =7b6f65fdfe7b492f9237ed8f558aec631ece5894
+  [32m✓[0m C12 approved-sha 未变                                    =37058280637827a3e9610439a4d5a51631003fb8
+  [32m✓[0m C12 批准记录未变                                     =14222cfc9a30
+  [32m✓[0m C12 发布树未增                                        =015a4f02be32768547a625c900c6ae2cbb7e80a4,32bf620f03234fedd504607abdcd336f666ab525,37058280637827a3e9610439a4d5a51631003fb8,4f802cee338e415d66730c2aae47b10773200301,7b6f65fdfe7b492f9237ed8f558aec631ece5894,a9ccaf5920f3fe2d98616c84e611f1546339c0b9,bb2a398d0a98ce477ff73133624cc84e7d5443dc,
+  [32m✓[0m C12 无新留档                                           =0
+  [32m✓[0m C12 未关站                                              =0
+  [32m✓[0m C13 重启失败 退出码                                 =1
+  [32m✓[0m C13 重启失败 结论                                    含 /CUTOVER=FAILED_RESTART_SCENE_PRESERVED/
+  [32m✓[0m C13 current 已退回旧版                                =7b6f65fdfe7b492f9237ed8f558aec631ece5894
+  [32m✓[0m C13 留档恢复核实                                     =restore_verified=yes
+  [32m✓[0m C13 关站次数                                           =0
+  [32m✓[0m C14 无 current 退出码                                  =3
+  [32m✓[0m C14 无 current 结论                                     含 /CUTOVER=ABORT_LIVE_IDENTITY_UNKNOWN/
+  [32m✓[0m C14 current 未变                                         =-
+  [32m✓[0m C14 approved-sha 未变                                    =37058280637827a3e9610439a4d5a51631003fb8
+  [32m✓[0m C14 批准记录未变                                     =14222cfc9a30
+  [32m✓[0m C14 发布树未增                                        =015a4f02be32768547a625c900c6ae2cbb7e80a4,32bf620f03234fedd504607abdcd336f666ab525,37058280637827a3e9610439a4d5a51631003fb8,4f802cee338e415d66730c2aae47b10773200301,7b6f65fdfe7b492f9237ed8f558aec631ece5894,a9ccaf5920f3fe2d98616c84e611f1546339c0b9,bb2a398d0a98ce477ff73133624cc84e7d5443dc,
+  [32m✓[0m C14 无新留档                                           =0
+  [32m✓[0m C14 未关站                                              =0
+  [32m✓[0m C15 current 非链接 退出码                            =3
+  [32m✓[0m C15 current 非链接 结论                               含 /CUTOVER=ABORT_LIVE_IDENTITY_UNKNOWN/
+  [32m✓[0m C15 current 未变                                         =-
+  [32m✓[0m C15 approved-sha 未变                                    =37058280637827a3e9610439a4d5a51631003fb8
+  [32m✓[0m C15 批准记录未变                                     =14222cfc9a30
+  [32m✓[0m C15 发布树未增                                        =015a4f02be32768547a625c900c6ae2cbb7e80a4,32bf620f03234fedd504607abdcd336f666ab525,37058280637827a3e9610439a4d5a51631003fb8,4f802cee338e415d66730c2aae47b10773200301,7b6f65fdfe7b492f9237ed8f558aec631ece5894,a9ccaf5920f3fe2d98616c84e611f1546339c0b9,bb2a398d0a98ce477ff73133624cc84e7d5443dc,
+  [32m✓[0m C15 无新留档                                           =0
+  [32m✓[0m C15 未关站                                              =0
+  [32m✓[0m C16 核验器哈希不符 退出码                        =3
+  [32m✓[0m C16 核验器哈希不符 结论                           含 /CUTOVER=ABORT_VERIFIER_IDENTITY_MISMATCH/
+  [32m✓[0m C16 current 未变                                         =7b6f65fdfe7b492f9237ed8f558aec631ece5894
+  [32m✓[0m C16 approved-sha 未变                                    =37058280637827a3e9610439a4d5a51631003fb8
+  [32m✓[0m C16 批准记录未变                                     =14222cfc9a30
+  [32m✓[0m C16 发布树未增                                        =015a4f02be32768547a625c900c6ae2cbb7e80a4,32bf620f03234fedd504607abdcd336f666ab525,37058280637827a3e9610439a4d5a51631003fb8,4f802cee338e415d66730c2aae47b10773200301,7b6f65fdfe7b492f9237ed8f558aec631ece5894,a9ccaf5920f3fe2d98616c84e611f1546339c0b9,bb2a398d0a98ce477ff73133624cc84e7d5443dc,
+  [32m✓[0m C16 无新留档                                           =0
+  [32m✓[0m C16 未关站                                              =0
+  [32m✓[0m C17 无核验器哈希 退出码                           =3
+  [32m✓[0m C17 无核验器哈希 结论                              含 /CUTOVER=ABORT_VERIFIER_IDENTITY_UNKNOWN/
+  [32m✓[0m C17 current 未变                                         =7b6f65fdfe7b492f9237ed8f558aec631ece5894
+  [32m✓[0m C17 approved-sha 未变                                    =37058280637827a3e9610439a4d5a51631003fb8
+  [32m✓[0m C17 批准记录未变                                     =14222cfc9a30
+  [32m✓[0m C17 发布树未增                                        =015a4f02be32768547a625c900c6ae2cbb7e80a4,32bf620f03234fedd504607abdcd336f666ab525,37058280637827a3e9610439a4d5a51631003fb8,4f802cee338e415d66730c2aae47b10773200301,7b6f65fdfe7b492f9237ed8f558aec631ece5894,a9ccaf5920f3fe2d98616c84e611f1546339c0b9,bb2a398d0a98ce477ff73133624cc84e7d5443dc,
+  [32m✓[0m C17 无新留档                                           =0
+  [32m✓[0m C17 未关站                                              =0
+  [32m✓[0m C18 换发布线 退出码                                 =3
+  [32m✓[0m C18 换发布线 结论                                    含 /CUTOVER=ABORT_RELEASE_LINE_OVERRIDE/
+  [32m✓[0m C18 current 未变                                         =7b6f65fdfe7b492f9237ed8f558aec631ece5894
+  [32m✓[0m C18 approved-sha 未变                                    =37058280637827a3e9610439a4d5a51631003fb8
+  [32m✓[0m C18 批准记录未变                                     =14222cfc9a30
+  [32m✓[0m C18 发布树未增                                        =015a4f02be32768547a625c900c6ae2cbb7e80a4,32bf620f03234fedd504607abdcd336f666ab525,37058280637827a3e9610439a4d5a51631003fb8,4f802cee338e415d66730c2aae47b10773200301,7b6f65fdfe7b492f9237ed8f558aec631ece5894,a9ccaf5920f3fe2d98616c84e611f1546339c0b9,bb2a398d0a98ce477ff73133624cc84e7d5443dc,
+  [32m✓[0m C18 无新留档                                           =0
+  [32m✓[0m C18 未关站                                              =0
+  [32m✓[0m C19 POLL_TRIES=0 退出码                                 =3
+  [32m✓[0m C19 POLL_TRIES=0 结论                                    含 /CUTOVER=ABORT_USAGE_ERROR/
+  [32m✓[0m C19 current 未变                                         =7b6f65fdfe7b492f9237ed8f558aec631ece5894
+  [32m✓[0m C19 approved-sha 未变                                    =37058280637827a3e9610439a4d5a51631003fb8
+  [32m✓[0m C19 批准记录未变                                     =14222cfc9a30
+  [32m✓[0m C19 发布树未增                                        =015a4f02be32768547a625c900c6ae2cbb7e80a4,32bf620f03234fedd504607abdcd336f666ab525,37058280637827a3e9610439a4d5a51631003fb8,4f802cee338e415d66730c2aae47b10773200301,7b6f65fdfe7b492f9237ed8f558aec631ece5894,a9ccaf5920f3fe2d98616c84e611f1546339c0b9,bb2a398d0a98ce477ff73133624cc84e7d5443dc,
+  [32m✓[0m C19 无新留档                                           =0
+  [32m✓[0m C19 未关站                                              =0
+  [32m✓[0m C20 POLL_TRIES=abc 退出码                               =3
+  [32m✓[0m C20 POLL_TRIES=abc 结论                                  含 /CUTOVER=ABORT_USAGE_ERROR/
+  [32m✓[0m C20 current 未变                                         =7b6f65fdfe7b492f9237ed8f558aec631ece5894
+  [32m✓[0m C20 approved-sha 未变                                    =37058280637827a3e9610439a4d5a51631003fb8
+  [32m✓[0m C20 批准记录未变                                     =14222cfc9a30
+  [32m✓[0m C20 发布树未增                                        =015a4f02be32768547a625c900c6ae2cbb7e80a4,32bf620f03234fedd504607abdcd336f666ab525,37058280637827a3e9610439a4d5a51631003fb8,4f802cee338e415d66730c2aae47b10773200301,7b6f65fdfe7b492f9237ed8f558aec631ece5894,a9ccaf5920f3fe2d98616c84e611f1546339c0b9,bb2a398d0a98ce477ff73133624cc84e7d5443dc,
+  [32m✓[0m C20 无新留档                                           =0
+  [32m✓[0m C20 未关站                                              =0
+  [32m✓[0m C21 replace refs 退出码                                 =3
+  [32m✓[0m C21 replace refs 结论                                    含 /CUTOVER=ABORT_GIT_METADATA_TAMPERED/
+  [32m✓[0m C21 current 未变                                         =a9ccaf5920f3fe2d98616c84e611f1546339c0b9
+  [32m✓[0m C21 approved-sha 未变                                    =32bf620f03234fedd504607abdcd336f666ab525
+  [32m✓[0m C21 批准记录未变                                     =de3a9a190df4
+  [32m✓[0m C21 发布树未增                                        =015a4f02be32768547a625c900c6ae2cbb7e80a4,32bf620f03234fedd504607abdcd336f666ab525,37058280637827a3e9610439a4d5a51631003fb8,4f802cee338e415d66730c2aae47b10773200301,7b6f65fdfe7b492f9237ed8f558aec631ece5894,a9ccaf5920f3fe2d98616c84e611f1546339c0b9,bb2a398d0a98ce477ff73133624cc84e7d5443dc,
+  [32m✓[0m C21 无新留档                                           =0
+  [32m✓[0m C21 未关站                                              =0
+  [32m✓[0m C22 info/grafts 退出码                                  =3
+  [32m✓[0m C22 info/grafts 结论                                     含 /CUTOVER=ABORT_GIT_METADATA_TAMPERED/
+  [32m✓[0m C22 current 未变                                         =a9ccaf5920f3fe2d98616c84e611f1546339c0b9
+  [32m✓[0m C22 approved-sha 未变                                    =32bf620f03234fedd504607abdcd336f666ab525
+  [32m✓[0m C22 批准记录未变                                     =de3a9a190df4
+  [32m✓[0m C22 发布树未增                                        =015a4f02be32768547a625c900c6ae2cbb7e80a4,32bf620f03234fedd504607abdcd336f666ab525,37058280637827a3e9610439a4d5a51631003fb8,4f802cee338e415d66730c2aae47b10773200301,7b6f65fdfe7b492f9237ed8f558aec631ece5894,a9ccaf5920f3fe2d98616c84e611f1546339c0b9,bb2a398d0a98ce477ff73133624cc84e7d5443dc,
+  [32m✓[0m C22 无新留档                                           =0
+  [32m✓[0m C22 未关站                                              =0
+  [32m✓[0m C23 releases 符号链接 退出码                        =3
+  [32m✓[0m C23 releases 符号链接 结论                           含 /CUTOVER=ABORT_RELEASES_NOT_DIRECTORY/
+  [32m✓[0m C23 current 未变                                         =7b6f65fdfe7b492f9237ed8f558aec631ece5894
+  [32m✓[0m C23 approved-sha 未变                                    =37058280637827a3e9610439a4d5a51631003fb8
+  [32m✓[0m C23 批准记录未变                                     =14222cfc9a30
+  [32m✓[0m C23 发布树未增                                        =015a4f02be32768547a625c900c6ae2cbb7e80a4,32bf620f03234fedd504607abdcd336f666ab525,37058280637827a3e9610439a4d5a51631003fb8,4f802cee338e415d66730c2aae47b10773200301,7b6f65fdfe7b492f9237ed8f558aec631ece5894,a9ccaf5920f3fe2d98616c84e611f1546339c0b9,bb2a398d0a98ce477ff73133624cc84e7d5443dc,
+  [32m✓[0m C23 无新留档                                           =0
+  [32m✓[0m C23 未关站                                              =0
+  [32m✓[0m C24 发布树符号链接 退出码                        =3
+  [32m✓[0m C24 发布树符号链接 结论                           含 /CUTOVER=ABORT_\(PATH_ESCAPE\|RELEASE_TREE_MISSING\)/
+  [32m✓[0m C24 current 未变                                         =7b6f65fdfe7b492f9237ed8f558aec631ece5894
+  [32m✓[0m C24 approved-sha 未变                                    =37058280637827a3e9610439a4d5a51631003fb8
+  [32m✓[0m C24 批准记录未变                                     =14222cfc9a30
+  [32m✓[0m C24 发布树未增                                        =015a4f02be32768547a625c900c6ae2cbb7e80a4,32bf620f03234fedd504607abdcd336f666ab525,37058280637827a3e9610439a4d5a51631003fb8,4f802cee338e415d66730c2aae47b10773200301,7b6f65fdfe7b492f9237ed8f558aec631ece5894,a9ccaf5920f3fe2d98616c84e611f1546339c0b9,bb2a398d0a98ce477ff73133624cc84e7d5443dc,
+  [32m✓[0m C24 无新留档                                           =0
+  [32m✓[0m C24 未关站                                              =0
+  [32m✓[0m C25 current 越界 退出码                               =3
+  [32m✓[0m C25 current 越界 结论                                  含 /CUTOVER=ABORT_LIVE_IDENTITY_UNKNOWN/
+  [32m✓[0m C25 current 未变                                         =7b6f65fdfe7b492f9237ed8f558aec631ece5894
+  [32m✓[0m C25 approved-sha 未变                                    =37058280637827a3e9610439a4d5a51631003fb8
+  [32m✓[0m C25 批准记录未变                                     =14222cfc9a30
+  [32m✓[0m C25 发布树未增                                        =015a4f02be32768547a625c900c6ae2cbb7e80a4,32bf620f03234fedd504607abdcd336f666ab525,37058280637827a3e9610439a4d5a51631003fb8,4f802cee338e415d66730c2aae47b10773200301,7b6f65fdfe7b492f9237ed8f558aec631ece5894,a9ccaf5920f3fe2d98616c84e611f1546339c0b9,bb2a398d0a98ce477ff73133624cc84e7d5443dc,
+  [32m✓[0m C25 无新留档                                           =0
+  [32m✓[0m C25 未关站                                              =0
+  [32m✓[0m C26 批准记录缺失 退出码                           =3
+  [32m✓[0m C26 批准记录缺失 结论                              含 /CUTOVER=ABORT_APPROVAL_RECORD_MISSING/
+  [32m✓[0m C26 current 未变                                         =7b6f65fdfe7b492f9237ed8f558aec631ece5894
+  [32m✓[0m C26 approved-sha 未变                                    =37058280637827a3e9610439a4d5a51631003fb8
+  [32m✓[0m C26 批准记录未变                                     =-
+  [32m✓[0m C26 发布树未增                                        =015a4f02be32768547a625c900c6ae2cbb7e80a4,32bf620f03234fedd504607abdcd336f666ab525,37058280637827a3e9610439a4d5a51631003fb8,4f802cee338e415d66730c2aae47b10773200301,7b6f65fdfe7b492f9237ed8f558aec631ece5894,a9ccaf5920f3fe2d98616c84e611f1546339c0b9,bb2a398d0a98ce477ff73133624cc84e7d5443dc,
+  [32m✓[0m C26 无新留档                                           =0
+  [32m✓[0m C26 未关站                                              =0
+  [32m✓[0m C27 批准记录模式不符 退出码                     =3
+  [32m✓[0m C27 批准记录模式不符 结论                        含 /CUTOVER=ABORT_APPROVAL_RECORD_MISMATCH/
+  [32m✓[0m C27 current 未变                                         =7b6f65fdfe7b492f9237ed8f558aec631ece5894
+  [32m✓[0m C27 approved-sha 未变                                    =37058280637827a3e9610439a4d5a51631003fb8
+  [32m✓[0m C27 批准记录未变                                     =2d6047a43b20
+  [32m✓[0m C27 发布树未增                                        =015a4f02be32768547a625c900c6ae2cbb7e80a4,32bf620f03234fedd504607abdcd336f666ab525,37058280637827a3e9610439a4d5a51631003fb8,4f802cee338e415d66730c2aae47b10773200301,7b6f65fdfe7b492f9237ed8f558aec631ece5894,a9ccaf5920f3fe2d98616c84e611f1546339c0b9,bb2a398d0a98ce477ff73133624cc84e7d5443dc,
+  [32m✓[0m C27 无新留档                                           =0
+  [32m✓[0m C27 未关站                                              =0
+  [32m✓[0m C28 目标无身份 退出码                              =3
+  [32m✓[0m C28 目标无身份 结论                                 含 /CUTOVER=ABORT_IDENTITY_UNSUPPORTED_BY_TARGET/
+  [32m✓[0m C28 current 未变                                         =7b6f65fdfe7b492f9237ed8f558aec631ece5894
+  [32m✓[0m C28 approved-sha 未变                                    =4f802cee338e415d66730c2aae47b10773200301
+  [32m✓[0m C28 批准记录未变                                     =59e899a75406
+  [32m✓[0m C28 发布树未增                                        =015a4f02be32768547a625c900c6ae2cbb7e80a4,32bf620f03234fedd504607abdcd336f666ab525,37058280637827a3e9610439a4d5a51631003fb8,4f802cee338e415d66730c2aae47b10773200301,7b6f65fdfe7b492f9237ed8f558aec631ece5894,a9ccaf5920f3fe2d98616c84e611f1546339c0b9,bb2a398d0a98ce477ff73133624cc84e7d5443dc,
+  [32m✓[0m C28 无新留档                                           =0
+  [32m✓[0m C28 未关站                                              =0
+  [32m✓[0m C29 注释伪造面形状 退出码                        =3
+  [32m✓[0m C29 注释伪造面形状 结论                           含 /CUTOVER=ABORT_LEGACY_AS_UPGRADE/
+  [32m✓[0m C29 current 未变                                         =4f802cee338e415d66730c2aae47b10773200301
+  [32m✓[0m C29 approved-sha 未变                                    =bb2a398d0a98ce477ff73133624cc84e7d5443dc
+  [32m✓[0m C29 批准记录未变                                     =30c4d24a7110
+  [32m✓[0m C29 发布树未增                                        =015a4f02be32768547a625c900c6ae2cbb7e80a4,32bf620f03234fedd504607abdcd336f666ab525,37058280637827a3e9610439a4d5a51631003fb8,4f802cee338e415d66730c2aae47b10773200301,7b6f65fdfe7b492f9237ed8f558aec631ece5894,a9ccaf5920f3fe2d98616c84e611f1546339c0b9,bb2a398d0a98ce477ff73133624cc84e7d5443dc,
+  [32m✓[0m C29 无新留档                                           =0
+  [32m✓[0m C29 未关站                                              =0
+  [32m✓[0m C30 无身份回滚 退出码                              =3
+  [32m✓[0m C30 无身份回滚 结论                                 含 /CUTOVER=ABORT_IDENTITY_UNSUPPORTED_BY_TARGET/
+  [32m✓[0m C30 current 未变                                         =7b6f65fdfe7b492f9237ed8f558aec631ece5894
+  [32m✓[0m C30 approved-sha 未变                                    =a9ccaf5920f3fe2d98616c84e611f1546339c0b9
+  [32m✓[0m C30 批准记录未变                                     =9dda61868fe6
+  [32m✓[0m C30 发布树未增                                        =015a4f02be32768547a625c900c6ae2cbb7e80a4,32bf620f03234fedd504607abdcd336f666ab525,37058280637827a3e9610439a4d5a51631003fb8,4f802cee338e415d66730c2aae47b10773200301,7b6f65fdfe7b492f9237ed8f558aec631ece5894,a9ccaf5920f3fe2d98616c84e611f1546339c0b9,bb2a398d0a98ce477ff73133624cc84e7d5443dc,
+  [32m✓[0m C30 无新留档                                           =0
+  [32m✓[0m C30 未关站                                              =0
+  [32m✓[0m C31 恢复失败 退出码                                 =1
+  [32m✓[0m C31 恢复失败 结论                                    含 /恢复核实=no/
+  [32m✓[0m C31 留档 restore_verified=no                             =restore_verified=no
+  [32m✓[0m C31 留档记录真实 current                             含 /非符号链接/
+  [32m✓[0m C32 切换失败退出码                                  =1
+  [32m✓[0m C32 结论 FAILED_SWITCH                                   含 /CUTOVER=FAILED_SWITCH/
+  [32m✓[0m C32 如实记录 current 未变                            含 /恢复核实=unchanged/
+  [32m✓[0m C32 不把未发生的恢复说成已完成                无 /恢复核实=yes/
+  [32m✓[0m C32 留档 restore_verified=unchanged                      =restore_verified=unchanged
+  [32m✓[0m C32 current 未变                                         =7b6f65fdfe7b492f9237ed8f558aec631ece5894
+=== I. 运行身份闭环（A 正常重启 / B-E 都不得 OK）===
+  [32m✓[0m I-B 未重启 退出码                                    =1
+  [32m✓[0m I-B 未重启 结论                                       含 /CUTOVER=FAILED_SCENE_PRESERVED/
+  [32m✓[0m I-B 不得报 OK                                           无 /CUTOVER=OK/
+  [32m✓[0m I-B 未关站                                              =0
+  [32m✓[0m I-D 环境变量冒充 退出码                           =1
+  [32m✓[0m I-D 环境变量冒充 结论                              含 /CUTOVER=FAILED_SCENE_PRESERVED/
+  [32m✓[0m I-D 不得报 OK                                           无 /CUTOVER=OK/
+  [32m✓[0m I-E 端口被他人占用 退出码                        =1
+  [32m✓[0m I-E 端口被他人占用 结论                           含 /CUTOVER=FAILED_SCENE_PRESERVED/
+  [32m✓[0m I-E 不得报 OK                                           无 /CUTOVER=OK/
+  [32m✓[0m I-E 未关站（不是它的错）                         =0
+  [32m✓[0m I-F 身份不符 退出码                                 =1
+  [32m✓[0m I-F 身份不符 结论                                    含 /CUTOVER=FAILED_SCENE_PRESERVED/
+  [32m✓[0m I-F 不得报 OK                                           无 /CUTOVER=OK/
+  [32m✓[0m I-F 点名身份不一致                                  含 /release_id_matches_approved/
+  [32m✓[0m I-G 身份字段缺失 退出码                           =1
+  [32m✓[0m I-G 身份字段缺失 结论                              含 /CUTOVER=FAILED_SCENE_PRESERVED/
+  [32m✓[0m I-G 不得报 OK                                           无 /CUTOVER=OK/
+  [32m✓[0m I-H 服务真不可用 退出码                           =1
+  [32m✓[0m I-H 服务真不可用 结论                              含 /CUTOVER=FAILED_AND_CLOSED/
+  [32m✓[0m I-H 关站次数（应恰好 1）                          =1
+
+发布工具自测合计 405 项，失败 0 项，跳过 0 项
+RELEASE_TOOLING_SELFTEST=PASS

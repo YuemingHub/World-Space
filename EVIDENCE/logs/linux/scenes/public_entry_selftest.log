@@ -1,0 +1,24 @@
+✓ 未登录 GET / → 200 门面页（不再 302 /login）
+✓ 门面页带七行动深链能力（JS hash 路由在文件里）
+✓ 门面页 content-type 是 HTML
+✓ 未登录 GET /public/index.html → 200 同一门面
+✓ 未登录 GET /index.html → 200 门面（与 / 同分支）
+✓ 登录成功拿到 session（登录门没被本改动破坏）
+✓ 已登录 GET / → 200 v2 应用页（不是门面，登录态无回归）
+✓ 已登录 GET /login → 302 /（原行为不变）
+✓ 未登录 GET /login → 200 登录页（原行为不变）
+✓ GET /healthz → {"ok":true}（公开健康探针无回归）
+✓ 静态资源 /style.css → 200（无回归）
+✓ 静态资源 /app.js → 200（无回归）
+✓ 静态资源 /login.js → 200（无回归）
+✓ 未登录 POST /api/world → 401（API 门不变）
+✓ 目录穿越仍被拒绝（不是 200）
+✓ HEAD / → 200 空 body（探活场景）
+✓ 门面文件缺失：GET / → 302 /login（回落旧行为，删文件即回滚）
+✓ 回落是持续行为不是首次抖动
+✓ 文件恢复后（运行中，无需重启）：GET / → 200 门面（readFileSync 每次读盘）
+✓ broken：GET / → 302 /login（不假装服务正常，与访问门自测同口径）
+✓ broken：/healthz 仍 {"ok":true}（存活信号与配置状态分离）
+✓ off：GET / → 200 v2 应用页（无认证部署模式行为不变）
+
+结果：全部通过
