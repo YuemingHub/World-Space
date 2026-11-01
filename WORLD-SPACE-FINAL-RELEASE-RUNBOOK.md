@@ -503,8 +503,19 @@ bash /opt/world-space/releases/$RELEASE_SHA/docs/v2/release-c500f3d/emergency-ro
 切 `current` 或重启后核实失败会以 `SWITCH_FAILED` / `SWITCH_UNVERIFIED` 退出 4；
 服务起不来是 `FAILED_SERVICE_DOWN`，目标自报身份是 `FAILED_UNEXPECTED_IDENTITY`，都保留现场、不删文件。
 
-脚本本身存放在**发布树里**（`releases/$RELEASE_SHA/docs/...`）：若现场连发布树都不可用，
-先按 §7.3 关站，再从别处取同一份脚本（工具备份目录 `tools_backup_dir` 里有源文件）再执行。
+脚本本身存放在**发布树里**（`releases/$RELEASE_SHA/docs/v2/release-c500f3d/emergency-rollback-identityless.sh`）。
+若现场连发布树都不可用，先按 §7.3 关站，再从任意一份**含该提交**的仓库副本取出同一路径。
+生产本机的仓库缓存是 `/opt/world-space/.git-cache/World-Space.git`，用前先确认它含 `$RELEASE_SHA`：
+
+```bash
+GITDIR=/opt/world-space/.git-cache/World-Space.git
+git --git-dir="$GITDIR" cat-file -e "$RELEASE_SHA^{commit}" && echo CACHE_HAS_SHA=YES
+git --git-dir="$GITDIR" cat-file blob \
+  "$RELEASE_SHA:docs/v2/release-c500f3d/emergency-rollback-identityless.sh" > /tmp/emergency-rollback.sh
+sha256sum /tmp/emergency-rollback.sh    # 留档；与候选提交里同一路径的字节核对后再执行
+```
+
+缓存不含该提交时，换别的来源取同一路径，做同样的逐字节核对再执行。
 
 回退后若要再前进：重新走 `ws-prep verify`（批准点会被重新登记为前进），再 `cutover.sh`。
 演练证据：隔离环境 S9（回退）+ S10（从无身份旧版再前进）均 `CUTOVER=OK`。
