@@ -1,0 +1,51 @@
+fixtures: C1=96f3b657a4194a4ff46f99299c23f645af5035fa C2=a8ee380705d146044b259f00cd8a5ecc73c20617 ALT=be1465f35e7ef50397b01c1712e58c0ae9e40d3b X=afb76192cc452914afe9d4ecccb9d60a4191759c K=075f576a23f51f2b2436b1b02d4d2220e778f49b
+
+=== P0 重启命令 rc=0 但没重启：baseline 必须假报 OK，候选必须不给 OK ===
+  PASS [baseline] 假报 CUTOVER=OK（RED）            含 /CUTOVER=OK/
+  PASS [baseline] 退出码                             = 0
+  PASS [baseline] 旧进程 pid 未变（证明没重启） = 32739
+  PASS [baseline] current 已切到 C2                  = /tmp/tmp.JGmv5Lq38p/roots/p0-baseline/releases/a8ee380705d146044b259f00cd8a5ecc73c20617
+  PASS [baseline] 3200 仍由旧进程应答            = {"ok":true}
+  PASS [candidate] 预检中止（目标无身份能力） 含 /CUTOVER=ABORT_IDENTITY_UNSUPPORTED_BY_TARGET/
+  PASS [candidate] 退出码                            = 3
+  PASS [candidate] 不得报 OK                         无 /CUTOVER=OK/
+  PASS [candidate] 旧进程 pid 未变（没重启）  = 33083
+  PASS [candidate] current 未变                       = /tmp/tmp.JGmv5Lq38p/roots/p0-candidate/releases/96f3b657a4194a4ff46f99299c23f645af5035fa
+  PASS [candidate] 未关站                            = 0
+
+=== P2 重启失败 + 恢复 current 失败：旧版仍称「已退回」 ===
+  PASS [baseline] 宣称已退回（与事实相反）  含 /已退回/
+  PASS [baseline] 退出码                             = 1
+  PASS [baseline] current 变成真实目录且未被察觉 = dir
+
+=== P3 current 指向 ROOT 之外（目录名恰好是合法 SHA） ===
+  PASS [baseline] 给 OK（不校验位置边界）     含 /CUTOVER=OK/
+  PASS [baseline] 退出码                             = 0
+
+=== P4 releases 根目录本身是符号链接 ===
+  PASS [baseline] 给 OK（releases 解析到 ROOT 外） 含 /CUTOVER=OK/
+  PASS [baseline] 退出码                             = 0
+
+=== P5 info/grafts 伪造祖先 ===
+  PASS [baseline] 给 OK（grafts 绕过发布线闸门） 含 /CUTOVER=OK/
+  PASS [baseline] 退出码                             = 0
+
+=== P6 WS_POLL_TRIES=0：健康站点被关站 ===
+  PASS [baseline] 运行前站点健康                 = {"ok":true}
+  PASS [baseline] 运行后站点仍健康（服务从未不可用） = {"ok":true}
+  PASS [baseline] 把健康站点判成不可用        含 /FAILED_AND_CLOSED/
+  PASS [baseline] 因此调用了关站                 含 /EMERG_CALLED close/
+  PASS [baseline] 退出码                             = 1
+
+=== P7 WS_RELEASE_LINE=alt 放行非 v2 线 ===
+  PASS [baseline] 给 OK（残留 env 换线无人拦） 含 /CUTOVER=OK/
+  PASS [baseline] 不提越线                          无 /NOT_IN_RELEASE_LINE/
+  PASS [baseline] 退出码                             = 0
+
+=== P8 注释里的 opsPort 被当成真实诊断面能力 ===
+  PASS [baseline] 把只有注释的 K 判成 dual_face 含 /dual_face/
+  PASS [baseline] 未在写入前中止 LEGACY_AS_UPGRADE 无 /LEGACY_AS_UPGRADE/
+  PASS [baseline] current 已被切到 K（写入已发生） = /tmp/tmp.JGmv5Lq38p/roots/p8/releases/075f576a23f51f2b2436b1b02d4d2220e778f49b
+
+R3_BASELINE_RED_PROBES_FAILS=0（共 31 项）
+R3_BASELINE_RED_PROBES=PASS

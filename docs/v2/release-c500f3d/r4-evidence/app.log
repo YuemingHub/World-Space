@@ -1,0 +1,10 @@
+world ops http://127.0.0.1:3201/healthz 仅本机可达（无 nginx 代理，公网零暴露）
+world api http://0.0.0.0:3200 provider=stub search=fixture caps=500/day 20RMB/month fail_closed=false origins=local-only rate=1000/min liveness=false trusted_proxy=off auth=ready
+world ops http://127.0.0.1:3201/healthz 仅本机可达（无 nginx 代理，公网零暴露）
+world api http://0.0.0.0:3200 provider=stub search=fixture caps=500/day 20RMB/month fail_closed=false origins=local-only rate=1000/min liveness=false trusted_proxy=off auth=ready
+2026-11-01T14:13:32.248Z auth login ok ip=172.19.0.3
+2026-11-01T14:13:32.421Z POST 200 36ms llm=2 search=1 retry=0 req_cost=0 month=0 calls=3
+world ops http://127.0.0.1:3201/healthz 仅本机可达（无 nginx 代理，公网零暴露）
+world api http://0.0.0.0:3200 provider=stub search=fixture caps=500/day 20RMB/month fail_closed=false origins=local-only rate=1000/min liveness=false trusted_proxy=off auth=ready
+world ops http://127.0.0.1:3201/healthz 仅本机可达（无 nginx 代理，公网零暴露）
+world api http://0.0.0.0:3200 provider=stub search=fixture caps=500/day 20RMB/month fail_closed=false origins=local-only rate=1000/min liveness=false trusted_proxy=off auth=ready

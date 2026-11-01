@@ -1,0 +1,19 @@
+stamp=20261101-221212
+node_container=v20.20.2
+nginx_container=/docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+/docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+10-listen-on-ipv6-by-default.sh: Getting the checksum of /etc/nginx/conf.d/default.conf
+10-listen-on-ipv6-by-default.sh: Enabled listen on IPv6 in /etc/nginx/conf.d/default.conf
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+/docker-entrypoint.sh: Configuration complete; ready for start up
+nginx version: nginx/1.18.0
+r4_ref=5dacef3ca7cdcd91e951975628b39543ccf13952
+tree_r4=5dacef3ca7cdcd91e951975628b39543ccf13952
+tree_prev=350dc751430c36b9c4c093c94b97680f0adf45de
+tree_base=9d5cad7ceccf8bcf63086129eb6cead782b68c2b
+expected_release_id=e8c949a681901ce0d9841483303ed8dfb765ef035459e89d335bda8099152a2f
+prev_release_id=37cc8d1572ea720814f169c4287f28c62a47082da00e72eac828df0a85cc9469
+base_release_id=bdad93a9366d13d48fd2494bf4c34dfa63b850d259d19590d5790e6a2d517239
+ai_tree=73726ee17b1020a44e52ec781c38fdf6ec66da6b
+inner_exit=0
