@@ -17,9 +17,22 @@
 #   R4_TREE_REF=$(git write-tree) bash docs/v2/release-c500f3d/r4-acceptance.sh
 #
 # 不写生产、不 reload nginx、不碰其他 worktree / 容器；容器与网络名带本轮时间戳，只删自己的。
+#
+# 检出形态无关：在 core.autocrlf=true 的 Windows 检出里，本文件与内层脚本都会带 CRLF。
+# 本文件自己的 CRLF 在下一段自愈（在 set -o pipefail 之前，因为 bash 会把 "pipefail\r" 当非法选项名）；
+# 内层脚本一律从 git 对象取字节（见 §1b），不读工作副本，因此容器里一定是 LF。
+if [ -z "${WS_R4_SELF_NORMALIZED:-}" ]; then
+  R4_SELF="${BASH_SOURCE[0]:-$0}"
+  if [ -f "$R4_SELF" ] && LC_ALL=C grep -q $'\r' "$R4_SELF" 2>/dev/null; then
+    R4_TMP_SELF=$(mktemp "${TMPDIR:-/tmp}/r4-acceptance-self.XXXXXX") || { echo "FAIL 无法创建自愈临时文件" >&2; exit 1; }
+    tr -d '\r' < "$R4_SELF" > "$R4_TMP_SELF" || { echo "FAIL 去除 CR 失败" >&2; exit 1; }
+    WS_R4_SELF_NORMALIZED=1 WS_R4_SELF_PATH="$R4_SELF" exec bash "$R4_TMP_SELF" "$@"
+  fi
+fi
 set -uo pipefail
 
-REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd) || exit 1
+SELF_PATH="${WS_R4_SELF_PATH:-${BASH_SOURCE[0]:-$0}}"
+REPO=$(cd "$(dirname "$SELF_PATH")/../../.." && pwd) || exit 1
 cd "$REPO" || exit 1
 
 BASE_REF=${BASE_REF:-3e8e15f17bc5bae7fe78298661a5d5d14ce581c6}
@@ -29,7 +42,15 @@ AI_REF=${AI_REF:-055609ab4c134077b684143b59b9bf74b6463388}
 R4_TREE_REF=${R4_TREE_REF:-HEAD}
 
 STAMP=$(date +%Y%m%d-%H%M%S)
-TMPBASE=$(cygpath -m "${LOCALAPPDATA:-$HOME/AppData/Local}") || exit 1
+# 工作根：Windows 上放 LOCALAPPDATA（cygpath 转成 C:/… 形式给 docker 用）；
+# Linux 上放 TMPDIR。R4_WORK_BASE 用于"外层容器里再起容器"时把同一路径同时挂到两边。
+if [ -n "${R4_WORK_BASE:-}" ]; then
+  TMPBASE=$R4_WORK_BASE
+elif command -v cygpath >/dev/null 2>&1; then
+  TMPBASE=$(cygpath -m "${LOCALAPPDATA:-$HOME/AppData/Local}") || exit 1
+else
+  TMPBASE=${TMPDIR:-/tmp}
+fi
 WORK="$TMPBASE/r4-accept-$STAMP"
 TREES="$WORK/trees"; STATIC="$WORK/static"; NGXDIR="$WORK/nginx"; LOGS="$WORK/logs"; MANI="$WORK/manifests"
 NET="ws-r4-net-$STAMP"; NODE_CT="ws-r4-node-$STAMP"; NGX_CT="ws-r4-nginx-$STAMP"
@@ -97,15 +118,18 @@ echo "  prev 身份=$ID_PREV（应等于 R3 的 6add3a6 树）"
 echo "  base 身份=$ID_BASE（生产 v2 基线）"
 [ "$ID_R4" != "$ID_PREV" ] || die "集成树身份与 prev 相同（没重新计算 / 没真正集成）"
 
-say "3) /ai/ 静态树（PR #34 的 web/ai，10 个文件）与 /ming/ 夹具"
+say "3) /ai/ 静态树（候选树内 ai-entry/files，与 PR #34 的 web/ai 同树）与 /ming/ 夹具"
+AI_TREE=$(git rev-parse "$R4_TREE_REF:docs/v2/release-c500f3d/ai-entry/files")
+[ "$AI_TREE" = "73726ee17b1020a44e52ec781c38fdf6ec66da6b" ] \
+  || die "候选树里的 /ai 目录树 = $AI_TREE（期望 73726ee…，与 PR #34 接受内容不一致）"
 mkdir -p "$WORK/_ai"
-git -c core.autocrlf=false archive "$AI_REF" web/ai | tar -xf - -C "$WORK/_ai" || die "取 web/ai 失败"
-cp -a "$WORK/_ai/web/ai/." "$STATIC/ai/" || die "拷 web/ai 失败"
+git -c core.autocrlf=false archive "$R4_TREE_REF" docs/v2/release-c500f3d/ai-entry/files | tar -xf - -C "$WORK/_ai" \
+  || die "展开 ai-entry 失败"
+cp -a "$WORK/_ai/docs/v2/release-c500f3d/ai-entry/files/." "$STATIC/ai/" || die "拷 ai-entry 失败"
 rm -rf "$WORK/_ai"
 AI_N=$(find "$STATIC/ai" -type f | wc -l | tr -d ' ')
 [ "$AI_N" = "10" ] || die "web/ai 文件数 = $AI_N（期望 10）"
-AI_TREE=$(git rev-parse "$AI_REF:web/ai")
-echo "  web/ai 树=$AI_TREE 文件=$AI_N"
+echo "  web/ai 树=$AI_TREE 文件=$AI_N 来源=$R4_TREE_REF:docs/v2/release-c500f3d/ai-entry/files"
 cat > "$STATIC/ming/index.html" <<'EOF'
 <!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8"><title>MING-FIXTURE-R4</title></head>
@@ -113,8 +137,10 @@ cat > "$STATIC/ming/index.html" <<'EOF'
 EOF
 
 say "4) nginx 1.18 配置（生产片段原样；只有 upstream 与静态根换成夹具）"
-cp docs/v2/release-c500f3d/ai-route-harness/ming-portfolio.conf "$NGXDIR/snippets/ming-portfolio.conf" \
-  || die "取 ming-portfolio.conf 失败"
+git cat-file blob "$R4_TREE_REF:docs/v2/release-c500f3d/ai-route-harness/ming-portfolio.conf" \
+  > "$NGXDIR/snippets/ming-portfolio.conf" || die "从 git 对象取 ming-portfolio.conf 失败"
+[ "$(tr -cd '\r' < "$NGXDIR/snippets/ming-portfolio.conf" | wc -c | tr -d ' ')" = "0" ] \
+  || die "nginx 片段含 CR（blob 应为 LF）"
 cat > "$NGXDIR/nginx.conf" <<'EOF'
 worker_processes 1;
 error_log /var/log/nginx/error.log warn;
@@ -158,11 +184,27 @@ EOF
 sed -i "s/@@UPSTREAM@@/$NODE_CT/" "$NGXDIR/nginx.conf"
 grep -q "$NODE_CT:3200" "$NGXDIR/nginx.conf" || die "nginx.conf upstream 没替换成功"
 
-cp docs/v2/release-c500f3d/r4-acceptance-inner.sh "$WORK/scripts/" || die "复制内层脚本失败"
+# 内层脚本一律从 git 对象取字节：工作副本在 autocrlf=true 下是 CRLF，进容器会被 bash 拒绝
+# （"set: pipefail: invalid option name"）。这里取的是 blob 原字节，检出的行尾形态不影响结果。
+git cat-file blob "$R4_TREE_REF:docs/v2/release-c500f3d/r4-acceptance-inner.sh" \
+  > "$WORK/scripts/r4-acceptance-inner.sh" || die "从 git 对象取内层脚本失败"
+[ "$(tr -cd '\r' < "$WORK/scripts/r4-acceptance-inner.sh" | wc -c | tr -d ' ')" = "0" ] \
+  || die "内层脚本含 CR（blob 应为 LF）"
+echo "  内层脚本来源于 git 对象 $(git rev-parse --short "$R4_TREE_REF:docs/v2/release-c500f3d/r4-acceptance-inner.sh")"
 
+port_busy() { # Windows 与 Linux 都能回答"这个端口在本机有没有人在听"
+  local p=$1
+  if command -v netstat >/dev/null 2>&1; then
+    netstat -ano 2>/dev/null | grep -q "[:.]$p " && return 0
+  fi
+  if command -v ss >/dev/null 2>&1; then
+    ss -ltn 2>/dev/null | grep -q "[:.]$p " && return 0
+  fi
+  return 1
+}
 PORT=""
 for p in $(seq 14280 14299); do
-  netstat -ano 2>/dev/null | grep -q ":$p " || { PORT=$p; break; }
+  port_busy "$p" || { PORT=$p; break; }
 done
 [ -n "$PORT" ] || die "14280-14299 都被占用"
 

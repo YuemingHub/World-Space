@@ -151,7 +151,7 @@ run_cutover() { # <logname> —— 输出打到 $B/<logname>.log，返回 cutove
   # 就把它指向 nginx 1.18 的 8080（同样经过 nginx，而不是绕过它直连应用）。
   ( cd "$REL4/docs/v2/release-c500f3d" && \
     WS_ROOT="$ROOT" WS_CACHE="$CACHE" WS_EMERG="$ROOT/bin/emergency.sh" \
-    WS_VERIFY="$REL4/docs/v2/release-c500f3d/ws-verify-faces.sh" \
+    WS_VERIFY="${WS_VERIFY_OVERRIDE:-$REL4/docs/v2/release-c500f3d/ws-verify-faces.sh}" \
     WS_GATE_BASE="$NG" WS_RESOLVE_HOST="" \
     WS_RESTART_CMD="${RESTART_CMD:-$ROOT/bin/restart.sh}" WS_PID_CMD="cat $ROOT/run/app.pid" \
     WS_PUBLIC_PORT=3200 WS_OPS_PORT=3201 WS_POLL_TRIES=100 WS_MODE="${CUT_MODE:-upgrade}" \
@@ -236,6 +236,102 @@ ck a8_runtime_scheme "$(curl -s http://127.0.0.1:3201/healthz | jget release_id_
 ck a8_runtime_pid_matches "$(ops_pid)" "$(cat "$ROOT/run/app.pid")"
 ck a8_diagnostic_face "$(curl -s http://127.0.0.1:3201/healthz | jget diagnostic_face)" ops-v1
 
+echo "=== 5b) 分享卡 / 登录页 / API 契约 / 私密面 ==="
+PAGE=$(cat "$B/root.html")
+has og_title "$PAGE" '<meta property="og:title" content="World Space — 你想做什么事？">'
+has og_description "$PAGE" '<meta property="og:description" content="选一件事，马上开始。'
+has og_type "$PAGE" '<meta property="og:type" content="website">'
+has og_url "$PAGE" '<meta property="og:url" content="https://ymai.fun">'
+has html_title "$PAGE" '<title>World Space — 你想做什么事？</title>'
+hasnt og_no_placeholder "$PAGE" 'content=""'
+ck login_page_status "$(code "$NG/login" "$B/login.html")" 200
+has login_page_title "$(cat "$B/login.html")" '进入你的空间'
+ck api_world_get_404 "$(curl -s -o "$B/world-get.json" -w '%{http_code}' "$NG/api/world")" 404
+has api_world_get_contract "$(cat "$B/world-get.json")" 'only POST /api/world exists'
+ck ops_roster_not_public "$(code "$NG/api/ops/roster" "$B/roster.json")" 404
+hasnt roster_no_payload "$(cat "$B/roster.json")" 'members'
+# 四条旅程（同一进程里按真实顺序走：匿名 → 登录 → 未授权反证 → 登出后再访）
+ck j1_anonymous_root "$(code "$NG/" "$B/j1-root.html")" 200
+has j1_anonymous_facade "$(cat "$B/j1-root.html")" '你想做什么事'
+ck j1_anonymous_ai "$(code "$NG/ai/" "$B/j1-ai.html")" 200
+ck j1_anonymous_ai_deeplink "$(code "$NG/ai/paths/make-a-picture.html" "$B/j1-ai-deep.html")" 200
+ck j1_anonymous_login "$(code "$NG/login" "$B/j1-login.html")" 200
+ck j2_login "$(curl -s -c "$T/jar2" -H 'content-type: application/json' -d '{"username":"r4","password":"r4-pass-2026"}' -o /dev/null -w '%{http_code}' "$NG/api/auth/login")" 200
+ck j2_root_is_app "$(curl -s -b "$T/jar2" -o "$B/j2-root.html" -w '%{http_code}' "$NG/")" 200
+has j2_root_app_marker "$(cat "$B/j2-root.html")" '你现在想做成什么'
+ck j2_world "$(curl -s -b "$T/jar2" -H 'content-type: application/json' -d '{"intent":"给爸妈做一份用药提醒清单"}' -o "$B/j2-world.json" -w '%{http_code}' "$NG/api/world")" 200
+ck j3_world_unauth "$(curl -s -H 'content-type: application/json' -d '{"intent":"x"}' -o "$B/j3-world.json" -w '%{http_code}' "$NG/api/world")" 401
+ck j3_me_unauth "$(curl -s -o "$B/j3-me.json" -w '%{http_code}' "$NG/api/auth/me")" 401
+hasnt j3_no_private_leak "$(cat "$B/j3-world.json" "$B/j3-me.json")" 'u-r4'
+ck j4_logout "$(curl -s -b "$T/jar2" -H 'content-type: application/json' -X POST -d '{}' -o /dev/null -w '%{http_code}' "$NG/api/auth/logout")" 200
+ck j4_root_facade_again "$(curl -s -b "$T/jar2" -o "$B/j4-root.html" -w '%{http_code}' "$NG/")" 200
+has j4_facade_after_logout "$(cat "$B/j4-root.html")" '你想做什么事'
+ck j4_me_after_logout "$(curl -s -b "$T/jar2" -o /dev/null -w '%{http_code}' "$NG/api/auth/me")" 401
+
+echo "=== 5c) 场景 S5：核验器版本被换（哈希不符）—— 任何写入之前中止 ==="
+line_to "$C3_SHA"; meta_write upgrade "$C3_SHA" "$ID3" ""
+SNAP_C=$(readlink "$ROOT/current"); SNAP_P=$(ops_pid); REC0=$(ls "$ROOT"/state/cutover-*.txt 2>/dev/null | wc -l | tr -d ' ')
+cp "$REL4/docs/v2/release-c500f3d/ws-verify-faces.sh" "$T/bad-verifier.sh"
+printf '\n# tampered\n' >> "$T/bad-verifier.sh"
+RC=$(WS_VERIFY_OVERRIDE="$T/bad-verifier.sh" run_cutover s5-verifier-mismatch)
+S5=$(cat "$B/s5-verifier-mismatch.log")
+ck s5_exit "$RC" 3
+has s5_token "$S5" 'CUTOVER=ABORT_VERIFIER_IDENTITY_MISMATCH'
+hasnt s5_no_ok "$S5" 'CUTOVER=OK'
+ck s5_current_unchanged "$(readlink "$ROOT/current")" "$SNAP_C"
+ck s5_pid_unchanged "$(ops_pid)" "$SNAP_P"
+ck s5_no_receipt "$(ls "$ROOT"/state/cutover-*.txt 2>/dev/null | wc -l | tr -d ' ')" "$REC0"
+
+echo "=== 5d) 场景 S6：Git 元数据伪造（replace refs / info/grafts） ==="
+WS_ROOT="$ROOT" WS_CACHE="$CACHE" WS_CUTOVER="$REL4/docs/v2/release-c500f3d/cutover.sh" \
+WS_TARGET="$C3_SHA" WS_EMERG="$ROOT/bin/emergency.sh" \
+WS_VERIFY="$REL4/docs/v2/release-c500f3d/ws-verify-faces.sh" \
+WS_GATE_BASE="$NG" WS_RESTART_CMD="$ROOT/bin/restart.sh" WS_PID_CMD="cat $ROOT/run/app.pid" \
+WS_PUBLIC_PORT=3200 WS_OPS_PORT=3201 \
+  bash "$REL4/docs/v2/release-c500f3d/git-metadata-adversarial.sh" > "$B/git_metadata_adversarial.log" 2>&1
+RC=$?
+ck s6_script_exit "$RC" 0
+has s6_verdict "$(tail -3 "$B/git_metadata_adversarial.log" | tr '\n' ' ')" 'GIT_METADATA_ADVERSARIAL=PASS'
+ck s6_no_receipt "$(ls "$ROOT"/state/cutover-*.txt 2>/dev/null | wc -l | tr -d ' ')" "$REC0"
+
+echo "=== 5e) 场景 S7：发布树被改 / 含符号链接 / 目标目录是链接 / current 逃逸 ==="
+SNAP_C=$(readlink "$ROOT/current"); SNAP_P=$(ops_pid); SNAP_ID=$(ops_rid)
+cp "$ROOT/releases/$C3_SHA/README.md" "$T/readme.bak"
+printf 'tamper\n' >> "$ROOT/releases/$C3_SHA/README.md"
+RC=$(run_cutover s7a-tree-tampered); S7A=$(cat "$B/s7a-tree-tampered.log")
+ck s7a_exit "$RC" 3
+has s7a_token "$S7A" 'CUTOVER=ABORT_RELEASE_TREE_MISMATCH'
+ck s7a_current_unchanged "$(readlink "$ROOT/current")" "$SNAP_C"
+ck s7a_pid_unchanged "$(ops_pid)" "$SNAP_P"
+cp "$T/readme.bak" "$ROOT/releases/$C3_SHA/README.md"
+
+ln -s /etc/passwd "$ROOT/releases/$C3_SHA/evil-link"
+RC=$(run_cutover s7b-tree-symlink); S7B=$(cat "$B/s7b-tree-symlink.log")
+ck s7b_exit "$RC" 3
+has s7b_token "$S7B" 'CUTOVER=ABORT_RELEASE_TREE_SYMLINK'
+ck s7b_pid_unchanged "$(ops_pid)" "$SNAP_P"
+rm -f "$ROOT/releases/$C3_SHA/evil-link"
+
+FAKE_SHA=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+meta_write upgrade "$FAKE_SHA" "$ID3" ""
+ln -s /srv/static "$ROOT/releases/$FAKE_SHA"
+RC=$(run_cutover s7c-target-is-link); S7C=$(cat "$B/s7c-target-is-link.log")
+ck s7c_exit "$RC" 3
+has s7c_token "$S7C" 'CUTOVER=ABORT_RELEASE_TREE_MISSING'
+ck s7c_pid_unchanged "$(ops_pid)" "$SNAP_P"
+rm -f "$ROOT/releases/$FAKE_SHA"
+
+meta_write upgrade "$C3_SHA" "$ID3" ""
+ln -sfn /srv/static "$ROOT/current"
+RC=$(run_cutover s7d-live-escape); S7D=$(cat "$B/s7d-live-escape.log")
+ck s7d_exit "$RC" 3
+has s7d_token "$S7D" 'CUTOVER=ABORT_LIVE_IDENTITY_UNKNOWN'
+ck s7d_pid_unchanged "$(ops_pid)" "$SNAP_P"
+ck s7d_identity_still_r4 "$(ops_rid)" "$SNAP_ID"
+ck s7d_service_alive "$(pub_ok)" 200
+ln -sfn "$ROOT/releases/$R4_SHA" "$ROOT/current"; meta_write upgrade "$R4_SHA" "$ID4" ""
+ck s7_restored_current "$(readlink "$ROOT/current")" "$ROOT/releases/$R4_SHA"
+
 echo "=== 6) 场景 S2：重启命令退出 0 但没重启（假重启不得假报成功） ==="
 line_to "$C3_SHA"
 meta_write upgrade "$C3_SHA" "$ID3" ""
@@ -307,6 +403,57 @@ ck s4_receipt_status "$(grep '^status=' "$REC" | cut -d= -f2)" OK
 ck s4_receipt_target_id "$(grep '^target_release_id=' "$REC" | cut -d= -f2)" "$IDP"
 ck s4_service_alive "$(pub_ok)" 200
 
+echo "=== 9b) 场景 S9：退回无身份的旧版（带外通道，两把钥匙） ==="
+# 线上此刻是上一版（有身份，PREV）；唯一"无身份"的目标是生产基线 BASE。
+# 标准 cutover 不允许把无身份版本当回滚目标，这里演练的是那条被显式隔离的带外通道。
+: > "$ROOT/state/emergency.log"
+PRE_E_PID=$(ops_pid)
+WS_ALLOW_IDENTITYLESS_ROLLBACK=yes WS_ROOT="$ROOT" WS_TARGET_SHA="$BASE_SHA" \
+WS_RESTART_CMD="$ROOT/bin/restart.sh" WS_PUBLIC_PORT=3200 WS_OPS_PORT=3201 \
+  bash "$REL4/docs/v2/release-c500f3d/emergency-rollback-identityless.sh" > "$B/s9-emergency.log" 2>&1
+RC=$?; S9=$(cat "$B/s9-emergency.log")
+ck s9_exit "$RC" 0
+has s9_ok "$S9" 'EMERGENCY_ROLLBACK=OK'
+ck s9_current "$(readlink "$ROOT/current")" "$ROOT/releases/$BASE_SHA"
+ck s9_root_back_to_login "$(code http://127.0.0.1:3200/ "$B/s9-root")" 302
+ck s9_identity_absent "$(ops_rid)" ""
+ck s9_service_alive "$(pub_ok)" 200
+ck s9_pid_changed "$([ "$(ops_pid)" != "$PRE_E_PID" ] && echo changed || echo same)" changed
+ck s9_approved_sha "$(cat "$ROOT/state/approved-sha")" "$BASE_SHA"
+ck s9_meta_mode "$(grep '^mode=' "$ROOT/state/approved-meta.txt" | cut -d= -f2)" "emergency-rollback"
+ck s9_meta_identity_unidentified "$(grep '^release_id=' "$ROOT/state/approved-meta.txt" | cut -d= -f2)" "unidentified"
+EREC=$(ls -t "$ROOT"/state/emergency-rollback-*.txt | head -1)
+ck s9_receipt_status "$(grep '^status=' "$EREC" | cut -d= -f2)" OK
+ck s9_receipt_identity_verified "$(grep '^identity_verified=' "$EREC" | cut -d= -f2)" no
+ck s9_receipt_from_id "$(grep '^from_release_id=' "$EREC" | cut -d= -f2)" "$IDP"
+ck s9_receipt_target_id "$(grep '^target_release_id=' "$EREC" | cut -d= -f2)" unidentified
+ck s9_emergency_close_not_called "$(wc -l < "$ROOT/state/emergency.log")" 0
+# 第二把钥匙缺失时必须拒绝（负向样本，证明这条通道不是谁都能顺手开）
+RC2=$(WS_ROOT="$ROOT" WS_TARGET_SHA="$BASE_SHA" WS_RESTART_CMD="$ROOT/bin/restart.sh" \
+  bash "$REL4/docs/v2/release-c500f3d/emergency-rollback-identityless.sh" > "$B/s9-no-key.log" 2>&1; echo $?)
+ck s9_no_key_exit "$RC2" 3
+has s9_no_key_token "$(cat "$B/s9-no-key.log")" 'EMERGENCY_ROLLBACK=ABORT_SECOND_KEY_MISSING'
+ck s9_no_key_current_unchanged "$(readlink "$ROOT/current")" "$ROOT/releases/$BASE_SHA"
+
+echo "=== 9c) 场景 S10：从无身份旧版正常前进回集成候选（cutover 仍是唯一前进通道） ==="
+line_to "$R4_SHA"; meta_write upgrade "$R4_SHA" "$ID4" ""
+CUT_MODE=upgrade CUT_ROLLBACK_TO=""; export CUT_MODE CUT_ROLLBACK_TO
+RC=$(run_cutover s10-reforward); S10=$(cat "$B/s10-reforward.log")
+ck s10_exit "$RC" 0
+has s10_ok "$S10" 'CUTOVER=OK'
+ck s10_current "$(readlink "$ROOT/current")" "$ROOT/releases/$R4_SHA"
+ck s10_identity "$(ops_rid)" "$ID4"
+ck s10_root_is_facade "$(code http://127.0.0.1:3200/ "$B/s10-root")" 200
+
+echo "=== 9d) 发布身份机制复审（真运行进程 + 真核验器） ==="
+WS_TREE=/srv/trees/r4 WS_TOOL="$REL4/docs/v2/release-c500f3d" \
+WS_BASE=/srv/trees/base WS_PREV=/srv/trees/prev \
+WS_ROOT="$ROOT" WS_OPS_PORT=3201 \
+  bash "$REL4/docs/v2/release-c500f3d/prelaunch-identity-audit.sh" > "$B/identity_audit.log" 2>&1
+RC=$?
+ck identity_audit_exit "$RC" 0
+has identity_audit_verdict "$(tail -3 "$B/identity_audit.log" | tr '\n' ' ')" 'IDENTITY_AUDIT=PASS'
+
 echo "=== 10) 停应用，跑 R3 四套装置与首页回归（同一容器、同一棵树） ==="
 stop_app
 cd "$REL4/docs/v2/release-c500f3d" || { echo "FAIL 找不到工具目录"; exit 1; }
@@ -324,6 +471,7 @@ suite r3_ops 'OPS_SELFTEST=PASS' bash ops-selftest.sh
 suite r3_real_app_it 'REAL_APP_IDENTITY_IT=PASS' bash -c "REL='$REL4' bash '$REL4/docs/v2/release-c500f3d/real-app-identity-it.sh'"
 TOOL_BASELINE=/srv/trees/r3base/docs/v2/release-c500f3d TOOL_CANDIDATE="$REL4/docs/v2/release-c500f3d" \
   suite r3_baseline_red 'R3_BASELINE_RED_PROBES=PASS' bash r3-baseline-red-probes.sh
+suite repo_regression 'REPO_REGRESSION=PASS' bash prelaunch-repo-regression.sh "$REL4"
 # 首页自身回归（PR #33 自带；不需要浏览器）
 cd "$REL4" || exit 1
 node eval/public-entry-selftest.mjs > "$B/public_entry_selftest.log" 2>&1; RC=$?
