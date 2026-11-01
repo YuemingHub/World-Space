@@ -12,10 +12,17 @@
 # 退出码是**契约**，调用方只按码动作，不许靠读中文猜：
 #   0  通过（当前模式的断言全成立）
 #   2  新版面不完整：3201 不可达／自报身份不符／app_port 不符／诊断字段缺项
-#   3  公网面本身不对：形状不对、detail 对外可见、或访问门失效
+#   3  公网面本身不对：形状不对、detail 对外可见、访问门失效，或首页形状与发布树物证不符
 #   4  静态探针（目标代码里有没有诊断面）与运行时形状互相矛盾
 #   5  公网面完全探测不到 —— 只有这一码代表「服务确实不可用」
-#   6  用法或环境错误
+#   6  用法或环境错误（含 WS_EXPECTED_ROOT 非法，或显式预期与发布树物证矛盾）
+#
+# 匿名首页的预期形状由**发布树物证**决定，不由人临时声明：
+#   WS_EXPECTED_ROOT=auto（默认）  目标树有 web/v2/public/index.html → facade，否则 → auth_only
+#   WS_EXPECTED_ROOT=facade       要求未登录 / 返回 200 + HTML + 门面标志串（不是"任何 200 都算过"）
+#   WS_EXPECTED_ROOT=auth_only    要求未登录 / 返回 302 → /login（旧版回滚状态）
+# 未给 WS_TARGET_REL 时记 unbound：只接受「带内容物证的 200 门面」或「302 → /login」两种之一，
+# 并打印 WARN；它无法把两种物证分开，所以正式切流必须经 cutover.sh（它总会传 WS_TARGET_REL）。
 #
 # 2/3/4 一律「保留现场交人判断」，不得自动关站：它们证明的是我的判断不过，
 # 不是网站挂了。把它们当成关站条件，就会把一次正确部署误关成 503。
@@ -25,11 +32,18 @@ PUBLIC_PORT="${WS_PUBLIC_PORT:-3200}"
 OPS_PORT="${WS_OPS_PORT:-3201}"
 PROBE_HOST="${WS_PROBE_HOST:-127.0.0.1}"
 TARGET_REL="${WS_TARGET_REL:-}"                          # 目标发布树；给了才做静态探针
+EXPECTED_ROOT="${WS_EXPECTED_ROOT:-auto}"                # auto | facade | auth_only
 EXPECT_PID="${WS_EXPECT_PID:-}"                          # 服务 MainPID；给了才要求诊断口自报同一 pid
 GATE_BASE="${WS_GATE_BASE:-https://ymai.fun}"            # 访问门的既有行为从这里验
 RESOLVE_HOST="${WS_RESOLVE_HOST:-ymai.fun:443:127.0.0.1}" # 空串＝不加 --resolve（fixture 用）
 TIMEOUT="${WS_CURL_TIMEOUT:-8}"
 SS_CMD="${WS_SS_CMD:-ss -lnt}"                            # 覆盖成 "echo" 可关掉 loopback 绑定这项
+
+# 门面物证：必须同时命中标题语义、交互锚点和完整文档收尾，避免空壳 200 冒充
+FACADE_MARK_A='你想做什么事'
+FACADE_MARK_B='id="btn-write"'
+FACADE_MARK_C='</html>'
+FACADE_MIN_BYTES=8000
 
 # 诊断面必须带的字段：少一个就说明这个面不是我以为的那个面
 REQUIRED_OPS_FIELDS="auth provider model search search_configured today_calls daily_cap month_cost_rmb monthly_cap_rmb fail_closed app_port pid"
@@ -45,18 +59,56 @@ PUBFAIL=""            # 公网面类失败 → 退出码 3
 OPSFAIL=""            # 诊断面类失败 → 退出码 2
 CLASS=pub             # bad() 归属哪一类，由下面两段分别设定
 MODE="unknown"
+PROFILE="pending"
 note() { printf '  %-46s %s\n' "$1" "$2"; }
 bad()  { CHECKS=$((CHECKS+1)); FAIL_LIST="$FAIL_LIST $1"
          if [ "$CLASS" = ops ]; then OPSFAIL="$OPSFAIL $1"; else PUBFAIL="$PUBFAIL $1"; fi
          note "$1" "FAIL  $2"; }
 good() { CHECKS=$((CHECKS+1)); note "$1" "PASS  $2"; }
 verdict() {   # verdict <VERDICT_TEXT> <exit code>
-  printf 'MODE=%s\nCHECKS=%s\nFAILS=%s\nVERDICT=%s\nEXIT=%s\n' \
-    "$MODE" "$CHECKS" "${FAIL_LIST:- none}" "$1" "$2"
+  printf 'MODE=%s\nPROFILE=%s\nCHECKS=%s\nFAILS=%s\nVERDICT=%s\nEXIT=%s\n' \
+    "$MODE" "$PROFILE" "$CHECKS" "${FAIL_LIST:- none}" "$1" "$2"
   exit "$2"
 }
 curl_get() { [ ${#RES[@]} -gt 0 ] && curl -s "${RES[@]}" -o /dev/null -w "$2" --max-time "$TIMEOUT" "$1" || curl -s -o /dev/null -w "$2" --max-time "$TIMEOUT" "$1"; }
 curl_post() { [ ${#RES[@]} -gt 0 ] && curl -s "${RES[@]}" -o /dev/null -w '%{http_code}' -X POST -H 'content-type: application/json' --data "$2" --max-time "$TIMEOUT" "$1" || curl -s -o /dev/null -w '%{http_code}' -X POST -H 'content-type: application/json' --data "$2" --max-time "$TIMEOUT" "$1"; }
+curl_post_h() { local url="$1" data="$2"; shift 2
+  [ ${#RES[@]} -gt 0 ] && curl -s "${RES[@]}" -o /dev/null -w '%{http_code}' -X POST -H 'content-type: application/json' "$@" --data "$data" --max-time "$TIMEOUT" "$url" || curl -s -o /dev/null -w '%{http_code}' -X POST -H 'content-type: application/json' "$@" --data "$data" --max-time "$TIMEOUT" "$url"; }
+body_meta() { local url="$1"; shift
+  [ ${#RES[@]} -gt 0 ] && curl -s "${RES[@]}" "$@" -w $'\n%{http_code}|%{content_type}|%{redirect_url}' --max-time "$TIMEOUT" "$url" || curl -s "$@" -w $'\n%{http_code}|%{content_type}|%{redirect_url}' --max-time "$TIMEOUT" "$url"; }
+root_expect() { # root_expect <label> <raw body+meta> —— 按 PROFILE 判匿名首页形状
+  local label="$1" raw="$2" meta code ct loc body bytes proof=no
+  meta=$(printf '%s' "$raw" | awk 'END{print}')
+  code=$(printf '%s' "$meta" | cut -d'|' -f1)
+  ct=$(printf '%s' "$meta" | cut -d'|' -f2)
+  loc=$(printf '%s' "$meta" | cut -d'|' -f3)
+  body=$(printf '%s' "$raw" | sed '$d')
+  bytes=$(printf '%s' "$body" | wc -c | tr -d ' ')
+  if printf '%s' "$body" | grep -qF "$FACADE_MARK_A" \
+     && printf '%s' "$body" | grep -qF "$FACADE_MARK_B" \
+     && printf '%s' "$body" | grep -qF "$FACADE_MARK_C" \
+     && [ "$bytes" -ge "$FACADE_MIN_BYTES" ]; then proof=yes; fi
+  case "$PROFILE" in
+    facade)
+      if [ "$code" = 200 ] && printf '%s' "$ct" | grep -qi 'text/html' && [ "$proof" = yes ]; then
+        good "$label" "200 facade html ${bytes}B"
+      else
+        bad "$label" "期望 200 门面（HTML+标志串+≥${FACADE_MIN_BYTES}B），实得 code=$code ct=$ct bytes=$bytes"
+      fi ;;
+    auth_only)
+      if [ "$code" = 302 ] && printf '%s' "$loc" | grep -q '/login'; then
+        good "$label" "302 → /login"
+      else
+        bad "$label" "期望 302 → /login，实得 code=$code loc=${loc:-none}"
+      fi ;;
+    *)
+      if { [ "$code" = 200 ] && [ "$proof" = yes ]; } || { [ "$code" = 302 ] && printf '%s' "$loc" | grep -q '/login'; }; then
+        good "$label" "unbound: code=$code（门面物证/登录跳转二选一）"
+      else
+        bad "$label" "unbound: code=$code bytes=$bytes 既无门面物证也无 /login 跳转"
+      fi ;;
+  esac
+}
 body_get() { [ ${#RES[@]} -gt 0 ] && curl -s "${RES[@]}" -w $'\n%{http_code}' --max-time "$TIMEOUT" "$1" || curl -s -w $'\n%{http_code}' --max-time "$TIMEOUT" "$1"; }
 status_of() { printf '%s' "$1" | awk 'END{print}'; }
 body_of()   { printf '%s' "$1" | sed '$d'; }
@@ -74,6 +126,38 @@ if [ -n "$TARGET_REL" ]; then
   if [ "$(grep -c 'opsPort' "$wf")" -gt 0 ]; then STATIC=dual_face; else STATIC=legacy_single_face; fi
   good "static_probe_code_face_mode" "$STATIC"
 fi
+
+# ---------- 匿名首页预期：由发布树物证决定（不是"任何 200 都算过"） ----------
+ARTIFACT_FACADE=no
+if [ -n "$TARGET_REL" ] && [ -s "$TARGET_REL/web/v2/public/index.html" ]; then ARTIFACT_FACADE=yes; fi
+case "$EXPECTED_ROOT" in
+  auto)
+    if [ -z "$TARGET_REL" ]; then
+      PROFILE=unbound
+      note "expected_root_profile" "WARN=UNBOUND 未给 WS_TARGET_REL；只认内容物证或 302 之一"
+    elif [ "$ARTIFACT_FACADE" = yes ]; then
+      PROFILE=facade
+      note "expected_root_profile" "facade（发布树有 web/v2/public/index.html）"
+    else
+      PROFILE=auth_only
+      note "expected_root_profile" "auth_only（发布树无门面文件）"
+    fi ;;
+  facade|auth_only)
+    PROFILE="$EXPECTED_ROOT"
+    if [ -n "$TARGET_REL" ]; then
+      HAVE=auth_only; [ "$ARTIFACT_FACADE" = yes ] && HAVE=facade
+      if [ "$HAVE" != "$PROFILE" ]; then
+        MODE=expected_root_conflict
+        bad "expected_root_matches_artifact" "显式声明 $PROFILE，但发布树物证是 $HAVE"
+        verdict "EXPECTED_ROOT_CONFLICT" 6
+      fi
+    fi
+    note "expected_root_profile" "$PROFILE（显式声明）" ;;
+  *)
+    MODE=usage_error
+    bad "expected_root_valid" "WS_EXPECTED_ROOT=$EXPECTED_ROOT 不是 auto|facade|auth_only"
+    verdict "USAGE_ERROR" 6 ;;
+esac
 
 # ---------- 公网面先探：不可达是唯一可能触发关站的情形 ----------
 R=$(body_get "$PUB/healthz") || true
@@ -111,18 +195,24 @@ fi
 DS=$(curl_get "$PUB/healthz/detail" '%{http_code}')
 [ "$DS" = "404" ] && good "public_healthz_detail_not_exposed" "$DS" || bad "public_healthz_detail_not_exposed" "HTTP $DS"
 
-G1=$(curl_get "$GATE_BASE/" '%{http_code} %{redirect_url}')
-# 注意：curl 的 %{redirect_url} 给的是**绝对地址**（https://ymai.fun/login），不是 /login；
-# 按字面 "/login" 精确匹配会永远不成立 —— 这条在真机上会把一次正确切流判成门失效。
-case "$G1" in "302 "*) RC302=1 ;; *) RC302=0 ;; esac
-case "$G1" in */login*) HASLOGIN=1 ;; *) HASLOGIN=0 ;; esac
-if [ "$RC302" = "1" ] && [ "$HASLOGIN" = "1" ]; then
-  good "unauth_root_still_302_login" "$G1"
-else
-  bad  "unauth_root_still_302_login" "$G1"
-fi
+# 匿名首页：形状由 PROFILE 决定（facade 200+物证 / auth_only 302→login / unbound 二选一）
+R0=$(body_meta "$GATE_BASE/")
+root_expect "unauth_root_matches_expected" "$R0"
+# /index.html 与 / 走同一分支；若被旧静态文件覆盖，这里会红
+R1=$(body_meta "$GATE_BASE/index.html")
+root_expect "unauth_index_matches_expected" "$R1"
+# 过期/伪造 session：首页不得被当成已登录（门面仍是门面，旧版仍是登录跳转）
+REX=$(body_meta "$GATE_BASE/" -H 'Cookie: ws_sess=invalid.expired.token')
+root_expect "expired_session_root_not_logged_in" "$REX"
 G2=$(curl_post "$GATE_BASE/api/world" '{"intent":"verify probe"}')
 [ "$G2" = "401" ] && good "unauth_api_still_401" "$G2" || bad "unauth_api_still_401" "$G2"
+G2B=$(curl_post_h "$GATE_BASE/api/world" '{"intent":"verify probe"}' -H 'Cookie: ws_sess=invalid.expired.token')
+[ "$G2B" = "401" ] && good "expired_session_api_401" "$G2B" || bad "expired_session_api_401" "$G2B"
+ME=$(curl_get "$GATE_BASE/api/auth/me" '%{http_code}')
+[ "$ME" = "401" ] && good "unauth_me_401" "$ME" || bad "unauth_me_401" "$ME"
+# 空凭据必须被登录端点拒绝（400），且这一步不触发失败计数（不做真实口令尝试）
+L0=$(curl_post "$GATE_BASE/api/auth/login" '{}')
+[ "$L0" = "400" ] && good "login_endpoint_rejects_empty" "$L0" || bad "login_endpoint_rejects_empty" "$L0"
 LPR=$(body_get "$GATE_BASE/login")
 LPS=$(status_of "$LPR")
 if [ "$LPS" = "200" ] && printf '%s' "$(body_of "$LPR")" | grep -q '进入你的空间'; then

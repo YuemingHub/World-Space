@@ -2,7 +2,8 @@
 # ops-selftest.sh —— 切流工具链的回归自测（离线假面，0 外网、0 生产接触）
 #
 # 覆盖三件事，每件都配红绿一对（只见过一种状态的判据不算验证过）：
-#   A. ws-verify-faces.sh 对双面/单面、字段缺失、身份不符、门失效的分类与退出码
+#   A. ws-verify-faces.sh 对双面/单面、字段缺失、身份不符、门失效的分类与退出码；
+#      以及匿名首页的两种合法物证（新版门面 200 / 旧版回滚 302）与各自的红侧
 #   B. cutover.sh 的关站边界：只有"公网面确实不可用"才允许 close；
 #      新版诊断面出问题必须留现场不关站（这正是 2026-10-05 的兼容性缺口）；
 #      以及轮换默认值：未设置 = 不轮换（默认 0），显式 WS_ROTATE_SECRET=1 才轮换
@@ -49,6 +50,10 @@ chmod +x "$T/ss-loop" "$T/ss-wide" "$T/ss-missing"
 mkdir -p "$T/rel-dual/server" "$T/rel-legacy/server"
 printf 'const CFG = { opsPort: 3201 };\n' > "$T/rel-dual/server/world.mjs"
 printf 'const CFG = { webDir: 1 };\n'      > "$T/rel-legacy/server/world.mjs"
+# 带公开门面物证的发布树：验证器必须据此期待 200 门面，而不是旧的 302
+mkdir -p "$T/rel-facade/server" "$T/rel-facade/web/v2/public"
+printf 'const CFG = { opsPort: 3201 };\n' > "$T/rel-facade/server/world.mjs"
+printf '<!doctype html><html>fixture facade artifact</html>\n' > "$T/rel-facade/web/v2/public/index.html"
 
 ok()   { TOTAL=$((TOTAL+1)); printf '  \033[32m✓\033[0m %-58s %s\n' "$1" "${2:-}"; }
 no()   { TOTAL=$((TOTAL+1)); FAILED=$((FAILED+1)); printf '  \033[31m✗\033[0m %-58s %s\n' "$1" "${2:-}"; }
@@ -140,11 +145,66 @@ if start_fixture $P1 $O1 MODE=dual API=200; then
   stop_fixture
 else no "A8 fixture 起不来" ""; fi
 
-# A9 首页不再 302 → 3
+# A9 首页 200 但没有门面物证、也没有目标树 → unbound 必须判红
 if start_fixture $P1 $O1 MODE=dual ROOT=200; then
   vrun "A9 未登录首页放行" 3 WS_PUBLIC_PORT=$P1 WS_OPS_PORT=$O1 WS_GATE_BASE="http://127.0.0.1:$P1" WS_EXPECT_PID=4242 WS_SS_CMD=echo
   stop_fixture
 else no "A9 fixture 起不来" ""; fi
+
+# A9b 发布树含门面文件 + 运行时 200 带物证 → PASS（新版公开门面）
+if start_fixture $P1 $O1 MODE=dual PID=4242 ROOT=200 ROOT_MARK=facade; then
+  vrun "A9b 门面 200 与物证一致" 0 WS_PUBLIC_PORT=$P1 WS_OPS_PORT=$O1 WS_GATE_BASE="http://127.0.0.1:$P1" WS_EXPECT_PID=4242 WS_TARGET_REL="$T/rel-facade" WS_SS_CMD=echo
+  has "A9b 打印 facade profile" "PROFILE=facade" "$LAST_OUT"
+  stop_fixture
+else no "A9b fixture 起不来" ""; fi
+
+# A9c 发布树说是门面，运行时只是任意 200（无标志串）→ 3（"任何 200 都算过"必须无效）
+if start_fixture $P1 $O1 MODE=dual PID=4242 ROOT=200; then
+  vrun "A9c 任意 200 冒充门面" 3 WS_PUBLIC_PORT=$P1 WS_OPS_PORT=$O1 WS_GATE_BASE="http://127.0.0.1:$P1" WS_EXPECT_PID=4242 WS_TARGET_REL="$T/rel-facade" WS_SS_CMD=echo
+  stop_fixture
+else no "A9c fixture 起不来" ""; fi
+
+# A9d 发布树说是门面，运行时却仍 302 → 3（新版没生效，不能放行）
+if start_fixture $P1 $O1 MODE=dual PID=4242 ROOT=302; then
+  vrun "A9d 门面未生效仍 302" 3 WS_PUBLIC_PORT=$P1 WS_OPS_PORT=$O1 WS_GATE_BASE="http://127.0.0.1:$P1" WS_EXPECT_PID=4242 WS_TARGET_REL="$T/rel-facade" WS_SS_CMD=echo
+  stop_fixture
+else no "A9d fixture 起不来" ""; fi
+
+# A9e 发布树没有门面（旧版/回滚），运行时却冒出 200 门面 → 3
+if start_fixture $P1 $O1 MODE=dual PID=4242 ROOT=200 ROOT_MARK=facade; then
+  vrun "A9e 旧版树冒出公开门面" 3 WS_PUBLIC_PORT=$P1 WS_OPS_PORT=$O1 WS_GATE_BASE="http://127.0.0.1:$P1" WS_EXPECT_PID=4242 WS_TARGET_REL="$T/rel-dual" WS_SS_CMD=echo
+  stop_fixture
+else no "A9e fixture 起不来" ""; fi
+
+# A9f 显式预期与发布树物证矛盾 → 6（用法/环境错误，不开机也能判）
+vrun "A9f 显式预期与物证矛盾" 6 WS_PUBLIC_PORT=$DEAD1 WS_OPS_PORT=$DEAD2 WS_GATE_BASE="http://127.0.0.1:$DEAD1" WS_TARGET_REL="$T/rel-dual" WS_EXPECTED_ROOT=facade WS_SS_CMD=echo
+
+# A9g 非法预期值 → 6
+vrun "A9g 非法 WS_EXPECTED_ROOT" 6 WS_PUBLIC_PORT=$DEAD1 WS_OPS_PORT=$DEAD2 WS_GATE_BASE="http://127.0.0.1:$DEAD1" WS_TARGET_REL="$T/rel-dual" WS_EXPECTED_ROOT=bogus WS_SS_CMD=echo
+
+# A9h 过期/伪造 session 的首页被当成已登录 → 3
+if start_fixture $P1 $O1 MODE=dual PID=4242 ROOT=200 ROOT_MARK=facade COOKIE_ROOT=200; then
+  vrun "A9h 过期会话被当成已登录" 3 WS_PUBLIC_PORT=$P1 WS_OPS_PORT=$O1 WS_GATE_BASE="http://127.0.0.1:$P1" WS_EXPECT_PID=4242 WS_TARGET_REL="$T/rel-facade" WS_SS_CMD=echo
+  stop_fixture
+else no "A9h fixture 起不来" ""; fi
+
+# A9i 未登录 /api/auth/me 被放行 → 3
+if start_fixture $P1 $O1 MODE=dual PID=4242 ME=200; then
+  vrun "A9i 未登录 me 被放行" 3 WS_PUBLIC_PORT=$P1 WS_OPS_PORT=$O1 WS_GATE_BASE="http://127.0.0.1:$P1" WS_EXPECT_PID=4242 WS_TARGET_REL="$T/rel-dual" WS_SS_CMD=echo
+  stop_fixture
+else no "A9i fixture 起不来" ""; fi
+
+# A9j 登录端点接受空凭据（200）→ 3
+if start_fixture $P1 $O1 MODE=dual PID=4242 LOGIN_CODE=200; then
+  vrun "A9j 登录端点接受空凭据" 3 WS_PUBLIC_PORT=$P1 WS_OPS_PORT=$O1 WS_GATE_BASE="http://127.0.0.1:$P1" WS_EXPECT_PID=4242 WS_TARGET_REL="$T/rel-dual" WS_SS_CMD=echo
+  stop_fixture
+else no "A9j fixture 起不来" ""; fi
+
+# A9k 过期 session 的 API 被放行（200）→ 3
+if start_fixture $P1 $O1 MODE=dual PID=4242 BADCOOKIE_API=200; then
+  vrun "A9k 过期会话 API 放行" 3 WS_PUBLIC_PORT=$P1 WS_OPS_PORT=$O1 WS_GATE_BASE="http://127.0.0.1:$P1" WS_EXPECT_PID=4242 WS_TARGET_REL="$T/rel-dual" WS_SS_CMD=echo
+  stop_fixture
+else no "A9k fixture 起不来" ""; fi
 
 # A10 什么都没监听 → 5（唯一可能关站的码）
 vrun "A10 服务完全不可达" 5 WS_PUBLIC_PORT=$DEAD1 WS_OPS_PORT=$DEAD2 WS_GATE_BASE="http://127.0.0.1:$DEAD1" WS_SS_CMD=echo
@@ -209,6 +269,29 @@ if start_fixture $PB $OB MODE=dual PID=4242; then
   eq "B1 关站次数" "0" "$(grep -c '^close$' "$T/emerg.log" || true)"
   stop_fixture
 else no "B1 fixture 起不来" ""; fi
+
+# B1b 门面发布：目标树含门面文件 + 运行时 200 门面 → 切流成功，不关站
+SHAF=cccc00000000000000000000000000000000cccc
+mkdir -p "$SB/releases/$SHAF/server" "$SB/releases/$SHAF/web/v2/public"
+printf 'const CFG = { opsPort: 3201 };\n' > "$SB/releases/$SHAF/server/world.mjs"
+printf '<!doctype html><html>fixture facade artifact</html>\n' > "$SB/releases/$SHAF/web/v2/public/index.html"
+: > "$T/emerg.log"; ln -sfn "$SB/releases/$PREV" "$SB/current"
+printf '%s\n' "$SHAF" > "$SB/state/approved-sha"
+if start_fixture $PB $OB MODE=dual PID=4242 ROOT=200 ROOT_MARK=facade; then
+  crun "B1b 门面发布切换" 0 "CUTOVER=OK" $PB $OB WS_ROTATE_SECRET=0
+  eq "B1b current 已切换" "$SHAF" "$(basename "$(readlink "$SB/current")")"
+  eq "B1b 关站次数" "0" "$(grep -c '^close$' "$T/emerg.log" || true)"
+  stop_fixture
+else no "B1b fixture 起不来" ""; fi
+
+# B1c 发布树说是门面，运行时仍 302 → 留现场不关站
+: > "$T/emerg.log"; ln -sfn "$SB/releases/$PREV" "$SB/current"
+printf '%s\n' "$SHAF" > "$SB/state/approved-sha"
+if start_fixture $PB $OB MODE=dual PID=4242 ROOT=302; then
+  crun "B1c 门面未生效" 1 "CUTOVER=FAILED_SCENE_PRESERVED" $PB $OB WS_ROTATE_SECRET=0
+  eq "B1c 关站次数（关键：必须 0）" "0" "$(grep -c '^close$' "$T/emerg.log" || true)"
+  stop_fixture
+else no "B1c fixture 起不来" ""; fi
 
 # B2 公网面看起来正常但诊断面没起来 → 必须"留现场不关站"（旧版会在这里误关）
 : > "$T/emerg.log"; ln -sfn "$SB/releases/$PREV" "$SB/current"
