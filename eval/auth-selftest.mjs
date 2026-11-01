@@ -86,11 +86,11 @@ try {
   ok('诊断面不供业务 API（POST /api/world 404，不是 401 也不是 200——它压根没有这条路由）',
     (await fetch('http://127.0.0.1:9351/api/world', { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' })).status === 404, '');
 
-  // 未登录：页面去登录页，API 一律 401，静态资源（纯代码）可达
+  // 未登录：/ 给公开门面（七行动入口；文件缺失回落 302，由 public-entry-selftest 覆盖），API 一律 401，静态资源（纯代码）可达
   const root = await get(8951, '/');
-  ok('未登录 GET / → 302 /login', root.status === 302 && root.headers.get('location') === '/login', `${root.status} ${root.headers.get('location')}`);
+  ok('未登录 GET / → 200 公开门面页（七行动入口；真源 main 线）', root.status === 200 && (await root.text()).includes('你想做什么事'), `${root.status}`);
   const root2 = await get(8951, '/index.html');
-  ok('未登录 GET /index.html → 302 /login（首页没有旁路）', root2.status === 302, String(root2.status));
+  ok('未登录 GET /index.html → 200 公开门面页（与 / 同分支）', root2.status === 200, String(root2.status));
   const lp = await get(8951, '/login');
   ok('登录页公开可达', lp.status === 200 && (await lp.text()).includes('账号'), String(lp.status));
   const css = await get(8951, '/style.css');
