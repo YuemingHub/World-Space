@@ -161,13 +161,12 @@ OK 发布树就位：/opt/world-space/releases/<RELEASE_SHA>
 
 ### 步骤 3 ·（G2）装新工具组
 
-```bash
-cd /opt/world-space/releases/$RELEASE_SHA/docs/v2/release-c500f3d/verifier-update
-```
-
 > 只在**服务器发布树**里执行。发布树是 `git archive` 展开的 LF 字节；哈希钉也是按 LF 字节算的。
 > 不要从 Windows 工作副本 scp 这些文件：CRLF 会让 `TOOLS.sha256` 以 `FAIL_SOURCE_HASH` 拒绝
 > （这是设计的 fail-closed，不是误报）。
+
+```bash
+cd /opt/world-space/releases/$RELEASE_SHA/docs/v2/release-c500f3d/verifier-update
 
 # 3.1 装前认证（只读）
 bash verify-production.sh
