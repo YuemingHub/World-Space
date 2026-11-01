@@ -52,3 +52,16 @@ bash docs/v2/release-c500f3d/r4-acceptance.sh
    核验器退出码 3 与 5 含义不同：3 是"判据不过/两面矛盾"，5 是"公网面确实不可用"——只有 5 才触发关站。
 2. 隔离环境没有 TLS：核验器的访问门指向 nginx 的 `8080`（仍经 nginx），生产是 `https://ymai.fun:443`；
    应用公网口在容器里绑 `0.0.0.0` 是因为 nginx 在另一个容器，生产同机时仍是 `127.0.0.1`。
+
+## 复核核验器哈希时的坑（CRLF）
+
+回执里的 `verifier_sha256=f291021a6d25…` 与树内 `ws-verify-faces.sh.sha256`，以及 `git cat-file blob` 的字节一致。
+但在 `core.autocrlf=true` 的 Windows 检出里直接 `sha256sum docs/v2/release-c500f3d/ws-verify-faces.sh`
+会得到 `cc7b64cf…`——那是工作副本的 CRLF 版本，不是发布树口径。要复核就用发布树同一口径：
+
+```
+git -c core.autocrlf=false archive <候选提交> docs/v2/release-c500f3d/ws-verify-faces.sh | tar -x -C /tmp/vf
+sha256sum /tmp/vf/docs/v2/release-c500f3d/ws-verify-faces.sh   # 应为 f291021a…
+```
+
+同理，`release_id` 也必须对 `git -c core.autocrlf=false archive` 展开的树计算，对工作副本直接算会因 CRLF 变成另一个值。
