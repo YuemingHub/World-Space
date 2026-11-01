@@ -11,7 +11,20 @@
 
 ---
 
-## 1. 改了什么（相对 9654540）
+## 1. 改了什么（相对承接提交 `baaa210`）
+
+先说明树的来源，否则 diff 会被读错：候选**不是** `9654540` 的后代——`9654540` 在另一条线上
+（`git branch -a --contains 9654540` 只有 `agent/ws-release-verifier-facade-20261101`），
+而 §3 P2 要求正常升级固定在发布线 v2 上。所以有一个承接提交
+`baaa210 carry: R2-965 release tooling baseline onto release line v2`，
+把 Deep 审过的那套发布工具**逐字节**搬到 v2 线上：
+
+```bash
+git diff --stat 9654540..baaa210 -- docs/v2/release-c500f3d/   # 期望：空
+git diff --stat baaa210..6add3a6                                # 下面这张表
+```
+
+下表是 `git diff --stat baaa210..6add3a6` 的原样输出：
 
 ```
  docs/v2/release-c500f3d/cutover.sh                 | 334 +++++++++----
@@ -23,8 +36,12 @@
  docs/v2/release-c500f3d/ws-prep.sh                 | 172 ++++++-
  docs/v2/release-c500f3d/ws-verify-faces.sh         |  90 +++-
  docs/v2/release-c500f3d/ws-verify-faces.sh.sha256  |   1 +    （新：核验器哈希钉）
- server/world.mjs                                   | 182 ++++++-
+ server/world.mjs                                   |  43 +-
 ```
+
+`10 files changed, 1295 insertions(+), 248 deletions(-)`。
+
+（`git diff 9654540..6add3a6` 会显示 34 个文件——那是两条线的分叉差，不是本轮改动量。）
 
 沙箱里全部为原生 POSIX symlink（Linux `node:20` 容器），不是 Junction 等效。
 
