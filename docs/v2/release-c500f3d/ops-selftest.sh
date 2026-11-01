@@ -232,10 +232,39 @@ else no "A13 fixture 起不来" ""; fi
 # ─────────────────────── B. 切流边界 ───────────────────────
 echo "=== B. cutover.sh 的关站边界（假 EMERG 记账）==="
 if have_symlinks; then
-SHA=aaaa00000000000000000000000000000000aaaa
-PREV=bbbb00000000000000000000000000000000bbbb
 SB=$T/root
-mkdir -p "$SB/state" "$SB/etc" "$SB/releases/$SHA/server" "$SB/releases/$PREV/server"
+CACHE=$SB/.git-cache/World-Space.git
+mkdir -p "$SB/state" "$SB/etc" "$(dirname "$CACHE")"
+# 切流预检现在要求目标能在 git 里被解析成同一个提交：夹具必须是真提交。
+# 假 SHA 会被正确拒绝——这正是 P0-A 修的东西，所以夹具也要跟着变真。
+export GIT_AUTHOR_NAME=ops-selftest GIT_AUTHOR_EMAIL=selftest@example.invalid
+export GIT_COMMITTER_NAME=ops-selftest GIT_COMMITTER_EMAIL=selftest@example.invalid
+export GIT_AUTHOR_DATE='2026-01-01T00:00:00 +0000' GIT_COMMITTER_DATE='2026-01-01T00:00:00 +0000'
+git init --bare -q "$CACHE"
+g() { git --git-dir="$CACHE" "$@"; }
+{ printf '<!doctype html><html><body><p>你想做什么事</p>\n<button id="btn-write">开始</button>\n'
+  head -c 9000 /dev/zero | tr '\0' 'x'; printf '\n</html>\n'; } > "$T/facade.html"
+bcommit() { # bcommit <parent|-> <world.mjs 内容> [facade 文件]
+  local parent=$1 world=$2 facade=${3:-} idx wb fb tree
+  idx=$(mktemp "$T/bidx.XXXXXX")
+  GIT_INDEX_FILE=$idx g read-tree --empty
+  wb=$(printf '%s\n' "$world" | g hash-object -w --stdin)
+  GIT_INDEX_FILE=$idx g update-index --add --cacheinfo "100644,$wb,server/world.mjs"
+  if [ -n "$facade" ]; then
+    fb=$(g hash-object -w -- "$facade")
+    GIT_INDEX_FILE=$idx g update-index --add --cacheinfo "100644,$fb,web/v2/public/index.html"
+  fi
+  tree=$(GIT_INDEX_FILE=$idx g write-tree); rm -f "$idx"
+  if [ "$parent" = "-" ]; then printf 'fixture\n' | g commit-tree "$tree"
+  else printf 'fixture\n' | g commit-tree "$tree" -p "$parent"; fi
+}
+PREV=$(bcommit - 'const CFG = { webDir: 1 };')                                    # 旧版单面
+SHA=$(bcommit "$PREV" 'const CFG = { opsPort: 3201 };')                            # 新版双面
+SHAF=$(bcommit "$SHA" 'const CFG = { opsPort: 3201 };' "$T/facade.html")           # 双面 + 门面
+SIDE=$(bcommit "$PREV" 'const CFG = { opsPort: 3201 }; // forked from legacy')     # 与发布线分叉
+g update-ref refs/heads/v2 "$SHA"
+mkrelease() { mkdir -p "$SB/releases/$1"; g archive "$1" | tar -x -C "$SB/releases/$1"; }
+mkrelease "$PREV"; mkrelease "$SHA"; mkrelease "$SHAF"; mkrelease "$SIDE"
 printf '%s\n' "$SHA" > "$SB/state/approved-sha"
 ln -sfn "$SB/releases/$PREV" "$SB/current"
 : > "$T/emerg.log"
@@ -245,8 +274,6 @@ echo "$1" >> "$EMERG_LOG"
 exit 0
 EM
 chmod +x "$T/fake-emerg.sh"
-printf 'const CFG = { opsPort: 3201 };\n' > "$SB/releases/$SHA/server/world.mjs"   # 新版双面
-printf 'const CFG = { webDir: 1 };\n'        > "$SB/releases/$PREV/server/world.mjs" # 旧版单面
 
 crun() { # crun <label> <expected_exit> <grep-for-verdict> <pub> <ops-or-0> [extra VAR=val ...]
   # 轮换行为由调用方声明：要固定就显式传 WS_ROTATE_SECRET=…（B1-B4 固定 0）；不传 = 测默认值（B5）
@@ -271,10 +298,6 @@ if start_fixture $PB $OB MODE=dual PID=4242; then
 else no "B1 fixture 起不来" ""; fi
 
 # B1b 门面发布：目标树含门面文件 + 运行时 200 门面 → 切流成功，不关站
-SHAF=cccc00000000000000000000000000000000cccc
-mkdir -p "$SB/releases/$SHAF/server" "$SB/releases/$SHAF/web/v2/public"
-printf 'const CFG = { opsPort: 3201 };\n' > "$SB/releases/$SHAF/server/world.mjs"
-printf '<!doctype html><html>fixture facade artifact</html>\n' > "$SB/releases/$SHAF/web/v2/public/index.html"
 : > "$T/emerg.log"; ln -sfn "$SB/releases/$PREV" "$SB/current"
 printf '%s\n' "$SHAF" > "$SB/state/approved-sha"
 if start_fixture $PB $OB MODE=dual PID=4242 ROOT=200 ROOT_MARK=facade; then
@@ -301,20 +324,38 @@ if start_fixture $PB 0 MODE=dual; then
   stop_fixture
 else no "B2 fixture 起不来" ""; fi
 
-# B3 真的什么都没起 → 才允许关站
+# B3 真的什么都没起 → 才允许关站（先回到"待升级"状态，否则预检会判 ALREADY_LIVE）
 : > "$T/emerg.log"
+printf '%s\n' "$SHA" > "$SB/state/approved-sha"
+ln -sfn "$SB/releases/$PREV" "$SB/current"
 crun "B3 服务确实不可用" 1 "CUTOVER=FAILED_AND_CLOSED" $DEAD1 $DEAD2 WS_ROTATE_SECRET=0
 eq "B3 关站次数（应恰好 1）" "1" "$(grep -c '^close$' "$T/emerg.log" || true)"
 
-# B4 回滚到旧版单面 → 认出 legacy 并完成，不关站
+# B4 回滚到旧版单面 → 两把钥匙齐全才允许：认出 legacy 并完成，不关站
 : > "$T/emerg.log"
 printf '%s\n' "$PREV" > "$SB/state/approved-sha"
 if start_fixture $PB 0 MODE=legacy; then
-  crun "B4 旧版回滚路径" 0 "CUTOVER=OK" $PB $OB WS_ROTATE_SECRET=0
+  crun "B4 旧版回滚路径" 0 "CUTOVER=OK" $PB $OB WS_ROTATE_SECRET=0 WS_MODE=rollback WS_ROLLBACK_TO="$PREV"
   eq "B4 关站次数" "0" "$(grep -c '^close$' "$T/emerg.log" || true)"
   has "B4 认为目标是旧面" "legacy_single_face" "$CRUN_OUT"
   stop_fixture
 else no "B4 fixture 起不来" ""; fi
+
+# B4r 升级路径塞旧版 → 预检拒绝，零写入，不关站
+: > "$T/emerg.log"
+printf '%s\n' "$PREV" > "$SB/state/approved-sha"
+ln -sfn "$SB/releases/$SHA" "$SB/current"
+before_cur=$(basename "$(readlink "$SB/current")")
+crun "B4r 旧版冒充升级被拒" 3 "CUTOVER=ABORT_LEGACY_AS_UPGRADE" $PB $OB WS_ROTATE_SECRET=0
+eq "B4r current 未动" "$before_cur" "$(basename "$(readlink "$SB/current")")"
+eq "B4r 关站次数" "0" "$(grep -c '^close$' "$T/emerg.log" || true)"
+
+# B4s 批准点不在发布线（分叉候选）→ 预检拒绝
+: > "$T/emerg.log"
+printf '%s\n' "$SIDE" > "$SB/state/approved-sha"
+ln -sfn "$SB/releases/$PREV" "$SB/current"
+crun "B4s 越线候选被拒" 3 "CUTOVER=ABORT_NOT_IN_RELEASE_LINE" $PB $OB WS_ROTATE_SECRET=0
+eq "B4s 关站次数" "0" "$(grep -c '^close$' "$T/emerg.log" || true)"
 
 # B5/B6/B7 轮换默认值（2026-10-05 起默认 0）：未设置 = 不轮换；显式 1 = 轮换；显式 0 = 与未设置同行为。
 # 红绿成对：B5 断言「不变」、B6 断言「变」——只见过一种状态的判据不算验证过。
@@ -349,6 +390,8 @@ else
   skip "B2 诊断面缺失不关站"  "同上"
   skip "B3 真不可用才关站"    "同上"
   skip "B4 旧版回滚路径"      "同上"
+  skip "B4r 旧版冒充升级被拒" "同上"
+  skip "B4s 越线候选被拒"     "同上"
   skip "B5 默认（未设置）不轮换" "同上"
   skip "B6 显式 1 才轮换"     "同上"
   skip "B7 显式 0 不轮换"     "同上"
@@ -423,7 +466,7 @@ has "C7 无换行 → 读成 no"  "is_newline  *no"  "$(env WS_ENV_FILE="$PNN" b
 
 # ─────────────────────── D. 语法与静态检查 ───────────────────────
 echo "=== D. 语法 / 静态检查 ==="
-for f in cutover.sh ws-verify-faces.sh ws-env-put.sh ops-selftest.sh; do
+for f in cutover.sh ws-prep.sh ws-verify-faces.sh ws-env-put.sh ops-selftest.sh release-tooling-selftest.sh; do
   if bash -n "$HERE/$f" 2> "$T/syn"; then ok "bash -n $f" ""; else no "bash -n $f" "$(cat "$T/syn" | head -2)"; fi
 done
 if node --check "$FIXTURE" 2> "$T/syn2"; then ok "node --check fixture" ""; else no "node --check fixture" "$(head -2 "$T/syn2")"; fi

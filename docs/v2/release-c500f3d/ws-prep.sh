@@ -9,9 +9,16 @@
 #   - 不碰 DNS
 # 验证用的第二个实例只监听 127.0.0.1 的一个独立端口，跑完就停，公网永远看不见它。
 #
+# 候选版本必须显式指定（2026-11-01 收紧 P0-B）：
+#   本脚本不再有任何默认版本。WS_REF 必须是完整的 40 位提交号，且必须能通过发布身份验证：
+#   解析成同一个提交、发布线（refs/heads/v2）在它的历史里、不是 legacy 单面、发布目录逐文件等于
+#   该提交的树、并且相对当前线上版本是前进而不是回退。任何一步不成立 → 零写入 + 明确报错。
+#   旧版本只能走显式回滚：WS_MODE=rollback WS_ROLLBACK_TO=<sha> WS_REF=<同一个 sha>。
+#
 # 用法（root，服务器上）：
-#   ws-prep.sh fetch              # 1. 取批准 SHA 的发布树（不动 current）
-#   ws-prep.sh verify             # 2. 逐文件证明部署树 = 该 SHA 且工作树干净
+#   WS_REF=<40位候选> ws-prep.sh fetch       # 1. 取批准 SHA 的发布树（不动 current）
+#   WS_REF=<40位候选> ws-prep.sh verify      # 2. 逐文件证明部署树 = 该 SHA，并登记批准点
+#   WS_MODE=rollback WS_ROLLBACK_TO=<sha> WS_REF=<sha> ws-prep.sh fetch|verify   # 显式回滚
 #   ws-prep.sh emergency          # 3. 装关站方案 + 独立进程预演（不 reload 公网入口）
 #   ws-prep.sh smokeenv           # 4. 从生产 env 派生仓库外 smoke env（600），补访问门配置
 #   ws-prep.sh failclosed         # 5. 先验证"认证配置坏了绝不退化成公开访问"
@@ -20,13 +27,12 @@
 #   ws-prep.sh report             # 8. 汇总只读事实（不含任何密钥值）
 set -euo pipefail
 
-# 批准点：2026-09-15 Founder 明示重开（并入"主钥匙被拒自动换备用钥匙"后 c500f3d → e8284c4）。
-# 改这一行只能因为 Founder 批准了新候选，不能为了部署方便顺手挪——
-# 否则"HEAD = origin/v2 = 批准 SHA"这句话当场变假话。
-REF="${WS_REF:-e8284c4ef24c8fd8ddde715300d022b527132933}"
-REPO=https://github.com/YuemingHub/World-Space
-BRANCH=v2
-ROOT=/opt/world-space
+ROOT="${WS_ROOT:-/opt/world-space}"
+REPO="${WS_REPO:-https://github.com/YuemingHub/World-Space}"
+BRANCH="${WS_BRANCH:-v2}"                         # 发布线：升级候选必须包含它的最新提交
+REF="${WS_REF:-}"                                 # 必须显式给出，不做任何默认
+MODE="${WS_MODE:-upgrade}"                        # upgrade | rollback
+ROLLBACK_TO="${WS_ROLLBACK_TO:-}"                 # 回滚的第二把钥匙
 REL=$ROOT/releases/$REF
 CACHE=$ROOT/.git-cache/World-Space.git
 PROD_ENV=$ROOT/shared/env/world-space.env
@@ -39,23 +45,116 @@ SMOKE_HOST=127.0.0.1
 LOGDIR=$STATE/logs
 OUTCOME_URL=https://ymai.fun                      # 唯一正式 Origin
 
-die() { echo "FAIL: $*" >&2; exit 1; }
-need_root() { [ "$(id -u)" = 0 ] || die "需要 root"; }
-mkdir -p "$LOGDIR" "$STATE"
+die() { echo "FAIL: $*" >&2; exit "${2:-1}"; }
+need_root() { [ "$(id -u)" = 0 ] || die "需要 root" 2; }
+ensure_dirs() { mkdir -p "$LOGDIR" "$STATE"; }
+
+need_ref() { # 零写入的第一道闸：没有显式候选就什么都不做
+  case "$REF" in
+    ''|*[!0-9a-f]*) die "PREDEPLOY_ABORT_TARGET_REQUIRED 必须显式给出 WS_REF=<40 位提交号>（本脚本不再默认任何旧版本）" 2 ;;
+  esac
+  [ "${#REF}" -eq 40 ] || die "PREDEPLOY_ABORT_TARGET_INVALID WS_REF 不是完整 40 位提交号：$REF" 2
+}
+
+check_mode() {
+  case "$MODE" in
+    upgrade|rollback) ;;
+    *) die "PREDEPLOY_ABORT_MODE_INVALID WS_MODE=$MODE（只认 upgrade 或 rollback）" 2 ;;
+  esac
+}
+
+policy_abort() { echo "FAIL: PREDEPLOY_ABORT_$1  $2" >&2; exit 2; }
+
+face_of_commit() {
+  local n
+  n=$(git -C "$CACHE" cat-file blob "$1:server/world.mjs" 2>/dev/null | grep -c 'opsPort' || true)
+  [ "${n:-0}" -gt 0 ] && printf 'dual_face' || printf 'legacy_single_face'
+}
+
+facade_of_commit() { # none | valid | invalid
+  local size blob
+  size=$(git -C "$CACHE" cat-file -s "$1:web/v2/public/index.html" 2>/dev/null) || { printf 'none'; return; }
+  [ "${size:-0}" -ge 8000 ] || { printf 'invalid'; return; }
+  blob=$(git -C "$CACHE" cat-file blob "$1:web/v2/public/index.html" 2>/dev/null) || { printf 'invalid'; return; }
+  printf '%s' "$blob" | grep -q '你想做什么事' || { printf 'invalid'; return; }
+  printf '%s' "$blob" | grep -q 'id="btn-write"'  || { printf 'invalid'; return; }
+  printf '%s' "$blob" | grep -q '</html>'          || { printf 'invalid'; return; }
+  printf 'valid'
+}
+
+is_ancestor() { git -C "$CACHE" merge-base --is-ancestor "$1" "$2" 2>/dev/null; }
+
+# 发布身份与策略验证（只读）。所有"未知/回退/越线/形状不符"都在这里停下，调用方不得先写后验。
+verify_target_policy() {
+  local ref=$1 live live_sha face facade
+  [ -d "$CACHE" ] || policy_abort GIT_CACHE_MISSING "本机 git 缓存不在位（$CACHE）"
+  git -C "$CACHE" cat-file -e "$ref^{commit}" 2>/dev/null \
+    || policy_abort TARGET_IDENTITY_UNKNOWN "WS_REF=$ref 在缓存里解析不到（未知版本不许登记）"
+  [ "$(git -C "$CACHE" rev-parse "$ref^{commit}" 2>/dev/null)" = "$ref" ] \
+    || policy_abort TARGET_IDENTITY_MISMATCH "WS_REF=$ref 解析成了另一个提交"
+  git -C "$CACHE" cat-file -e "$ref:server/world.mjs" 2>/dev/null \
+    || policy_abort TARGET_NOT_A_RELEASE "该提交里没有 server/world.mjs，不是 World Space 发布树"
+  face=$(face_of_commit "$ref")
+  facade=$(facade_of_commit "$ref")
+  [ "$facade" = invalid ] && policy_abort FACADE_INVALID "目标树里的 web/v2/public/index.html 存在但不是完整门面（<8000 字节或缺物证）"
+
+  live=$(readlink "$ROOT/current" 2>/dev/null || true)
+  live_sha=""
+  [ -n "$live" ] && live_sha=$(basename "$live")
+  if [ -n "$live_sha" ]; then
+    git -C "$CACHE" cat-file -e "$live_sha^{commit}" 2>/dev/null \
+      || policy_abort LIVE_IDENTITY_UNKNOWN "当前线上版本 $live_sha 在缓存里解析不到，无法判断前后代关系"
+  fi
+
+  if [ "$MODE" = upgrade ]; then
+    [ "$face" = legacy_single_face ] && policy_abort LEGACY_AS_UPGRADE "升级路径不接受 legacy 单面旧版；回滚旧版必须显式 WS_MODE=rollback + WS_ROLLBACK_TO"
+    git -C "$CACHE" rev-parse --verify -q "refs/heads/$BRANCH^{commit}" >/dev/null 2>&1 \
+      || policy_abort RELEASE_LINE_UNKNOWN "缓存里没有发布线 refs/heads/$BRANCH，无法判断候选是否在发布线上"
+    is_ancestor "refs/heads/$BRANCH" "$ref" \
+      || policy_abort NOT_IN_RELEASE_LINE "候选 $ref 不包含发布线 $BRANCH 的最新提交（不在预期发布线上）"
+    if [ -n "$live_sha" ]; then
+      [ "$live_sha" = "$ref" ] && policy_abort ALREADY_LIVE "候选就是当前线上版本，无需准备"
+      is_ancestor "$live_sha" "$ref" || policy_abort VERSION_REGRESSION "候选不是当前线上版本的后代（版本回退或分叉）"
+    fi
+  else
+    [ -n "$ROLLBACK_TO" ] || policy_abort ROLLBACK_TARGET_REQUIRED "回滚必须显式给出 WS_ROLLBACK_TO=<40 位提交号>（第二把钥匙）"
+    [ "$ROLLBACK_TO" = "$ref" ] || policy_abort ROLLBACK_TARGET_MISMATCH "WS_ROLLBACK_TO=$ROLLBACK_TO 与 WS_REF=$ref 不一致"
+    [ -n "$live_sha" ] || policy_abort ROLLBACK_NO_LIVE "没有 current，无法判断要回滚到哪个版本之前"
+    [ "$live_sha" = "$ref" ] && policy_abort ALREADY_LIVE "候选就是当前线上版本，无需回滚"
+    is_ancestor "$ref" "$live_sha" || policy_abort ROLLBACK_NOT_ANCESTOR "回滚目标 $ref 不是当前线上版本 $live_sha 的祖先（这不是往回走）"
+    echo "  WARN: 回滚路径：允许登记旧版（${face}），这是显式授权且可留档的路径。"
+  fi
+}
 
 # ---------- 1. 取发布树 ----------
 cmd_fetch() {
   need_root
-  [ -d "$REL" ] && { echo "已存在：$REL"; return 0; }
-  install -d -m 755 "$ROOT/.git-cache" "$(dirname "$REL")"
+  need_ref
+  check_mode
+  [ -d "$ROOT" ] || die "PREDEPLOY_ABORT_ROOT_MISSING $ROOT 不存在" 2
+  install -d -m 755 "$ROOT/.git-cache"
   if [ ! -d "$CACHE" ]; then
     git init --bare -q "$CACHE"
     git -C "$CACHE" remote add origin "$REPO"
   fi
-  timeout 300 git -C "$CACHE" fetch -q --force origin "+refs/heads/$BRANCH:refs/heads/$BRANCH" \
-    || die "从 GitHub 取不到 $BRANCH（机内直连 GitHub 若不通，改用投递产物，别改批准 SHA）"
-  local head; head=$(git -C "$CACHE" rev-parse "$BRANCH")
-  [ "$head" = "$REF" ] || { echo "  $BRANCH 现在是 $head，批准点是 $REF" >&2; die "PREDEPLOY_ABORT_GIT_DRIFT"; }
+  # 先取全部分支（发布线、当前线上版本、候选通常都在上面）；远端不支持时退回按提交号直接取。
+  if ! timeout 300 git -C "$CACHE" fetch -q --force origin '+refs/heads/*:refs/heads/*' 2>/dev/null; then
+    timeout 300 git -C "$CACHE" fetch -q --force origin "$REF" 2>/dev/null \
+      || die "PREDEPLOY_ABORT_FETCH_FAILED 取不到 $REF（远端不可达，或该提交不在任何分支上）" 2
+  fi
+  git -C "$CACHE" cat-file -e "$REF^{commit}" 2>/dev/null \
+    || die "PREDEPLOY_ABORT_TARGET_IDENTITY_UNKNOWN 远端取回来了，但缓存里仍解析不到 $REF" 2
+  [ "$(git -C "$CACHE" rev-parse "$REF^{commit}" 2>/dev/null)" = "$REF" ] \
+    || die "PREDEPLOY_ABORT_TARGET_IDENTITY_MISMATCH WS_REF=$REF 解析成了另一个提交" 2
+
+  # 身份与策略通过之后才允许写发布树
+  verify_target_policy "$REF"
+  ensure_dirs
+  install -d -m 755 "$(dirname "$REL")"
+  if [ -d "$REL" ]; then
+    echo "已存在：$REL（不重复展开；verify 会逐文件核对内容）"
+    return 0
+  fi
   install -d -m 755 "$REL"
   # 逐文件从该 SHA 展开（不带 .git，避免"目录里有个 git 仓库"被误当成可改的工作区）
   git -C "$CACHE" archive "$REF" | tar -x -C "$REL"
@@ -64,12 +163,19 @@ cmd_fetch() {
   echo "   树清单：$(cat "$STATE/tree-manifest-$REF.sha256")"
 }
 
-# ---------- 2. 证明部署树就是批准 SHA（只读比对，不往发布树写任何东西） ----------
+# ---------- 2. 证明部署树就是候选 SHA（只读比对，不往发布树写任何东西） ----------
 # 反面教训（本轮真的踩过）：不要对刚 git init、HEAD 还不存在的临时仓库跑 status --porcelain，
 # 那会把每个文件都报成 "A"，制造 100% 误报的 GIT_DRIFT；checkout -- . 还会顺手改写发布树。
 cmd_verify() {
   need_root
-  [ -d "$REL" ] || die "先跑 fetch"
+  need_ref
+  check_mode
+  [ -d "$REL" ]  || die "PREDEPLOY_ABORT_RELEASE_TREE_MISSING 先跑 fetch（$REL 不存在）" 2
+  [ -d "$CACHE" ] || die "PREDEPLOY_ABORT_GIT_CACHE_MISSING 与发布树对应的 git 缓存不在位（$CACHE）" 2
+  # 先验身份、形状、发布线、前后代关系；不过就退出，批准点一个字都不写
+  verify_target_policy "$REF"
+  ensure_dirs
+
   local exp act missing extra scratch
   # 被 gitignore 的运行期暂存：Gate 在发布树里跑自测时会生成 var/、eval/out/ 下的文件
   # （本轮实测多出 var/auth-8951.json）。把它们算进"该 SHA 之外的文件"会让逐文件校验
@@ -81,9 +187,9 @@ cmd_verify() {
   missing=$(comm -23 <(echo "$exp") <(echo "$act"))
   extra=$(comm -13 <(echo "$exp") <(echo "$act"))
   if [ -n "$missing" ]; then echo "  缺文件:"; echo "$missing" | head -20
-    die "PREDEPLOY_ABORT_GIT_DRIFT 发布树缺该 SHA 的文件"; fi
+    die "PREDEPLOY_ABORT_GIT_DRIFT 发布树缺该 SHA 的文件" 2; fi
   if [ -n "$extra" ]; then echo "  多出的文件:"; echo "$extra" | head -20
-    die "PREDEPLOY_ABORT_GIT_DRIFT 发布树有该 SHA 之外的文件"; fi
+    die "PREDEPLOY_ABORT_GIT_DRIFT 发布树有该 SHA 之外的文件" 2; fi
 
   local bad=0 n=0 path sha want have
   while IFS= read -r path; do
@@ -93,9 +199,12 @@ cmd_verify() {
     have=$(sha256sum "$REL/$path" | awk '{print $1}')
     [ "$want" = "$have" ] || { echo "  内容不一致: $path"; bad=$((bad+1)); }
   done <<< "$exp"
-  [ "$bad" = 0 ] || die "PREDEPLOY_ABORT_GIT_DRIFT $bad 个文件内容与 $REF 不一致"
-  echo "$REF" > "$STATE/approved-sha"     # 下游脚本都从这里读批准点，不再各自写死
-  echo "  批准点已登记：$STATE/approved-sha = $REF"
+  [ "$bad" = 0 ] || die "PREDEPLOY_ABORT_GIT_DRIFT $bad 个文件内容与 $REF 不一致" 2
+
+  # 全部通过之后才登记批准点（原子写：读者永远看不到半个 SHA）
+  local tmp="$STATE/.approved-sha.tmp.$$"
+  printf '%s\n' "$REF" > "$tmp" && mv -f "$tmp" "$STATE/approved-sha"
+  echo "  批准点已登记：$STATE/approved-sha = $REF（路径 $MODE$([ "$MODE" = rollback ] && echo " → $ROLLBACK_TO")）"
   echo "GIT=PASS  发布树 $n 个文件逐内容与 $REF 相同，无缺失、无多余（只读比对，未写发布树）"
   echo "  树清单留档：$(cat "$STATE/tree-manifest-$REF.sha256" 2>/dev/null || echo 无)"
   echo "  current 仍指向：$(readlink "$ROOT/current" || echo 未设置)（本脚本从不改它）"
@@ -104,8 +213,9 @@ cmd_verify() {
 # ---------- 3. 关站方案 ----------
 cmd_emergency() {
   need_root
-  [ -x /usr/local/bin/world-space-emergency.sh ] || die "先 scp world-space-emergency.sh 到 /usr/local/bin 并 chmod 755"
-  [ -d "$EMERG/staging" ] || die "先 scp emergency-closed/{world-space-closed.conf,maintenance.html} 到 $EMERG/staging"
+  ensure_dirs
+  [ -x /usr/local/bin/world-space-emergency.sh ] || die "先 scp world-space-emergency.sh 到 /usr/local/bin 并 chmod 755" 2
+  [ -d "$EMERG/staging" ] || die "先 scp emergency-closed/{world-space-closed.conf,maintenance.html} 到 $EMERG/staging" 2
   world-space-emergency.sh install
   world-space-emergency.sh preflight
   world-space-emergency.sh status | tee "$STATE/status-$(date +%Y%m%d-%H%M%S).txt"
@@ -115,7 +225,8 @@ cmd_emergency() {
 # ---------- 4. 派生 smoke env（不碰生产 env） ----------
 cmd_smokeenv() {
   need_root
-  [ -f "$PROD_ENV" ] || die "读不到 $PROD_ENV"
+  [ -f "$PROD_ENV" ] || die "读不到 $PROD_ENV" 2
+  ensure_dirs
   [ -f "$SMOKE_ENV" ] && cp -f "$SMOKE_ENV" "$SMOKE_ENV.bak-$(date +%Y%m%d-%H%M%S)"
   install -d -m 750 -o root -g wsapp "$PRIV"   # 不能写 700：那会让 wsapp 进不了目录读用户文件，直接 auth broken
   # 只改这几项；env 里其它生产值（provider / 模型 / token 上限）原样继承
@@ -169,8 +280,9 @@ restore_users() { [ -f "$PRIV/users.json.hold" ] && mv -f "$PRIV/users.json.hold
 
 cmd_failclosed() {
   need_root
+  ensure_dirs
   ensure_priv
-  [ -f "$PRIV/users.json" ] || die "先跑 make-priv-files.sh 生成 users.json"
+  [ -f "$PRIV/users.json" ] || die "先跑 make-priv-files.sh 生成 users.json" 2
   trap 'stop_instance >/dev/null 2>&1 || true; restore_users' EXIT
   hold_users                                           # 移开，不删
   start_instance; sleep 2
@@ -189,13 +301,15 @@ cmd_failclosed() {
   if [ "$api" = "503" ] && echo "$code" | grep -qE '302|401'; then
     echo "AUTH_FAIL_CLOSED=PASS —— 认证配置坏了仍然关着门，业务接口没有 200"
   else
-    die "PREDEPLOY_REJECTED_AUTH_FAIL_OPEN 认证配置坏了但业务仍可用（api=$api, root=$code）"
+    die "PREDEPLOY_REJECTED_AUTH_FAIL_OPEN 认证配置坏了但业务仍可用（api=$api, root=$code）" 2
   fi
 }
 
 # ---------- 6. Gate ----------
 cmd_gates() {
-  [ -d "$REL" ] || die "先 fetch"
+  need_ref
+  ensure_dirs
+  [ -d "$REL" ] || die "先 fetch" 2
   local out="$LOGDIR/gates-$(date +%Y%m%d-%H%M).txt"; : > "$out"
   # 清单与仓库 eval/ 保持同步；换候选后先数一下项数，漏跑一项就等于没跑那一轮（13 → 14）
   for g in runtime-isolation authority adapter-shape admission retry liveness xss-boundary \
@@ -206,13 +320,14 @@ cmd_gates() {
     printf '%-18s %-5s %ss\n' "$g" "$r" "$(( $(date +%s) - st ))" | tee -a "$out"
   done
   echo "---- 服务器发布树 Gate 汇总（$REL）----"; cat "$out"
-  grep -q FAIL "$out" && die "有 Gate 未通过：见 $LOGDIR/gate-*.log（不许引用开发机的旧绿灯）" \
+  grep -q FAIL "$out" && die "有 Gate 未通过：见 $LOGDIR/gate-*.log（不许引用开发机的旧绿灯）" 2 \
     || echo "ALL_GATES=PASS（服务器真实发布树）"
 }
 
 # ---------- 7. 本机验证实例 ----------
 start_instance() {
-  [ -f "$SMOKE_ENV" ] || die "先 smokeenv"
+  [ -f "$SMOKE_ENV" ] || die "先 smokeenv" 2
+  ensure_dirs
   set -a; . "$SMOKE_ENV"; set +a
   cd "$REL"
   nohup node server/world.mjs > "$LOGDIR/smoke.out" 2>&1 &
@@ -225,7 +340,7 @@ stop_instance() {
   fi
   echo "本机验证实例已停（公网从未指向它）"
 }
-cmd_start() { need_root; start_instance; sleep 2
+cmd_start() { need_root; need_ref; ensure_dirs; start_instance; sleep 2
   echo "PID=$(cat "$STATE/smoke.pid") 监听：$(ss -ltnp 2>/dev/null | grep ":$SMOKE_PORT" | head -1)"
   echo "healthz: $(curl -s --max-time 8 http://$SMOKE_HOST:$SMOKE_PORT/healthz)"; }
 cmd_stop() { need_root; stop_instance; }
@@ -233,15 +348,19 @@ cmd_stop() { need_root; stop_instance; }
 # ---------- 8. 只读汇总 ----------
 cmd_report() {
   need_root
+  local show_ref show_rel
+  show_ref="${WS_REF:-$(cat "$STATE/approved-sha" 2>/dev/null || true)}"
+  show_rel="$ROOT/releases/${show_ref:-<未登记>}"
   echo "=== §1 候选锁死 ==="
-  echo "  发布树: $REL"; [ -d "$REL" ] && echo "  存在: yes" || echo "  存在: no"
+  echo "  候选（WS_REF / 已登记批准点）: ${show_ref:-<未登记>}"
+  echo "  发布树: $show_rel"; [ -d "$show_rel" ] && echo "  存在: yes" || echo "  存在: no"
   echo "  current -> $(readlink "$ROOT/current" || echo 未设置)   # 公网在跑的仍是它，本脚本未改"
   echo "=== §2 仓库外私有文件 ==="
   for f in "$PRIV/users.json" "$PRIV/session-secret.txt"; do
     if [ -f "$f" ]; then echo "  $(basename "$f"): mode=$(stat -c %a "$f") owner=$(stat -c %U "$f") 在位"; else echo "  $(basename "$f"): 缺失"; fi
   done
   echo "  users.json 里的 user_id（不含 hash）: $(node -e 'try{const j=require("'$PRIV'/users.json");console.log(j.users.map(u=>u.user_id).join(",")||"空")}catch(e){console.log("读不到")}' 2>/dev/null || echo 读不到)"
-  echo "  Git 可见性: $(git -C "$CACHE" grep -l -I 'WS_SEARCH_KEY\|password' "$REF" -- 2>/dev/null | grep -v scripts/ | head -3 || echo 无)"
+  echo "  Git 可见性: $(git -C "$CACHE" grep -l -I 'WS_SEARCH_KEY\|password' "$show_ref" -- 2>/dev/null | grep -v scripts/ | head -3 || echo 无)"
   echo "=== §6/§7/§9 运行边界与配置（不打印任何密钥值）==="
   for k in WS_HOST WS_PORT WS_COOKIE_SECURE WS_TRUST_PROXY WS_ALLOWED_ORIGINS WS_DAILY_CAP WS_MONTHLY_CAP_RMB WS_SEARCH WS_AUTH_ENABLED; do
     v=$(grep -E "^$k=" "$SMOKE_ENV" 2>/dev/null | head -1 | cut -d= -f2- || true)
@@ -258,5 +377,5 @@ case "${1:-}" in
   fetch) cmd_fetch ;; verify) cmd_verify ;; emergency) cmd_emergency ;;
   smokeenv) cmd_smokeenv ;; adduser) shift; cmd_adduser "$@" ;; failclosed) cmd_failclosed ;;
   gates) cmd_gates ;; start) cmd_start ;; stop) cmd_stop ;; report) cmd_report ;;
-  *) sed -n '3,20p' "$0"; exit 2 ;;
+  *) sed -n '17,28p' "$0"; exit 2 ;;
 esac
