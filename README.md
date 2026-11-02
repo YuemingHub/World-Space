@@ -34,16 +34,25 @@
 ## 仓库结构
 
 ```
-PRODUCT.md              产品定义
-CURRENT_STATE.md        当前状态
-AGENTS.md               仓库规则
+PRODUCT.md              产品定义（Resource First）
+CURRENT_STATE.md        当前状态（2026-11-02 起描述线上现实）
+AGENTS.md               仓库规则（含线上与发布）
+docs/v2/NORTH_STAR.md   V2 产品内核（认知链、五原则、隐私决定、通过标准）
 
-catalog/resources.json  资源目录
-paths/                  兜底路径（3 步，与网页一致）
-web/index.html          公开入口
-index.html              根跳转页
-docs/design/CURRENT_DESIGN.md  当前设计真源
-docs/goal-coverage.md  目标覆盖判断（为什么是这 7 个）
+server/                 V2 应用服务（/api/world 认知链、/api/auth、/healthz）
+web/v2/                 登录后应用（index/app/style/login）
+web/v2/public/          未登录公开门面（当前线上为 c953aab 版）
+contracts/world.schema.json   认知链输出契约（证据纪律）
+catalog/resources.json  资源目录（7 条，已核验）
+paths/                  V1 三步兜底的镜像（3 个文件，非行动路径库）
+eval/                   测试装置（20 个）
+docs/v2/release-c500f3d/      发布工具（cutover / verifier / 身份 / 应急回退）
+docs/M0-PRODUCT-RECON-20261102.md  M0 产品真源核查（真源/资产/冲突/差距）
+docs/design/CURRENT_DESIGN.md     V1 设计真源（已冻结，线上以 V2 为准）
 
-archive/                历史资产
+archive/                历史资产（不得修改）
+index.html              历史跳转页（GitHub Pages 时代，线上不服务）
+web/index.html          V1 静态页（历史资产，线上不服务）
 ```
+
+> 线上部署结构、版本与回退方式见 `CURRENT_STATE.md` 与 `WORLD-SPACE-FINAL-RELEASE-RUNBOOK.md`。

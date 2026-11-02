@@ -1,6 +1,8 @@
 # 当前设计真源（Current Design Source）
 
-> 本文件描述当前线上产品（`web/index.html`）实际生效的设计。
+> **冻结说明（2026-11-02）**：本文件描述的是 **V1 静态单页**（`web/index.html`）的设计，已冻结、仅作历史与素材参考。
+> 线上现行产品是 **V2**：`server/world.mjs` + `web/v2/`（应用）+ `web/v2/public/index.html`（匿名门面）；
+> V2 的产品内核见 `docs/v2/NORTH_STAR.md`，当前状态见 `CURRENT_STATE.md`。
 > 历史设计资产（叙事单页 v1/v2）保存在 `archive/design/`，仅供追溯，不再作为实施依据。
 > 最后更新：2026-09-11
 

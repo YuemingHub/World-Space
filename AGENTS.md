@@ -48,6 +48,13 @@ World Space 不是：AI 基础设施公司、Agent Framework、Workflow Builder�
    推送后确认本地分支与对应远程分支同步（`git status` 显示 up to date / working tree clean）。
    这是为了让主 agent 能直接从 GitHub 读取每一轮的进展，而不依赖会话内汇报。
 
+## 线上与发布（2026-11-02 补充）
+
+- 线上是 **V2 应用**（`server/world.mjs` + `web/v2/`），不是静态页；匿名 `/` 由 `web/v2/public/index.html` 承载。
+- 部署：阿里云 ECS + systemd `world-space` + nginx；发布用 `docs/v2/release-c500f3d/` 的 cutover 体系（两把钥匙、发布身份、回执），流程与回退见 `WORLD-SPACE-FINAL-RELEASE-RUNBOOK.md`。
+- 任何发布前必须重新冻结身份（树 → `release_id`）并登记批准点；不得直接改线上文件。
+- 当前状态与已验证/未验证边界以 `CURRENT_STATE.md` 为准；产品真源核查见 `docs/M0-PRODUCT-RECON-20261102.md`。
+
 ## 仓库结构规则
 
 - 只有有真实内容时才创建目录，不创建空目录
