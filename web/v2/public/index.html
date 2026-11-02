@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦐</text></svg>">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%230B1220'/%3E%3Ccircle cx='50' cy='50' r='21' fill='none' stroke='%2360A5FA' stroke-width='6'/%3E%3Cellipse cx='50' cy='50' rx='37' ry='13' fill='none' stroke='%23A5B4FC' stroke-width='4' transform='rotate(-20 50 50)'/%3E%3Ccircle cx='79' cy='38' r='7' fill='%23C4B5FD'/%3E%3C/svg%3E">
 <meta name="description" content="World Space 是给每一个普通人的 AI 入口：不懂技术没关系，孩子和家长也能一起。选一件事，马上开始——10 分钟做成第一件事。">
 <meta property="og:title" content="World Space — 你想做什么事？">
 <meta property="og:description" content="选一件事，马上开始。从 0 开始，连接 AI 与世界——每一步都替你选好了工具和第一句话。">
@@ -59,6 +59,35 @@ a { color: var(--accent-strong); }
   background: radial-gradient(620px 300px at 78% 6%, rgba(124,58,237,.34), transparent 62%),
               radial-gradient(560px 300px at 12% 96%, rgba(37,99,235,.30), transparent 64%); }
 .hero .inner { position: relative; z-index: 2; max-width: var(--maxw); margin: 0 auto; padding: 72px 20px 84px; }
+.hero .inner.hgrid { display: grid; grid-template-columns: 1.02fr .98fr; gap: 46px; align-items: center; }
+.hero .inner.hgrid .hleft h1 { font-size: clamp(27px, 3.15vw, 41px); }
+.hleft { min-width: 0; }
+.hright { min-width: 0; }
+.xpanel { background: rgba(15,23,42,.74); border: 1px solid rgba(148,163,184,.3); border-radius: 18px; padding: 20px; backdrop-filter: blur(6px); box-shadow: 0 28px 70px -28px rgba(2,6,23,.95); }
+.xpanel .xhead { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
+.xpanel .xhead h2 { font-size: 17px; color: #F8FAFC; font-weight: 700; }
+.xpanel .demo { font-size: 12px; font-weight: 600; color: #FCD34D; background: rgba(251,191,36,.14); border: 1px solid rgba(251,191,36,.4); padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+.xstep { margin-bottom: 12px; }
+.xstep .lbl { font-size: 12.5px; color: #94A3B8; letter-spacing: .3px; margin-bottom: 6px; font-weight: 600; }
+.xq { display: flex; align-items: center; gap: 10px; background: rgba(148,163,184,.1); border: 1px solid rgba(148,163,184,.26); border-radius: 12px; padding: 12px 14px; color: #F1F5F9; font-weight: 600; font-size: 16px; }
+.xq .em { font-size: 18px; }
+.xai { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.xai span { font-size: 13px; color: #C7D2FE; background: rgba(99,102,241,.16); border: 1px solid rgba(129,140,248,.3); border-radius: 999px; padding: 4px 11px; }
+.xai .ar { color: #64748B; background: none; border: none; padding: 0; }
+.xans { background: rgba(2,6,23,.6); border: 1px solid rgba(148,163,184,.24); border-radius: 12px; padding: 14px 15px; font-size: 15px; color: #E2E8F0; line-height: 1.8; }
+.xans b { color: #fff; }
+.xans .src { display: block; margin-top: 8px; font-size: 12.5px; color: #94A3B8; line-height: 1.6; }
+.xans .src a { color: #A5B4FC; }
+.xnext { display: flex; flex-wrap: wrap; gap: 8px; }
+.xnext a, .xnext button { display: inline-flex; align-items: center; min-height: 42px; font-size: 14px; font-weight: 600; color: #E2E8F0; background: rgba(148,163,184,.12); border: 1px solid rgba(148,163,184,.3); border-radius: 999px; padding: 8px 14px; cursor: pointer; font-family: inherit; text-decoration: none; transition: background .15s; }
+.xnext a:hover, .xnext button:hover { background: rgba(148,163,184,.24); }
+.xnext .primary { background: var(--grad); border-color: transparent; color: #fff; }
+@media (max-width: 980px) {
+  .hero .inner.hgrid { grid-template-columns: 1fr; gap: 32px; }
+  .hero h1 { font-size: clamp(28px, 7.4vw, 38px); }
+  .xpanel { padding: 16px; }
+  .xnext a, .xnext button { flex: 1 1 100%; justify-content: center; }
+}
 .eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: #C7D2FE;
   background: rgba(99,102,241,.16); border: 1px solid rgba(129,140,248,.34); padding: 6px 14px; border-radius: 999px; margin-bottom: 22px; }
 .eyebrow .dot { width: 7px; height: 7px; border-radius: 50%; background: #34D399; box-shadow: 0 0 0 4px rgba(52,211,153,.18); }
@@ -131,6 +160,20 @@ section.alt { background: var(--surface); border-top: 1px solid var(--border); b
 .bullets li b { display: block; font-weight: 700; }
 .bullets li span { color: var(--fg-muted); font-size: 15px; }
 
+/* Flow（世界连接：想法 → AI → 世界已有能力 → 结果 → 回现实） */
+.flow { display: grid; grid-template-columns: 1fr 26px 1fr 26px 1fr 26px 1fr 26px 1fr; align-items: stretch; }
+.fnode { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px 15px; text-align: center; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 7px; }
+.fnode .fi { font-size: 26px; }
+.fnode h3 { font-size: 16px; font-weight: 800; }
+.fnode p { font-size: 13.5px; color: var(--fg-muted); line-height: 1.6; }
+.fnode .tools-line { margin-top: auto; font-size: 12.5px; color: var(--accent-strong); font-weight: 700; }
+.fnode.hl { border-color: #C7D2FE; background: linear-gradient(180deg,#F5F7FF,#fff); }
+.farr { display: flex; align-items: center; justify-content: center; color: #94A3B8; font-size: 20px; }
+@media (max-width: 900px) {
+  .flow { grid-template-columns: 1fr; }
+  .farr { transform: rotate(90deg); padding: 2px 0; }
+}
+
 /* Family */
 .family { display: grid; grid-template-columns: 1.15fr 1fr; gap: 28px; align-items: start; }
 .family .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); }
@@ -138,6 +181,13 @@ section.alt { background: var(--surface); border-top: 1px solid var(--border); b
 .family .panel ul { list-style: none; }
 .family .panel li { font-size: 15px; padding: 7px 0 7px 26px; position: relative; color: #334155; }
 .family .panel li::before { content: '·'; position: absolute; left: 8px; color: var(--violet); font-weight: 700; }
+.kq { font-size: 16px; margin-bottom: 10px; }
+.kq b { color: var(--accent-strong); }
+.ksteps { list-style: none; counter-reset: ks; margin-bottom: 12px; }
+.ksteps li { position: relative; padding: 7px 0 7px 34px; font-size: 15px; color: #334155; counter-increment: ks; }
+.ksteps li::before { content: counter(ks); position: absolute; left: 0; top: 8px; width: 22px; height: 22px; border-radius: 50%; background: var(--grad); color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.ksteps li b { color: var(--fg); }
+.ksafe { font-size: 14px; color: #B45309; background: rgba(217,119,6,.09); border: 1px solid rgba(217,119,6,.28); border-radius: 10px; padding: 10px 12px; }
 .soon { margin-top: 16px; padding: 14px 16px; border-radius: var(--radius-sm); background: linear-gradient(135deg, rgba(37,99,235,.07), rgba(124,58,237,.07)); border: 1px dashed rgba(124,58,237,.36); font-size: 15px; color: #3730A3; }
 .soon b { font-weight: 700; }
 
@@ -281,9 +331,10 @@ footer .safe { margin-top: 6px; font-size: 13px; }
 <header class="hero">
   <canvas id="net" aria-hidden="true"></canvas>
   <div class="glow" aria-hidden="true"></div>
-  <div class="inner">
+  <div class="inner hgrid">
+    <div class="hleft">
     <span class="eyebrow"><span class="dot"></span>World Space · 给每一个普通人的 AI 入口</span>
-    <h1>不懂技术，也能<span class="grad">从 0 开始</span><br>连接 AI 与世界</h1>
+    <h1>不懂技术，也能<br><span class="grad">从 0 开始</span><br>连接 AI 与世界</h1>
     <p class="sub">AI 不是一门要先学会的技术。你只要<b>说清楚想做什么</b>，它就能帮你做出来。<br>这里适合第一次碰 AI 的人、孩子和家长——<b>10 分钟做成第一件事</b>。</p>
     <div class="chips">
       <span>完全不懂 AI 也能用</span><span>孩子能看懂</span><span>家长能陪</span><span>不用装软件</span>
@@ -297,6 +348,48 @@ footer .safe { margin-top: 6px; font-size: 13px; }
       <a class="btn-ghost" href="#abilities">先看看 AI 现在能做什么</a>
     </div>
     <p class="foot">已经用过 World Space？<a href="/login">直接进入</a></p>
+    </div>
+
+    <div class="hright">
+      <section class="xpanel" id="moon" aria-label="一个想法怎么变成结果：月亮跟着我走">
+        <div class="xhead">
+          <h2>看一个想法怎么变成结果</h2>
+          <span class="demo">演示样例 · 非实时 AI</span>
+        </div>
+
+        <div class="xstep">
+          <div class="lbl">① 一个真实的问题（孩子问的）</div>
+          <div class="xq"><span class="em">🌙</span>为什么月亮会跟着我走？</div>
+        </div>
+
+        <div class="xstep">
+          <div class="lbl">② AI 帮你做的三件事</div>
+          <div class="xai"><span>听懂你的问题</span><span class="ar">→</span><span>讲成你能懂的话</span><span class="ar">→</span><span>给出自己验证的办法</span></div>
+        </div>
+
+        <div class="xstep">
+          <div class="lbl">③ 你会得到（下面的答案是预先写好并核验过的样例，不是实时生成）</div>
+          <div class="xans">它没有在跟着你——是<b>近处的东西跑得太快</b>。月亮离你平均约 <b>38 万公里</b>，差不多 30 个地球排成一排。你走的几步路，对这个距离来说几乎等于没动：近处的树一走就“跑”到身后，月亮的方向却几乎不变。远处的山也一样，看起来总像在跟着你走。
+            <span class="src">事实核验：NASA Space Place《How Far Away Is the Moon?》—— 月地平均 384,400 公里 ≈ 30 个地球 · <a href="https://spaceplace.nasa.gov/moon-distance/en/" target="_blank" rel="noopener">打开原文</a></span>
+          </div>
+        </div>
+
+        <div class="xstep">
+          <div class="lbl">④ 变成你自己的行动</div>
+          <div class="xnext">
+            <button type="button" onclick="copyConst('为什么月亮会跟着我走？请用 10 岁孩子能听懂的话解释，再告诉我怎么自己验证。', this)">复制这句话</button>
+            <a class="primary" href="https://www.doubao.com" target="_blank" rel="noopener">去豆包亲手问一遍 →</a>
+            <a href="https://chat.deepseek.com" target="_blank" rel="noopener">去 DeepSeek 问 →</a>
+            <a href="https://spaceplace.nasa.gov/moon-distance/en/" target="_blank" rel="noopener">NASA 动手实验 →</a>
+          </div>
+        </div>
+
+        <div class="xstep" style="margin:14px 0 0">
+          <div class="lbl">自己就能核实（两分钟）</div>
+          <div class="xans" style="font-size:14px">① 走 10 步，同时看近处的树和远处的月亮——树跑了，月亮没跑。<br>② NASA 的玩法：篮球当地球、网球当月亮，放在约 7 米外——比你以为的远得多。<br>③ 带着下一个问题回来：<b>为什么远处的山也像在跟着我走？</b></div>
+        </div>
+      </section>
+    </div>
   </div>
 </header>
 
@@ -353,21 +446,21 @@ footer .safe { margin-top: 6px; font-size: 13px; }
     <div class="grid g3 path">
       <div class="card reveal">
         <div class="ico">🌱</div>
-        <h3>我是 0 基础</h3>
-        <p>第一次碰 AI，连“怎么问”都不知道。跟着 7 步走一遍：怎么开口、怎么让它改、怎么核实它有没有说错。</p>
-        <a class="go" href="/ai/">从第一句话开始 →</a>
+        <h3>我是 0 基础（大人）</h3>
+        <p>从一件真实的任务开始：写一条通知、查清一件事、做一张海报。不需要技术基础，第一句话都替你写好了。</p>
+        <a class="go" href="#tasks">挑一件真事开始 →</a>
       </div>
       <div class="card reveal">
         <div class="ico">🧒</div>
-        <h3>我是孩子 / 家长</h3>
-        <p>孩子想试试 AI，家长想弄明白它到底安不安全、会不会乱说。这里有给孩子的例子，也有给家长的说明。</p>
-        <a class="go" href="#family">看孩子怎么用 →</a>
+        <h3>我是孩子</h3>
+        <p>从一个好奇的问题开始：「为什么月亮会跟着我走？」问 AI、动手验证、讲给别人听——探索、创造、发现。</p>
+        <a class="go" href="#moon">看这个孩子的例子 →</a>
       </div>
       <div class="card reveal">
-        <div class="ico">🚀</div>
-        <h3>我想真正学会用 AI</h3>
-        <p>不满足于“玩一下”。三步练基本功：做成一件小事、把它改到满意、亲手查证一次。</p>
-        <a class="go" href="#journey">开始三步上手 →</a>
+        <div class="ico">👨‍👩‍👧</div>
+        <h3>我是家长</h3>
+        <p>想知道孩子在做什么、AI 会在哪里出错、怎么陪着一起核实。每一段都写得让家长看得懂。</p>
+        <a class="go" href="#family">看家长指南 →</a>
       </div>
     </div>
   </div>
@@ -378,42 +471,41 @@ footer .safe { margin-top: 6px; font-size: 13px; }
   <div class="wrap">
     <div class="sec-head reveal">
       <div class="kicker">这里是什么地方</div>
-      <h2>不只是一个工具，是 AI 与世界的连接口</h2>
-      <p>World Space 不替你做一个 App，而是把“你”“AI”“世界上的真事”连起来：你说想做什么，它陪你一步一步做出来。</p>
+      <h2>把一个想法，真正开始做起来</h2>
+      <p>World Space 不制造新能力。它帮你找到世界上已有的好工具，用 AI 把你的想法接上去，一步步做成真实的结果——每一步都可点、都免费开始。</p>
     </div>
-    <div class="diagram">
-      <div class="dgm reveal" aria-hidden="true">
-        <svg viewBox="0 0 420 260" role="img">
-          <defs>
-            <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stop-color="#60A5FA"/><stop offset="1" stop-color="#C4B5FD"/>
-            </linearGradient>
-          </defs>
-          <g stroke="url(#lg)" stroke-width="1.2" opacity=".55" fill="none">
-            <line x1="210" y1="130" x2="80" y2="52"/><line x1="210" y1="130" x2="330" y2="46"/>
-            <line x1="210" y1="130" x2="60" y2="196"/><line x1="210" y1="130" x2="348" y2="188"/>
-            <line x1="210" y1="130" x2="212" y2="228"/><line x1="80" y1="52" x2="330" y2="46"/>
-            <line x1="60" y1="196" x2="212" y2="228"/><line x1="330" y1="46" x2="348" y2="188"/>
-          </g>
-          <g fill="#E0E7FF" font-family="-apple-system,'PingFang SC',sans-serif" font-size="13" text-anchor="middle">
-            <circle cx="80" cy="52" r="7" fill="#60A5FA"/><text x="80" y="34">写点东西</text>
-            <circle cx="330" cy="46" r="7" fill="#A78BFA"/><text x="330" y="28">查一件事</text>
-            <circle cx="60" cy="196" r="7" fill="#34D399"/><text x="60" y="220">做张海报</text>
-            <circle cx="348" cy="188" r="7" fill="#FBBF24"/><text x="348" y="212">整理照片</text>
-            <circle cx="212" cy="228" r="7" fill="#F472B6"/><text x="212" y="252">教孩子</text>
-          </g>
-          <circle cx="210" cy="130" r="38" fill="rgba(99,102,241,.18)" stroke="url(#lg)" stroke-width="1.5"/>
-          <text x="210" y="126" fill="#F8FAFC" font-size="15" font-weight="700" text-anchor="middle" font-family="-apple-system,sans-serif">AI</text>
-          <text x="210" y="145" fill="#C7D2FE" font-size="11" text-anchor="middle" font-family="-apple-system,sans-serif">听懂你的话</text>
-          <text x="210" y="100" fill="#94A3B8" font-size="11" text-anchor="middle" font-family="-apple-system,sans-serif">你</text>
-        </svg>
-        <div class="cap">你说想做什么 · AI 帮你做 · 回到现实里用起来</div>
+    <div class="flow reveal">
+      <div class="fnode hl">
+        <div class="fi">💡</div>
+        <h3>你的想法</h3>
+        <p>「为什么月亮会跟着我走？」<br>「想给孩子解释什么是 AI」</p>
       </div>
-      <ul class="bullets reveal">
-        <li><b>从 0 到会用，有路可走</b><span>七步入门 + 三步上手，每一步都有具体动作，不需要先懂任何术语。</span></li>
-        <li><b>每一步都有真工具和真例子</b><span>写东西、做海报、查事情、处理文件……第一句话都替你写好了，复制就能用。</span></li>
-        <li><b>AI 在这里不是口号</b><span>它当场就能给你产出；同时我们如实告诉你它会在哪里出错、怎么核实。</span></li>
-      </ul>
+      <div class="farr" aria-hidden="true">→</div>
+      <div class="fnode">
+        <div class="fi">🤖</div>
+        <h3>AI 能力</h3>
+        <p>听懂你的话 → 讲成你能懂的答案 → 给出自己验证的办法</p>
+        <div class="tools-line">豆包 · DeepSeek</div>
+      </div>
+      <div class="farr" aria-hidden="true">→</div>
+      <div class="fnode">
+        <div class="fi">🌍</div>
+        <h3>世界已有的能力</h3>
+        <p>不重造轮子：替你选好现成的好工具，直接带你过去</p>
+        <div class="tools-line">稿定 · v0 · Stirling PDF · 手机自带</div>
+      </div>
+      <div class="farr" aria-hidden="true">→</div>
+      <div class="fnode hl">
+        <div class="fi">✅</div>
+        <h3>真实结果</h3>
+        <p>一条能发的朋友圈<br>一个查清的答案<br>一张做出来的海报</p>
+      </div>
+      <div class="farr" aria-hidden="true">→</div>
+      <div class="fnode">
+        <div class="fi">🔁</div>
+        <h3>回到现实</h3>
+        <p>发出去、做出来、讲给孩子听——然后带着下一个问题回来</p>
+      </div>
     </div>
   </div>
 </section>
@@ -428,14 +520,16 @@ footer .safe { margin-top: 6px; font-size: 13px; }
     </div>
     <div class="family">
       <div class="panel reveal">
-        <h3>🧒 给孩子</h3>
-        <ul>
-          <li>用孩子听得懂的话解释 AI：“它像一个读过很多书的助手，但它也会说错话。”</li>
-          <li>从一件小事开始：让 AI 帮写一段自我介绍、解释一个课本里的问题。</li>
-          <li>学会两件事：怎么让它讲得更简单、怎么检查它说的对不对。</li>
-          <li>不用装软件、不用买设备，手机或电脑打开就能用。</li>
-        </ul>
-        <a class="go" href="/ai/">带孩子从第一句话开始 →</a>
+        <h3>🧒 给孩子的探索入口</h3>
+        <p class="kq">从一个好奇的问题开始：<b>为什么月亮会跟着我走？</b></p>
+        <ol class="ksteps">
+          <li><b>问</b>：把这个问题原样问给 AI（提示词在首页那个例子里，点「复制这句话」就行）</li>
+          <li><b>验证</b>：走 10 步，同时看近处的树和远处的月亮——树跑了，月亮没跑；再用 NASA 的办法，拿篮球当地球、网球当月亮摆一摆</li>
+          <li><b>讲</b>：把答案讲给爸妈或同学听——讲得清楚，才算真的懂了</li>
+        </ol>
+        <p class="ksafe">🔒 不用告诉 AI 你的真实姓名、学校、住址，也不要发自己的照片。想试别的，先问一下爸妈。</p>
+        <a class="go" href="#moon">回到那个例子 →</a>
+        <a class="go" href="/ai/" style="margin-left:14px">从第一个问题开始 →</a>
       </div>
       <div class="panel reveal">
         <h3>👨‍👩‍👧 给家长</h3>
@@ -444,6 +538,7 @@ footer .safe { margin-top: 6px; font-size: 13px; }
           <li>每一步做什么、用什么工具，页面上都写清楚，家长可以陪着一起看。</li>
           <li>不诱导消费：优先推荐免费、国内可直接使用的工具。</li>
           <li>孩子的信息不必交出去：先用“不涉及真实姓名和隐私”的例子练手。</li>
+          <li>外部 AI 服务需要注册账号：请家长陪同使用，并留意各服务自己的年龄要求（以服务方说明为准）。</li>
         </ul>
         <div class="soon"><b>正在搭建：</b>家庭空间（Family Space）——让一家人有一个自己的 AI 角落，孩子的探索和家长能看到的边界放在一起。现在先用上面的方式开始。</div>
       </div>
@@ -922,6 +1017,13 @@ function updateProgress() {
   var grad = document.getElementById('graduation');
   var doneAll = ALL_STEPS.every(function(id) { return completedSteps[id]; });
   if (grad && doneAll) { grad.style.display = 'block'; }
+}
+function copyConst(text, btn) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function() { showCopied(btn); }).catch(function() { fallbackCopy(text, btn); });
+  } else {
+    fallbackCopy(text, btn);
+  }
 }
 function copyPrompt(btn) {
   var box = btn.parentElement;
