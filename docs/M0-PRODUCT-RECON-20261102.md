@@ -18,7 +18,7 @@
 | **设计真源** | `docs/design/CURRENT_DESIGN.md`（V1，冻结）+ 线上 V2 结构 | V1 冻结 / V2 以代码为准 | V1 单页设计；V2 = `web/v2/`（应用）+ `web/v2/public/index.html`（公开门面）+ `server/` |
 | **仓库规则** | `AGENTS.md` | 有效（本轮补充 V2/发布说明） | 复用优先级、内容诚信、每轮 commit+push |
 | **发布与回退** | `WORLD-SPACE-FINAL-RELEASE-RUNBOOK.md` + `docs/v2/release-c500f3d/` | 有效（生产在用） | G1–G8 授权门、cutover、verifier 哈希钉、发布身份、应急回退 |
-| **资源目录** | `catalog/resources.json`（v3.0.0，7 条，2026-09-07 复核） | 有效，需按 M4 补字段 | 资源的能力/来源/门槛/费用/局限/复核时间 |
+| **资源目录** | `catalog/resources.json`（**v4.0.0，7 条，2026-11-02 复核**） | 有效（M4 字段齐全，`eval/catalog-selftest.mjs` 233 项守护） | 能力/来源/门槛/费用/局限/**隐私条件/儿童适用性/替代能力/可达性**/复核时间 |
 | **失败记录** | `docs/v2/FAILURE_LEDGER.md`（23 条） | 有效（只记真实失败） | P0/P1/P2/P3/OPS 分级 + 根因 + 最小修复 + 回归 |
 | **真实证据** | `docs/v2/PILOT12_*.md`、`eval/*`（20 个装置） | 有效，**注意边界** | PILOT12 是**合成压力用例**，不是真实用户验证 |
 
@@ -92,7 +92,7 @@
 | 1 | **零真实用户证据** | M1/M5 | §2.4 | 找 1 个真实孩子 + 1 个成人零基础者，用真实问题跑通一次并记录回执（需 Owner 安排真人） |
 | 2 | 搜索/证据绑定未在真实搜索下验证 | M1 | PILOT12 无搜索；生产已配 tavily | 用生产搜索跑一次真实问题，检查 `resources` 的证据纪律（`source_type`/`checked_at`/`confidence`） |
 | 3 | 儿童专属流程缺失（任务、隐私、家长旁看） | M2 | R2 候选有孩子区但只是静态引导；应用无儿童模式 | M2 设计：儿童任务卡 + 隐私前置说明 + 家长回执 |
-| 4 | `catalog` 缺 M4 字段：隐私条件、替代能力；最后复核 2026-09-07 | M4 | JSON 字段实读 | 补两个字段 + 逐条复核（每条附核验时间与来源） |
+| 4 | ~~`catalog` 缺 M4 字段：隐私条件、替代能力；最后复核 2026-09-07~~ **已解决（2026-11-02）** | M4 | v4.0.0：7 条全部补 `privacy` / `child_suitability` / `alternatives` / `reachability`，`used_in` 对齐现行页面，全部官方来源当日复核；新增 `eval/catalog-selftest.mjs`（233 项，含 180 天过期判据） | 后续按 180 天节奏复核 |
 | 5 | 成人零基础「从真实任务开始」的路径库未成型 | M3 | 应用是「一句话意图→路径」，无任务库 | 3–5 条真实任务路径（写通知/查政策/做海报…），每条含第一步与卡住怎么办 |
 | 6 | Outcome Loop 有实现但无真实回执 | M5 | `meta.receipt_*` 字段存在 | 等真实用户跑通后收集第一份真实回执 |
 | 7 | R2 首页待 Commander 终审 | 入口 | `7810fa7` READY_FOR_REVIEW | 终审通过后按 runbook 发布（身份重新冻结） |
