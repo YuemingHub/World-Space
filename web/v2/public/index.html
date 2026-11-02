@@ -142,9 +142,9 @@ section.alt { background: var(--surface); border-top: 1px solid var(--border); b
 .card .go { display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; font-size: 15px; font-weight: 600; text-decoration: none; color: var(--accent-strong); }
 .card .go:hover { text-decoration: underline; }
 
-/* Paths */
-.path { display: flex; flex-direction: column; }
-.path .card { flex: 1; display: flex; flex-direction: column; }
+/* Paths（容器仍是 .grid.g3；这里只让卡片内部撑满等高） */
+.path .card { display: flex; flex-direction: column; }
+.path .card p { flex: 1; }
 .path .card p { flex: 1; }
 .path .card .go { font-size: 16px; min-height: 44px; }
 
