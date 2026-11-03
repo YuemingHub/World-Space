@@ -14,7 +14,9 @@
  * 日志纪律：这里只输出事件与 ip，绝不输出 username、密码、hash、token。
  */
 import { createHash, createHmac, randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, copyFileSync, unlinkSync, chmodSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
 const DEFAULT_MAX_AGE = 7 * 24 * 3600;      // 与本机行动回路的 7 天保持同一量级
 const MIN_MAX_AGE = 10 * 60;                // 短于这个的配置多半是配错了
@@ -47,6 +49,26 @@ function checkPassword(pw, stored) {
 
 const b64u = s => Buffer.from(s).toString('base64url');
 const uidRe = /^[a-zA-Z0-9][a-zA-Z0-9_-]{0,31}$/; // user_id 会进 localStorage 键名，字符集必须安全
+
+/* 账号文件写入：目标文件在 root:wsapp 的 etc 目录里（服务用户对目录只有 r-x），
+   因此不能在同目录建临时文件再 rename。做法是临时文件落到系统临时目录，
+   再整文件拷回既有文件——拷贝保留原 inode/属主，目录权限不需要放宽。 */
+function readUsersDocument(file) {
+  const doc = JSON.parse(readFileSync(file, 'utf8'));
+  if (!doc || !Array.isArray(doc.users)) throw new Error('users_document_invalid');
+  return doc;
+}
+
+function writeUsersDocument(file, doc) {
+  const tmp = join(tmpdir(), `.ws-users-${process.pid}-${randomBytes(6).toString('hex')}.json`);
+  writeFileSync(tmp, JSON.stringify(doc, null, 2), { mode: 0o600 });
+  try {
+    copyFileSync(tmp, file);
+  } finally {
+    try { unlinkSync(tmp); } catch (_) { /* 临时文件残留无害 */ }
+  }
+  try { chmodSync(file, 0o600); } catch (_) { /* 权限收紧失败不改变内容 */ }
+}
 
 export function createAuth(env) {
   const enabled = env.WS_AUTH_ENABLED !== '0'; // 缺省开启：忘了配变量 ≠ 全网公开
@@ -84,6 +106,8 @@ export function createAuth(env) {
       if (!uidRe.test(uid)) return { err: 'users_bad_uid' };
       if (!name || name.length > 64) return { err: 'users_bad_name' };
       if (!parseHash(u.password_hash)) return { err: 'users_bad_hash' };
+      if (u.disabled !== undefined && typeof u.disabled !== 'boolean') return { err: 'users_bad_disabled' };
+      if (u.session_epoch !== undefined && (!Number.isInteger(u.session_epoch) || u.session_epoch < 0)) return { err: 'users_bad_session_epoch' };
       if (byName.has(name) || byId.has(uid)) return { err: 'users_duplicate' };
       byName.set(name, u); byId.set(uid, u);
     }
@@ -103,7 +127,9 @@ export function createAuth(env) {
   function mint(uid, now = Date.now()) {
     const st = status();
     if (!st.ready) throw new Error('auth_not_ready');
-    const payload = b64u(JSON.stringify({ uid, iat: now, exp: now + maxAge * 1000, v: 1 }));
+    const user = st.users.byId.get(uid);
+    const epoch = user ? Number(user.session_epoch || 0) : 0;
+    const payload = b64u(JSON.stringify({ uid, iat: now, exp: now + maxAge * 1000, v: 1, se: epoch }));
     const sig = createHmac('sha256', st.secret).update(payload).digest('base64url');
     return `${payload}.${sig}`;
   }
@@ -124,7 +150,11 @@ export function createAuth(env) {
     try { j = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8')); } catch (e) { return { ok: false, reason: 'malformed' }; }
     if (!j || j.v !== 1 || !uidRe.test(String(j.uid || ''))) return { ok: false, reason: 'malformed' };
     if (!Number.isFinite(j.exp) || j.exp <= now) return { ok: false, reason: 'expired' };
-    if (!st.users.byId.has(j.uid)) return { ok: false, reason: 'user_gone' };
+    const user = st.users.byId.get(j.uid);
+    if (!user) return { ok: false, reason: 'user_gone' };
+    if (user.disabled === true) return { ok: false, reason: 'user_disabled' };
+    const tokenEpoch = Number.isInteger(j.se) ? j.se : 0;
+    if (tokenEpoch !== Number(user.session_epoch || 0)) return { ok: false, reason: 'revoked' };
     if (revoked.has(tokenKey(t))) return { ok: false, reason: 'revoked' };
     return { ok: true, uid: j.uid, iat: j.iat, exp: j.exp, token: t };
   }
@@ -135,7 +165,7 @@ export function createAuth(env) {
     const u = st.users.byName.get(String(username || ''));
     const stored = u ? u.password_hash : DECOY_HASH;
     const good = checkPassword(password, stored);
-    if (!u || !good) return { ok: false };
+    if (!u || u.disabled === true || !good) return { ok: false };
     return { ok: true, uid: u.user_id, token: mint(u.user_id) };
   }
 
@@ -162,6 +192,82 @@ export function createAuth(env) {
   }
   function loginPass(ip) { fails.delete(ip); }
 
+  /* ── 账号管理（只服务统一管理台，运维面 127.0.0.1 调用）──────────────
+     密码、停用、强制下线都 bump session_epoch：已签发的旧 cookie 立即失效，
+     账号重新启用后旧会话也不会复活。返回值永远不含密码哈希。 */
+  const CONTROL_RE = /[\u0000-\u001f\u007f]/;
+  function validUsername(raw) {
+    const name = String(raw == null ? '' : raw).trim();
+    if (!name || name.length > 64 || CONTROL_RE.test(name)) return null;
+    return name;
+  }
+  function validManagePassword(pw) {
+    return typeof pw === 'string' && pw.length >= 10 && pw.length <= 200;
+  }
+  function mutate(fn) {
+    if (!usersFile) return { ok: false, error: 'users_not_configured' };
+    let doc;
+    try { doc = readUsersDocument(usersFile); } catch (_) { return { ok: false, error: 'users_unreadable_or_bad_json' }; }
+    const result = fn(doc);
+    if (!result.ok) return result;
+    try { writeUsersDocument(usersFile, doc); } catch (_) { return { ok: false, error: 'users_write_failed' }; }
+    return result;
+  }
+  function findUser(doc, username) {
+    const name = validUsername(username);
+    if (!name) return null;
+    return doc.users.find(u => u && u.username === name) || null;
+  }
+  function publicUser(u) {
+    return { user_id: u.user_id, username: u.username, disabled: u.disabled === true };
+  }
+  function listUsers() {
+    if (!usersFile) return { ok: false, error: 'users_not_configured' };
+    let doc;
+    try { doc = readUsersDocument(usersFile); } catch (_) { return { ok: false, error: 'users_unreadable_or_bad_json' }; }
+    return { ok: true, users: doc.users.map(publicUser) };
+  }
+  function addUser({ username, password }) {
+    const name = validUsername(username);
+    if (!name) return { ok: false, error: 'invalid_username' };
+    if (!validManagePassword(password)) return { ok: false, error: 'weak_password' };
+    return mutate(doc => {
+      if (doc.users.some(u => u && u.username === name)) return { ok: false, error: 'username_taken' };
+      let uid;
+      do { uid = randomBytes(12).toString('hex'); } while (doc.users.some(u => u && u.user_id === uid));
+      const user = { user_id: uid, username: name, password_hash: hashPassword(password) };
+      doc.users.push(user);
+      return { ok: true, user: publicUser(user) };
+    });
+  }
+  function resetPassword(username, password) {
+    if (!validManagePassword(password)) return { ok: false, error: 'weak_password' };
+    return mutate(doc => {
+      const user = findUser(doc, username);
+      if (!user) return { ok: false, error: 'user_not_found' };
+      user.password_hash = hashPassword(password);
+      user.session_epoch = Number(user.session_epoch || 0) + 1;
+      return { ok: true, user: publicUser(user) };
+    });
+  }
+  function setDisabled(username, disabled) {
+    return mutate(doc => {
+      const user = findUser(doc, username);
+      if (!user) return { ok: false, error: 'user_not_found' };
+      user.disabled = disabled === true;
+      if (user.disabled) user.session_epoch = Number(user.session_epoch || 0) + 1;
+      return { ok: true, user: publicUser(user) };
+    });
+  }
+  function logoutUser(username) {
+    return mutate(doc => {
+      const user = findUser(doc, username);
+      if (!user) return { ok: false, error: 'user_not_found' };
+      user.session_epoch = Number(user.session_epoch || 0) + 1;
+      return { ok: true, user: publicUser(user) };
+    });
+  }
+
   function cookieFor(token, reqProtoHttps) {
     const secure = cookieSecureEnv === '1' || (cookieSecureEnv !== '0' && !!reqProtoHttps);
     return `${COOKIE}=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}${secure ? '; Secure' : ''}`;
@@ -169,7 +275,11 @@ export function createAuth(env) {
   const clearCookie = () => `${COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0`;
   const cookieName = COOKIE;
 
-  return { enabled, maxAge, status, mint, sessionOf, login, revoke, loginGuard, loginFail, loginPass, cookieFor, clearCookie, cookieName };
+  return {
+    enabled, maxAge, status, mint, sessionOf, login, revoke, loginGuard, loginFail, loginPass,
+    listUsers, addUser, resetPassword, setDisabled, logoutUser,
+    cookieFor, clearCookie, cookieName,
+  };
 }
 
 /* 从 Cookie 头里取 session 值（不解析其它 cookie） */

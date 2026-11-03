@@ -30,6 +30,7 @@ import { validate } from './validate.mjs';
 import { localDate, localMonth } from './date.mjs';
 import { createAuth, sessionTokenFrom } from './auth.mjs';
 import { createOidcRp } from './oidc-rp.mjs';
+import { loadLlmOverrides, llmView, applyLlm } from './runtime-config.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const SCHEMA = JSON.parse(readFileSync(join(HERE, '..', 'contracts', 'world.schema.json'), 'utf8'));
@@ -129,6 +130,14 @@ const CFG = {
   // 取值与非法值处理见 resolveOpsFace()（1-65535 整数，或 0 = 明确关闭）。
   opsPort: OPS_FACE.port,
 };
+
+// 管理台写入的覆盖层优先于 env（没写过覆盖时两者完全一致）。
+{
+  const override = loadLlmOverrides();
+  if (override.base_url) CFG.llmBase = override.base_url.replace(/\/$/, '');
+  if (override.model) CFG.llmModel = override.model;
+  if (override.api_key) CFG.llmKey = override.api_key;
+}
 
 /* ── 访问门：谁能进入（缺省开启；显式 WS_AUTH_ENABLED=0 才关闭，且启动日志大声声明）── */
 const AUTH = createAuth(process.env);
@@ -658,40 +667,131 @@ async function handleWorld(req, res, corsH, t0) {
    （对端地址在"公网经 nginx"和"本机 curl"两种情况下都是 127.0.0.1，头也全靠代理层覆写——
      两者都无法证明，所以不拿它们当授权依据。） */
 if (CFG.opsPort > 0) {
-  const ops = http.createServer((req, res) => {
+  const jsonOut = (res, status, payload) => {
+    res.writeHead(status, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' });
+    res.end(JSON.stringify(payload));
+  };
+  const opsAuthorized = (req) => {
+    const token = process.env.WS_MANAGEMENT_TOKEN || '';
+    if (!token) return { ok: false, status: 404 };
+    const bearer = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '');
+    const a = Buffer.from(String(bearer));
+    const b = Buffer.from(String(token));
+    return { ok: a.length === b.length && crypto.timingSafeEqual(a, b), status: 401 };
+  };
+  const readBody = (req, limit = 32768) => new Promise((resolve, reject) => {
+    const chunks = [];
+    let size = 0;
+    let tooLarge = false;
+    req.on('data', chunk => {
+      if (tooLarge) return;
+      size += chunk.length;
+      if (size > limit) { tooLarge = true; return; }
+      chunks.push(chunk);
+    });
+    req.on('end', () => {
+      if (tooLarge) return reject(Object.assign(new Error('body_too_large'), { code: 'body_too_large' }));
+      try { resolve(chunks.length ? JSON.parse(Buffer.concat(chunks).toString('utf8')) : {}); }
+      catch (_) { reject(Object.assign(new Error('bad_json'), { code: 'bad_json' })); }
+    });
+    req.on('error', reject);
+  });
+  const errorStatus = code => (
+    code === 'user_not_found' ? 404
+      : code === 'username_taken' ? 409
+        : code === 'users_write_failed' || code === 'users_unreadable_or_bad_json' ? 500
+          : code === 'users_not_configured' ? 503
+            : 400
+  );
+  const opsLog = (action, result) => console.log(`${new Date().toISOString()} ops ${action} result=${result}`);
+
+  const ops = http.createServer(async (req, res) => {
     const p = req.url.split('?')[0];
-    if ((req.method === 'GET' || req.method === 'HEAD') && p === '/healthz') {
-      res.writeHead(200, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' });
-      return res.end(req.method === 'HEAD' ? undefined : JSON.stringify(healthDetail()));
-    }
-    /* C1 统一管理台：花名册只读视图。双门=loopback（本面绑定即保证）+ Bearer token
-       恒时比较（WS_MANAGEMENT_TOKEN；未配置=端点不存在，服务不受影响）。
-       只给 user_id / 门禁状态 / 统一身份绑定，绝不给密码哈希。 */
-    if (req.url === '/api/ops/roster') {
-      const token = process.env.WS_MANAGEMENT_TOKEN || '';
-      const bearer = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '');
-      const a = Buffer.from(String(bearer));
-      const b = Buffer.from(String(token));
-      if (!token || a.length !== b.length || !crypto.timingSafeEqual(a, b)) {
-        res.writeHead(token ? 401 : 404, { 'content-type': 'application/json; charset=utf-8' });
-        return res.end(JSON.stringify({ error: token ? 'unauthorized' : 'not_found' }));
+    try {
+      if ((req.method === 'GET' || req.method === 'HEAD') && p === '/healthz') {
+        res.writeHead(200, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' });
+        return res.end(req.method === 'HEAD' ? undefined : JSON.stringify(healthDetail()));
       }
-      const users = (AUTH.status().users && AUTH.status().users.byId)
-        ? [...AUTH.status().users.byId.values()].map(u => ({ user_id: u.user_id, username: u.username }))
-        : [];
-      let links = [];
-      const linksFile = process.env.WS_AUTH_USERS_FILE
-        ? join(dirname(process.env.WS_AUTH_USERS_FILE), 'oidc-links.json') : '';
-      if (linksFile && existsSync(linksFile)) {
-        try { links = Object.entries(JSON.parse(readFileSync(linksFile, 'utf8')))
-          .map(([sub, l]) => ({ sub: sub.slice(0, 14) + '…', user_id: l.user_id, bound_at: l.bound_at })); } catch {}
+      if (!p.startsWith('/api/ops/')) return jsonOut(res, 404, { error: 'not_found' });
+
+      /* 管理面双门=loopback（本面绑定即保证）+ Bearer token 恒时比较
+         （WS_MANAGEMENT_TOKEN；未配置=端点不存在，服务不受影响）。
+         只给账号名单与掩码配置，绝不给密码哈希和密钥原文。 */
+      const auth = opsAuthorized(req);
+      if (!auth.ok) {
+        opsLog(p, auth.status === 404 ? 'denied_unconfigured' : 'denied_bad_token');
+        return jsonOut(res, auth.status, { error: auth.status === 404 ? 'not_found' : 'unauthorized' });
       }
-      res.writeHead(200, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' });
-      return res.end(JSON.stringify({ ok: true, product: 'world-space', gate: { status: AUTH.status().ready ? 'ready' : 'broken', users }, identity_links: { total: links.length, items: links } }));
+
+      if (req.method === 'GET' && p === '/api/ops/roster') {
+        const listed = AUTH.listUsers();
+        const users = listed.ok ? listed.users : [];
+        let links = [];
+        const linksFile = process.env.WS_AUTH_USERS_FILE
+          ? join(dirname(process.env.WS_AUTH_USERS_FILE), 'oidc-links.json') : '';
+        if (linksFile && existsSync(linksFile)) {
+          try {
+            links = Object.entries(JSON.parse(readFileSync(linksFile, 'utf8')))
+              .map(([sub, l]) => ({ sub: sub.slice(0, 14) + '…', user_id: l.user_id, bound_at: l.bound_at }));
+          } catch (_) { /* 绑定文件损坏只影响这一块展示 */ }
+        }
+        opsLog('roster', 'ok');
+        return jsonOut(res, 200, {
+          ok: true,
+          product: 'world-space',
+          gate: { status: AUTH.status().ready ? 'ready' : 'broken', users },
+          identity_links: { total: links.length, items: links },
+        });
+      }
+
+      if (req.method === 'GET' && p === '/api/ops/llm') {
+        opsLog('llm.view', 'ok');
+        return jsonOut(res, 200, { ok: true, product: 'world-space', llm: llmView(CFG) });
+      }
+
+      if (req.method === 'PUT' && p === '/api/ops/llm') {
+        const result = applyLlm(CFG, await readBody(req));
+        opsLog('llm.update', result.ok ? 'ok' : result.error);
+        return jsonOut(res, result.ok ? 200 : 400, result.ok ? { ok: true, llm: result.llm } : { ok: false, error: result.error });
+      }
+
+      if (req.method === 'POST' && p === '/api/ops/users/create') {
+        const body = await readBody(req);
+        const result = AUTH.addUser({ username: body.username, password: body.password });
+        opsLog('users.create', result.ok ? 'ok' : result.error);
+        return jsonOut(res, result.ok ? 200 : errorStatus(result.error), result);
+      }
+
+      if (req.method === 'POST' && p === '/api/ops/users/password') {
+        const body = await readBody(req);
+        const result = AUTH.resetPassword(body.username, body.password);
+        opsLog('users.password', result.ok ? 'ok' : result.error);
+        return jsonOut(res, result.ok ? 200 : errorStatus(result.error), result);
+      }
+
+      if (req.method === 'POST' && p === '/api/ops/users/disabled') {
+        const body = await readBody(req);
+        const result = AUTH.setDisabled(body.username, body.disabled === true);
+        opsLog('users.disabled', result.ok ? 'ok' : result.error);
+        return jsonOut(res, result.ok ? 200 : errorStatus(result.error), result);
+      }
+
+      if (req.method === 'POST' && p === '/api/ops/users/logout') {
+        const body = await readBody(req);
+        const result = AUTH.logoutUser(body.username);
+        opsLog('users.logout', result.ok ? 'ok' : result.error);
+        return jsonOut(res, result.ok ? 200 : errorStatus(result.error), result);
+      }
+
+      /* 诊断面除上面这些外什么都不给：不供静态、不供业务 API */
+      return jsonOut(res, 404, { error: 'not_found' });
+    } catch (err) {
+      const code = err && err.code === 'body_too_large' ? 'body_too_large'
+        : err && err.code === 'bad_json' ? 'bad_json' : 'ops_error';
+      opsLog(p, code);
+      if (!res.headersSent) jsonOut(res, code === 'ops_error' ? 500 : 400, { ok: false, error: code });
+      else res.end();
     }
-    /* 诊断面除 /healthz 外什么都不给：不供静态、不供 API */
-    res.writeHead(404, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' });
-    res.end(JSON.stringify({ error: 'not_found' }));
   });
   /* 绑定失败必须大声：诊断面消失不代表服务坏了，但绝不能静默——
      否则"3201 上有响应"其实是别的实例留下的，自测会因此假绿。 */
