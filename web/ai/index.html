@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>">
+<title>AI 从零开始 · 从一件小事出发，真正用上一次 AI</title>
+<meta name="description" content="完全不懂 AI 也能用：先看懂 AI 能做什么、会在哪里出错，再从三件小事里选一件，真的做出来。不要注册、不要填个人信息，手机就能用。">
+<meta property="og:title" content="AI 从零开始 · 从一件小事出发">
+<meta property="og:description" content="不懂 AI 也能用。看懂它能做什么、会在哪里错，然后真的做出一样东西。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="assets/ai.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="inner">
+    <a class="brand" href="index.html"><span class="dot" aria-hidden="true"></span><span class="brandn">AI 从零开始</span></a>
+    <nav aria-label="主导航">
+      <a href="index.html" aria-current="page">首页</a>
+      <a href="limits.html">AI 会出错</a>
+      <a href="tools.html">工具与年龄</a>
+      <a href="safety.html">安全</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<div class="wrap">
+
+  <!-- ① 首屏：这是什么 + 先点哪里 -->
+  <section class="hero" aria-labelledby="h1">
+    <span class="kicker">完全不懂也没关系 · 约 15 分钟 · 手机就能用</span>
+    <h1 id="h1">AI 不神秘，<br>先让它帮你<span class="hl">做成一件事</span>。</h1>
+    <p class="lead">它会帮你写字、画图、回答问题。<br>但它也会一本正经地说错话。</p>
+    <p class="three">先点一个，每一条都会带你走到一个看得见的结果。</p>
+
+    <p class="tool-meta" style="margin:0 auto 14px;max-width:560px">给谁看的：第一次接触 AI 的人——10 岁以上的孩子、家长陪着用，也适合完全没学过技术的成年人。下面三道题按"孩子也能做"来写，大人照着做同样成立。</p>
+
+    <div class="goals">
+      <a class="goal" href="paths/make-something.html" data-path="make">
+        <span class="em" aria-hidden="true">✍️</span>
+        <span><span class="txt"><span class="t">让 AI 帮我做一件小事</span><span class="d">比如：帮我写一段要发出去的话</span></span></span>
+        <span class="go" aria-hidden="true">→</span>
+      </a>
+      <a class="goal" href="paths/make-a-picture.html" data-path="picture">
+        <span class="em" aria-hidden="true">🎨</span>
+        <span><span class="txt"><span class="t">做一张属于我自己的图</span><span class="d">比如：一张配图的画、一张小卡片</span></span></span>
+        <span class="go" aria-hidden="true">→</span>
+      </a>
+      <a class="goal" href="paths/find-the-facts.html" data-path="facts">
+        <span class="em" aria-hidden="true">🔎</span>
+        <span><span class="txt"><span class="t">查清一件真事</span><span class="d">比如：网上说法不一样，我想弄明白</span></span></span>
+        <span class="go" aria-hidden="true">→</span>
+      </a>
+    </div>
+    <p class="tool-meta" style="margin-top:14px">这个页面本身不用注册、不收任何个人信息。<b>但下一步要用的 AI 工具需要登录</b>（豆包、DeepSeek 都是），未满 18 岁请家长陪着一起登录。</p>
+  </section>
+
+  <!-- ② 30 秒看懂 AI -->
+  <section id="what" aria-labelledby="h2-what">
+    <h2 id="h2-what"><span class="n" aria-hidden="true">1</span>30 秒看懂：AI 到底会什么</h2>
+    <p class="sub">把它当成一个读了很多书、很会聊天、但从不动手核实的人。</p>
+    <div class="grid2">
+      <div class="note good"><b>它很擅长的</b>
+        把你想说的话写通顺；解释一个你看不懂的概念；给你几个想法让你挑；把你写的句子改得更好；陪你把一个问题想过几轮。
+      </div>
+      <div class="note warn"><b>它做不到的</b>
+        它不知道你没说出来的事；它不知道今天刚发生的事（除非用的工具真的上网查）；它不会替你去问老师、去医院、去打官方电话；它会把猜的当成真的说给你听。
+      </div>
+    </div>
+    <p style="font-size:16px;color:var(--fg-muted)">所以真正要学的不是“怎么让它干活”，而是“<a href="limits.html">怎么看出它在哪一步错了</a>”。</p>
+  </section>
+
+  <!-- ③ 它会出错（三条真实失败） -->
+  <section id="wrong" aria-labelledby="h2-wrong">
+    <h2 id="h2-wrong"><span class="n" aria-hidden="true">2</span>它最常见的三种错</h2>
+    <p class="sub">不是你问坏了，是它的工作原理决定的。早点知道，就不会被它带偏。</p>
+    <div class="limits">
+      <div class="limit">
+        <b>① 编造事实：把没有的事说得像真的</b>
+        <p>它会写出一个看起来很像的日期、名字、来源、数据。越具体越要小心——它越具体，越可能是在拼凑。</p>
+      </div>
+      <div class="limit">
+        <b>② 顺着你说：你说什么它都容易同意</b>
+        <p>你问“是不是这样”，它更可能说“是的”。想听真话，就别说自己希望哪个答案。</p>
+      </div>
+      <div class="limit">
+        <b>③ 假装能负责：把该问真人的事说成“没问题”</b>
+        <p>身体不舒服、被人欺负、钱怎么花、学校的规定——这些不能让 AI 说了算。</p>
+      </div>
+    </div>
+    <p style="margin-top:14px"><a href="limits.html">→ 看 4 个动作：怎么当场发现它在编（附可以直接照着说的话）</a></p>
+  </section>
+
+  <!-- ④ 三条路 -->
+  <section id="paths" aria-labelledby="h2-paths">
+    <h2 id="h2-paths"><span class="n" aria-hidden="true">3</span>现在真正动手：选一条走完</h2>
+    <p class="sub">三条路互不依赖，选一条就行。每条都写着：做到什么才算成、卡住了怎么办、未成年人要注意什么。</p>
+    <div class="card" style="display:grid;gap:14px">
+      <div class="spell"><span class="em" aria-hidden="true">✍️</span><div>
+        <b><a href="paths/make-something.html">路径一 · 让 AI 帮我做一件小事</a></b>
+        <p style="margin:2px 0 0;font-size:16px;color:var(--fg-muted)">做成 = 你把它给的那段话<b>真的发出去</b>了（不需要等谁回复）。约 15 分钟。</p>
+      </div></div>
+      <div class="spell"><span class="em" aria-hidden="true">🎨</span><div>
+        <b><a href="paths/make-a-picture.html">路径二 · 做一张属于我自己的图</a></b>
+        <p style="margin:2px 0 0;font-size:16px;color:var(--fg-muted)">做成 = 你手里有一张<b>你自己愿意保存</b>的图，并且说得清哪一点不是你想要的。约 15 分钟。</p>
+      </div></div>
+      <div class="spell"><span class="em" aria-hidden="true">🔎</span><div>
+        <b><a href="paths/find-the-facts.html">路径三 · 查清一件真事</a></b>
+        <p style="margin:2px 0 0;font-size:16px;color:var(--fg-muted)">做成 = 你能用三句话说出<b>哪几点核实了、怎么核实的、哪点还不确定</b>。约 20 分钟。</p>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- ⑤ 安全与年龄（排在工具之前） -->
+  <section id="safe" aria-labelledby="h2-safe">
+    <h2 id="h2-safe"><span class="n" aria-hidden="true">4</span>开始之前：什么不要告诉 AI</h2>
+    <p class="sub">AI 会把你说的话保存在别人的服务器上。有些东西，说了就收不回来。</p>
+    <div class="safe">
+      <div class="item"><b>不要说</b><p>真实姓名、学校班级、学号、家庭住址、定位、爸妈的电话、密码、支付信息、身份证号、成绩单、照片和录音、班级群二维码、别人的隐私。</p></div>
+      <div class="item"><b>可以这样做</b><p>用自己的代号，或者干脆不说“我是谁”。只描述你要做的事：<span class="kbd">我们班要做一个海报</span>就够了。</p></div>
+      <div class="item"><b>年龄：官方要求</b><p>豆包和 DeepSeek 的协议都写明<b>未满 18 周岁须家长陪同并同意</b>。请和家长一起打开、一起用，不要自己填手机号注册。</p></div>
+      <div class="item"><b>遇到这些情况，立刻找真人</b><p>身体不舒服、被欺负或被威胁、想伤害自己、有人要你发照片或给钱——告诉爸妈或老师，不要问 AI。</p></div>
+    </div>
+    <p style="margin-top:14px"><a href="safety.html">→ 完整的安全约定（含求助渠道）</a> · <a href="tools.html">→ 我推荐的每个工具要什么、能不能免费用</a></p>
+  </section>
+
+  <!-- ⑥ 做完之后 -->
+  <section id="after" aria-labelledby="h2-after">
+    <h2 id="h2-after"><span class="n" aria-hidden="true">5</span>做完之后：你会多出一样东西</h2>
+    <div class="note good">
+      <p style="margin:0 0 6px">走完任意一条，你手里会有<b>一样东西</b>：</p>
+      <ul style="margin:0 0 8px">
+        <li>一段真的发出去的话；或者</li>
+        <li>一张自己愿意保存的图；或者</li>
+        <li>一个说得出“我核实了什么”的答案。</li>
+      </ul>
+      <p style="margin:0">页面不给你打分、不排名次、也不用本站自己的统计去看你做了什么。这些只属于你自己。</p>
+    </div>
+    <p style="font-size:16px">还想多做一点？同一个思路可以复用：换一个题目，重走一次，只是这次你来定“做到什么算成”。</p>
+  </section>
+
+</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p><b>AI 从零开始</b> · World Space 的第一条入门线</p>
+    <p>页面本身不收集任何个人信息：没有账号、没有表单、没有统计代码、没有 Cookie 追踪。你勾的“做成了”只存在你自己的浏览器里。托管服务器会有常规访问日志（见 <a href="safety.html">安全约定</a>）。</p>
+    <p>工具信息复核于 2026-11-01，下次复核 2027-01-29；工具政策变化时以工具官网为准。</p>
+    <p><a href="../index.html">← 回到 World Space 主入口（你想做什么事？）</a></p>
+  </div>
+</footer>
+
+<script src="assets/ai.js"></script>
+</body>
+</html>

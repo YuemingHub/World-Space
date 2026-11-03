@@ -46,5 +46,29 @@ docs/design/CURRENT_DESIGN.md  当前设计真源
 docs/goal-coverage.md  目标覆盖判断（为什么是这 7 个）
 docs/reality-return.md         行动-现实回路：8 入口审计 + 3 个验收例（打开工具 ≠ 现实改变）
 
+web/ai/                 AI 从零开始（零基础入门候选；与主入口并存，未改变主入口行为）
+  index.html            首屏：三件可点的小事
+  limits.html           AI 会出错的 4 个判断动作
+  tools.html            工具入口与年龄边界（含复核日期）
+  safety.html           不要告诉 AI 什么 / 求助渠道 / 隐私
+  paths/                三条入门路径（做一件小事 / 做一张图 / 查清一件真事）
+docs/ai-beginner/PRODUCT.md    这条线的产品合同（含不做什么、儿童权利边界、验收判据）
+docs/ai-beginner/CONTENT.md    内容索引与事实纪律
+docs/ai-beginner/CHECKER.md    独立复验说明
+eval/ai-beginner-selftest.mjs  内容契约自测（零依赖）
+eval/ai-beginner-journey.mjs   真实浏览器旅程（本机 Chrome，不下载任何东西）
+scripts/preview.mjs            本地预览（零依赖，两种静态根同时暴露）
+
 archive/                历史资产
+```
+
+## AI 从零开始（零基础入门线）
+
+给完全不懂 AI 的人（孩子与青少年是重点体验群体，成人初学者同样服务）的第一条路：先看懂 AI 能做什么、
+会在哪里出错，再从三件小事里选一件，真正做出来。产品合同见 `docs/ai-beginner/PRODUCT.md`。
+
+```powershell
+node scripts/preview.mjs
+# http://127.0.0.1:4173/ai/       ← 静态根 = web/ 的形态
+# http://127.0.0.1:4173/web/ai/   ← 静态根 = 仓库根的形态
 ```
