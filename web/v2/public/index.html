@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%230B1220'/%3E%3Ccircle cx='50' cy='50' r='21' fill='none' stroke='%2360A5FA' stroke-width='6'/%3E%3Cellipse cx='50' cy='50' rx='37' ry='13' fill='none' stroke='%23A5B4FC' stroke-width='4' transform='rotate(-20 50 50)'/%3E%3Ccircle cx='79' cy='38' r='7' fill='%23C4B5FD'/%3E%3C/svg%3E">
+<meta name="description" content="World Space 是给每一个普通人的 AI 入口：不懂技术没关系，孩子和家长也能一起。选一件事，马上开始——10 分钟做成第一件事。">
+<meta property="og:title" content="World Space — 你想做什么事？">
+<meta property="og:description" content="选一件事，马上开始。从 0 开始，连接 AI 与世界——每一步都替你选好了工具和第一句话。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://ymai.fun">
+<title>World Space — 你想做什么事？</title>
+<style>
+:root {
+  --accent: #3B82F6;
+  --accent-strong: #2563EB;
+  --violet: #7C3AED;
+  --sun: #D97706;
+  --leaf: #16A34A;
+  --leaf-light: rgba(22,163,74,.1);
+  --bg: #F6F7FB;
+  --surface: #FFFFFF;
+  --fg: #0F172A;
+  --fg-muted: #64748B;
+  --border: #E2E8F0;
+  --border-active: #CBD5E1;
+  --deep: #0B1220;
+  --deep2: #131C33;
+  --radius: 16px;
+  --radius-sm: 8px;
+  --maxw: 1080px;
+  --readw: 720px;
+  --shadow: 0 1px 2px rgba(15,23,42,.04), 0 8px 24px -12px rgba(15,23,42,.14);
+  --grad: linear-gradient(135deg,#2563EB 0%,#7C3AED 100%);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
+  background: var(--bg); color: var(--fg); line-height: 1.75; font-size: 17px;
+}
+h1,h2,h3 { line-height: 1.28; }
+a { color: var(--accent-strong); }
+
+/* === Nav === */
+.nav { position: sticky; top: 0; z-index: 200; background: rgba(11,18,32,.82); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(148,163,184,.18); }
+.nav .inner { max-width: var(--maxw); margin: 0 auto; padding: 12px 20px; display: flex; align-items: center; gap: 10px; }
+.nav .brand { font-weight: 700; font-size: 16px; color: #F8FAFC; letter-spacing: .2px; flex: 1; }
+.nav .brand em { font-style: normal; color: #A5B4FC; }
+.nav a.link { color: #CBD5E1; text-decoration: none; font-size: 15px; padding: 8px 12px; border-radius: 8px; }
+.nav a.link:hover { color: #fff; background: rgba(148,163,184,.16); }
+.nav a.cta { color: #fff; text-decoration: none; font-size: 15px; font-weight: 600; padding: 9px 16px; border-radius: 999px; background: var(--grad); box-shadow: 0 6px 18px -8px rgba(124,58,237,.8); }
+.nav a.cta:hover { filter: brightness(1.08); }
+
+/* === Hero === */
+.hero { position: relative; overflow: hidden; background: radial-gradient(1100px 520px at 18% -10%, #1E293B 0%, var(--deep) 55%, #070C17 100%); color: #F8FAFC; }
+#net { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.hero .glow { position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(620px 300px at 78% 6%, rgba(124,58,237,.34), transparent 62%),
+              radial-gradient(560px 300px at 12% 96%, rgba(37,99,235,.30), transparent 64%); }
+.hero .inner { position: relative; z-index: 2; max-width: var(--maxw); margin: 0 auto; padding: 72px 20px 84px; }
+.hero .inner.hgrid { display: grid; grid-template-columns: 1.02fr .98fr; gap: 46px; align-items: center; }
+.hero .inner.hgrid .hleft h1 { font-size: clamp(27px, 3.15vw, 41px); }
+.hleft { min-width: 0; }
+.hright { min-width: 0; }
+.xpanel { background: rgba(15,23,42,.74); border: 1px solid rgba(148,163,184,.3); border-radius: 18px; padding: 20px; backdrop-filter: blur(6px); box-shadow: 0 28px 70px -28px rgba(2,6,23,.95); }
+.xpanel .xhead { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
+.xpanel .xhead h2 { font-size: 17px; color: #F8FAFC; font-weight: 700; }
+.xpanel .demo { font-size: 12px; font-weight: 600; color: #FCD34D; background: rgba(251,191,36,.14); border: 1px solid rgba(251,191,36,.4); padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+.xstep { margin-bottom: 12px; }
+.xstep .lbl { font-size: 12.5px; color: #94A3B8; letter-spacing: .3px; margin-bottom: 6px; font-weight: 600; }
+.xq { display: flex; align-items: center; gap: 10px; background: rgba(148,163,184,.1); border: 1px solid rgba(148,163,184,.26); border-radius: 12px; padding: 12px 14px; color: #F1F5F9; font-weight: 600; font-size: 16px; }
+.xq .em { font-size: 18px; }
+.xai { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.xai span { font-size: 13px; color: #C7D2FE; background: rgba(99,102,241,.16); border: 1px solid rgba(129,140,248,.3); border-radius: 999px; padding: 4px 11px; }
+.xai .ar { color: #64748B; background: none; border: none; padding: 0; }
+.xans { background: rgba(2,6,23,.6); border: 1px solid rgba(148,163,184,.24); border-radius: 12px; padding: 14px 15px; font-size: 15px; color: #E2E8F0; line-height: 1.8; }
+.xans b { color: #fff; }
+.xans .src { display: block; margin-top: 8px; font-size: 12.5px; color: #94A3B8; line-height: 1.6; }
+.xans .src a { color: #A5B4FC; }
+.xnext { display: flex; flex-wrap: wrap; gap: 8px; }
+.xnext a, .xnext button { display: inline-flex; align-items: center; min-height: 42px; font-size: 14px; font-weight: 600; color: #E2E8F0; background: rgba(148,163,184,.12); border: 1px solid rgba(148,163,184,.3); border-radius: 999px; padding: 8px 14px; cursor: pointer; font-family: inherit; text-decoration: none; transition: background .15s; }
+.xnext a:hover, .xnext button:hover { background: rgba(148,163,184,.24); }
+.xnext .primary { background: var(--grad); border-color: transparent; color: #fff; }
+@media (max-width: 980px) {
+  .hero .inner.hgrid { grid-template-columns: 1fr; gap: 32px; }
+  .hero h1 { font-size: clamp(28px, 7.4vw, 38px); }
+  .xpanel { padding: 16px; }
+  .xnext a, .xnext button { flex: 1 1 100%; justify-content: center; }
+}
+.eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: #C7D2FE;
+  background: rgba(99,102,241,.16); border: 1px solid rgba(129,140,248,.34); padding: 6px 14px; border-radius: 999px; margin-bottom: 22px; }
+.eyebrow .dot { width: 7px; height: 7px; border-radius: 50%; background: #34D399; box-shadow: 0 0 0 4px rgba(52,211,153,.18); }
+.hero h1 { font-size: clamp(30px, 5.4vw, 50px); font-weight: 800; letter-spacing: -.5px; margin-bottom: 16px; }
+.hero h1 .grad { background: linear-gradient(100deg,#93C5FD 0%,#C4B5FD 55%,#F0ABFC 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hero .sub { font-size: clamp(16px, 2.1vw, 19px); color: #CBD5E1; max-width: 620px; margin-bottom: 14px; }
+.hero .sub b { color: #F8FAFC; font-weight: 700; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 26px; }
+.chips span { font-size: 14px; color: #E2E8F0; background: rgba(148,163,184,.14); border: 1px solid rgba(148,163,184,.24); padding: 5px 12px; border-radius: 999px; }
+.ask { max-width: 620px; margin: 0 0 28px; padding: 14px 18px; background: rgba(15,23,42,.6); border: 1px solid rgba(148,163,184,.26); border-radius: 14px; }
+.ask .lbl { font-size: 13px; color: #94A3B8; letter-spacing: .3px; margin-bottom: 4px; }
+.ask .line { font-size: clamp(15px, 2vw, 17px); color: #F1F5F9; min-height: 1.7em; font-weight: 500; }
+.ask .line::after { content: '▍'; color: #A5B4FC; animation: caret 1s steps(1) infinite; }
+@keyframes caret { 50% { opacity: 0; } }
+.cta-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.btn-primary { display: inline-flex; align-items: center; gap: 8px; min-height: 52px; padding: 14px 26px; border-radius: 999px; background: var(--grad);
+  color: #fff !important; font-weight: 700; font-size: 17px; text-decoration: none; box-shadow: 0 14px 34px -14px rgba(99,102,241,.9); transition: transform .18s, box-shadow .18s; }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 18px 40px -14px rgba(99,102,241,1); }
+.btn-primary .arw { transition: transform .18s; }
+.btn-primary:hover .arw { transform: translateX(3px); }
+.btn-ghost { display: inline-flex; align-items: center; gap: 8px; min-height: 52px; padding: 14px 22px; border-radius: 999px;
+  color: #E2E8F0 !important; font-weight: 600; font-size: 16px; text-decoration: none; border: 1px solid rgba(148,163,184,.4); background: rgba(148,163,184,.08); transition: background .18s, border-color .18s; }
+.btn-ghost:hover { background: rgba(148,163,184,.18); border-color: rgba(203,213,225,.6); }
+.hero .foot { margin-top: 22px; font-size: 14px; color: #94A3B8; }
+.hero .foot a { color: #A5B4FC; }
+
+/* === Sections === */
+section { padding: 74px 20px; }
+section.alt { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.wrap { max-width: var(--maxw); margin: 0 auto; }
+.wrap.read { max-width: var(--readw); }
+.sec-head { max-width: var(--readw); margin-bottom: 34px; }
+.sec-head .kicker { font-size: 14px; font-weight: 700; letter-spacing: .6px; color: var(--accent-strong); text-transform: uppercase; margin-bottom: 8px; }
+.sec-head h2 { font-size: clamp(23px, 3.4vw, 33px); font-weight: 800; letter-spacing: -.3px; margin-bottom: 10px; }
+.sec-head p { color: var(--fg-muted); font-size: 17px; }
+.sec-head.center { margin-left: auto; margin-right: auto; text-align: center; }
+
+.grid { display: grid; gap: 18px; }
+.g4 { grid-template-columns: repeat(4, 1fr); }
+.g3 { grid-template-columns: repeat(3, 1fr); }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow);
+  transition: transform .2s, border-color .2s, box-shadow .2s; position: relative; overflow: hidden; }
+.card:hover { transform: translateY(-3px); border-color: #C7D2FE; box-shadow: 0 2px 4px rgba(15,23,42,.05), 0 18px 40px -18px rgba(37,99,235,.34); }
+.card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--grad); opacity: 0; transition: opacity .2s; }
+.card:hover::before { opacity: 1; }
+.card .ico { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px;
+  background: linear-gradient(135deg, rgba(37,99,235,.12), rgba(124,58,237,.12)); margin-bottom: 14px; }
+.card h3 { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+.card p { font-size: 15px; color: var(--fg-muted); }
+.card .eg { margin: 12px 0 0; padding: 10px 12px; background: var(--bg); border: 1px dashed var(--border-active); border-radius: 10px; font-size: 14px; color: #475569; }
+.card .eg b { color: var(--accent-strong); font-weight: 600; }
+.card .go { display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; font-size: 15px; font-weight: 600; text-decoration: none; color: var(--accent-strong); }
+.card .go:hover { text-decoration: underline; }
+
+/* Paths（容器仍是 .grid.g3；这里只让卡片内部撑满等高） */
+.path .card { display: flex; flex-direction: column; }
+.path .card p { flex: 1; }
+.path .card p { flex: 1; }
+.path .card .go { font-size: 16px; min-height: 44px; }
+
+/* Diagram (what is world space) */
+.diagram { display: grid; grid-template-columns: 1fr 1.25fr; gap: 32px; align-items: center; }
+.dgm { background: var(--deep); border-radius: var(--radius); padding: 26px; position: relative; overflow: hidden; }
+.dgm svg { width: 100%; height: auto; display: block; }
+.dgm .cap { text-align: center; color: #94A3B8; font-size: 13px; margin-top: 10px; }
+.bullets { list-style: none; }
+.bullets li { position: relative; padding: 0 0 16px 32px; font-size: 16px; }
+.bullets li::before { content: '✓'; position: absolute; left: 0; top: 0; width: 22px; height: 22px; border-radius: 50%; background: var(--leaf-light); color: #15803D;
+  font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.bullets li b { display: block; font-weight: 700; }
+.bullets li span { color: var(--fg-muted); font-size: 15px; }
+
+/* Flow（世界连接：想法 → AI → 世界已有能力 → 结果 → 回现实） */
+.flow { display: grid; grid-template-columns: 1fr 26px 1fr 26px 1fr 26px 1fr 26px 1fr; align-items: stretch; }
+.fnode { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px 15px; text-align: center; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 7px; }
+.fnode .fi { font-size: 26px; }
+.fnode h3 { font-size: 16px; font-weight: 800; }
+.fnode p { font-size: 13.5px; color: var(--fg-muted); line-height: 1.6; }
+.fnode .tools-line { margin-top: auto; font-size: 12.5px; color: var(--accent-strong); font-weight: 700; }
+.fnode.hl { border-color: #C7D2FE; background: linear-gradient(180deg,#F5F7FF,#fff); }
+.farr { display: flex; align-items: center; justify-content: center; color: #94A3B8; font-size: 20px; }
+@media (max-width: 900px) {
+  .flow { grid-template-columns: 1fr; }
+  .farr { transform: rotate(90deg); padding: 2px 0; }
+}
+
+/* Family */
+.family { display: grid; grid-template-columns: 1.15fr 1fr; gap: 28px; align-items: start; }
+.family .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); }
+.family .panel h3 { font-size: 17px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.family .panel ul { list-style: none; }
+.family .panel li { font-size: 15px; padding: 7px 0 7px 26px; position: relative; color: #334155; }
+.family .panel li::before { content: '·'; position: absolute; left: 8px; color: var(--violet); font-weight: 700; }
+.kq { font-size: 16px; margin-bottom: 10px; }
+.kq b { color: var(--accent-strong); }
+.ksteps { list-style: none; counter-reset: ks; margin-bottom: 12px; }
+.ksteps li { position: relative; padding: 7px 0 7px 34px; font-size: 15px; color: #334155; counter-increment: ks; }
+.ksteps li::before { content: counter(ks); position: absolute; left: 0; top: 8px; width: 22px; height: 22px; border-radius: 50%; background: var(--grad); color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.ksteps li b { color: var(--fg); }
+.ksafe { font-size: 14px; color: #B45309; background: rgba(217,119,6,.09); border: 1px solid rgba(217,119,6,.28); border-radius: 10px; padding: 10px 12px; }
+.soon { margin-top: 16px; padding: 14px 16px; border-radius: var(--radius-sm); background: linear-gradient(135deg, rgba(37,99,235,.07), rgba(124,58,237,.07)); border: 1px dashed rgba(124,58,237,.36); font-size: 15px; color: #3730A3; }
+.soon b { font-weight: 700; }
+
+/* Task chooser (kept) */
+.intents { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-width: 760px; margin: 0 auto 12px; }
+.intent-btn { display: flex; align-items: center; gap: 10px; text-align: left; padding: 14px 16px; min-height: 52px; background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; color: var(--fg); transition: border-color .15s, background .15s, transform .15s; }
+.intent-btn:hover { border-color: var(--accent-strong); background: #F0F6FF; transform: translateY(-1px); }
+.intent-btn.wide { grid-column: 1 / -1; }
+.intent-btn .em { font-size: 19px; flex-shrink: 0; }
+.goal-panel { display: none; max-width: 760px; margin: 0 auto 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; text-align: left; scroll-margin-top: 80px; box-shadow: var(--shadow); }
+.goal-panel.open { display: block; }
+.goal-panel h2 { font-size: 18px; margin: 0 0 6px; }
+.goal-panel .goal-sub { font-size: 15px; color: var(--fg-muted); margin: 0 0 4px; }
+.goal-panel .choice { border-top: 1px solid var(--border); margin-top: 12px; padding-top: 10px; }
+.goal-panel .choice > b { display: block; font-size: 15px; margin-bottom: 4px; }
+.goal-panel .choice p { font-size: 15px; line-height: 1.7; margin: 4px 0; }
+.goal-panel .tool-btn { margin-top: 6px; }
+.close-goal { display: block; margin: 14px auto 0; padding: 8px 20px; min-height: 44px; background: none; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; color: var(--fg-muted); cursor: pointer; font-family: inherit; }
+.tools { font-size: 14px; color: var(--fg-muted); margin-top: 14px; text-align: center; }
+.tools span { display: inline-block; padding: 4px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; margin: 0 4px; }
+a.tool-btn { display: inline-block; padding: 10px 24px; background: var(--accent-strong); color: #fff; border-radius: var(--radius-sm); font-weight: 600; font-size: 15px; text-decoration: none; margin: 8px 0; transition: background .15s; }
+a.tool-btn:hover { background: #1D4ED8; }
+.prompt-box { position: relative; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px; padding-top: 40px; font-size: 15px; line-height: 1.7; margin: 8px 0 16px; }
+.copy-btn { position: absolute; top: 8px; right: 8px; padding: 4px 12px; min-height: 32px; font-size: 13px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; color: var(--fg-muted); font-family: inherit; transition: all .15s; }
+.copy-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+.copy-btn.copied { background: #15803D; color: #fff; border-color: #15803D; }
+
+/* Journey (kept) */
+.journey-head { max-width: 760px; margin: 0 auto 18px; text-align: center; }
+.journey-head h3 { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+.journey-head p { font-size: 15px; color: var(--fg-muted); }
+.chipish { display: inline-block; margin-top: 10px; font-size: 14px; color: #3730A3; background: linear-gradient(135deg, rgba(37,99,235,.1), rgba(124,58,237,.1));
+  border: 1px solid rgba(124,58,237,.28); border-radius: 999px; padding: 4px 14px; }
+.chipish b { font-weight: 700; }
+.roadmap { max-width: 760px; margin: 0 auto; }
+.stage { margin-bottom: 32px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; scroll-margin-top: 80px; box-shadow: var(--shadow); }
+.stage-header { padding: 20px 24px; cursor: pointer; display: flex; align-items: center; gap: 16px; transition: background .15s; }
+.stage-header:hover { background: rgba(0,0,0,.02); }
+.stage-badge { flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 19px; font-weight: 700; color: #fff; background: var(--grad); }
+.stage-header .info { flex: 1; }
+.stage-header .info .title { font-size: 18px; font-weight: 600; margin-bottom: 2px; cursor: pointer; }
+.stage-header:hover .info .title { text-decoration: underline; }
+.stage-header .info .desc { font-size: 14px; color: var(--fg-muted); }
+.stage-header .arrow { flex-shrink: 0; color: var(--fg-muted); font-size: 14px; transition: transform .2s; }
+.stage.open .stage-header .arrow { transform: rotate(90deg); }
+.stage-status { flex-shrink: 0; font-size: 13px; padding: 3px 10px; border-radius: 12px; font-weight: 500; }
+.stage-status.todo { background: var(--border); color: #4B5563; }
+.stage-status.done { background: var(--leaf-light); color: #15803D; }
+.stage-body { display: none; padding: 0 24px 24px; }
+.stage.open .stage-body { display: block; }
+.stage-intro { font-size: 15px; color: var(--fg-muted); padding: 4px 0 12px; }
+.step { padding: 16px 0; border-top: 1px solid var(--border); }
+.step:first-child { border-top: none; }
+.step-header { display: flex; align-items: flex-start; gap: 12px; cursor: pointer; }
+.step-num { flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border-active); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: var(--fg-muted); margin-top: 2px; transition: all .15s; }
+.step.done .step-num { background: var(--leaf); border-color: var(--leaf); color: #fff; }
+.step-content { flex: 1; }
+.step-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; cursor: pointer; }
+.step-title:hover { text-decoration: underline; }
+.step-body { display: none; margin-top: 12px; }
+.step.open .step-body { display: block; }
+.step-body p { margin-bottom: 12px; }
+.step-body ul { padding-left: 20px; margin-bottom: 12px; }
+.step-body li { margin-bottom: 6px; }
+.step-body a { color: var(--accent-strong); }
+.step-body .tip { padding: 12px 16px; background: rgba(59,130,246,.06); border-radius: var(--radius-sm); margin-bottom: 12px; font-size: 15px; }
+.step-body .warn { padding: 12px 16px; background: rgba(217,119,6,.08); border-radius: var(--radius-sm); margin-bottom: 12px; font-size: 15px; }
+.checkpoint { margin-top: 16px; padding: 16px; background: var(--leaf-light); border-radius: var(--radius-sm); }
+.checkpoint .label { font-size: 14px; font-weight: 600; color: #15803D; margin-bottom: 8px; }
+.checkpoint-btn { display: inline-block; padding: 8px 20px; min-height: 44px; background: #15803D; color: #fff; border: none; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; }
+.checkpoint-btn:hover { opacity: .9; }
+.graduation { text-align: center; padding: 40px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); max-width: 760px; margin: 0 auto; box-shadow: var(--shadow); }
+.graduation .emoji { font-size: 48px; margin-bottom: 16px; }
+.graduation h2 { font-size: 24px; font-weight: 700; margin-bottom: 12px; }
+.graduation .skills { display: inline-block; text-align: left; margin: 16px 0; }
+.graduation .skills li { margin-bottom: 6px; list-style: none; padding-left: 24px; position: relative; }
+.graduation .skills li::before { content: '✓'; position: absolute; left: 0; color: var(--leaf); font-weight: 700; }
+
+/* Final CTA */
+.final { background: radial-gradient(900px 420px at 50% 0%, #1B2440 0%, var(--deep) 60%, #070C17 100%); color: #F8FAFC; text-align: center; }
+.final h2 { font-size: clamp(23px, 3.6vw, 34px); font-weight: 800; margin-bottom: 12px; }
+.final p { color: #CBD5E1; max-width: 620px; margin: 0 auto 26px; font-size: 17px; }
+.final .cta-row { justify-content: center; }
+.final .small { margin-top: 20px; font-size: 14px; color: #94A3B8; }
+
+footer { text-align: center; padding: 28px 20px; color: var(--fg-muted); font-size: 13px; background: var(--bg); }
+footer .safe { margin-top: 6px; font-size: 13px; }
+footer .icp { margin-top: 8px; font-size: 12.5px; }
+footer .icp a { color: var(--fg-muted); text-decoration: none; }
+footer .icp a:hover { text-decoration: underline; }
+
+/* Reveal */
+.reveal { opacity: 0; transform: translateY(14px); transition: opacity .5s ease, transform .5s ease; }
+.reveal.in { opacity: 1; transform: none; }
+
+:focus-visible { outline: 3px solid rgba(37,99,235,.6); outline-offset: 2px; border-radius: 6px; }
+
+/* Mobile */
+@media (max-width: 900px) {
+  .g4 { grid-template-columns: 1fr 1fr; }
+  .g3 { grid-template-columns: 1fr; }
+  .diagram, .family { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  body { font-size: 16px; }
+  .nav .brand em { display: none; }
+  .nav .inner { padding: 10px 14px; gap: 6px; }
+  section { padding: 52px 16px; }
+  .hero .inner { padding: 44px 16px 56px; }
+  .g4 { grid-template-columns: 1fr; }
+  .intents { grid-template-columns: 1fr; }
+  .card { padding: 20px; }
+  .btn-primary, .btn-ghost { width: 100%; justify-content: center; }
+  .stage-header { padding: 16px; gap: 12px; }
+  .stage-header .info .title { font-size: 16px; }
+  .stage-body { padding: 0 16px 16px; }
+  .prompt-box { font-size: 14px; padding: 12px; padding-top: 62px; }
+  .copy-btn { font-size: 12px; padding: 6px 14px; min-height: 44px; }
+  a.tool-btn { padding: 14px 28px; font-size: 16px; }
+  .checkpoint-btn { padding: 10px 24px; font-size: 15px; min-height: 44px; }
+  .close-goal { min-height: 44px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .reveal { opacity: 1; transform: none; transition: none; }
+  * { transition: none !important; animation: none !important; }
+}
+</style>
+</head>
+<body>
+<noscript><p style="max-width:760px;margin:16px auto;padding:12px 16px;background:#FFF7ED;border:1px solid #FDBA74;border-radius:8px;font-size:15px">此页需要开启 JavaScript 才能使用（手机自带浏览器一般都支持）。不用它也能看：直接打开 <a href="/ai/">从零开始学 AI</a>。</p></noscript>
+
+<!-- ============ NAV ============ -->
+<nav class="nav">
+  <div class="inner">
+    <span class="brand">World Space <em>· 你的 AI 世界入口</em></span>
+    <a class="link" href="/login">登录</a>
+    <a class="cta" href="/ai/">从 0 开始</a>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <canvas id="net" aria-hidden="true"></canvas>
+  <div class="glow" aria-hidden="true"></div>
+  <div class="inner hgrid">
+    <div class="hleft">
+    <span class="eyebrow"><span class="dot"></span>World Space · 给每一个普通人的 AI 入口</span>
+    <h1>不懂技术，也能<br><span class="grad">从 0 开始</span><br>连接 AI 与世界</h1>
+    <p class="sub">AI 不是一门要先学会的技术。你只要<b>说清楚想做什么</b>，它就能帮你做出来。<br>这里适合第一次碰 AI 的人、孩子和家长——<b>10 分钟做成第一件事</b>。</p>
+    <div class="chips">
+      <span>完全不懂 AI 也能用</span><span>孩子能看懂</span><span>家长能陪</span><span>不用装软件</span>
+    </div>
+    <div class="ask">
+      <div class="lbl">你马上可以这样问它 ↓</div>
+      <div class="line" id="tw">帮我写一条朋友圈：今天带孩子去爬山</div>
+    </div>
+    <div class="cta-row">
+      <a class="btn-primary" href="/ai/">从 0 开始 · 约 10 分钟 <span class="arw">→</span></a>
+      <a class="btn-ghost" href="#abilities">先看看 AI 现在能做什么</a>
+    </div>
+    <p class="foot">已经用过 World Space？<a href="/login">直接进入</a></p>
+    </div>
+
+    <div class="hright">
+      <section class="xpanel" id="moon" aria-label="一个想法怎么变成结果：月亮跟着我走">
+        <div class="xhead">
+          <h2>看一个想法怎么变成结果</h2>
+          <span class="demo">演示样例 · 非实时 AI</span>
+        </div>
+
+        <div class="xstep">
+          <div class="lbl">① 一个真实的问题（孩子问的）</div>
+          <div class="xq"><span class="em">🌙</span>为什么月亮会跟着我走？</div>
+        </div>
+
+        <div class="xstep">
+          <div class="lbl">② AI 帮你做的三件事</div>
+          <div class="xai"><span>听懂你的问题</span><span class="ar">→</span><span>讲成你能懂的话</span><span class="ar">→</span><span>给出自己验证的办法</span></div>
+        </div>
+
+        <div class="xstep">
+          <div class="lbl">③ 你会得到（下面的答案是预先写好并核验过的样例，不是实时生成）</div>
+          <div class="xans">它没有在跟着你——是<b>近处的东西跑得太快</b>。月亮离你平均约 <b>38 万公里</b>，差不多 30 个地球排成一排。你走的几步路，对这个距离来说几乎等于没动：近处的树一走就“跑”到身后，月亮的方向却几乎不变。远处的山也一样，看起来总像在跟着你走。
+            <span class="src">事实核验：NASA Space Place《How Far Away Is the Moon?》—— 月地平均 384,400 公里 ≈ 30 个地球 · <a href="https://spaceplace.nasa.gov/moon-distance/en/" target="_blank" rel="noopener">打开原文</a></span>
+          </div>
+        </div>
+
+        <div class="xstep">
+          <div class="lbl">④ 变成你自己的行动</div>
+          <div class="xnext">
+            <button type="button" onclick="copyConst('为什么月亮会跟着我走？请用 10 岁孩子能听懂的话解释，再告诉我怎么自己验证。', this)">复制这句话</button>
+            <a class="primary" href="https://www.doubao.com" target="_blank" rel="noopener">去豆包亲手问一遍 →</a>
+            <a href="https://chat.deepseek.com" target="_blank" rel="noopener">去 DeepSeek 问 →</a>
+            <a href="https://spaceplace.nasa.gov/moon-distance/en/" target="_blank" rel="noopener">NASA 动手实验 →</a>
+          </div>
+        </div>
+
+        <div class="xstep" style="margin:14px 0 0">
+          <div class="lbl">自己就能核实（两分钟）</div>
+          <div class="xans" style="font-size:14px">① 走 10 步，同时看近处的树和远处的月亮——树跑了，月亮没跑。<br>② NASA 的玩法：篮球当地球、网球当月亮，放在约 7 米外——比你以为的远得多。<br>③ 带着下一个问题回来：<b>为什么远处的山也像在跟着我走？</b></div>
+        </div>
+      </section>
+    </div>
+  </div>
+</header>
+
+<!-- ============ A/B. AI 能力感知 ============ -->
+<section id="abilities">
+  <div class="wrap">
+    <div class="sec-head center reveal">
+      <div class="kicker">AI 现在就能做什么</div>
+      <h2>它不是一个概念，是一件马上能用的东西</h2>
+      <p>下面四件事，你打开手机现在就能做。看完你会发现：AI 不是给专家用的。</p>
+    </div>
+    <div class="grid g4">
+      <div class="card reveal">
+        <div class="ico">💬</div>
+        <h3>随便问</h3>
+        <p>不用学“提问技巧”。想到什么就问什么，它像读过很多书的邻居，耐心、不嫌你问得笨。</p>
+        <div class="eg">试试说：<b>天为什么会下雨？用简单的话讲讲</b></div>
+        <a class="go" href="#journey">看怎么问第一句 →</a>
+      </div>
+      <div class="card reveal">
+        <div class="ico">✍️</div>
+        <h3>帮你写</h3>
+        <p>朋友圈、请假条、家长群通知、自我介绍、发言稿——先让它给一版初稿，再改到你满意。</p>
+        <div class="eg">试试说：<b>帮我写一条运动会通知，语气亲切一点</b></div>
+        <a class="go" href="#write">现在就写点东西 →</a>
+      </div>
+      <div class="card reveal">
+        <div class="ico">🔍</div>
+        <h3>联网查最新</h3>
+        <p>今天的事它也能查：能联网搜真实信息，还会把来源标出来，你可以点进去自己看。</p>
+        <div class="eg">试试说：<b>这周末有什么适合带孩子去的展览？</b></div>
+        <a class="go" href="#find">去查一件事 →</a>
+      </div>
+      <div class="card reveal">
+        <div class="ico">🧒</div>
+        <h3>讲给孩子听</h3>
+        <p>同一个问题，它可以换一种说法。孩子听不懂，就让它“用 10 岁孩子能懂的话再讲一遍”。</p>
+        <div class="eg">试试说：<b>什么是 AI？讲给 10 岁的孩子听</b></div>
+        <a class="go" href="#family">给孩子一个起点 →</a>
+      </div>
+    </div>
+    <p class="tools reveal">大部分事，<span>豆包</span> <span>DeepSeek</span>就够用；有些事，用手机自带的或现成模板更好。下面每一件事，都替你写好了第一句话。</p>
+  </div>
+</section>
+
+<!-- ============ C. 三条路径 ============ -->
+<section id="paths" class="alt">
+  <div class="wrap">
+    <div class="sec-head center reveal">
+      <div class="kicker">你属于哪一种</div>
+      <h2>选一条路，直接开始</h2>
+      <p>不用从头学完再动手。三条路都是“现在就做一件真事”。</p>
+    </div>
+    <div class="grid g3 path">
+      <div class="card reveal">
+        <div class="ico">🌱</div>
+        <h3>我是 0 基础（大人）</h3>
+        <p>从一件真实的任务开始：写一条通知、查清一件事、做一张海报。不需要技术基础，第一句话都替你写好了。</p>
+        <a class="go" href="#tasks">挑一件真事开始 →</a>
+      </div>
+      <div class="card reveal">
+        <div class="ico">🧒</div>
+        <h3>我是孩子</h3>
+        <p>从一个好奇的问题开始：「为什么月亮会跟着我走？」问 AI、动手验证、讲给别人听——探索、创造、发现。</p>
+        <a class="go" href="#moon">看这个孩子的例子 →</a>
+      </div>
+      <div class="card reveal">
+        <div class="ico">👨‍👩‍👧</div>
+        <h3>我是家长</h3>
+        <p>想知道孩子在做什么、AI 会在哪里出错、怎么陪着一起核实。每一段都写得让家长看得懂。</p>
+        <a class="go" href="#family">看家长指南 →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ D. World Space 是什么 ============ -->
+<section id="what">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="kicker">这里是什么地方</div>
+      <h2>把一个想法，真正开始做起来</h2>
+      <p>World Space 不制造新能力。它帮你找到世界上已有的好工具，用 AI 把你的想法接上去，一步步做成真实的结果——每一步都可点、都免费开始。</p>
+    </div>
+    <div class="flow reveal">
+      <div class="fnode hl">
+        <div class="fi">💡</div>
+        <h3>你的想法</h3>
+        <p>「为什么月亮会跟着我走？」<br>「想给孩子解释什么是 AI」</p>
+      </div>
+      <div class="farr" aria-hidden="true">→</div>
+      <div class="fnode">
+        <div class="fi">🤖</div>
+        <h3>AI 能力</h3>
+        <p>听懂你的话 → 讲成你能懂的答案 → 给出自己验证的办法</p>
+        <div class="tools-line">豆包 · DeepSeek</div>
+      </div>
+      <div class="farr" aria-hidden="true">→</div>
+      <div class="fnode">
+        <div class="fi">🌍</div>
+        <h3>世界已有的能力</h3>
+        <p>不重造轮子：替你选好现成的好工具，直接带你过去</p>
+        <div class="tools-line">稿定 · v0 · Stirling PDF · 手机自带</div>
+      </div>
+      <div class="farr" aria-hidden="true">→</div>
+      <div class="fnode hl">
+        <div class="fi">✅</div>
+        <h3>真实结果</h3>
+        <p>一条能发的朋友圈<br>一个查清的答案<br>一张做出来的海报</p>
+      </div>
+      <div class="farr" aria-hidden="true">→</div>
+      <div class="fnode">
+        <div class="fi">🔁</div>
+        <h3>回到现实</h3>
+        <p>发出去、做出来、讲给孩子听——然后带着下一个问题回来</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ E. 孩子与家长 ============ -->
+<section id="family" class="alt">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="kicker">给孩子，也给家长</div>
+      <h2>孩子能上手，家长看得懂</h2>
+      <p>孩子对 AI 的好奇心不该被“你不懂技术”挡住；家长也有权知道它在做什么、会在哪里出错。</p>
+    </div>
+    <div class="family">
+      <div class="panel reveal">
+        <h3>🧒 给孩子的探索入口</h3>
+        <p class="kq">从一个好奇的问题开始：<b>为什么月亮会跟着我走？</b></p>
+        <ol class="ksteps">
+          <li><b>问</b>：把这个问题原样问给 AI（提示词在首页那个例子里，点「复制这句话」就行）</li>
+          <li><b>验证</b>：走 10 步，同时看近处的树和远处的月亮——树跑了，月亮没跑；再用 NASA 的办法，拿篮球当地球、网球当月亮摆一摆</li>
+          <li><b>讲</b>：把答案讲给爸妈或同学听——讲得清楚，才算真的懂了</li>
+        </ol>
+        <p class="ksafe">🔒 不用告诉 AI 你的真实姓名、学校、住址，也不要发自己的照片。想试别的，先问一下爸妈。</p>
+        <a class="go" href="#moon">回到那个例子 →</a>
+        <a class="go" href="/ai/" style="margin-left:14px">从第一个问题开始 →</a>
+      </div>
+      <div class="panel reveal">
+        <h3>👨‍👩‍👧 给家长</h3>
+        <ul>
+          <li>我们会如实说明：AI 会一本正经地说错话，重要的事必须核实——这句话也教给孩子。</li>
+          <li>每一步做什么、用什么工具，页面上都写清楚，家长可以陪着一起看。</li>
+          <li>不诱导消费：优先推荐免费、国内可直接使用的工具。</li>
+          <li>孩子的信息不必交出去：先用“不涉及真实姓名和隐私”的例子练手。</li>
+          <li>外部 AI 服务需要注册账号：请家长陪同使用，并留意各服务自己的年龄要求（以服务方说明为准）。</li>
+        </ul>
+        <div class="soon"><b>正在搭建：</b>家庭空间（Family Space）——让一家人有一个自己的 AI 角落，孩子的探索和家长能看到的边界放在一起。现在先用上面的方式开始。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TASK CHOOSER (kept) ============ -->
+<section id="tasks">
+  <div class="wrap">
+    <div class="sec-head center reveal">
+      <div class="kicker">选一件事，马上开始</div>
+      <h2>你想做什么事？</h2>
+      <p>每件事都替你选好了工具和第一步，照着做就行。打开工具只是第一步，真正动手，看看现实里发生了什么。</p>
+    </div>
+    <div class="intents">
+      <button class="intent-btn" id="btn-write" aria-expanded="false" onclick="toggleGoal('goal-write')"><span class="em">✍️</span>写点东西</button>
+      <button class="intent-btn" id="btn-poster" aria-expanded="false" onclick="toggleGoal('goal-poster')"><span class="em">🖼️</span>做一张海报</button>
+      <button class="intent-btn" id="btn-web" aria-expanded="false" onclick="toggleGoal('goal-web')"><span class="em">🛠️</span>做个网页</button>
+      <button class="intent-btn" id="btn-photo" aria-expanded="false" onclick="toggleGoal('goal-photo')"><span class="em">📷</span>整理手机照片</button>
+      <button class="intent-btn" id="btn-find" aria-expanded="false" onclick="toggleGoal('goal-find')"><span class="em">🔍</span>查明一件事</button>
+      <button class="intent-btn" id="btn-organize" aria-expanded="false" onclick="toggleGoal('goal-organize')"><span class="em">🗂️</span>整理资料 / 处理 PDF</button>
+      <button class="intent-btn wide" id="btn-ocr" aria-expanded="false" onclick="toggleGoal('goal-ocr')"><span class="em">🔤</span>提取图片文字</button>
+      <button class="intent-btn wide" id="startBtn" onclick="startJourney()"><span class="em">🌱</span><span id="startLbl">不知道从哪开始？跟着三步走</span></button>
+    </div>
+    <p class="tools" style="margin-top:18px"><a href="/ai/" style="color:var(--leaf);font-weight:600">第一次用 AI、完全不懂？从零开始 →</a></p>
+    <div class="goal-panel" id="goal-ocr" role="region" aria-label="提取图片文字">
+      <h2>🔤 提取图片文字</h2>
+      <p class="goal-sub">好消息：不用装任何 App。微信和手机自带就能做，免费。</p>
+      <div class="choice"><b>图片在微信里</b>
+        <p>💬 长按那张图片 → 点「提取文字」→ 直接复制、转发（老版本微信：点图片右下角「…」→「识别图中文字」）</p>
+      </div>
+      <div class="choice"><b>图片在相册里</b>
+        <p>📱 iPhone：打开图片 → 长按文字（或点右下角「实况文本」）→ 拷贝</p>
+        <p>🤖 安卓：相册打开图片 → 「提取文字」或「识别文字」</p>
+      </div>
+      <div class="choice"><b>纸上的字（书、单据、招牌）</b>
+        <p>📄 微信「扫一扫」对准 → 点「提取文字」→ 全选复制</p>
+      </div>
+      <div class="choice"><b>如实说</b>
+        <p>⚠️ 印刷体很准；手写和复杂表格会出错——数字、名字、金额务必核对</p>
+      </div>
+      <button class="close-goal" onclick="closeGoal()">收起</button>
+    </div>
+    <div class="goal-panel" id="goal-poster" role="region" aria-label="做一张海报">
+      <h2>🖼️ 做一张海报</h2>
+      <p class="goal-sub">先想一件事：海报上要不要放准确的信息（价格、时间、地址、电话）？</p>
+      <div class="choice"><b>要放准确信息（促销、招生、通知）→ 模板改字</b>
+        <p>📋 稿定设计：搜你的场景 → 挑一张免费模板 → 换字换图 → 下载。价格、电话一字不差。</p>
+        <p>如实说：免费模板够用；部分导出带水印，商用先看授权。</p>
+        <a class="tool-btn" href="https://www.gaoding.com" target="_blank" rel="noopener">打开稿定设计 →</a>
+      </div>
+      <div class="choice"><b>不用精确排版（生日邀请、家庭聚会）→ 让豆包直接画</b>
+        <p>🎨 复制下面这段话（换成你的事），打开豆包的图片生成，粘贴发送：</p>
+        <div class="prompt-box">帮我做一张海报：我妈妈的60岁生日家庭聚会，时间9月20日中午11点，地点我们家里。风格温馨喜庆，大标题写"妈妈生日快乐"，把时间和地点放在显眼的位置。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
+        <p>如实说：生成的图片自己用没问题；拿去商用（卖东西、发广告）有版权限制，那种情况用上面的模板工具。</p>
+        <a class="tool-btn" href="https://www.doubao.com/chat/create-image" target="_blank" rel="noopener">打开豆包图片生成 →</a>
+      </div>
+      <button class="close-goal" onclick="closeGoal()">收起</button>
+    </div>
+    <div class="goal-panel" id="goal-photo" role="region" aria-label="整理手机照片">
+      <h2>📷 整理手机照片</h2>
+      <p class="goal-sub">好消息：这些事大多不用装 App，手机自带的就够，还免费。挑你最想先做的一件：</p>
+      <div class="choice"><b>删掉重复照片</b>
+        <p>📱 <strong>iPhone：</strong>照片 → 精选集 → 滑到「重复项目」→ 合并（要 iOS 16；没有就充着电连 Wi-Fi 等一晚）</p>
+        <p>🤖 <strong>安卓：</strong>图库/相册 → 找「清理」或「重复照片」</p>
+      </div>
+      <div class="choice"><b>备份照片</b>
+        <p>☁️ 先用手机自带云相册（iPhone 免费只有 5GB）</p>
+        <p>📦 照片很多：用一刻相册（宣传免费无限空间；部分功能要会员，网上有丢照片投诉——重要的存两处）</p>
+      </div>
+      <div class="choice"><b>做成一本拿在手里的相册</b>
+        <p>📖 微信里搜「照片书」小程序：选模板 → 传照片 → 下单印刷，十几元起。各家质量参差，先做一本小的试试。要更好的纸质和装帧，可以搜 Photobook Worldwide（照片书 128 元起，经常打折）。</p>
+      </div>
+      <div class="choice"><b>修图、把照片变好看</b>
+        <p>✨ 装「醒图」，基础免费够用：滤镜、调色、裁剪（「消除路人」这类 AI 功能要会员）</p>
+      </div>
+      <button class="close-goal" onclick="closeGoal()">收起</button>
+    </div>
+    <div class="goal-panel" id="goal-write" role="region" aria-label="写点东西">
+      <h2>✍️ 写点东西</h2>
+      <p class="goal-sub">不用学写作：把要说的事说清楚，豆包几秒给你一版初稿。</p>
+      <div class="choice"><b>第一步：复制这句话，把括号里换成你的事</b>
+        <div class="prompt-box">帮我写一段话：（说说在哪发、说什么事，比如：发朋友圈，介绍今天带孩子去爬山）语气轻松一点，100 字左右。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
+        <a class="tool-btn" href="https://www.doubao.com" target="_blank" rel="noopener">打开豆包 →</a>
+        <p>它回你初稿后，直接说哪里改：「太正式了」「短一点」「结尾加一句」。改到它变成一段你真能直接发出去的文字为止。</p>
+      </div>
+      <div class="choice"><b>写更长、更正式的（文章、总结、自我评价）</b>
+        <p>同一件事多交代几句：给谁看、大概多长、必须提到什么。说得越具体，初稿越能用。PPT 大纲、发言稿也是这一招。</p>
+      </div>
+      <div class="choice"><b>如实说</b>
+        <p>⚠️ 初稿里的事实（时间、名字、数字）可能是它猜的，发出去之前自己过一遍。</p>
+      </div>
+      <button class="close-goal" onclick="closeGoal()">收起</button>
+    </div>
+    <div class="goal-panel" id="goal-web" role="region" aria-label="做个网页">
+      <h2>🛠️ 做个网页</h2>
+      <p class="goal-sub">不用学编程：跟豆包说你要什么网页，它直接做出来给你看效果。</p>
+      <div class="choice"><b>第一步：复制这句话，换成你的内容</b>
+        <div class="prompt-box">帮我做一个个人介绍网页。顶部写我的名字。下面放一段自我介绍。然后放一个我做过的事情列表。最下面留联系方式。整体风格简洁好看。做好后直接显示预览效果。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
+        <a class="tool-btn" href="https://www.doubao.com" target="_blank" rel="noopener">打开豆包 →</a>
+        <p>豆包会直接显示网页效果；只看到代码没看到预览，跟它说「显示预览」。想改哪里直接说：「颜色换成蓝色」「标题大一号」「加一个我的爱好」。</p>
+      </div>
+      <div class="choice"><b>想发布到网上，让别人也能打开</b>
+        <p>豆包给的是对话里的预览。要真正上线，用 <strong>v0</strong>：一句话描述想要的网页，它生成后可以直接发布。免费能开始，用量大了要付费。发布后你会得到一个网址：发给别人，手机点开就能看到你的页面。</p>
+        <a class="tool-btn" href="https://v0.app" target="_blank" rel="noopener">打开 v0 →</a>
+      </div>
+      <div class="choice"><b>如实说</b>
+        <p>⚠️ 登录、支付、存数据这类复杂功能一句话做不出来——先把最简单的第一版做出来，再一点点加。</p>
+      </div>
+      <button class="close-goal" onclick="closeGoal()">收起</button>
+    </div>
+    <div class="goal-panel" id="goal-find" role="region" aria-label="查明一件事">
+      <h2>🔍 查明一件事</h2>
+      <p class="goal-sub">要查就查得可靠：用 DeepSeek 联网搜真实信息，答案还标来源。</p>
+      <div class="choice"><b>第一步</b>
+        <p>打开 DeepSeek（提示登录就用手机号或微信登录，很快）→ 打开输入框下方的「深度思考」和「联网搜索」（找不到开关就直接发，也行）→ 用大白话把问题打出来发送。比如：「2026 年个人开网店的平台有哪些？费用和门槛各是多少？」</p>
+        <a class="tool-btn" href="https://chat.deepseek.com" target="_blank" rel="noopener">打开 DeepSeek →</a>
+      </div>
+      <div class="choice"><b>拿到答案，花 30 秒核实</b>
+        <p>有来源链接的点进去看一眼；涉及钱、政策、法律的，一定去官方渠道再确认；太具体的数据可能是编的；不放心就用豆包再问一遍，对比两个答案。核实完你应该能说清：哪几点已确认、哪几点还不确定——这才算真的查清楚了。</p>
+      </div>
+      <div class="choice"><b>如实说</b>
+        <p>⚠️ AI 会一本正经地说错话。重要的决定，不要只靠它一句话。</p>
+      </div>
+      <button class="close-goal" onclick="closeGoal()">收起</button>
+    </div>
+    <div class="goal-panel" id="goal-organize" role="region" aria-label="整理资料 / 处理 PDF">
+      <h2>🗂️ 整理资料 / 处理 PDF</h2>
+      <p class="goal-sub">乱文字让 AI 归类，PDF 文件用免费软件处理，都不用花钱。</p>
+      <div class="choice"><b>一堆乱文字（笔记、记录、聊天记录）→ 豆包整理</b>
+        <div class="prompt-box">我有一份资料内容很乱，帮我整理成三部分：现状、主要选择、给我的建议。以下是需要整理的内容：（在这里粘贴你的资料）<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
+        <a class="tool-btn" href="https://www.doubao.com" target="_blank" rel="noopener">打开豆包 →</a>
+      </div>
+      <div class="choice"><b>PDF 文件（合并、拆分、压缩、转格式）→ Stirling PDF</b>
+        <p>免费桌面软件，文件不上传网络。需要电脑：官网下载安装，把文件拖进去，选要做的事，点执行。</p>
+        <a class="tool-btn" href="https://stirling.com" target="_blank" rel="noopener">打开 Stirling PDF 官网 →</a>
+      </div>
+      <div class="choice"><b>如实说</b>
+        <p>⚠️ Stirling PDF 需要电脑，手机上没有——只有手机时，把 PDF 里的文字复制给豆包或 DeepSeek 帮你处理。AI 整理可能漏掉或归错类，重要的自己再核对一遍。</p>
+      </div>
+      <button class="close-goal" onclick="closeGoal()">收起</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ JOURNEY (kept) ============ -->
+<section id="journey" class="alt">
+  <div class="wrap">
+    <div class="journey-head reveal">
+      <h3>第一次用 AI？跟着三步走</h3>
+      <p>不用先学任何东西：做成一件小事、让它更好、再亲手查证一次。</p>
+      <div id="progressChip" class="chipish" style="display:none">已完成 <b id="progressText">0/3</b> 步</div>
+    </div>
+    <div class="roadmap">
+
+    <div class="stage" id="stage-1">
+      <div class="stage-header" role="button" tabindex="0" aria-expanded="true" onclick="toggleStage(1)" onkeydown="stageKey(event,1)">
+        <div class="stage-badge s1">1</div>
+        <div class="info">
+          <h2 class="title">三步上手：做成、改好、查证</h2>
+          <div class="desc">约 10 分钟 · 每一步都亲手做成一件真事</div>
+        </div>
+        <span class="stage-status todo" id="status-1">未开始</span>
+        <span class="arrow">▶</span>
+      </div>
+      <div class="stage-body">
+        <p class="stage-intro">一句话就够：AI 是一个读过很多很多书的助手，你让它写、它就帮你写。它会出错，不是万能的。别的以后再说，现在直接开工。</p>
+
+        <div class="step" id="step-1">
+          <div class="step-header" role="button" tabindex="0" aria-expanded="false" onclick="toggleStep(1)" onkeydown="stepKey(event,1)">
+            <div class="step-num">1</div>
+            <div class="step-content"><h3 class="step-title">打开豆包，跟它说第一句话</h3></div>
+          </div>
+          <div class="step-body">
+            <p><strong>豆包</strong>是字节跳动做的 AI 助手。就像微信聊天一样，你说一句，它回一句。</p>
+            <p>✅ 国内直接打开 ✅ 全中文界面 ✅ 免费</p>
+            <p>打开后如果提示登录，用手机号或微信登录就行，很快。</p>
+            <p>先把下面这段话复制了。它只是个例子——你想让 AI 写什么，就把开头换成什么，比如「帮我写一段想对孩子说的话」：</p>
+            <div class="prompt-box">帮我写一段朋友圈文案，介绍我今天做的一件事，
+语气轻松一点，100字左右。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
+            <p>复制好了，点这里打开豆包，把刚复制的话粘贴到聊天框里（手机上长按聊天框选"粘贴"，电脑上按 Ctrl+V），发送：</p>
+            <a class="tool-btn" href="https://www.doubao.com" target="_blank" rel="noopener">打开豆包 →</a>
+            <p style="font-size:14px;color:var(--fg-muted);margin-top:4px">发完后回到这个页面继续下一步。</p>
+            <p>等几秒，AI 就会给你写好一段文案。读一下，看看是不是你想要的。</p>
+            <div class="tip">💡 写得不好？直接跟它说哪里不好。比如"太长了，短一点"或"语气太正式了，轻松一点"。还可以随便试：「你能帮我做什么？」「帮我给客户写一条改约时间的短信」「帮我把'今天天气真好'翻译成英文」。</div>
+            <button class="checkpoint-btn" onclick="markDone(1)" style="margin-top:8px">这步做完了 ✓</button>
+          </div>
+        </div>
+
+        <div class="step" id="step-2">
+          <div class="step-header" role="button" tabindex="0" aria-expanded="false" onclick="toggleStep(2)" onkeydown="stepKey(event,2)">
+            <div class="step-num">2</div>
+            <div class="step-content"><h3 class="step-title">让它改成你满意的样子</h3></div>
+          </div>
+          <div class="step-body">
+            <p>刚才那段话，多半还不是你愿意直接发出去的样子。这一步才是真本事：把不满意的地方<strong>直接说给它听</strong>。</p>
+            <div class="prompt-box">把你刚才写的改一下：太长了，短一半；语气再轻松一点，像在跟朋友说话。结尾加一句问大家的问题。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
+            <p>不用推倒重来——它会在原来的基础上改。继续提要求，直到那段话你真的愿意用。</p>
+            <div class="tip">💡 这招通用于所有事：网页「标题大一号」、海报「换个颜色」、文章「例子再具体一点」。会提要求，AI 才真正好用。</div>
+            <button class="checkpoint-btn" onclick="markDone(2)" style="margin-top:8px">这步做完了 ✓</button>
+          </div>
+        </div>
+
+        <div class="step" id="step-3">
+          <div class="step-header" role="button" tabindex="0" aria-expanded="false" onclick="toggleStep(3)" onkeydown="stepKey(event,3)">
+            <div class="step-num">3</div>
+            <div class="step-content"><h3 class="step-title">查一件你真想知道的事，并核实</h3></div>
+          </div>
+          <div class="step-body">
+            <p>做东西，豆包就够；<strong>查重要的事</strong>，用 <strong>DeepSeek</strong>（chat.deepseek.com）：能联网搜真实信息，还标注来源。</p>
+            <p>✅ 免费 ✅ 全中文 ✅ 国内直接打开（提示登录就手机号/微信登录）</p>
+            <p>打开输入框下方的「深度思考」和「联网搜索」（找不到开关就直接发，也行），把你的问题用大白话发过去。比如：</p>
+            <div class="prompt-box">2026年适合个人开网店的平台有哪些？请对比它们的费用和门槛。我没什么经验，请用大白话讲。<button class="copy-btn" onclick="copyPrompt(this)">复制</button></div>
+            <a class="tool-btn" href="https://chat.deepseek.com" target="_blank" rel="noopener">打开 DeepSeek →</a>
+            <p style="font-size:14px;color:var(--fg-muted);margin-top:4px">它可能先显示"思考过程"，是正常的。等答案给全，读一遍。</p>
+            <div class="warn">⚠️ AI 会一本正经地说错话。拿到答案，花 30 秒核实：有来源链接的点进去看一眼；涉及钱、政策、法律的，去官方渠道再确认；太具体的数据可能是编的；不放心就用豆包再问一遍，对比两个答案。</div>
+            <button class="checkpoint-btn" onclick="markDone(3)" style="margin-top:8px">这步做完了 ✓</button>
+          </div>
+        </div>
+
+        <div class="checkpoint" id="cp-1">
+          <div class="label">✅ 做到这里：你已经会用了</div>
+          <p style="margin-bottom:12px">做成过一件小事、把它改到满意、还自己核实过一个答案——这三下就是全部基本功。接下来，回到上面选一件你真正想做的事。</p>
+          <button class="checkpoint-btn" onclick="completeStage(1)">走完了 🎉</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ============ GRADUATION ============ -->
+    <div class="graduation" id="graduation" style="display:none">
+      <div class="emoji">🎉</div>
+      <h2>恭喜，这些事你都真的做成了</h2>
+      <p>不是听完了课——是亲手做成了：</p>
+      <ul class="skills">
+        <li>让 AI 写出了你的话，还把它改到满意</li>
+        <li>自己查到了答案，还核实过它靠不靠谱</li>
+      </ul>
+      <div style="margin-top:16px;padding:16px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);text-align:left">
+        <p style="font-weight:600;margin-bottom:8px">接下来，回到上面选一件你真正想做的事。</p>
+        <p style="font-size:15px;color:var(--fg-muted)">👉 每个按钮都是一件真实的事：写东西、做个网页、做海报、整理照片、查事情、处理文件——第一步都替你写好了。</p>
+        <p style="font-size:15px;color:var(--fg-muted);margin-top:8px">👉 每天拿一件真事试一试：写个通知、查个政策、改段文字。用得越真，越顺手。</p>
+      </div>
+      <p style="margin-top:20px"><a href="#" onclick="resetAll();return false" style="display:inline-block;padding:12px 20px;color:var(--fg-muted);font-size:14px">重新走一遍</a></p>
+      <div style="margin-top:16px;padding:16px;background:var(--leaf-light);border-radius:var(--radius-sm)">
+        <p style="font-weight:600;margin-bottom:4px">觉得有用？</p>
+        <p style="font-size:15px;color:var(--fg-muted)">把这个网址发给朋友：<strong>ymai.fun</strong></p>
+      </div>
+    </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ F. FINAL CTA ============ -->
+<section class="final">
+  <div class="wrap">
+    <h2 class="reveal">现在就开始，不用先学会</h2>
+    <p class="reveal">你不需要先懂 AI，也不需要先学任何工具。选一件小事，做出来，你就已经开始了。</p>
+    <div class="cta-row reveal">
+      <a class="btn-primary" href="/ai/">从 0 开始 · 约 10 分钟 <span class="arw">→</span></a>
+      <a class="btn-ghost" href="#tasks">看看现在能做什么</a>
+    </div>
+    <p class="small reveal">已经在用 World Space？<a href="/login" style="color:#A5B4FC">直接进入 →</a></p>
+  </div>
+</section>
+
+<footer>
+  <p>World Space · 让每一个普通人，从 0 开始，连接 AI 与世界</p>
+  <p class="safe">AI 会出错：重要的事（钱、政策、健康、法律）请自己核实一遍。</p>
+  <p class="icp"><a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">陕ICP备2026014869号-4</a></p>
+</footer>
+
+<script>
+/* ===== 深空节点背景（柔和、可暂停、respects prefers-reduced-motion） ===== */
+(function () {
+  var c = document.getElementById('net');
+  if (!c || !c.getContext) return;
+  var x = c.getContext('2d'), ps = [], raf = 0, W = 0, H = 0;
+  var mq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
+  function size() {
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var r = c.parentElement.getBoundingClientRect();
+    W = Math.max(320, r.width); H = Math.max(280, r.height);
+    c.width = Math.round(W * dpr); c.height = Math.round(H * dpr);
+    x.setTransform(dpr, 0, 0, dpr, 0, 0);
+    var N = W < 560 ? 18 : (W < 900 ? 28 : 40);
+    ps = [];
+    for (var i = 0; i < N; i++) {
+      ps.push({ x: Math.random() * W, y: Math.random() * H, vx: (Math.random() - .5) * .34, vy: (Math.random() - .5) * .34, r: 1.2 + Math.random() * 1.8 });
+    }
+  }
+  function draw(move) {
+    x.clearRect(0, 0, W, H);
+    var i, j, p, q, d;
+    for (i = 0; i < ps.length; i++) {
+      p = ps[i];
+      if (move) { p.x += p.vx; p.y += p.vy; if (p.x < 0 || p.x > W) p.vx *= -1; if (p.y < 0 || p.y > H) p.vy *= -1; }
+      x.beginPath(); x.arc(p.x, p.y, p.r, 0, 6.2832);
+      x.fillStyle = 'rgba(165,180,252,.72)'; x.fill();
+    }
+    for (i = 0; i < ps.length; i++) for (j = i + 1; j < ps.length; j++) {
+      p = ps[i]; q = ps[j]; d = Math.sqrt((p.x - q.x) * (p.x - q.x) + (p.y - q.y) * (p.y - q.y));
+      if (d < 132) {
+        x.beginPath(); x.moveTo(p.x, p.y); x.lineTo(q.x, q.y);
+        x.strokeStyle = 'rgba(148,163,184,' + (0.17 * (1 - d / 132)).toFixed(3) + ')'; x.lineWidth = 1; x.stroke();
+      }
+    }
+  }
+  function loop() { draw(true); raf = requestAnimationFrame(loop); }
+  function start() { cancelAnimationFrame(raf); if (mq.matches) { draw(false); } else { loop(); } }
+  var t = 0;
+  window.addEventListener('resize', function () { clearTimeout(t); t = setTimeout(function () { size(); start(); }, 180); });
+  document.addEventListener('visibilitychange', function () { if (document.hidden) cancelAnimationFrame(raf); else start(); });
+  size(); start();
+})();
+
+/* ===== 打字机：让“AI 马上可用”看得见 ===== */
+(function () {
+  var el = document.getElementById('tw');
+  if (!el) return;
+  var arr = [
+    '帮我写一条朋友圈：今天带孩子去爬山 🏔️',
+    '什么是 AI？讲给 10 岁的孩子听',
+    '帮我写一份给老师的请假条，语气客气一点',
+    '这周末有什么适合带孩子去的展览？'
+  ];
+  var mq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
+  if (mq.matches) { el.textContent = arr[0]; return; }
+  var i = 0, pos = 0, del = false;
+  function tick() {
+    var s = arr[i];
+    if (!del) {
+      pos++; el.textContent = s.slice(0, pos);
+      if (pos >= s.length) { del = true; return setTimeout(tick, 1900); }
+      return setTimeout(tick, 52);
+    }
+    pos -= 3;
+    if (pos <= 0) { pos = 0; del = false; i = (i + 1) % arr.length; }
+    el.textContent = s.slice(0, pos);
+    setTimeout(tick, 18);
+  }
+  setTimeout(tick, 600);
+})();
+
+/* ===== 滚动渐显（无 IO 或减少动效时直接可见） ===== */
+(function () {
+  var els = document.querySelectorAll('.reveal');
+  var mq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
+  if (mq.matches || !('IntersectionObserver' in window)) {
+    for (var i = 0; i < els.length; i++) els[i].classList.add('in');
+    return;
+  }
+  var io = new IntersectionObserver(function (es) {
+    es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: .12, rootMargin: '0px 0px -40px 0px' });
+  els.forEach(function (e) { io.observe(e); });
+})();
+
+/* ===== 学习进度（本地保存，不上传） ===== */
+var completedSteps = {};
+var completedStages = {};
+var totalSteps = 3;
+var ALL_STEPS = ['1', '2', '3'];
+// 2026-09-11: fallback shrunk from 4 stages/9 steps to 1 stage/3 steps; old step ids vanish as phantoms
+// 2026-11-02: 首页重构为 AI 世界入口；七行动答案与三步上手原样保留，深链 #write #web #find #organize #photo #poster #ocr 不变
+var STORAGE_KEY = 'ws_progress_v2';
+
+try {
+  var saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) {
+    var data = JSON.parse(saved);
+    completedSteps = data.steps || {};
+    completedStages = data.stages || {};
+  }
+} catch(e) {}
+
+function saveProgress() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({steps: completedSteps, stages: completedStages}));
+  } catch(e) {}
+}
+
+function toggleStage(n) {
+  var el = document.getElementById('stage-' + n);
+  var opening = !el.classList.contains('open');
+  el.classList.toggle('open');
+  if (opening && !el.querySelector('.step.open')) {
+    var steps = el.querySelectorAll('.step');
+    for (var i = 0; i < steps.length; i++) {
+      if (!steps[i].classList.contains('done')) { steps[i].classList.add('open'); break; }
+    }
+  }
+  syncAria(el);
+}
+function stageKey(e, n) {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleStage(n); }
+}
+function toggleStep(n) {
+  var el = document.getElementById('step-' + n);
+  el.classList.toggle('open');
+  syncAria(el);
+}
+function stepKey(e, n) {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleStep(n); }
+}
+function syncAria(scope) {
+  var items = (scope || document).querySelectorAll('[aria-expanded]');
+  for (var i = 0; i < items.length; i++) {
+    var box = items[i].closest('.stage, .step');
+    if (box) { items[i].setAttribute('aria-expanded', box.classList.contains('open') ? 'true' : 'false'); }
+  }
+}
+function markDone(n) {
+  if (!completedSteps[n]) {
+    completedSteps[n] = true;
+    var el = document.getElementById('step-' + n);
+    el.classList.add('done');
+    el.querySelector('.step-num').textContent = '✓';
+    el.classList.remove('open');
+    updateProgress();
+    saveProgress();
+    var nextEl = document.getElementById('step-' + (n + 1));
+    if (nextEl) {
+      var nextStage = nextEl.closest('.stage');
+      if (nextStage && !nextStage.classList.contains('open')) { nextStage.classList.add('open'); }
+      nextEl.classList.add('open');
+      setTimeout(function() { nextEl.scrollIntoView({behavior:'smooth', block:'center'}); }, 200);
+    } else {
+      var stageEl = el.closest('.stage');
+      var cp = stageEl && stageEl.querySelector('.checkpoint');
+      if (cp) { setTimeout(function() { cp.scrollIntoView({behavior:'smooth', block:'center'}); }, 200); }
+    }
+    syncAria(document);
+  }
+}
+function completeStage(n) {
+  // 毕业只认三步都打勾：没做完就点「走完了」也必须如实说明，不能凭空显示"这些事你都真的做成了"
+  var missing = ALL_STEPS.filter(function(id) { return !completedSteps[id]; });
+  if (missing.length > 0) {
+    var cp = document.getElementById('cp-' + n);
+    if (cp) {
+      var note = cp.querySelector('.cp-note');
+      if (!note) { note = document.createElement('p'); note.className = 'cp-note'; cp.appendChild(note); }
+      note.textContent = '还有 ' + missing.length + ' 步没打勾（第 ' + missing.join('、') + ' 步）——做完再来这里。';
+    }
+    var first = document.getElementById('step-' + missing[0]);
+    if (first) {
+      var stage = first.closest('.stage');
+      if (stage) stage.classList.add('open');
+      first.classList.add('open');
+      first.scrollIntoView({behavior:'smooth', block:'center'});
+    }
+    return false;
+  }
+  completedStages[n] = true;
+  var el = document.getElementById('status-' + n);
+  el.className = 'stage-status done';
+  el.textContent = '已完成';
+  var current = document.getElementById('stage-' + n);
+  if (current) { current.classList.remove('open'); }
+  document.getElementById('graduation').style.display = 'block';
+  document.getElementById('startLbl').textContent = '看看你做成了什么 🎉';
+  setTimeout(function() { document.getElementById('graduation').scrollIntoView({behavior:'smooth', block:'center'}); }, 150);
+  syncAria(document);
+  updateProgress();
+  saveProgress();
+}
+function updateProgress() {
+  var count = Object.keys(completedSteps).length;
+  var txt = document.getElementById('progressText');
+  var chip = document.getElementById('progressChip');
+  if (txt) { txt.textContent = count + '/' + totalSteps; }
+  // 进度只在真的开始后出现：只带目标来的人不该看到 0/3
+  var started = count > 0 || Object.keys(completedStages).length > 0;
+  if (chip) { chip.style.display = started ? 'inline-block' : 'none'; }
+  var grad = document.getElementById('graduation');
+  var doneAll = ALL_STEPS.every(function(id) { return completedSteps[id]; });
+  if (grad && doneAll) { grad.style.display = 'block'; }
+}
+function copyConst(text, btn) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function() { showCopied(btn); }).catch(function() { fallbackCopy(text, btn); });
+  } else {
+    fallbackCopy(text, btn);
+  }
+}
+function copyPrompt(btn) {
+  var box = btn.parentElement;
+  var text = box.cloneNode(true);
+  var b = text.querySelector('.copy-btn'); if (b) b.remove();
+  var plain = text.textContent.trim();
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(plain).then(function() { showCopied(btn); }).catch(function() { fallbackCopy(plain, btn); });
+  } else {
+    fallbackCopy(plain, btn);
+  }
+}
+function showCopied(btn) {
+  btn.textContent = '已复制 ✓'; btn.classList.add('copied');
+  setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+}
+function fallbackCopy(text, btn) {
+  var ta = document.createElement('textarea'); ta.value = text;
+  ta.style.position = 'fixed'; ta.style.left = '-9999px';
+  document.body.appendChild(ta); ta.select();
+  var ok = false;
+  try { ok = document.execCommand('copy'); } catch(e) {}
+  document.body.removeChild(ta);
+  if (ok) {
+    showCopied(btn);
+  } else {
+    btn.textContent = '没复制上，长按文字复制';
+    setTimeout(function() { btn.textContent = '复制'; }, 3000);
+  }
+}
+function resetAll() {
+  completedSteps = {};
+  completedStages = {};
+  document.querySelectorAll('.step').forEach(function(el) { el.classList.remove('done','open');
+    var num = el.id.split('-')[1];
+    el.querySelector('.step-num').textContent = num;
+  });
+  document.querySelectorAll('.stage-status').forEach(function(el) { el.className = 'stage-status todo'; el.textContent = '未开始'; });
+  document.querySelectorAll('.stage').forEach(function(el) { el.classList.remove('open'); });
+  document.getElementById('graduation').style.display = 'none';
+  document.getElementById('stage-1').classList.add('open');
+  document.getElementById('step-1').classList.add('open');
+  document.getElementById('startLbl').textContent = '不知道从哪开始？跟着三步走';
+  updateProgress();
+  saveProgress();
+  window.scrollTo({top:0, behavior:'smooth'});
+  syncAria(document);
+}
+
+// Restore progress on load（回访者：接着上次继续）
+function restoreProgress() {
+  var cleaned = false;
+  for (var n in completedSteps) {
+    var el = document.getElementById('step-' + n);
+    if (el) {
+      el.classList.add('done');
+      el.querySelector('.step-num').textContent = '✓';
+    } else {
+      delete completedSteps[n];
+      cleaned = true;
+    }
+  }
+  if (cleaned) saveProgress();
+  var allDone = ALL_STEPS.every(function(id) { return completedSteps[id]; });
+  var legacyDone = [1,2,3,4].every(function(s) { return completedStages[s]; });
+  if (legacyDone && !allDone) {
+    for (var i = 0; i < ALL_STEPS.length; i++) {
+      completedSteps[ALL_STEPS[i]] = true;
+      var sel = document.getElementById('step-' + ALL_STEPS[i]);
+      if (sel) { sel.classList.add('done'); sel.querySelector('.step-num').textContent = '✓'; }
+    }
+    saveProgress();
+    allDone = true;
+  }
+  if (allDone) {
+    var st = document.getElementById('status-1');
+    if (st) { st.className = 'stage-status done'; st.textContent = '已完成'; }
+    document.getElementById('startLbl').textContent = '看看你做成了什么 🎉';
+    document.getElementById('graduation').style.display = 'block';
+  } else {
+    var nextStepEl = null;
+    for (var j = 0; j < ALL_STEPS.length; j++) {
+      var s2 = document.getElementById('step-' + ALL_STEPS[j]);
+      if (s2 && !s2.classList.contains('done')) { nextStepEl = s2; break; }
+    }
+    if (Object.keys(completedSteps).length > 0 && nextStepEl) {
+      var pos = nextStepEl ? nextStepEl.querySelector('.step-num').textContent : null;
+      document.getElementById('startLbl').textContent = pos
+        ? '接着上次继续：第 ' + pos + ' 步（共 ' + totalSteps + ' 步）'
+        : '接着上次继续';
+    }
+    document.getElementById('stage-1').classList.add('open');
+    if (nextStepEl) { nextStepEl.classList.add('open'); }
+  }
+  updateProgress();
+}
+
+// Keep aria-expanded truthful after any programmatic open/close
+syncAria(document);
+
+// Hero intent buttons: every goal gets its own direct answer panel
+var GOAL_BTNS = ['btn-poster', 'btn-photo', 'btn-ocr', 'btn-write', 'btn-web', 'btn-find', 'btn-organize'];
+function toggleGoal(id) {
+  var panel = document.getElementById(id);
+  if (!panel) return;
+  var wasOpen = panel.classList.contains('open');
+  document.querySelectorAll('.goal-panel.open').forEach(function(p) { p.classList.remove('open'); });
+  GOAL_BTNS.forEach(function(bid) {
+    var b = document.getElementById(bid);
+    if (b) b.setAttribute('aria-expanded', 'false');
+  });
+  if (!wasOpen) {
+    panel.classList.add('open');
+    var btn = document.getElementById('btn-' + id.replace('goal-', ''));
+    if (btn) { btn.setAttribute('aria-expanded', 'true'); }
+    setTimeout(function() { panel.scrollIntoView({behavior:'smooth', block:'start'}); }, 60);
+    try { history.replaceState(null, '', '#' + id.replace('goal-', '')); } catch(e) {}
+  } else {
+    try { history.replaceState(null, '', location.pathname + location.search); } catch(e) {}
+  }
+}
+function closeGoal() {
+  document.querySelectorAll('.goal-panel.open').forEach(function(p) { p.classList.remove('open'); });
+  document.querySelectorAll('.intents .intent-btn[aria-expanded]').forEach(function(b) { b.setAttribute('aria-expanded', 'false'); });
+  try { history.replaceState(null, '', location.pathname + location.search); } catch(e) {}
+}
+
+// 可分享的深链（#write #web #find #organize #photo #poster #ocr）：进页面或点页内链接都开对应答案面板
+function applyDeepLink() {
+  var h = (location.hash || '').replace('#', '').split('?')[0].split('&')[0];
+  var map = { photo: 'btn-photo', poster: 'btn-poster', ocr: 'btn-ocr', write: 'btn-write', web: 'btn-web', find: 'btn-find', organize: 'btn-organize' };
+  if (map[h]) {
+    var b = document.getElementById(map[h]);
+    if (b) { b.click(); }
+    return true;
+  }
+  return false;
+}
+applyDeepLink();
+window.addEventListener('hashchange', function () { applyDeepLink(); });
+// 锚点深链（#abilities #paths #what #family #tasks #journey）交给浏览器默认平滑滚动
+
+// Hero fallback button: go to wherever this user actually is
+function startJourney() {
+  var allDone = ALL_STEPS.every(function(id) { return completedSteps[id]; });
+  var legacyDone = [1,2,3,4].every(function(s) { return completedStages[s]; });
+  if (allDone || legacyDone) {
+    var grad = document.getElementById('graduation');
+    grad.style.display = 'block';
+    grad.scrollIntoView({behavior:'smooth', block:'center'});
+    return false;
+  }
+  var stageEl = document.getElementById('stage-1');
+  stageEl.classList.add('open');
+  var steps = stageEl.querySelectorAll('.step');
+  var target = null;
+  for (var j = 0; j < steps.length; j++) {
+    if (!steps[j].classList.contains('done')) { target = steps[j]; break; }
+  }
+  if (target) {
+    target.classList.add('open');
+    setTimeout(function() { target.scrollIntoView({behavior:'smooth', block:'center'}); }, 100);
+  } else {
+    var cp = stageEl.querySelector('.checkpoint');
+    setTimeout(function() { cp.scrollIntoView({behavior:'smooth', block:'center'}); }, 100);
+  }
+  return false;
+}
+
+// Auto-open first stage
+restoreProgress();
+</script>
+</body>
+</html>

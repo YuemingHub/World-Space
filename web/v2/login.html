@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>World Space · 进入</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body class="login-page">
+<main class="login">
+  <h1>World Space</h1>
+  <p class="sub">进入你的空间</p>
+  <form id="f">
+    <label for="username">账号</label>
+    <input id="username" name="username" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required>
+    <label for="password">密码</label>
+    <input id="password" name="password" type="password" autocomplete="current-password" required>
+    <div id="msg" class="err" role="alert" hidden></div>
+    <button id="go" class="primary" type="submit">进入</button>
+  </form>
+    <p class="sub" style="margin-top:14px"><a href="/api/oidc/start" style="color:inherit">用统一身份登录（同一账号通行多个空间）→</a></p>
+</main>
+<p class="icp"><a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">陕ICP备2026014869号-4</a></p>
+<style>.icp{text-align:center;font-size:12.5px;padding:4px 0 22px;color:#64748B}.icp a{color:inherit;text-decoration:none}.icp a:hover{text-decoration:underline}</style>
+<script src="/login.js"></script>
+</body>
+</html>

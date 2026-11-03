@@ -1,0 +1,23 @@
+{
+  "_note": "离线搜索 fixture：仅用于验证 Evidence Binding 与 Source Authority Guard，不是真实搜索结果，不得当作压测数据。",
+  "items": [
+    {
+      "title": "全国生态环境投诉举报平台",
+      "url": "https://jubao.mee.gov.cn/netreport/netreport/index",
+      "snippet": "生态环境部主办的举报平台，受理包括噪声污染在内的生态环境投诉举报。",
+      "published_at": "2026-08-15"
+    },
+    {
+      "title": "某商业家政平台：养老服务覆盖全国 300 城",
+      "url": "https://example-commercial.invalid/elder-care",
+      "snippet": "平台宣传口径，未核实实际覆盖城市。",
+      "published_at": "2026-05-01"
+    },
+    {
+      "title": "澎湃：人社部颁布家庭教育指导师等 23 个国家职业标准",
+      "url": "https://www.thepaper.cn/newsDetail_forward_32928198",
+      "snippet": "媒体报道，属权威二手来源，不是政策原文。",
+      "published_at": "2026-04-08"
+    }
+  ]
+}

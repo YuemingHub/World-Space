@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>World Space · 你现在想做成什么</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header><span class="brand">World Space</span><button id="logout" class="ghost">退出</button></header>
+<main>
+  <section id="ask-sec" class="hero">
+    <h1>你现在想做成什么？</h1>
+    <p class="sub">不需要先知道用什么工具。说一件你真的想做的事。</p>
+    <textarea id="intent" rows="3" maxlength="500" placeholder="我想……"></textarea>
+    <button id="go" class="primary">说完了，帮我想想</button>
+    <p class="fine">你写的这句话会发送给第三方 AI 与搜索服务，用来理解情况、查找现实中的资料；请不要写身份证号、银行卡号这类敏感信息。</p>
+  </section>
+
+  <section id="loading" hidden>
+    <p class="thinking">正在理解你的情况、查找现实中的资料……</p>
+    <p class="fine">通常需要 20–60 秒。这段时间你不用做任何事，也不用停在页面上。</p>
+    <p class="fine" id="elapsed"></p>
+  </section>
+
+  <section id="result" hidden></section>
+
+  <section id="error" hidden></section>
+</main>
+<p class="icp"><a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">陕ICP备2026014869号-4</a></p>
+<style>.icp{text-align:center;font-size:12.5px;padding:4px 0 22px;color:#64748B}.icp a{color:inherit;text-decoration:none}.icp a:hover{text-decoration:underline}</style>
+<script type="module" src="/app.js"></script>
+</body>
+</html>
